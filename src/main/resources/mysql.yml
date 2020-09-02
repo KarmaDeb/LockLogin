@@ -1,0 +1,13 @@
+MySQL:
+  host: 'localhost'
+  database: 'server_users'
+  port: 3306
+  table: 'users'
+  user: 'root'
+  password: 'MYSECUREPASSWORD'
+  SSL: false
+Connection:
+  Min: 3
+  Max: 10
+  TimeOut: 40
+  LifeTime: 300

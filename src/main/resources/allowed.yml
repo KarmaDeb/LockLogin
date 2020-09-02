@@ -1,0 +1,3 @@
+AllowedCommands:
+  - examplecommand
+  - "example:command"

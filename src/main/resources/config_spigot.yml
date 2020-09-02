@@ -1,0 +1,27 @@
+ServerName: ""
+Register:
+  Blind: false
+  TimeOut: 60
+  Max: 2
+Login:
+  Blind: true
+  TimeOut: 30
+  MaxTries: 5
+AntiBot: false
+AllowSameIp: true
+Pin: true
+Updater:
+  Check: true
+  CheckTime: 10
+  ChangeLog: false
+  AutoUpdate: true
+2FA: true
+Spawn:
+  Manage: false
+  TakeBack: false
+ClearChat: false
+AccountsPerIp: 2
+CheckNames: false
+Lang: en_EN
+AccountSys: File
+BungeeProxy: "&cPlease, connect through bungeecord proxy!"
