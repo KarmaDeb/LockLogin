@@ -1,5 +1,8 @@
 package ml.karmaconfigs.LockLogin.BungeeCord.API;
 
+import ml.karmaconfigs.LockLogin.AuthResult;
+import ml.karmaconfigs.LockLogin.BungeeCord.API.Events.PlayerRegisterEvent;
+import ml.karmaconfigs.LockLogin.BungeeCord.API.Events.PlayerVerifyEvent;
 import ml.karmaconfigs.LockLogin.BungeeCord.LockLoginBungee;
 import ml.karmaconfigs.LockLogin.BungeeCord.Utils.Files.BungeeFiles;
 import ml.karmaconfigs.LockLogin.BungeeCord.Utils.Servers.LobbyChecker;
@@ -12,10 +15,24 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@SuppressWarnings("unused")
+/*
+GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+[This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
+
 public class PlayerAPI implements LockLoginBungee, BungeeFiles {
 
     private final ProxiedPlayer player;
+    private AuthResult result = AuthResult.IDLE;
 
     /**
      * Initialize LockLogin bungee's API
@@ -66,6 +83,62 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Try to log the player
+     *
+     * @param value the value
+     * @param message the login message
+     * @return an AuthResult
+     */
+    public final AuthResult tryLogin(boolean value, String message) {
+        plugin.getProxy().getScheduler().schedule(plugin, () -> {
+            if (player != null && player.isConnected()) {
+                User utils = new User(player);
+                if (value) {
+                    PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+                    plugin.getProxy().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(message);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            dataSender.sendAccountStatus(player);
+                            result = AuthResult.SUCCESS_TEMP;
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(false);
+                            utils.Message(message);
+                            LobbyChecker checker = new LobbyChecker();
+                            if (checker.MainOk() && checker.MainIsWorking()) {
+                                utils.sendTo(checker.getMain());
+                            }
+                            dataSender.sendAccountStatus(player);
+                            result = AuthResult.SUCCESS;
+                        }
+                    } else {
+                        result = AuthResult.CANCELLED;
+                    }
+                } else {
+                    utils.setLogStatus(false);
+                    utils.setTempLog(false);
+                    utils.Message(message);
+                    LobbyChecker checker = new LobbyChecker();
+                    if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        utils.sendTo(checker.getAuth());
+                    }
+                    dataSender.sendAccountStatus(player);
+                    result = AuthResult.SUCCESS;
+                }
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) 1.5, TimeUnit.SECONDS);
+
+        return result;
+    }
+
+    /**
      * Mark the player as registered/not registered
      */
     public final void unRegister() {
@@ -97,6 +170,35 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
             utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
             dataSender.sendAccountStatus(player);
         }, (long) 1.5, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Tries to register the player
+     *
+     * @param password the password
+     * @return an AuthResult
+     */
+    public final AuthResult tryRegister(String password) {
+        plugin.getProxy().getScheduler().schedule(plugin, () -> {
+            if (player != null && player.isConnected()) {
+                User utils = new User(player);
+                utils.setLogStatus(true);
+                utils.setTempLog(utils.has2FA());
+                utils.setPassword(password);
+                utils.Message(messages.Prefix() + messages.Registered());
+                utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+                dataSender.sendAccountStatus(player);
+
+                PlayerRegisterEvent event = new PlayerRegisterEvent(player);
+                plugin.getProxy().getPluginManager().callEvent(event);
+
+                result = AuthResult.SUCCESS;
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) 1.5, TimeUnit.SECONDS);
+
+        return result;
     }
 
     /**
@@ -155,6 +257,59 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                 dataSender.sendAccountStatus(player);
             }
         }, (long) 1.5, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Try to log the player
+     *
+     * @param value the value
+     * @return an AuthResult
+     */
+    public final AuthResult tryLogin(boolean value) {
+        plugin.getProxy().getScheduler().schedule(plugin, () -> {
+            if (player != null && player.isConnected()) {
+                User utils = new User(player);
+                if (value) {
+                    PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+                    plugin.getProxy().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            dataSender.sendAccountStatus(player);
+                            result = AuthResult.SUCCESS_TEMP;
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(false);
+                            LobbyChecker checker = new LobbyChecker();
+                            if (checker.MainOk() && checker.MainIsWorking()) {
+                                utils.sendTo(checker.getMain());
+                            }
+
+                            dataSender.sendAccountStatus(player);
+                            result = AuthResult.SUCCESS;
+                        }
+                    } else {
+                        result = AuthResult.CANCELLED;
+                    }
+                } else {
+                    utils.setLogStatus(false);
+                    utils.setTempLog(false);
+                    LobbyChecker checker = new LobbyChecker();
+                    if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        utils.sendTo(checker.getAuth());
+                    }
+                    dataSender.sendAccountStatus(player);
+                    result = AuthResult.SUCCESS;
+                }
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) 1.5, TimeUnit.SECONDS);
+
+        return result;
     }
 
     /**

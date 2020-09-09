@@ -1,7 +1,10 @@
 package ml.karmaconfigs.LockLogin.Spigot.API;
 
+import ml.karmaconfigs.LockLogin.AuthResult;
 import ml.karmaconfigs.LockLogin.IPStorage.IPStorager;
 import ml.karmaconfigs.LockLogin.IpData;
+import ml.karmaconfigs.LockLogin.Spigot.API.Events.PlayerRegisterEvent;
+import ml.karmaconfigs.LockLogin.Spigot.API.Events.PlayerVerifyEvent;
 import ml.karmaconfigs.LockLogin.Spigot.LockLoginSpigot;
 import ml.karmaconfigs.LockLogin.Spigot.Utils.Files.SpigotFiles;
 import ml.karmaconfigs.LockLogin.Spigot.Utils.Inventory.PinInventory;
@@ -10,10 +13,25 @@ import org.bukkit.entity.Player;
 
 import java.util.List;
 
+/*
+GNU LESSER GENERAL PUBLIC LICENSE
+                       Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+[This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
+
 @SuppressWarnings("unused")
 public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
     private final Player player;
+    private AuthResult result = AuthResult.IDLE;
 
     /**
      * Initialize LockLogin bungee's API
@@ -113,6 +131,120 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                 utils.setTempLog(false);
             }
         }, (long) (20 * 1.5));
+    }
+
+    /**
+     * Try to log the player
+     *
+     * @param value the value
+     * @param message the login message
+     * @return an auth result
+     */
+    public final AuthResult tryLogin(boolean value, String message) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (player != null && !player.isOnline()) {
+                User utils = new User(player);
+                if (value) {
+                    PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+                    plugin.getServer().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(message);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            result = AuthResult.SUCCESS_TEMP;
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(false);
+                            utils.Message(message);
+                            result = AuthResult.SUCCESS;
+                        }
+                    } else {
+                        result = AuthResult.CANCELLED;
+                    }
+                } else {
+                    utils.setLogStatus(false);
+                    utils.setTempLog(false);
+                    utils.Message(message);
+                    result = AuthResult.SUCCESS;
+                }
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) (20 * 1.5));
+
+        return result;
+    }
+
+    /**
+     * Try yo register the player
+     *
+     * @param password the password
+     * @return an auth result
+     */
+    public final AuthResult tryRegister(String password) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (player != null && player.isOnline()) {
+                User utils = new User(player);
+                utils.setLogStatus(true);
+                utils.setTempLog(utils.has2FA());
+                utils.setPassword(password);
+                utils.Message(messages.Prefix() + messages.Registered());
+                utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+
+                PlayerRegisterEvent event = new PlayerRegisterEvent(player);
+                plugin.getServer().getPluginManager().callEvent(event);
+                result = AuthResult.SUCCESS;
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) (20 * 1.5));
+
+        return result;
+    }
+
+    /**
+     * Try to login the player
+     *
+     * @param value the value
+     * @return an auth result
+     */
+    public final AuthResult tryLogin(boolean value) {
+        plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+            if (player != null && player.isOnline()) {
+
+                User utils = new User(player);
+                if (value) {
+                    PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+                    plugin.getServer().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            result = AuthResult.SUCCESS_TEMP;
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setLogStatus(false);
+                            result = AuthResult.SUCCESS;
+                        }
+                    } else {
+                        result = AuthResult.CANCELLED;
+                    }
+                } else {
+                    utils.setLogStatus(false);
+                    utils.setTempLog(false);
+                    result = AuthResult.SUCCESS;
+                }
+            } else {
+                result = AuthResult.OFFLINE;
+            }
+        }, (long) (20 * 1.5));
+
+        return result;
     }
 
     /**

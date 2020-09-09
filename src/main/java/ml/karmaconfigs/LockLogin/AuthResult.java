@@ -14,6 +14,19 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-public enum WarningLevel {
-    NONE, WARNING, ERROR
+/**
+ * Success > Login / Register action have been completed successfully<br>
+ * Success_Temp > Login action have been completed but 2fa is needed<br>
+ *<br>
+ * Cancelled > Login / Register event have been cancelled or the player
+ * is no longer online<br>
+ * Cancelled_UnAuth > UnLogin / UnRegister event have been cancelled or
+ * the player is no longer online<br>
+ *<br>
+ * Offline > The player seems offline<br>
+ *<br>
+ * Idle > Well, nothing happened
+ */
+public enum AuthResult {
+    SUCCESS,SUCCESS_TEMP,CANCELLED,OFFLINE,IDLE
 }
