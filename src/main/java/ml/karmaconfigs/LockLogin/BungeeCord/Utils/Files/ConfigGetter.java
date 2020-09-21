@@ -78,6 +78,10 @@ public final class ConfigGetter implements LockLoginBungee {
         return manager.getBoolean("Register.Blind");
     }
 
+    public final boolean RegisterNausea() {
+        return manager.getBoolean("Register.Nausea");
+    }
+
     public final int MaxRegister() {
         return manager.getInt("Register.TimeOut");
     }
@@ -88,6 +92,10 @@ public final class ConfigGetter implements LockLoginBungee {
 
     public final boolean LoginBlind() {
         return manager.getBoolean("Login.Blind");
+    }
+
+    public final boolean LoginNausea() {
+        return manager.getBoolean("Login.Nausea");
     }
 
     public final int MaxLogin() {

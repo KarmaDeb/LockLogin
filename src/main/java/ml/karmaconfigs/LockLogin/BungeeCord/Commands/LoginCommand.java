@@ -82,7 +82,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 user.setTempLog(true);
                                 dataSender.openPinGUI(player);
                             }
-                            dataSender.blindEffect(player, false);
+                            dataSender.blindEffect(player, false, config.LoginNausea());
                         } else {
                             if (user.hasTries()) {
                                 user.restTries();

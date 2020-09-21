@@ -15,12 +15,16 @@ import ml.karmaconfigs.LockLogin.Spigot.Utils.User.User;
 import ml.karmaconfigs.LockLogin.WarningLevel;
 import org.bukkit.Effect;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockRedstoneEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -29,6 +33,7 @@ import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.InventoryView;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetAddress;
@@ -343,8 +348,34 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         User user = new User(player);
 
         if (!user.isLogged() || user.isTempLog()) {
-            e.setCancelled(true);
-            checkInventory(player);
+            if (!e.getAction().equals(Action.PHYSICAL)) {
+                e.setCancelled(true);
+                checkInventory(player);
+            } else {
+                if (e.getClickedBlock() != null && !e.getClickedBlock().getType().equals(Material.AIR)) {
+                    if (e.getClickedBlock().getType().name().contains("PLATE")) {
+                        e.getClickedBlock().setMetadata("DisableRedstone", new FixedMetadataValue(plugin, plugin));
+                    } else {
+                        e.setCancelled(true);
+                    }
+                }
+            }
+        } else {
+            if (e.getAction().equals(Action.PHYSICAL)) {
+                if (e.getClickedBlock() != null && !e.getClickedBlock().getType().equals(Material.AIR)) {
+                    if (e.getClickedBlock().hasMetadata("DisableRedstone")) {
+                        e.getClickedBlock().removeMetadata("DisableRedstone", plugin);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public final void onRedstoneSignal(BlockRedstoneEvent e) {
+        Block block = e.getBlock();
+        if (block.hasMetadata("DisableRedstone")) {
+            e.setNewCurrent(0);
         }
     }
 

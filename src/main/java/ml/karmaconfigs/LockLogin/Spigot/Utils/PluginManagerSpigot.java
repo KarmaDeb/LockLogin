@@ -423,6 +423,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * the plugin is loading
      */
     private void setupPlayers() {
+        ConfigGetter config = new ConfigGetter();
+
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             User user = new User(player);
 
@@ -432,15 +434,15 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             if (user.isRegistered()) {
                 new StartCheck(player, CheckType.LOGIN);
-                if (new ConfigGetter().RegisterBlind()) {
+                if (config.LoginBlind()) {
                     user.saveCurrentEffects();
-                    user.applyBlindEffect();
+                    user.applyBlindEffect(config.LoginNausea());
                 }
             } else {
                 new StartCheck(player, CheckType.REGISTER);
-                if (new ConfigGetter().LoginBlind()) {
+                if (config.RegisterBlind()) {
                     user.saveCurrentEffects();
-                    user.applyBlindEffect();
+                    user.applyBlindEffect(config.RegisterNausea());
                 }
             }
 
@@ -460,6 +462,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * Restore player profile stats
      */
     private void unsetPlayers() {
+        ConfigGetter config = new ConfigGetter();
+
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             User user = new User(player);
 
@@ -467,8 +471,16 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 player.removeMetadata("LockLoginUser", plugin);
             }
 
-            if (new ConfigGetter().LoginBlind() || new ConfigGetter().RegisterBlind()) {
-                user.removeBlindEffect();
+            if (!user.isLogged()) {
+                if (user.isRegistered()) {
+                    if (config.LoginBlind()) {
+                        user.removeBlindEffect(config.LoginNausea());
+                    }
+                } else {
+                    if (config.RegisterBlind()) {
+                        user.removeBlindEffect(config.RegisterNausea());
+                    }
+                }
             }
         }
     }

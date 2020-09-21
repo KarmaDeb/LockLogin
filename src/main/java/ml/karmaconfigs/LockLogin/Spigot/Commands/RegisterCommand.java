@@ -71,7 +71,7 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
 
                                     plugin.getServer().getPluginManager().callEvent(event);
                                     if (config.RegisterBlind()) {
-                                        user.removeBlindEffect();
+                                        user.removeBlindEffect(config.RegisterNausea());
                                     }
                                 } else {
                                     user.Message(messages.Prefix() + messages.PasswordMinChar());

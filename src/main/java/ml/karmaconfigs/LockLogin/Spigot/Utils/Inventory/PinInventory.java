@@ -65,7 +65,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
         inventory.setItem(40, Numbers.getZero());
         inventory.setItem(44, Numbers.getConfirm());
 
-        fillEmptySlots(new ItemStack(Material.STAINED_GLASS_PANE, 1));
+        fillEmptySlots(new ItemStack(Material.LEGACY_STAINED_GLASS_PANE, 1));
     }
 
     /**

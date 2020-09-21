@@ -121,14 +121,19 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Send a title to the player
+     * Send a title to the players
      *
-     * @param Title    the title
-     * @param Subtitle the subtitle
+     * @param title the title
+     * @param subtitle the subtitle
      */
-    public final void Title(String Title, String Subtitle) {
-        TitleSender sender = new TitleSender(player, Title, Subtitle);
-        sender.send();
+    public final void sendTitle(String title, String subtitle, int fadeIn, int show, int fadeOut) {
+        TitleSender title_class = new TitleSender(player);
+        TitleFormat title_f = new TitleFormat(title);
+        title_f.setDisplayTime(fadeIn);
+        title_f.setKeepTime(show);
+        title_f.setHideTime(fadeOut);
+
+        title_class.sendTitle(title_f, StringUtils.toColor(subtitle));
     }
 
     /**
@@ -212,7 +217,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                     Teleport(lastLoc.getLastLocation());
                 }
                 if (config.LoginBlind()) {
-                    removeBlindEffect();
+                    removeBlindEffect(config.LoginNausea());
                 }
 
                 player.setAllowFlight(hasFly());
@@ -348,22 +353,26 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     /**
      * Apply the blind effect to the player
      */
-    public final void applyBlindEffect() {
+    public final void applyBlindEffect(boolean nausea) {
         removeEffect(PotionEffectType.BLINDNESS);
         removeEffect(PotionEffectType.NIGHT_VISION);
-        removeEffect(PotionEffectType.CONFUSION);
+        if (nausea) {
+            removeEffect(PotionEffectType.CONFUSION);
+            sendEffect(PotionEffectType.CONFUSION, 10000, 100, true, false);
+        }
         sendEffect(PotionEffectType.BLINDNESS, 10000, 100, true, false);
         sendEffect(PotionEffectType.NIGHT_VISION, 10000, 100, true, false);
-        sendEffect(PotionEffectType.CONFUSION, 10000, 100, true, false);
     }
 
     /**
      * Remove the user blind effects
      */
-    public final void removeBlindEffect() {
+    public final void removeBlindEffect(boolean nausea) {
         removeEffect(PotionEffectType.BLINDNESS);
         removeEffect(PotionEffectType.NIGHT_VISION);
-        removeEffect(PotionEffectType.CONFUSION);
+        if (nausea) {
+            removeEffect(PotionEffectType.CONFUSION);
+        }
         if (playerEffects.containsKey(player)) {
             sendEffects(playerEffects.get(player));
             playerEffects.remove(player);
@@ -388,7 +397,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     if (config.RegisterBlind()) {
                         saveCurrentEffects();
-                        applyBlindEffect();
+                        applyBlindEffect(config.RegisterNausea());
                     }
                 }, 5);
                 break;
@@ -397,7 +406,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                     if (config.LoginBlind()) {
                         saveCurrentEffects();
-                        applyBlindEffect();
+                        applyBlindEffect(config.LoginNausea());
                     }
                 }, 5);
                 break;

@@ -39,13 +39,16 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
 
         boolean status;
         boolean blind;
+        boolean nausea;
 
         User user = new User(player);
 
         if (!user.isRegistered()) {
             blind = config.RegisterBlind();
+            nausea = config.RegisterNausea();
         } else {
             blind = config.LoginBlind();
+            nausea = config.LoginNausea();
         }
 
         status = user.isLogged();
@@ -60,7 +63,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 try {
                     message.writeUTF("LoginData");
                     message.writeUTF(player.getUniqueId().toString() + " " + status);
-                    blindEffect(player, blind);
+                    blindEffect(player, blind, nausea);
 
                     try {
                         player.getServer().getInfo().sendData("ll:info", b.toByteArray());
@@ -169,8 +172,9 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
      *
      * @param player the player
      * @param apply apply, or remove the effects
+     * @param nausea is nausea enabled in config?
      */
-    public final void blindEffect(ProxiedPlayer player, boolean apply) {
+    public final void blindEffect(ProxiedPlayer player, boolean apply, boolean nausea) {
         if (plugin.getProxy().getPlayers().isEmpty())
             return;
 
@@ -181,7 +185,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
 
                 try {
                     message.writeUTF("EffectManager");
-                    message.writeUTF(player.getUniqueId().toString() + "_" + apply);
+                    message.writeUTF(player.getUniqueId().toString() + "_" + apply + "_" + nausea);
 
                     try {
                         player.getServer().getInfo().sendData("ll:info", b.toByteArray());

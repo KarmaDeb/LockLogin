@@ -52,15 +52,19 @@ public final class PlayerLeave implements Listener, LockLoginSpigot, SpigotFiles
 
             data.delIP();
 
-            if (!user.isLogged() || !user.isRegistered()) {
-                if (config.RegisterBlind() || config.LoginBlind()) {
-                    user.removeBlindEffect();
+            user.setLogStatus(false);
+        }
+
+        if (!user.isLogged()) {
+            if (user.isRegistered()) {
+                if (config.LoginBlind()) {
+                    user.removeBlindEffect(config.LoginNausea());
+                }
+            } else {
+                if (config.RegisterBlind()) {
+                    user.removeBlindEffect(config.RegisterNausea());
                 }
             }
-
-            user.setLogStatus(false);
-        } else {
-            user.removeBlindEffect();
         }
 
         if (player.hasMetadata("LockLoginUser")) {

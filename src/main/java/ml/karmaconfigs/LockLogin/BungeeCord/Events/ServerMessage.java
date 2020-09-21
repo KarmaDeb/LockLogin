@@ -76,9 +76,9 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 user.Message(messages.GAuthInstructions());
                             }
                             dataSender.closePinGUI(player);
-                            dataSender.blindEffect(player, false);
+                            dataSender.blindEffect(player, false, config.LoginNausea());
                         } else {
-                            dataSender.blindEffect(player, true);
+                            dataSender.blindEffect(player, true, config.LoginNausea());
                             dataSender.openPinGUI(player);
                         }
                     }

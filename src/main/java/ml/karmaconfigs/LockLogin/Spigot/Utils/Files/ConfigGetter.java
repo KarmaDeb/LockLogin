@@ -128,6 +128,10 @@ public final class ConfigGetter implements LockLoginSpigot {
         return plugin.getConfig().getBoolean("Register.Blind");
     }
 
+    public final boolean RegisterNausea() {
+        return plugin.getConfig().getBoolean("Register.Nausea");
+    }
+
     public final int RegisterOut() {
         return plugin.getConfig().getInt("Register.TimeOut");
     }
@@ -138,6 +142,10 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final boolean LoginBlind() {
         return plugin.getConfig().getBoolean("Login.Blind");
+    }
+
+    public final boolean LoginNausea() {
+        return plugin.getConfig().getBoolean("Login.Nausea");
     }
 
     public final int LoginOut() {

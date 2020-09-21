@@ -44,9 +44,9 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                         if (player.isOnline()) {
                             User user = new User(player);
                             if (back != 0) {
-                                user.Title(messages.RegisterTitle(back), messages.RegisterSubtitle(back));
+                                user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back), 0, 5 , 0);
                                 if (user.isRegistered()) {
-                                    user.Title("", "");
+                                    user.sendTitle("", "", 0 ,5 ,0);
                                     cancel();
                                 }
                             } else {
@@ -68,9 +68,9 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                         if (player.isOnline()) {
                             User user = new User(player);
                             if (back != 0) {
-                                user.Title(messages.LoginTitle(back), messages.LoginSubtitle(back));
+                                user.sendTitle(messages.LoginTitle(back), messages.LoginSubtitle(back), 0, 5, 0);
                                 if (user.isLogged()) {
-                                    user.Title("", "");
+                                    user.sendTitle("", "", 0, 5, 0);
                                     cancel();
                                 }
                             } else {

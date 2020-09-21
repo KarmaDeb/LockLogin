@@ -119,6 +119,7 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                                     String[] data = in.readUTF().split("_");
                                     UUID uuid = UUID.fromString(data[0]);
                                     boolean apply = Boolean.parseBoolean(data[1]);
+                                    boolean nausea = Boolean.parseBoolean(data[2]);
 
                                     if (plugin.getServer().getPlayer(uuid) != null) {
                                         player = plugin.getServer().getPlayer(uuid);
@@ -126,9 +127,9 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
 
                                         if (apply) {
                                             user.saveCurrentEffects();
-                                            user.applyBlindEffect();
+                                            user.applyBlindEffect(nausea);
                                         } else {
-                                            user.removeBlindEffect();
+                                            user.removeBlindEffect(nausea);
                                         }
                                     }
                                 }

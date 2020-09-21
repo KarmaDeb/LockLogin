@@ -252,7 +252,7 @@ public interface Numbers {
         ItemStack skull = getRandomItemStack();
 
         try {
-            ItemStack head = new ItemStack(Material.SKULL_ITEM, 1, (short) 3);
+            ItemStack head = new ItemStack(Material.LEGACY_SKULL_ITEM, 1, (short) 3);
 
             SkullMeta headMeta = (SkullMeta) head.getItemMeta();
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
