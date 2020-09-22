@@ -17,6 +17,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Private GSA code
@@ -65,7 +66,11 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
         inventory.setItem(40, Numbers.getZero());
         inventory.setItem(44, Numbers.getConfirm());
 
-        fillEmptySlots(new ItemStack(Material.LEGACY_STAINED_GLASS_PANE, 1));
+        try {
+            fillEmptySlots(new ItemStack(Objects.requireNonNull(Material.matchMaterial("STAINED_GLASS_PANE", true)), 1));
+        } catch (Throwable e) {
+            fillEmptySlots(new ItemStack(Objects.requireNonNull(Material.matchMaterial("STAINED_GLASS_PANE")), 1));
+        }
     }
 
     /**
@@ -85,9 +90,8 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
      */
     public final void close() {
         if (player != null && player.isOnline()) {
-            if (player.getInventory() != null) {
-                player.closeInventory();
-            }
+            player.getInventory();
+            player.closeInventory();
         }
     }
 

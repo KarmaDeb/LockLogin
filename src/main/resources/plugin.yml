@@ -1,7 +1,7 @@
 name: "LockLogin"
 version: ${project.version}
 main: ml.karmaconfigs.LockLogin.Spigot.Main
-api-version: "1.16"
+api-version: "1.13"
 authors:
   - KarmaConfigs
   - KarmaDev

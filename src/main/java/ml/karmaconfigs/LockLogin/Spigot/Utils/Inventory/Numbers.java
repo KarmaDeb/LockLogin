@@ -9,6 +9,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Random;
 import java.util.UUID;
 
@@ -252,7 +253,12 @@ public interface Numbers {
         ItemStack skull = getRandomItemStack();
 
         try {
-            ItemStack head = new ItemStack(Material.LEGACY_SKULL_ITEM, 1, (short) 3);
+            ItemStack head;
+            try {
+                head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM", true)), 1, (short) 3);
+            } catch (Throwable e) {
+                head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM")), 1, (short) 3);
+            }
 
             SkullMeta headMeta = (SkullMeta) head.getItemMeta();
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
