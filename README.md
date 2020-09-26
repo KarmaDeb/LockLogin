@@ -1,7 +1,7 @@
 # LockLogin
  LockLogin source code...
 
- [Please take a look at the license before using the source code, legal actions could be performed if you break any condition](https://karmaconfigs.ml/license/)
+ [Please take a look at the license before using the source code, legal actions could be performed if you break any condition](https://karmaconfigs.github.io/page/license/)
 
 ## Maven
 
