@@ -1,6 +1,7 @@
 package ml.karmaconfigs.LockLogin.BungeeCord.Utils.Files;
 
 import ml.karmaconfigs.LockLogin.BungeeCord.LockLoginBungee;
+import ml.karmaconfigs.LockLogin.Lang;
 
 import java.util.concurrent.TimeUnit;
 
@@ -34,32 +35,77 @@ public final class ConfigGetter implements LockLoginBungee {
         return manager.getString("ServerName");
     }
 
-    public final boolean isSpanish() {
-        return MSGLang().equalsIgnoreCase("es_ES");
+    public final boolean isEnglish() {
+        return getLang().equals(Lang.ENGLISH);
     }
 
-    public final boolean isEnglish() {
-        return MSGLang().equalsIgnoreCase("en_EN");
+    public final boolean isSpanish() {
+        return getLang().equals(Lang.SPANISH);
     }
 
     public final boolean isSimplifiedChinese() {
-        return MSGLang().equalsIgnoreCase("zh_CN");
+        return getLang().equals(Lang.SIMPLIFIED_CHINESE);
     }
 
     public final boolean isItalian() {
-        return MSGLang().equalsIgnoreCase("it_IT");
+        return getLang().equals(Lang.ITALIAN);
     }
 
     public final boolean isPolish() {
-        return MSGLang().equalsIgnoreCase("pl_PL");
+        return getLang().equals(Lang.POLISH);
     }
 
     public final boolean isFrench() {
-        return MSGLang().equalsIgnoreCase("fr_FR");
+        return getLang().equals(Lang.FRENCH);
+    }
+
+    public final boolean isCzech() {
+        return getLang().equals(Lang.CZECH);
     }
 
     public final boolean langValid() {
-        return isEnglish() || isSpanish() || isSimplifiedChinese() || isItalian() || isPolish() || isFrench();
+        return isEnglish() || isSpanish() || isSimplifiedChinese() || isItalian() || isPolish() || isFrench() || isCzech();
+    }
+
+    public final Lang getLang() {
+        String val = manager.getString("Lang");
+
+        switch (val) {
+            case "en_EN":
+            case "english":
+            case "English":
+                return Lang.ENGLISH;
+            case "es_ES":
+            case "spanish":
+            case "Spanish":
+                return Lang.SPANISH;
+            case "zh_CN":
+            case "simplified_chinese":
+            case "Simplified_chinese":
+            case "Simplified_Chinese":
+            case "simplified chinese":
+            case "Simplified chinese":
+            case "Simplified Chinese":
+                return Lang.SIMPLIFIED_CHINESE;
+            case "it_IT":
+            case "italian":
+            case "Italian":
+                return Lang.ITALIAN;
+            case "pl_PL":
+            case "polish":
+            case "Polish":
+                return Lang.POLISH;
+            case "fr_FR":
+            case "french":
+            case "French":
+                return Lang.FRENCH;
+            case "cz_CS":
+            case "czech":
+            case "Czech":
+                return Lang.CZECH;
+            default:
+                return Lang.UNKNOWN;
+        }
     }
 
     public final boolean isYaml() {

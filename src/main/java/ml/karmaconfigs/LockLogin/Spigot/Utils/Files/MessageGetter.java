@@ -26,57 +26,60 @@ public final class MessageGetter implements LockLoginSpigot {
     private FileManager manager;
 
     public MessageGetter() {
-        FileCreator creator = new FileCreator("messages_en.yml", true);
+        FileCreator creator;
         ConfigGetter cfg = new ConfigGetter();
-        if (cfg.langValid()) {
-            if (cfg.isEnglish()) {
+        switch (cfg.getLang()) {
+            case ENGLISH:
+                creator = new FileCreator("messages_en.yml", true);
                 creator.createFile();
                 creator.setDefaults();
                 manager = new FileManager("messages_en.yml");
-            } else {
-                if (cfg.isSpanish()) {
-                    creator = new FileCreator("messages_es.yml", true);
-                    creator.createFile();
-                    creator.setDefaults();
-                    manager = new FileManager("messages_es.yml");
-                } else {
-                    if (cfg.isSimplifiedChinese()) {
-                        creator = new FileCreator("messages_zh.yml", true);
-                        creator.createFile();
-                        creator.setDefaults();
-                        manager = new FileManager("messages_zh.yml");
-                    } else {
-                        if (cfg.isItalian()) {
-                            creator = new FileCreator("messages_it.yml", true);
-                            creator.createFile();
-                            creator.setDefaults();
-                            manager = new FileManager("messages_it.yml");
-                        } else {
-                            if (cfg.isPolish()) {
-                                creator = new FileCreator("messages_pl.yml", true);
-                                creator.createFile();
-                                creator.setDefaults();
-                                manager = new FileManager("messages_pl.yml");
-                            } else {
-                                if (cfg.isFrench()) {
-                                    creator = new FileCreator("messages_fr.yml", true);
-                                    creator.createFile();
-                                    creator.setDefaults();
-                                    manager = new FileManager("messages_fr.yml");
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } else {
-            out.Alert("Invalid lang &f( " + cfg.getLang() + " &f) &c.Valid langs are: &ben_EN&7, &ees_ES&7, &ezh_CN&7, &eit_IT&7, &epl_PL&7, &efr_FR", WarningLevel.ERROR);
-            FileManager configManager = new FileManager("config.yml");
-            configManager.set("Lang", "en_EN");
-            creator = new FileCreator("messages_en.yml", true);
-            creator.createFile();
-            creator.setDefaults();
-            manager = new FileManager("messages_en.yml");
+                break;
+            case SPANISH:
+                creator = new FileCreator("messages_es.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_es.yml");
+                break;
+            case SIMPLIFIED_CHINESE:
+                creator = new FileCreator("messages_zh.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_zh.yml");
+                break;
+            case ITALIAN:
+                creator = new FileCreator("messages_it.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_it.yml");
+                break;
+            case POLISH:
+                creator = new FileCreator("messages_pl.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_pl.yml");
+                break;
+            case FRENCH:
+                creator = new FileCreator("messages_fr.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_fr.yml");
+                break;
+            case CZECH:
+                creator = new FileCreator("messages_cz.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_cz.yml");
+                break;
+            case UNKNOWN:
+                out.Alert("&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", WarningLevel.ERROR);
+                FileManager configManager = new FileManager("config.yml");
+                configManager.set("Lang", "en_EN");
+                creator = new FileCreator("messages_en.yml", true);
+                creator.createFile();
+                creator.setDefaults();
+                manager = new FileManager("messages_en.yml");
+                break;
         }
     }
 

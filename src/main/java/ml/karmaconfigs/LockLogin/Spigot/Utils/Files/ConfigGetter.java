@@ -1,5 +1,6 @@
 package ml.karmaconfigs.LockLogin.Spigot.Utils.Files;
 
+import ml.karmaconfigs.LockLogin.Lang;
 import ml.karmaconfigs.LockLogin.Spigot.LockLoginSpigot;
 import ml.karmaconfigs.LockLogin.WarningLevel;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -69,35 +70,78 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final boolean isEnglish() {
-        return getLang().equalsIgnoreCase("en_EN");
+        return getLang().equals(Lang.ENGLISH);
     }
 
     public final boolean isSpanish() {
-        return getLang().equalsIgnoreCase("es_ES");
+        return getLang().equals(Lang.SPANISH);
     }
 
     public final boolean isSimplifiedChinese() {
-        return getLang().equalsIgnoreCase("zh_CN");
+        return getLang().equals(Lang.SIMPLIFIED_CHINESE);
     }
 
     public final boolean isItalian() {
-        return getLang().equalsIgnoreCase("it_IT");
+        return getLang().equals(Lang.ITALIAN);
     }
 
     public final boolean isPolish() {
-        return getLang().equalsIgnoreCase("pl_PL");
+        return getLang().equals(Lang.POLISH);
     }
 
     public final boolean isFrench() {
-        return getLang().equalsIgnoreCase("fr_FR");
+        return getLang().equals(Lang.FRENCH);
+    }
+
+    public final boolean isCzech() {
+        return getLang().equals(Lang.CZECH);
     }
 
     public final boolean langValid() {
-        return isEnglish() || isSpanish() || isSimplifiedChinese() || isItalian() || isPolish() || isFrench();
+        return isEnglish() || isSpanish() || isSimplifiedChinese() || isItalian() || isPolish() || isFrench() || isCzech();
     }
 
-    public final String getLang() {
-        return plugin.getConfig().getString("Lang");
+    public final Lang getLang() {
+        String val = plugin.getConfig().getString("Lang", "en_EN");
+
+        assert val != null;
+
+        switch (val) {
+            case "en_EN":
+            case "english":
+            case "English":
+                return Lang.ENGLISH;
+            case "es_ES":
+            case "spanish":
+            case "Spanish":
+                return Lang.SPANISH;
+            case "zh_CN":
+            case "simplified_chinese":
+            case "Simplified_chinese":
+            case "Simplified_Chinese":
+            case "simplified chinese":
+            case "Simplified chinese":
+            case "Simplified Chinese":
+                return Lang.SIMPLIFIED_CHINESE;
+            case "it_IT":
+            case "italian":
+            case "Italian":
+                return Lang.ITALIAN;
+            case "pl_PL":
+            case "polish":
+            case "Polish":
+                return Lang.POLISH;
+            case "fr_FR":
+            case "french":
+            case "French":
+                return Lang.FRENCH;
+            case "cz_CS":
+            case "czech":
+            case "Czech":
+                return Lang.CZECH;
+            default:
+                return Lang.UNKNOWN;
+        }
     }
 
     public final String FileSys() {

@@ -491,7 +491,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
     private void registerMetrics() {
         SpigotMetrics metrics = new SpigotMetrics(plugin);
 
-        metrics.addCustomChart(new SpigotMetrics.SimplePie("used_locale", () -> new ConfigGetter().getLang()));
+        metrics.addCustomChart(new SpigotMetrics.SimplePie("used_locale", () -> String.valueOf(new ConfigGetter().getLang())));
         metrics.addCustomChart(new SpigotMetrics.SimplePie("country_protect", () -> "Removed in 3.0.2"));
         metrics.addCustomChart(new SpigotMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().ClearChat())
                 .replace("true", "Clear chat")
