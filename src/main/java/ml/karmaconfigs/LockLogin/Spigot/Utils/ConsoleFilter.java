@@ -9,8 +9,8 @@ import org.apache.logging.log4j.message.Message;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
 
+                       Version 2.1, February 1999
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
@@ -23,168 +23,54 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public class ConsoleFilter implements Filter {
 
+    private static final Set<String> SENSITIVE_COMMANDS =
+            new HashSet<>(
+                    Arrays.asList(
+                        "/login",
+                        "/register",
+                        "/2fa",
+                        "/resetfa",
+                        "/change",
+                        "/delaccount",
+                        "/unlog",
+                        "/reg",
+                        "/l",
+                        "/cpass",
+                        "/pin",
+                        "/resetpin",
+                        "/rpin",
+                        "/delpin",
+                        "/locklogin:"
+                    )
+            );
+
+    private boolean isSensitiveMessage(String msg) {
+        if (msg == null) return false;
+
+        msg = msg.toLowerCase();
+        return msg.contains("issued server command:") && SENSITIVE_COMMANDS.stream().anyMatch(msg::contains);
+    }
+
     public final Filter.Result filter(LogEvent record) {
-        try {
-            if (record != null && record.getMessage() != null) {
-                String npe = record.getMessage().getFormattedMessage().toLowerCase();
-                return !npe.toLowerCase().contains("issued server command:") ? Filter.Result.NEUTRAL : ((
-                        !npe.toLowerCase().contains("/login ")
-                                && !npe.toLowerCase().contains("/register ")
-                                && !npe.toLowerCase().contains("/2fa ")
-                                && !npe.toLowerCase().contains("/resetfa ")
-                                && !npe.toLowerCase().contains("/change ")
-                                && !npe.toLowerCase().contains("/delaccount ")
-                                && !npe.toLowerCase().contains("/unlog ")
-                                && !npe.toLowerCase().contains("/reg ")
-                                && !npe.toLowerCase().contains("/l ")
-                                && !npe.toLowerCase().contains("/cpass ")
-                                && !npe.toLowerCase().contains("/pin")
-                                && !npe.toLowerCase().contains("/resetpin")
-                                && !npe.toLowerCase().contains("/rpin")
-                                && !npe.toLowerCase().contains("/delpin")
-                                && !npe.toLowerCase().contains("/locklogin:login ")
-                                && !npe.toLowerCase().contains("/locklogin:register ")
-                                && !npe.toLowerCase().contains("/locklogin:2fa ")
-                                && !npe.toLowerCase().contains("/locklogin:resetfa ")
-                                && !npe.toLowerCase().contains("/locklogin:change ")
-                                && !npe.toLowerCase().contains("/locklogin:delaccount ")
-                                && !npe.toLowerCase().contains("/locklogin:unlog ")
-                                && !npe.toLowerCase().contains("/locklogin:reg ")
-                                && !npe.toLowerCase().contains("/locklogin:l ")
-                                && !npe.toLowerCase().contains("/locklogin:cpass ")
-                                && !npe.toLowerCase().contains("/locklogin:pin")
-                                && !npe.toLowerCase().contains("/locklogin:resetpin")
-                                && !npe.toLowerCase().contains("/locklogin:rpin")
-                                && !npe.toLowerCase().contains("/locklogin:delpin")) ? Filter.Result.NEUTRAL : Filter.Result.DENY);
-            } else {
-                return Filter.Result.NEUTRAL;
+        if (record != null) {
+            Message message = record.getMessage();
+            if (message != null && isSensitiveMessage(message.getFormattedMessage())) {
+                return Result.DENY;
             }
-        } catch (NullPointerException var3) {
-            return Filter.Result.NEUTRAL;
         }
+        return Result.NEUTRAL;
     }
 
     public final Filter.Result filter(Logger arg0, Level arg1, Marker arg2, String message, Object... arg4) {
-        try {
-            if (message == null) {
-                return Filter.Result.NEUTRAL;
-            } else {
-                String npe = message.toLowerCase();
-                return !npe.toLowerCase().contains("issued server command:") ? Filter.Result.NEUTRAL : ((
-                        !npe.toLowerCase().contains("/login ")
-                                && !npe.toLowerCase().contains("/register ")
-                                && !npe.toLowerCase().contains("/2fa ")
-                                && !npe.toLowerCase().contains("/resetfa ")
-                                && !npe.toLowerCase().contains("/change ")
-                                && !npe.toLowerCase().contains("/delaccount ")
-                                && !npe.toLowerCase().contains("/unlog ")
-                                && !npe.toLowerCase().contains("/reg ")
-                                && !npe.toLowerCase().contains("/l ")
-                                && !npe.toLowerCase().contains("/cpass ")
-                                && !npe.toLowerCase().contains("/pin")
-                                && !npe.toLowerCase().contains("/resetpin")
-                                && !npe.toLowerCase().contains("/rpin")
-                                && !npe.toLowerCase().contains("/delpin")
-                                && !npe.toLowerCase().contains("/locklogin:login ")
-                                && !npe.toLowerCase().contains("/locklogin:register ")
-                                && !npe.toLowerCase().contains("/locklogin:2fa ")
-                                && !npe.toLowerCase().contains("/locklogin:resetfa ")
-                                && !npe.toLowerCase().contains("/locklogin:change ")
-                                && !npe.toLowerCase().contains("/locklogin:delaccount ")
-                                && !npe.toLowerCase().contains("/locklogin:unlog ")
-                                && !npe.toLowerCase().contains("/locklogin:reg ")
-                                && !npe.toLowerCase().contains("/locklogin:l ")
-                                && !npe.toLowerCase().contains("/locklogin:cpass ")
-                                && !npe.toLowerCase().contains("/locklogin:pin")
-                                && !npe.toLowerCase().contains("/locklogin:resetpin")
-                                && !npe.toLowerCase().contains("/locklogin:rpin")
-                                && !npe.toLowerCase().contains("/locklogin:delpin")) ? Filter.Result.NEUTRAL : Filter.Result.DENY);
-            }
-        } catch (NullPointerException var7) {
-            return Filter.Result.NEUTRAL;
-        }
+        return isSensitiveMessage(message) ? Filter.Result.DENY : Result.NEUTRAL;
     }
 
     public final Filter.Result filter(Logger arg0, Level arg1, Marker arg2, Object message, Throwable arg4) {
-        try {
-            if (message == null) {
-                return Filter.Result.NEUTRAL;
-            } else {
-                String npe = message.toString().toLowerCase();
-                return !npe.toLowerCase().contains("issued server command:") ? Filter.Result.NEUTRAL : ((
-                        !npe.toLowerCase().contains("/login ")
-                                && !npe.toLowerCase().contains("/register ")
-                                && !npe.toLowerCase().contains("/2fa ")
-                                && !npe.toLowerCase().contains("/resetfa ")
-                                && !npe.toLowerCase().contains("/change ")
-                                && !npe.toLowerCase().contains("/delaccount ")
-                                && !npe.toLowerCase().contains("/unlog ")
-                                && !npe.toLowerCase().contains("/reg ")
-                                && !npe.toLowerCase().contains("/l ")
-                                && !npe.toLowerCase().contains("/cpass ")
-                                && !npe.toLowerCase().contains("/pin")
-                                && !npe.toLowerCase().contains("/resetpin")
-                                && !npe.toLowerCase().contains("/rpin")
-                                && !npe.toLowerCase().contains("/delpin")
-                                && !npe.toLowerCase().contains("/locklogin:login ")
-                                && !npe.toLowerCase().contains("/locklogin:register ")
-                                && !npe.toLowerCase().contains("/locklogin:2fa ")
-                                && !npe.toLowerCase().contains("/locklogin:resetfa ")
-                                && !npe.toLowerCase().contains("/locklogin:change ")
-                                && !npe.toLowerCase().contains("/locklogin:delaccount ")
-                                && !npe.toLowerCase().contains("/locklogin:unlog ")
-                                && !npe.toLowerCase().contains("/locklogin:reg ")
-                                && !npe.toLowerCase().contains("/locklogin:l ")
-                                && !npe.toLowerCase().contains("/locklogin:cpass ")
-                                && !npe.toLowerCase().contains("/locklogin:pin")
-                                && !npe.toLowerCase().contains("/locklogin:resetpin")
-                                && !npe.toLowerCase().contains("/locklogin:rpin")
-                                && !npe.toLowerCase().contains("/locklogin:delpin")) ? Filter.Result.NEUTRAL : Filter.Result.DENY);
-            }
-        } catch (NullPointerException var7) {
-            return Filter.Result.NEUTRAL;
-        }
+        return isSensitiveMessage(message.toString()) ? Filter.Result.DENY : Result.NEUTRAL;
     }
 
     public final Filter.Result filter(Logger arg0, Level arg1, Marker arg2, Message message, Throwable arg4) {
-        try {
-            if (message == null) {
-                return Filter.Result.NEUTRAL;
-            } else {
-                String npe = message.getFormattedMessage().toLowerCase();
-                return !npe.toLowerCase().contains("issued server command:") ? Filter.Result.NEUTRAL : ((
-                        !npe.toLowerCase().contains("/login ")
-                                && !npe.toLowerCase().contains("/register ")
-                                && !npe.toLowerCase().contains("/2fa ")
-                                && !npe.toLowerCase().contains("/resetfa ")
-                                && !npe.toLowerCase().contains("/change ")
-                                && !npe.toLowerCase().contains("/delaccount ")
-                                && !npe.toLowerCase().contains("/unlog ")
-                                && !npe.toLowerCase().contains("/reg ")
-                                && !npe.toLowerCase().contains("/l ")
-                                && !npe.toLowerCase().contains("/cpass ")
-                                && !npe.toLowerCase().contains("/pin")
-                                && !npe.toLowerCase().contains("/resetpin")
-                                && !npe.toLowerCase().contains("/rpin")
-                                && !npe.toLowerCase().contains("/delpin")
-                                && !npe.toLowerCase().contains("/locklogin:login ")
-                                && !npe.toLowerCase().contains("/locklogin:register ")
-                                && !npe.toLowerCase().contains("/locklogin:2fa ")
-                                && !npe.toLowerCase().contains("/locklogin:resetfa ")
-                                && !npe.toLowerCase().contains("/locklogin:change ")
-                                && !npe.toLowerCase().contains("/locklogin:delaccount ")
-                                && !npe.toLowerCase().contains("/locklogin:unlog ")
-                                && !npe.toLowerCase().contains("/locklogin:reg ")
-                                && !npe.toLowerCase().contains("/locklogin:l ")
-                                && !npe.toLowerCase().contains("/locklogin:cpass ")
-                                && !npe.toLowerCase().contains("/locklogin:pin")
-                                && !npe.toLowerCase().contains("/locklogin:resetpin")
-                                && !npe.toLowerCase().contains("/locklogin:rpin")
-                                && !npe.toLowerCase().contains("/locklogin:delpin")) ? Filter.Result.NEUTRAL : Filter.Result.DENY);
-            }
-        } catch (NullPointerException var7) {
-            return Filter.Result.NEUTRAL;
-        }
+        return message != null && isSensitiveMessage(message.getFormattedMessage()) ? Filter.Result.DENY : Result.NEUTRAL;
     }
 
     public final Filter.Result getOnMatch() {
