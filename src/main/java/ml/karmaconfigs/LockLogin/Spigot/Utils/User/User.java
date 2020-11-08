@@ -202,13 +202,13 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Auth the player and perform his
      * login
      */
-    public final synchronized void authPlayer(String password) {
+    public final void authPlayer(String password) {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             PasswordUtils utils = new PasswordUtils(password, getPassword());
-            PlayerVerifyEvent event = new PlayerVerifyEvent(player);
 
             if (utils.PasswordIsOk()) {
-                plugin.getServer().getPluginManager().callEvent(event);
+                PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> plugin.getServer().getPluginManager().callEvent(event));
 
                 if (!event.isCancelled()) {
                     setLogStatus(true);
@@ -221,11 +221,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                         removeBlindEffect(config.LoginNausea());
                     }
 
-                    player.setAllowFlight(hasFly());
+                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(hasFly()));
 
                     if (hasPin()) {
                         PinInventory inventory = new PinInventory(player);
-                        inventory.open();
+                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, inventory::open);
 
                         setTempLog(true);
                     } else {
