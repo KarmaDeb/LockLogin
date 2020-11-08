@@ -202,51 +202,53 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Auth the player and perform his
      * login
      */
-    public final void authPlayer(String password) {
-        PasswordUtils utils = new PasswordUtils(password, getPassword());
-        PlayerVerifyEvent event = new PlayerVerifyEvent(player);
+    public final synchronized void authPlayer(String password) {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            PasswordUtils utils = new PasswordUtils(password, getPassword());
+            PlayerVerifyEvent event = new PlayerVerifyEvent(player);
 
-        if (utils.PasswordIsOk()) {
-            plugin.getServer().getPluginManager().callEvent(event);
+            if (utils.PasswordIsOk()) {
+                plugin.getServer().getPluginManager().callEvent(event);
 
-            if (!event.isCancelled()) {
-                setLogStatus(true);
+                if (!event.isCancelled()) {
+                    setLogStatus(true);
 
-                LastLocation lastLoc = new LastLocation(player);
-                if (config.TakeBack()) {
-                    Teleport(lastLoc.getLastLocation());
-                }
-                if (config.LoginBlind()) {
-                    removeBlindEffect(config.LoginNausea());
-                }
+                    LastLocation lastLoc = new LastLocation(player);
+                    if (config.TakeBack()) {
+                        Teleport(lastLoc.getLastLocation());
+                    }
+                    if (config.LoginBlind()) {
+                        removeBlindEffect(config.LoginNausea());
+                    }
 
-                player.setAllowFlight(hasFly());
+                    player.setAllowFlight(hasFly());
 
-                if (hasPin()) {
-                    PinInventory inventory = new PinInventory(player);
-                    inventory.open();
+                    if (hasPin()) {
+                        PinInventory inventory = new PinInventory(player);
+                        inventory.open();
 
-                    setTempLog(true);
-                } else {
-                    if (has2FA()) {
-                        Message(messages.GAuthInstructions());
                         setTempLog(true);
                     } else {
-                        Message(messages.Prefix() + event.getLoginMessage());
+                        if (has2FA()) {
+                            Message(messages.GAuthInstructions());
+                            setTempLog(true);
+                        } else {
+                            Message(messages.Prefix() + event.getLoginMessage());
+                        }
                     }
+                } else {
+                    Message(messages.Prefix() + event.getCancelMessage());
                 }
             } else {
-                Message(messages.Prefix() + event.getCancelMessage());
+                if (!hasTries()) {
+                    delTries();
+                    Kick("&eLockLogin\n\n" + messages.LogError());
+                    return;
+                }
+                restTries();
+                Message(messages.Prefix() + messages.LogError());
             }
-        } else {
-            if (!hasTries()) {
-                delTries();
-                Kick("&eLockLogin\n\n" + messages.LogError());
-                return;
-            }
-            restTries();
-            Message(messages.Prefix() + messages.LogError());
-        }
+        });
     }
 
     /**

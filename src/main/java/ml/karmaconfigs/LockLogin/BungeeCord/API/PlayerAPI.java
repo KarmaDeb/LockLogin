@@ -58,7 +58,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                     utils.setTempLog(true);
                     utils.Message(Message);
                     utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                    dataSender.sendAccountStatus(player);
+                    plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                        dataSender.sendAccountStatus(player);
+                    }, (long) 1.5, TimeUnit.SECONDS);
                 } else {
                     utils.setLogStatus(true);
                     utils.setTempLog(false);
@@ -67,7 +69,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                     if (checker.MainOk() && checker.MainIsWorking()) {
                         utils.sendTo(checker.getMain());
                     }
-                    dataSender.sendAccountStatus(player);
+                    plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                        dataSender.sendAccountStatus(player);
+                    }, (long) 1.5, TimeUnit.SECONDS);
                 }
             } else {
                 utils.setLogStatus(false);
@@ -77,7 +81,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                 if (checker.AuthOk() && checker.AuthIsWorking()) {
                     utils.sendTo(checker.getAuth());
                 }
-                dataSender.sendAccountStatus(player);
+                plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                    dataSender.sendAccountStatus(player);
+                }, (long) 1.5, TimeUnit.SECONDS);
             }
         }, (long) 1.5, TimeUnit.SECONDS);
     }
@@ -113,7 +119,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                             if (checker.MainOk() && checker.MainIsWorking()) {
                                 utils.sendTo(checker.getMain());
                             }
-                            dataSender.sendAccountStatus(player);
+                            plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                                dataSender.sendAccountStatus(player);
+                            }, (long) 1.5, TimeUnit.SECONDS);
                             result = AuthResult.SUCCESS;
                         }
                     } else {
@@ -127,7 +135,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                     if (checker.AuthOk() && checker.AuthIsWorking()) {
                         utils.sendTo(checker.getAuth());
                     }
-                    dataSender.sendAccountStatus(player);
+                    plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                        dataSender.sendAccountStatus(player);
+                    }, (long) 1.5, TimeUnit.SECONDS);
                     result = AuthResult.SUCCESS;
                 }
             } else {
@@ -168,7 +178,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
             utils.setPassword(password);
             utils.Message(messages.Prefix() + messages.Registered());
             utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
-            dataSender.sendAccountStatus(player);
+            plugin.getProxy().getScheduler().schedule(plugin, () -> dataSender.sendAccountStatus(player), (long) 1.5, TimeUnit.SECONDS);
         }, (long) 1.5, TimeUnit.SECONDS);
     }
 
@@ -187,7 +197,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                 utils.setPassword(password);
                 utils.Message(messages.Prefix() + messages.Registered());
                 utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
-                dataSender.sendAccountStatus(player);
+                plugin.getProxy().getScheduler().schedule(plugin, () -> dataSender.sendAccountStatus(player), (long) 1.5, TimeUnit.SECONDS);
 
                 PlayerRegisterEvent event = new PlayerRegisterEvent(player);
                 plugin.getProxy().getPluginManager().callEvent(event);
