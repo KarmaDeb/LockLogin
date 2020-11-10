@@ -1,0 +1,12 @@
+## [LockLogin](https://github.com/KarmaConfigs/page/wiki/LockLogin)
+* [How to install](https://github.com/KarmaConfigs/page/wiki/How-to-install-LockLogin)
+* [Commands and permissions](https://github.com/KarmaConfigs/page/wiki/LockLogin-Commands-&-Perms)
+* [Config guide](https://github.com/KarmaConfigs/page/wiki/LockLogin-config-guide)
+   * [Lang](https://github.com/KarmaConfigs/page/wiki/Languages)
+   * [AccountSys](https://github.com/KarmaConfigs/page/wiki/Account-system-management)
+   * [Updater](https://github.com/KarmaConfigs/page/wiki/Updater)
+* [Migrating](https://github.com/KarmaConfigs/page/wiki/Migration)
+ 
+## [API](https://github.com/KarmaConfigs/page/wiki/LockLogin-API)
+* [Spigot API](https://github.com/KarmaConfigs/page/wiki/Spigot-API)
+* [BungeeCord API](https://github.com/KarmaConfigs/page/wiki/Bungee-API)
