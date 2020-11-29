@@ -1,0 +1,23 @@
+#####################################
+#                                   #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         [][][]  [][][]            #
+#                                   #
+#    For more help                  #
+#    go to: https://rb.gy/jlmjah    #
+#                                   #
+#####################################
+
+#LockLogin spawn system
+#Read config file Spawn setting
+#for more info
+Spawn:
+  World: ""
+  X: 0.0
+  Y: 0.0
+  Z: 0.0
+  Pitch: 0.0
+  Yaw: 0.0

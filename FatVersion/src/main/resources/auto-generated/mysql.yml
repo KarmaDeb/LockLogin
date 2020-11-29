@@ -1,0 +1,51 @@
+#####################################
+#                                   #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         [][][]  [][][]            #
+#                                   #
+#    For more help                  #
+#    go to: https://rb.gy/jlmjah    #
+#                                   #
+#####################################
+
+#This is LockLogin MySQL system settings
+MySQL:
+  #The host of your MySQL database
+  host: 'localhost'
+  #The database name in where LockLogin users
+  #data will be saved
+  database: 'server_users'
+  #The port of your MySQL host
+  port: 3306
+  #The table name in where users tables will
+  #be created
+  table: 'users'
+  #Your MySQL username to login into your
+  #MySQL
+  user: 'root'
+  #The username password to effectively join
+  #into your MySQL
+  password: 'MYSECUREPASSWORD'
+  #Use Secure Sockets Layer?
+  #This brings an extra protection to the
+  #connection, but your MySQL host needs
+  #https
+  SSL: false
+
+#MySQL connection options
+Connection:
+  #Minimum amount of connections
+  #required in the connections pool
+  Min: 3
+  #Max amount of connections allowed
+  #in the connections pool
+  Max: 10
+  #The connections max time of no activity
+  #before getting killed
+  TimeOut: 40
+  #The connections max lifetime of no response
+  #before getting killed
+  LifeTime: 300

@@ -1,0 +1,183 @@
+#####################################
+#                                   #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         [][][]  [][][]            #
+#                                   #
+#    For more help                  #
+#    go to: https://rb.gy/jlmjah    #
+#                                   #
+#####################################
+
+#This is used by 2fa
+#and some plugin messages
+ServerName: ""
+
+#Registration options
+# Blind -> Applies a blind potion
+#          effect when the player
+#          joins if he's not registered
+#
+# Nausea -> Applies a confusion effect
+#           when the player joins if he's
+#           not registered, util for anarchy
+#           servers
+#
+# TimeOut -> The maximum time the player has
+#            to perform the register
+#
+# Max -> The maximum amount of accounts allowed
+#        TO REGISTER per IP
+Register:
+  Blind: false
+  Nausea: false
+  TimeOut: 60
+  Max: 2
+
+#Login options
+# Blind -> Applies a blind potion
+#          effect when the player
+#          joins if he's not logged in
+#
+# Nausea -> Applies a confusion effect
+#           when the player joins if he's
+#           not logged in, util for anarchy
+#           servers
+#
+# TimeOut -> The maximum time the player has
+#            to perform the login
+#
+# MaxTries -> The maximum amount of password tries
+#             the player has before getting kicked
+Login:
+  Blind: true
+  Nausea: true
+  TimeOut: 30
+  MaxTries: 5
+
+#BurteForce options
+# Tries -> The maximum amount of tries
+#          the IP has to login per connection
+#          (Per connection = Respecting Login's MaxTries)
+#
+# BlockTime -> The time (in minutes) the IP will
+#              be blocked if tries get to 0
+BruteForce:
+  Tries: 3
+  BlockTime: 30
+
+#AntiBot is a feature that
+#will try to keep bots away
+#from your server by just checking
+#if the connecting player has pinged
+#the server (bots doesn't ping servers)
+AntiBot: false
+
+#AllowSameIp is a feature that will
+#allow a player that is already connected
+#to join the server if his IP is the same
+#that the one is already connected.
+#By enabling this the player will still have
+#to login
+AllowSameIp: true
+
+#Enable pin feature (This is not 2FA)
+#LockLogin pin or LockLogin Pinner is
+#an extra pin feature that adds an extra
+#security layer to your players accounts
+Pin: true
+
+#Updater options
+# Check -> Enable the update checker
+#          if disabled, an unique check
+#          will be performed on each server
+#          start
+#
+# CheckTime -> The time (in minutes) before each
+#              update check, the minimum is 5 and
+#              the maximum is 60 (1 hour)
+#
+# ChangeLog -> Enable changelog displayer in each
+#              new update found message
+#
+# AutoUpdate -> Enable LockLogin auto-updater system (LLAUS)
+#               this one will update the plugin if there's a new
+#               update and there's no player in the server, you can
+#               always force the update with /locklogin applyUpdates
+#
+# FileType -> The LockLogin file type to download when updating
+#             Flat = Will download the flat version, which one tries
+#             to download and load dependencies ( Incompatible with some
+#             server.jar, hosts and OS )
+#             Fat = Will include all the needed dependencies inside of
+#             it ( Fully compatible will almost every platform )
+#
+#             If your current FileType is flat and LockLogin works perfectly
+#             you don't have to change it, otherwise, WHAT A WASTE OF MEMORY!
+Updater:
+  Check: true
+  CheckTime: 10
+  AutoUpdate: true
+  FileType: Fat
+
+#Enable 2FA feature (using Google Authenticator)
+#This adds and extra security layer to your
+#players account, but since due Spigot API is
+#bypasseable, you should enable PIN feature
+#For help while using/scanning 2FA QR codes
+#check these link:
+#
+# https://rb.gy/clq5ou
+# https://rb.gy/ugciij
+# This tutorial is on an iPhone
+# but the process is the same
+# on Android
+2FA: true
+
+#Spawn options
+# Manage -> Allow LockLogin to manage
+#           on-join spawn. To set the
+#           spawn you must use /setloginspawn
+# TakeBack -> Teleport the player back to his
+#             latest location after logging in
+Spawn:
+  Manage: false
+  TakeBack: false
+
+#Enable clear chat feature, this
+#option will clear ONLY CONNECTED
+#PLAYER chat, there won't be a change
+#for other players
+ClearChat: false
+
+#The maximum amount of accounts allowed
+#TO BE IN THE SERVER per IP
+AccountsPerIp: 2
+
+#Toggle LockLogin name verifier when
+#a player joins the server, using
+#mojang's name rules:
+#4 chars min, 16 max, only "_" allowed
+CheckNames: true
+
+#Plugin language
+#For more info please visit:
+# https://rb.gy/jlmjah
+Lang: en_EN
+
+#Account storage system
+#For more info please visit:
+# https://rb.gy/jlmjah
+AccountSys: File
+
+#The message to send when the server is
+#bungeecord mode and a player tries to
+#join directly to the spigot server,
+#without going through bungeecord,
+#he will be kicked with this message.
+#This is a method to bypass some login plugins
+#but LockLogin prevents it (Requires to LockLogin to be
+#installed in all your spigot servers to fully work)
+BungeeProxy: "&cPlease, connect through bungeecord proxy!"

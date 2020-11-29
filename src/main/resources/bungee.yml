@@ -1,5 +1,0 @@
-name: "LockLogin"
-version: ${project.version}
-author: KarmaConfigs
-description: Adds an extra protection to your Bukkit-Spigot-Paper/Bungeecord  server with this plugins that adds 2FA to his security system
-main: ml.karmaconfigs.LockLogin.BungeeCord.Main
