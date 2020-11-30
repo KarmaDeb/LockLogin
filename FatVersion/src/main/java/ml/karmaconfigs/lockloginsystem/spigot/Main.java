@@ -8,9 +8,6 @@ import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.PluginManagerSpigot;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.net.URL;
-
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999

@@ -1,0 +1,33 @@
+#####################################
+#                                   #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         [][][]  [][][]            #
+#                                   #
+#    For more help                  #
+#    go to: https://rb.gy/jlmjah    #
+#                                   #
+#####################################
+
+#Player name
+Player: ""
+
+#Player UUID
+UUID: ""
+
+#Player password
+Password: ""
+
+#Player pin
+Pin: ""
+
+#Player google auth token
+GAuth: ""
+
+#Player 2FA status
+2FA: false
+
+#Player fly status
+Fly: false

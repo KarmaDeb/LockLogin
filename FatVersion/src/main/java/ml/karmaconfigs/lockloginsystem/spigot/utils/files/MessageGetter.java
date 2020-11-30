@@ -30,7 +30,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class MessageGetter implements LockLoginSpigot {
     
     private static File msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
-    private static final YamlConfiguration messages = YamlConfiguration.loadConfiguration(msg_file);
+    private static YamlConfiguration messages;
 
     private static boolean loaded = false;
 
@@ -39,34 +39,43 @@ public final class MessageGetter implements LockLoginSpigot {
         switch (cfg.getLang()) {
             case ENGLISH:
                 msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case SPANISH:
                 msg_file = new File(plugin.getDataFolder(), "messages_es.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case SIMPLIFIED_CHINESE:
                 msg_file = new File(plugin.getDataFolder(), "messages_zh.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case ITALIAN:
                 msg_file = new File(plugin.getDataFolder(), "messages_it.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case POLISH:
                 msg_file = new File(plugin.getDataFolder(), "messages_pl.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case FRENCH:
                 msg_file = new File(plugin.getDataFolder(), "messages_fr.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case CZECH:
                 msg_file = new File(plugin.getDataFolder(), "messages_cz.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
             case UNKNOWN:
                 Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
                 msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
         }
 
         if (!msg_file.exists()) {
+            System.out.println(msg_file.getName());
             FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
-            
+
             if (creator.copy(msg_file)) {
                 try {
                     YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
@@ -78,6 +87,8 @@ public final class MessageGetter implements LockLoginSpigot {
                     logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
                 }
             }
+        } else {
+            manager.reload();
         }
 
         if (!loaded)
@@ -87,6 +98,59 @@ public final class MessageGetter implements LockLoginSpigot {
     public interface manager {
 
         static boolean reload() {
+            ConfigGetter cfg = new ConfigGetter();
+            switch (cfg.getLang()) {
+                case ENGLISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case SPANISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_es.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case SIMPLIFIED_CHINESE:
+                    msg_file = new File(plugin.getDataFolder(), "messages_zh.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case ITALIAN:
+                    msg_file = new File(plugin.getDataFolder(), "messages_it.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case POLISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_pl.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case FRENCH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_fr.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case CZECH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_cz.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+                case UNKNOWN:
+                    Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
+                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                    messages = YamlConfiguration.loadConfiguration(msg_file);
+                    break;
+            }
+
+            if (!msg_file.exists()) {
+                FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+
+                if (creator.copy(msg_file)) {
+                    try {
+                        YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+
+                        if (reloader.reloadAndCopy())
+                            messages.loadFromString(reloader.getYamlString());
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
+                    }
+                }
+            }
+
             try {
                 messages.save(msg_file);
                 YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());

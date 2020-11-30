@@ -59,7 +59,13 @@ public class ConsoleFilter implements Filter {
         if (msg == null) return false;
 
         msg = msg.toLowerCase();
-        return msg.contains("issued server command:") || msg.contains("server command:") || msg.contains("server command :") && SENSITIVE_COMMANDS.stream().anyMatch(msg::contains);
+        boolean isCommand = msg.contains("issued server command:") || msg.contains("server command:") || msg.contains("server command :");
+
+        if (isCommand) {
+            return SENSITIVE_COMMANDS.stream().anyMatch(msg::contains);
+        }
+
+        return false;
     }
 
     public final Result filter(LogEvent record) {
