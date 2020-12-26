@@ -1,5 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Filter;
@@ -61,7 +62,7 @@ public class ConsoleFilter implements Filter {
         msg = msg.toLowerCase();
         boolean isCommand = msg.contains("issued server command:") || msg.contains("server command:") || msg.contains("server command :");
 
-        if (isCommand) {
+        if (isCommand || SpigotFiles.config.advancedFiltering()) {
             return SENSITIVE_COMMANDS.stream().anyMatch(msg::contains);
         }
 

@@ -45,7 +45,7 @@ public final class ModuleLoader {
                 .getProtectionDomain()
                 .getCodeSource()
                 .getLocation()
-                .getPath());
+                .getPath().replaceAll("%20", " "));
 
         if (!manager.isLoaded(plugin_module)) {
             if (jar_file.getName().endsWith(".jar")) {

@@ -107,6 +107,10 @@ public final class ConfigGetter implements LockLoginSpigot {
         }
     }
 
+    public final boolean advancedFiltering() {
+        return configuration.getBoolean("AdvancedFiltering");
+    }
+
     public final Lang getLang() {
         String val = Objects.requireNonNull(configuration.getString("Lang", "en_EN")).toLowerCase();
 
