@@ -22,9 +22,7 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\GoogleAuthCommand.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginmodules\bungee\ModuleLoader.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\utils\files\FileCreator.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\Spigot\API\Events\PlayerPinEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\llsql\AccountMigrate.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\Spigot\API\Events\PlayerRegisterEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\Main.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\files\FileCreator.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\llsecurity\InsecurePasswords.java
@@ -48,7 +46,6 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\ResetLastLoc.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\commands\LoginCommand.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\commands\DelAccountCommand.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\BungeeCord\API\PlayerAPI.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\SetSpawnCommand.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\events\BlockedEvents.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\Platform.java
@@ -69,7 +66,6 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\utils\user\StartCheck.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\BungeeSender.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\user\StartCheck.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\Spigot\API\PlayerAPI.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\SetPinCommand.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\events\JoinRelated.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\LockLoginCommand.java
@@ -85,7 +81,6 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\llsecurity\Plugins\AuthMe\libs\BCrypt.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\llsecurity\PasswordUtils.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\commands\LookUpCommand.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\BungeeCord\API\Events\PlayerPinEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\datafiles\LastLocation.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\li\cock\ie\reflect\DuckHandler.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\commands\GoogleAuthCommand.java
@@ -93,7 +88,6 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\api\events\PlayerVerifyEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\ipstorage\IPStorager.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\li\cock\ie\access\ReflectImpl.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\BungeeCord\API\Events\PlayerRegisterEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\utils\pluginmanager\LockLoginBungeeManager.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\llsecurity\Passwords.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\events\PlayerLeave.java
@@ -107,13 +101,11 @@ D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\locklogins
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\api\events\PlayerVerifyEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\li\cock\ie\access\IAccess.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\Lang.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\BungeeCord\API\Events\PlayerVerifyEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\files\FileManager.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\InterfaceUtils.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\InsertReader.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\datafiles\AllowedCommands.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\bungeecord\utils\user\User.java
-D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\LockLogin\Spigot\API\Events\PlayerVerifyEvent.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\shared\alerts\IMSGUtils.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\inventory\PinInventory.java
 D:\Intel\Projects\LockLogin\FlatVersion\src\main\java\ml\karmaconfigs\lockloginsystem\spigot\utils\inventory\Numbers.java
