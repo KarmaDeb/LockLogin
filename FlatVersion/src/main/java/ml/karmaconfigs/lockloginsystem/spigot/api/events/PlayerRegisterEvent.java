@@ -29,11 +29,15 @@ public class PlayerRegisterEvent extends Event implements SpigotFiles {
     /**
      * Initialize the player verify event
      *
-     * @param player   the player
+     * @param player the player
      */
     public PlayerRegisterEvent(Player player) {
         this.player = player;
         registerMessage = messages.Registered();
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 
     /**
@@ -67,10 +71,6 @@ public class PlayerRegisterEvent extends Event implements SpigotFiles {
 
     @Override
     public final HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

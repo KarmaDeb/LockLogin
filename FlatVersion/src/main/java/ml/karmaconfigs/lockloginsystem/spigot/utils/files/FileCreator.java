@@ -16,12 +16,13 @@ import java.util.Objects;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
  * terms of use determined
  * in <a href="https://karmaconfigs.ml/license/"> here </a>
+ *
  * @deprecated Now using: KarmaAPI
  */
 @Deprecated

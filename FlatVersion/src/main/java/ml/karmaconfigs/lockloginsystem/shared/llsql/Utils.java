@@ -55,7 +55,8 @@ public final class Utils {
         this.uuid = uuid.toString();
         try {
             checkTables();
-        } catch (NoClassDefFoundError ignored) {}
+        } catch (NoClassDefFoundError ignored) {
+        }
     }
 
     /**
@@ -67,7 +68,8 @@ public final class Utils {
         this.uuid = uuid;
         try {
             checkTables();
-        } catch (NoClassDefFoundError ignored) {}
+        } catch (NoClassDefFoundError ignored) {
+        }
     }
 
     /**
@@ -79,7 +81,8 @@ public final class Utils {
         this.uuid = player.getUniqueId().toString();
         try {
             checkTables();
-        } catch (NoClassDefFoundError ignored) {}
+        } catch (NoClassDefFoundError ignored) {
+        }
     }
 
     /**
@@ -91,7 +94,8 @@ public final class Utils {
         this.uuid = player.getUniqueId().toString();
         try {
             checkTables();
-        } catch (NoClassDefFoundError ignored) {}
+        } catch (NoClassDefFoundError ignored) {
+        }
     }
 
     /**
@@ -215,7 +219,7 @@ public final class Utils {
     /**
      * Set the user account pin
      *
-     * @param pin the pin
+     * @param pin     the pin
      * @param literal is the pin encrypted?
      */
     public final void setPin(Object pin, boolean literal) {
@@ -289,7 +293,7 @@ public final class Utils {
     /**
      * Set the account's 2fa auth token
      *
-     * @param Token the token
+     * @param Token  the token
      * @param hashed is the token hashed?
      */
     public final void setGAuth(String Token, boolean hashed) {

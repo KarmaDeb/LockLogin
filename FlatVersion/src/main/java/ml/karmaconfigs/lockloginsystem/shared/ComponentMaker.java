@@ -11,7 +11,7 @@ import org.bukkit.entity.Player;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -54,8 +54,7 @@ public final class ComponentMaker {
      * replaced strings
      *
      * @param player the player
-     * @param token google auth token
-     *
+     * @param token  google auth token
      * @return The google auth qr url
      */
     public final String getURL(Player player, String token) {
@@ -67,8 +66,7 @@ public final class ComponentMaker {
      * replaced strings
      *
      * @param player the player
-     * @param token google auth token
-     *
+     * @param token  google auth token
      * @return The google auth qr url
      */
     public final String getURL(ProxiedPlayer player, String token) {

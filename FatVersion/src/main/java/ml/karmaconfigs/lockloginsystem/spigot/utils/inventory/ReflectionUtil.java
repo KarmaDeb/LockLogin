@@ -24,211 +24,211 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 
 public class ReflectionUtil {
-   public static String serverVersion = null;
-   private static final DuckBypass reflect = new DuckBypass();
+    private static final DuckBypass reflect = new DuckBypass();
+    public static String serverVersion = null;
 
-   public static Class<?> getBukkitClass(String clazz) throws Exception {
-      return Class.forName("org.bukkit.craftbukkit." + serverVersion + "." + clazz);
-   }
+    static {
+        try {
+            Class.forName("org.bukkit.Bukkit");
+            String version = Bukkit.getServer().getClass().getPackage().getName().substring(Bukkit.getServer().getClass().getPackage().getName().lastIndexOf(46) + 1);
+            setObject(ReflectionUtil.class, null, "serverVersion", version);
+        } catch (Exception var1) {
+        }
 
-   public static Class<?> getBungeeClass(String path, String clazz) throws Exception {
-      return Class.forName("net.md_5.bungee." + path + "." + clazz);
-   }
+    }
 
-   private static Constructor<?> getConstructor(Class<?> clazz, Class<?>... args) throws Exception {
-      Constructor<?> c = clazz.getConstructor(args);
-      c.setAccessible(true);
-      return c;
-   }
+    public static Class<?> getBukkitClass(String clazz) throws Exception {
+        return Class.forName("org.bukkit.craftbukkit." + serverVersion + "." + clazz);
+    }
 
-   public static Enum<?> getEnum(Class<?> clazz, String constant) throws Exception {
-      Class<?> c = Class.forName(clazz.getName());
-      Enum<?>[] econstants = (Enum[])((Enum[])c.getEnumConstants());
-      Enum[] var4 = econstants;
-      int var5 = econstants.length;
+    public static Class<?> getBungeeClass(String path, String clazz) throws Exception {
+        return Class.forName("net.md_5.bungee." + path + "." + clazz);
+    }
 
-      for(int var6 = 0; var6 < var5; ++var6) {
-         Enum<?> e = var4[var6];
-         if (e.name().equalsIgnoreCase(constant)) {
-            return e;
-         }
-      }
+    private static Constructor<?> getConstructor(Class<?> clazz, Class<?>... args) throws Exception {
+        Constructor<?> c = clazz.getConstructor(args);
+        c.setAccessible(true);
+        return c;
+    }
 
-      throw new Exception("Enum constant not found " + constant);
-   }
+    public static Enum<?> getEnum(Class<?> clazz, String constant) throws Exception {
+        Class<?> c = Class.forName(clazz.getName());
+        Enum<?>[] econstants = (Enum[]) ((Enum[]) c.getEnumConstants());
+        Enum[] var4 = econstants;
+        int var5 = econstants.length;
 
-   public static Enum<?> getEnum(Class<?> clazz, String enumname, String constant) throws Exception {
-      Class<?> c = Class.forName(clazz.getName() + "$" + enumname);
-      Enum<?>[] econstants = (Enum[])((Enum[])c.getEnumConstants());
-      Enum[] var5 = econstants;
-      int var6 = econstants.length;
+        for (int var6 = 0; var6 < var5; ++var6) {
+            Enum<?> e = var4[var6];
+            if (e.name().equalsIgnoreCase(constant)) {
+                return e;
+            }
+        }
 
-      for(int var7 = 0; var7 < var6; ++var7) {
-         Enum<?> e = var5[var7];
-         if (e.name().equalsIgnoreCase(constant)) {
-            return e;
-         }
-      }
+        throw new Exception("Enum constant not found " + constant);
+    }
 
-      throw new Exception("Enum constant not found " + constant);
-   }
+    public static Enum<?> getEnum(Class<?> clazz, String enumname, String constant) throws Exception {
+        Class<?> c = Class.forName(clazz.getName() + "$" + enumname);
+        Enum<?>[] econstants = (Enum[]) ((Enum[]) c.getEnumConstants());
+        Enum[] var5 = econstants;
+        int var6 = econstants.length;
 
-   private static Field getField(Class<?> clazz, String fname) throws Exception {
-      Field f;
-      try {
-         f = clazz.getDeclaredField(fname);
-      } catch (Exception var4) {
-         f = clazz.getField(fname);
-      }
+        for (int var7 = 0; var7 < var6; ++var7) {
+            Enum<?> e = var5[var7];
+            if (e.name().equalsIgnoreCase(constant)) {
+                return e;
+            }
+        }
 
-      setFieldAccessible(f);
-      return f;
-   }
+        throw new Exception("Enum constant not found " + constant);
+    }
 
-   public static Object getFirstObject(Class<?> clazz, Class<?> objclass, Object instance) throws Exception {
-      Field f = null;
-      Field[] var4 = clazz.getDeclaredFields();
-      int var5 = var4.length;
+    private static Field getField(Class<?> clazz, String fname) throws Exception {
+        Field f;
+        try {
+            f = clazz.getDeclaredField(fname);
+        } catch (Exception var4) {
+            f = clazz.getField(fname);
+        }
 
-      int var6;
-      Field fi;
-      for(var6 = 0; var6 < var5; ++var6) {
-         fi = var4[var6];
-         if (fi.getType().equals(objclass)) {
-            f = fi;
-            break;
-         }
-      }
+        setFieldAccessible(f);
+        return f;
+    }
 
-      if (f == null) {
-         var4 = clazz.getFields();
-         var5 = var4.length;
+    public static Object getFirstObject(Class<?> clazz, Class<?> objclass, Object instance) throws Exception {
+        Field f = null;
+        Field[] var4 = clazz.getDeclaredFields();
+        int var5 = var4.length;
 
-         for(var6 = 0; var6 < var5; ++var6) {
+        int var6;
+        Field fi;
+        for (var6 = 0; var6 < var5; ++var6) {
             fi = var4[var6];
             if (fi.getType().equals(objclass)) {
-               f = fi;
-               break;
+                f = fi;
+                break;
             }
-         }
-      }
+        }
 
-      assert f != null;
+        if (f == null) {
+            var4 = clazz.getFields();
+            var5 = var4.length;
 
-      setFieldAccessible(f);
-      return f.get(instance);
-   }
+            for (var6 = 0; var6 < var5; ++var6) {
+                fi = var4[var6];
+                if (fi.getType().equals(objclass)) {
+                    f = fi;
+                    break;
+                }
+            }
+        }
 
-   private static Method getMethod(Class<?> clazz, String mname) {
-      Method m;
-      try {
-         m = clazz.getDeclaredMethod(mname);
-      } catch (Exception var6) {
-         try {
-            m = clazz.getMethod(mname);
-         } catch (Exception var5) {
-            return null;
-         }
-      }
+        assert f != null;
 
-      m.setAccessible(true);
-      return m;
-   }
+        setFieldAccessible(f);
+        return f.get(instance);
+    }
 
-   public static <T> Field getField(Class<?> target, String name, Class<T> fieldType, int index) {
-      Field[] var4 = target.getDeclaredFields();
-      int var5 = var4.length;
+    private static Method getMethod(Class<?> clazz, String mname) {
+        Method m;
+        try {
+            m = clazz.getDeclaredMethod(mname);
+        } catch (Exception var6) {
+            try {
+                m = clazz.getMethod(mname);
+            } catch (Exception var5) {
+                return null;
+            }
+        }
 
-      for(int var6 = 0; var6 < var5; ++var6) {
-         Field field = var4[var6];
-         if ((name == null || field.getName().equals(name)) && fieldType.isAssignableFrom(field.getType()) && index-- <= 0) {
-            field.setAccessible(true);
-            return field;
-         }
-      }
+        m.setAccessible(true);
+        return m;
+    }
 
-      if (target.getSuperclass() != null) {
-         return getField(target.getSuperclass(), name, fieldType, index);
-      } else {
-         throw new IllegalArgumentException("Cannot find field with type " + fieldType);
-      }
-   }
+    public static <T> Field getField(Class<?> target, String name, Class<T> fieldType, int index) {
+        Field[] var4 = target.getDeclaredFields();
+        int var5 = var4.length;
 
-   private static Method getMethod(Class<?> clazz, String mname, Class<?>... args) {
-      Method m;
-      try {
-         m = clazz.getDeclaredMethod(mname, args);
-      } catch (Exception var7) {
-         try {
-            m = clazz.getMethod(mname, args);
-         } catch (Exception var6) {
-            return null;
-         }
-      }
+        for (int var6 = 0; var6 < var5; ++var6) {
+            Field field = var4[var6];
+            if ((name == null || field.getName().equals(name)) && fieldType.isAssignableFrom(field.getType()) && index-- <= 0) {
+                field.setAccessible(true);
+                return field;
+            }
+        }
 
-      m.setAccessible(true);
-      return m;
-   }
+        if (target.getSuperclass() != null) {
+            return getField(target.getSuperclass(), name, fieldType, index);
+        } else {
+            throw new IllegalArgumentException("Cannot find field with type " + fieldType);
+        }
+    }
 
-   public static Class<?> getNMSClass(String clazz) throws Exception {
-      return Class.forName("net.minecraft.server." + serverVersion + "." + clazz);
-   }
+    private static Method getMethod(Class<?> clazz, String mname, Class<?>... args) {
+        Method m;
+        try {
+            m = clazz.getDeclaredMethod(mname, args);
+        } catch (Exception var7) {
+            try {
+                m = clazz.getMethod(mname, args);
+            } catch (Exception var6) {
+                return null;
+            }
+        }
 
-   public static Object getObject(Class<?> clazz, Object obj, String fname) throws Exception {
-      return getField(clazz, fname).get(obj);
-   }
+        m.setAccessible(true);
+        return m;
+    }
 
-   public static Object getObject(Object obj, String fname) throws Exception {
-      return getField(obj.getClass(), fname).get(obj);
-   }
+    public static Class<?> getNMSClass(String clazz) throws Exception {
+        return Class.forName("net.minecraft.server." + serverVersion + "." + clazz);
+    }
 
-   public static Object invokeConstructor(Class<?> clazz, Class<?>[] args, Object... initargs) throws Exception {
-      return getConstructor(clazz, args).newInstance(initargs);
-   }
+    public static Object getObject(Class<?> clazz, Object obj, String fname) throws Exception {
+        return getField(clazz, fname).get(obj);
+    }
 
-   public static Object invokeMethod(Class<?> clazz, Object obj, String method) throws Exception {
-      return ((Method)Objects.requireNonNull(getMethod(clazz, method))).invoke(obj);
-   }
+    public static Object getObject(Object obj, String fname) throws Exception {
+        return getField(obj.getClass(), fname).get(obj);
+    }
 
-   public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, Object... initargs) throws Exception {
-      return ((Method)Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, initargs);
-   }
+    public static Object invokeConstructor(Class<?> clazz, Class<?>[] args, Object... initargs) throws Exception {
+        return getConstructor(clazz, args).newInstance(initargs);
+    }
 
-   public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, String string) throws InvocationTargetException, IllegalAccessException {
-      return ((Method)Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, string);
-   }
+    public static Object invokeMethod(Class<?> clazz, Object obj, String method) throws Exception {
+        return ((Method) Objects.requireNonNull(getMethod(clazz, method))).invoke(obj);
+    }
 
-   public static Object invokeMethod(Class<?> clazz, Object obj, String method, Object... initargs) throws Exception {
-      return ((Method)Objects.requireNonNull(getMethod(clazz, method))).invoke(obj, initargs);
-   }
+    public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, Object... initargs) throws Exception {
+        return ((Method) Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, initargs);
+    }
 
-   public static Object invokeMethod(Object obj, String method) throws Exception {
-      return ((Method)Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj);
-   }
+    public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, String string) throws InvocationTargetException, IllegalAccessException {
+        return ((Method) Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, string);
+    }
 
-   public static Object invokeMethod(Object obj, String method, Object[] initargs) throws Exception {
-      return ((Method)Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj, initargs);
-   }
+    public static Object invokeMethod(Class<?> clazz, Object obj, String method, Object... initargs) throws Exception {
+        return ((Method) Objects.requireNonNull(getMethod(clazz, method))).invoke(obj, initargs);
+    }
 
-   private static void setFieldAccessible(Field f) throws Exception {
-      reflect.setEditable(f);
-   }
+    public static Object invokeMethod(Object obj, String method) throws Exception {
+        return ((Method) Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj);
+    }
 
-   public static void setObject(Class<?> clazz, Object obj, String fname, Object value) throws Exception {
-      reflect.setValue(clazz, fname, obj, value);
-   }
+    public static Object invokeMethod(Object obj, String method, Object[] initargs) throws Exception {
+        return ((Method) Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj, initargs);
+    }
 
-   public static void setObject(Object obj, String fname, Object value) throws Exception {
-      getField(obj.getClass(), fname).set(obj, value);
-   }
+    private static void setFieldAccessible(Field f) throws Exception {
+        reflect.setEditable(f);
+    }
 
-   static {
-      try {
-         Class.forName("org.bukkit.Bukkit");
-         String version = Bukkit.getServer().getClass().getPackage().getName().substring(Bukkit.getServer().getClass().getPackage().getName().lastIndexOf(46) + 1);
-         setObject(ReflectionUtil.class, null, "serverVersion", version);
-      } catch (Exception var1) {
-      }
+    public static void setObject(Class<?> clazz, Object obj, String fname, Object value) throws Exception {
+        reflect.setValue(clazz, fname, obj, value);
+    }
 
-   }
+    public static void setObject(Object obj, String fname, Object value) throws Exception {
+        getField(obj.getClass(), fname).set(obj, value);
+    }
 }

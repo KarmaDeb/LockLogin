@@ -31,8 +31,8 @@ public final class SQLiteReader {
     /**
      * Initialize the sqlite reader
      *
-     * @param database the database
-     * @param table the table
+     * @param database       the database
+     * @param table          the table
      * @param realnameColumn the real name column
      * @param passwordColumn the password column
      */

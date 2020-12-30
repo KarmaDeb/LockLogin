@@ -77,7 +77,8 @@ public final class MigrateCommand implements CommandExecutor, LockLoginSpigot, S
                         Connection connection = null;
                         try {
                             connection = Bucket.getBucket().getConnection();
-                        } catch (Exception | Error ignore) {}
+                        } catch (Exception | Error ignore) {
+                        }
 
                         if (connection != null) {
                             user.Message(messages.Prefix() + messages.MigratingAll());
@@ -135,7 +136,8 @@ public final class MigrateCommand implements CommandExecutor, LockLoginSpigot, S
                 Connection connection = null;
                 try {
                     connection = Bucket.getBucket().getConnection();
-                } catch (Exception | Error ignore) {}
+                } catch (Exception | Error ignore) {
+                }
 
                 if (connection != null) {
                     Console.send(messages.Prefix() + messages.MigratingAll());

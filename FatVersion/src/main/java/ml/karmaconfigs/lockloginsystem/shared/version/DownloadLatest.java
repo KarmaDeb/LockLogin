@@ -11,7 +11,7 @@ import java.net.URLConnection;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -20,10 +20,9 @@ import java.net.URLConnection;
  */
 public final class DownloadLatest {
 
+    private final URL downloadURL;
     private File update;
     private File destJar;
-
-    private final URL downloadURL;
 
     /**
      * Initialize the downloader
@@ -46,7 +45,7 @@ public final class DownloadLatest {
     }
 
     /**
-     *  Download the latest LockLogin jar version
+     * Download the latest LockLogin jar version
      */
     public final void download() {
         try {

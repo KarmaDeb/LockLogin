@@ -160,7 +160,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                     message.writeUTF(player.getUniqueId().toString());
 
                     try {
-                         player.getServer().getInfo().sendData("ll:info", b.toByteArray());
+                        player.getServer().getInfo().sendData("ll:info", b.toByteArray());
                     } catch (Throwable e) {
                         logger.scheduleLog(Level.GRAVE, e);
                         logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
@@ -178,7 +178,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
      * the player
      *
      * @param player the player
-     * @param apply apply, or remove the effects
+     * @param apply  apply, or remove the effects
      * @param nausea is nausea enabled in config?
      */
     public final void blindEffect(ProxiedPlayer player, boolean apply, boolean nausea) {

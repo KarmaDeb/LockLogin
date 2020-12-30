@@ -41,7 +41,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
             try {
                 String[] data = in.readUTF().split("_");
                 String channel = data[0];
-                if(channel.equals("PinInput")) {
+                if (channel.equals("PinInput")) {
                     int input = Integer.parseInt(data[2]);
                     UUID uuid = UUID.fromString(data[1]);
 

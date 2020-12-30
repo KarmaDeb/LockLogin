@@ -70,7 +70,7 @@ public final class CheckPlayerCommand extends Command implements LockLoginBungee
      * Fill the player data
      *
      * @param issuer the command issuer
-     * @param tName the player
+     * @param tName  the player
      */
     private void sendData(ProxiedPlayer issuer, String tName) {
         User user = new User(issuer);

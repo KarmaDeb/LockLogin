@@ -26,7 +26,7 @@ public class PlayerRegisterEvent extends Event implements BungeeFiles {
     /**
      * Initialize the player verify event
      *
-     * @param player   the player
+     * @param player the player
      */
     public PlayerRegisterEvent(ProxiedPlayer player) {
         this.player = player;

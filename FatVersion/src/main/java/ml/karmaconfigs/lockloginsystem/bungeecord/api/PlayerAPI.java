@@ -38,9 +38,8 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
 
     private final Module module;
     private final ProxiedPlayer player;
-    private AuthResult result = AuthResult.IDLE;
-
     private final BungeeSender dataSender = new BungeeSender();
+    private AuthResult result = AuthResult.IDLE;
 
     /**
      * Initialize LockLogin bungee's API
@@ -115,54 +114,9 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Mark the player as logged/un-logged
-     *
-     * @param Value true = log the player; false = unlog him
-     */
-    public final void setLogged(boolean Value) {
-        if (player != null) {
-            plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                User utils = new User(player);
-                if (Value) {
-                    if (!utils.isLogged()) {
-                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " logged in " + player.getName());
-
-                        if (utils.has2FA()) {
-                            utils.setLogStatus(true);
-                            utils.setTempLog(true);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                            dataSender.sendAccountStatus(player);
-                        } else {
-                            utils.setLogStatus(true);
-                            utils.setLogStatus(false);
-                            LobbyChecker checker = new LobbyChecker();
-                            if (checker.MainOk() && checker.MainIsWorking()) {
-                                utils.sendTo(checker.getMain());
-                            }
-                            dataSender.sendAccountStatus(player);
-                        }
-                    }
-                } else {
-                    if (utils.isLogged()) {
-                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " un-logged in " + player.getName());
-
-                        utils.setLogStatus(false);
-                        utils.setTempLog(false);
-                        LobbyChecker checker = new LobbyChecker();
-                        if (checker.AuthOk() && checker.AuthIsWorking()) {
-                            utils.sendTo(checker.getAuth());
-                        }
-                        dataSender.sendAccountStatus(player);
-                    }
-                }
-            }, (long) 1.5, TimeUnit.SECONDS);
-        }
-    }
-
-    /**
      * Try to log the player
      *
-     * @param value the value
+     * @param value   the value
      * @param message the login message
      * @return the auth result of the request
      */
@@ -401,6 +355,51 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
         }
 
         return false;
+    }
+
+    /**
+     * Mark the player as logged/un-logged
+     *
+     * @param Value true = log the player; false = unlog him
+     */
+    public final void setLogged(boolean Value) {
+        if (player != null) {
+            plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                User utils = new User(player);
+                if (Value) {
+                    if (!utils.isLogged()) {
+                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " logged in " + player.getName());
+
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            dataSender.sendAccountStatus(player);
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setLogStatus(false);
+                            LobbyChecker checker = new LobbyChecker();
+                            if (checker.MainOk() && checker.MainIsWorking()) {
+                                utils.sendTo(checker.getMain());
+                            }
+                            dataSender.sendAccountStatus(player);
+                        }
+                    }
+                } else {
+                    if (utils.isLogged()) {
+                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " un-logged in " + player.getName());
+
+                        utils.setLogStatus(false);
+                        utils.setTempLog(false);
+                        LobbyChecker checker = new LobbyChecker();
+                        if (checker.AuthOk() && checker.AuthIsWorking()) {
+                            utils.sendTo(checker.getAuth());
+                        }
+                        dataSender.sendAccountStatus(player);
+                    }
+                }
+            }, (long) 1.5, TimeUnit.SECONDS);
+        }
     }
 
     /**

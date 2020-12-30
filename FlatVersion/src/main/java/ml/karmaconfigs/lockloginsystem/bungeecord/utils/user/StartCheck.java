@@ -25,11 +25,10 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class StartCheck implements LockLoginBungee, BungeeFiles {
 
+    private final BungeeSender dataSender = new BungeeSender();
     private ScheduledTask task;
     private ScheduledTask msTask;
     private int back;
-
-    private final BungeeSender dataSender = new BungeeSender();
 
     /**
      * Start the checker

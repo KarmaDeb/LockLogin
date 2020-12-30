@@ -10,7 +10,7 @@ import java.util.HashMap;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -26,7 +26,9 @@ public final class IpData {
     /**
      * Initialize the IP database
      *
-     * @param Ip the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param Ip     the IP
      */
     public IpData(final Module loader, InetAddress Ip) {
         if (ModuleLoader.manager.isLoaded(loader)) {
@@ -39,7 +41,9 @@ public final class IpData {
     /**
      * Initialize the IP database
      *
-     * @param Ip the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param Ip     the IP
      */
     public IpData(final ml.karmaconfigs.lockloginmodules.bungee.Module loader, InetAddress Ip) {
         if (ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader.manager.isLoaded(loader)) {

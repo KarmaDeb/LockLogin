@@ -92,7 +92,7 @@ public final class InventoryEventHandler implements Listener {
      * to the one to check with
      *
      * @param clicked the clicked item
-     * @param check the one to check with
+     * @param check   the one to check with
      * @return if the clicked stack is similar to the "check" one
      */
     private boolean isSimilar(ItemStack clicked, ItemStack check) {

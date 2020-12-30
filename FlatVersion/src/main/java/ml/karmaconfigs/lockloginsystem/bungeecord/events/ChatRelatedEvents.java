@@ -25,7 +25,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-public final class ChatRelatedEvents implements Listener, LockLoginBungee,  BungeeFiles {
+public final class ChatRelatedEvents implements Listener, LockLoginBungee, BungeeFiles {
 
     private final BungeeSender dataSender = new BungeeSender();
 
@@ -46,7 +46,8 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee,  Bung
                         return cmdData[1];
                     }
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
             return cmd.split(" ")[0].replace("/", "");
         } else {
             if (cmd.contains(" ")) {

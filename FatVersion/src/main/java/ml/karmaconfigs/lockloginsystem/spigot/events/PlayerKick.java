@@ -36,7 +36,8 @@ public final class PlayerKick implements Listener, SpigotFiles {
                 if (!ModuleLoader.manager.isLoaded(temp_module)) {
                     spigot_module_loader.inject();
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
 
             IpData data = new IpData(temp_module, player.getAddress().getAddress());
 

@@ -110,54 +110,9 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Mark the player as logged/un-logged
-     *
-     * @param Value true/false
-     */
-    public final void setLogged(boolean Value) {
-        if (player != null) {
-            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                User utils = new User(player);
-                if (Value) {
-                    if (!utils.isLogged()) {
-                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " logged in " + player.getName());
-
-                        if (config.TakeBack()) {
-                            LastLocation lastLoc = new LastLocation(player);
-                            utils.Teleport(lastLoc.getLastLocation());
-                        }
-                        if (config.LoginBlind()) {
-                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
-                        }
-                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
-
-                        if (utils.has2FA()) {
-                            utils.setLogStatus(true);
-                            utils.setTempLog(true);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                        } else {
-                            utils.setLogStatus(true);
-                            utils.setLogStatus(false);
-                        }
-
-                        utils.sendTitle("", "", 1, 2, 1);
-                    }
-                } else {
-                    if (utils.isLogged()) {
-                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " un-logged in " + player.getName());
-
-                        utils.setLogStatus(false);
-                        utils.setTempLog(false);
-                    }
-                }
-            }, (long) (20 * 1.5));
-        }
-    }
-
-    /**
      * Try to log the player
      *
-     * @param value the value
+     * @param value   the value
      * @param message the login message
      * @return the auth result of the request
      */
@@ -420,6 +375,51 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
         }
 
         return true;
+    }
+
+    /**
+     * Mark the player as logged/un-logged
+     *
+     * @param Value true/false
+     */
+    public final void setLogged(boolean Value) {
+        if (player != null) {
+            plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                User utils = new User(player);
+                if (Value) {
+                    if (!utils.isLogged()) {
+                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " logged in " + player.getName());
+
+                        if (config.TakeBack()) {
+                            LastLocation lastLoc = new LastLocation(player);
+                            utils.Teleport(lastLoc.getLastLocation());
+                        }
+                        if (config.LoginBlind()) {
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                        }
+                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
+
+                        if (utils.has2FA()) {
+                            utils.setLogStatus(true);
+                            utils.setTempLog(true);
+                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                        } else {
+                            utils.setLogStatus(true);
+                            utils.setLogStatus(false);
+                        }
+
+                        utils.sendTitle("", "", 1, 2, 1);
+                    }
+                } else {
+                    if (utils.isLogged()) {
+                        logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " un-logged in " + player.getName());
+
+                        utils.setLogStatus(false);
+                        utils.setTempLog(false);
+                    }
+                }
+            }, (long) (20 * 1.5));
+        }
     }
 
     /**

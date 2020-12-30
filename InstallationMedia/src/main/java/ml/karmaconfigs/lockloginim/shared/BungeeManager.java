@@ -15,7 +15,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.MessageFormat;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
@@ -41,6 +43,7 @@ public final class BungeeManager {
     public final void unload(final Plugin plugin) {
         IllegalStateException error = new IllegalStateException("Errors occurred while unloading plugin " + plugin.getDescription().getName()) {
             private static final long serialVersionUID = 1L;
+
             @Override
             public synchronized Throwable fillInStackTrace() {
                 return this;
@@ -162,7 +165,7 @@ public final class BungeeManager {
                                 Main.class.getClassLoader().getClass()
                                         .getDeclaredConstructor(ProxyServer.class, PluginDescription.class, URL[].class)
                         )
-                                .newInstance(proxyserver, desc, new URL[] {destFile.toURI().toURL()})
+                                .newInstance(proxyserver, desc, new URL[]{destFile.toURI().toURL()})
                                 .loadClass(desc.getMain()).getDeclaredConstructor()
                                 .newInstance();
                 Reflections.invokeMethod(plugin, "init", proxyserver, desc);

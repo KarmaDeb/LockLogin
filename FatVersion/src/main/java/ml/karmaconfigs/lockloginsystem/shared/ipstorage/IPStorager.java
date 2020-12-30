@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -32,7 +32,9 @@ public final class IPStorager {
      * Initialize the IP storage
      * for that IP
      *
-     * @param IP the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param IP     the IP
      */
     public IPStorager(Module loader, InetAddress IP) {
         if (ModuleLoader.manager.isLoaded(loader)) {
@@ -88,7 +90,7 @@ public final class IPStorager {
             this.file = file;
         } else {
             this.file = null;
-            this.ip  = null;
+            this.ip = null;
         }
     }
 
@@ -96,7 +98,9 @@ public final class IPStorager {
      * Initialize the IP storage
      * for that IP
      *
-     * @param IP the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param IP     the IP
      */
     public IPStorager(ml.karmaconfigs.lockloginmodules.bungee.Module loader, InetAddress IP) {
         if (ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader.manager.isLoaded(loader)) {
@@ -152,7 +156,7 @@ public final class IPStorager {
             this.file = file;
         } else {
             this.file = null;
-            this.ip  = null;
+            this.ip = null;
         }
     }
 

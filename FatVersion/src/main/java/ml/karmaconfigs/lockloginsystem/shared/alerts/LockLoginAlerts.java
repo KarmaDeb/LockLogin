@@ -2,7 +2,7 @@ package ml.karmaconfigs.lockloginsystem.shared.alerts;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -22,7 +22,6 @@ public interface LockLoginAlerts {
 
     /**
      * Send the alert to the server console
-     *
      */
     static void sendAlert() {
         new IMSGUtils().SendAlert();

@@ -6,7 +6,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of

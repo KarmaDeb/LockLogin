@@ -9,8 +9,7 @@ public class AuthMeAuth {
      * Check the password with the specified token
      *
      * @param password the password
-     * @param token the token
-     *
+     * @param token    the token
      * @return if the password is correct
      */
     public boolean check(String password, String token) {
@@ -28,7 +27,6 @@ public class AuthMeAuth {
      * Hash the password as Sha256
      *
      * @param password the password
-     *
      * @return a encrypted password
      */
     private String hashSha256(String password) {

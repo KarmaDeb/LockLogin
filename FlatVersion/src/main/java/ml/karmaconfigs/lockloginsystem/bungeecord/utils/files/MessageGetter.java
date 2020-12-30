@@ -94,60 +94,6 @@ public final class MessageGetter implements LockLoginBungee {
             loaded = manager.reload();
     }
 
-    public interface manager {
-
-        static boolean reload() {
-            ConfigGetter cfg = new ConfigGetter();
-            switch (cfg.getLang()) {
-                case ENGLISH:
-                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
-                    break;
-                case SPANISH:
-                    msg_file = new File(plugin.getDataFolder(), "messages_es.yml");
-                    break;
-                case SIMPLIFIED_CHINESE:
-                    msg_file = new File(plugin.getDataFolder(), "messages_zh.yml");
-                    break;
-                case ITALIAN:
-                    msg_file = new File(plugin.getDataFolder(), "messages_it.yml");
-                    break;
-                case POLISH:
-                    msg_file = new File(plugin.getDataFolder(), "messages_pl.yml");
-                    break;
-                case FRENCH:
-                    msg_file = new File(plugin.getDataFolder(), "messages_fr.yml");
-                    break;
-                case CZECH:
-                    msg_file = new File(plugin.getDataFolder(), "messages_cz.yml");
-                    break;
-                case UNKNOWN:
-                    Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
-                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
-                    break;
-            }
-
-            try {
-                messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
-            } catch (Throwable ex) {
-                logger.scheduleLog(Level.GRAVE, ex);
-                Console.send(plugin, "An error occurred while loading messages", Level.GRAVE);
-            }
-
-            try {
-                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
-                if (reloader.reloadAndCopy()) {
-                    messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
-                    return true;
-                }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while reloading config file");
-            }
-
-            return false;
-        }
-    }
-
     public final String Prefix() {
         return messages.getString("Prefix");
     }
@@ -406,7 +352,7 @@ public final class MessageGetter implements LockLoginBungee {
                     .replace("]", "{replace_close}")
                     .replace(",", "{replace_comma}") + "&r");
         }
-        
+
         return replaced.toString()
                 .replace("[", "")
                 .replace("]", "")
@@ -505,5 +451,59 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace-one}", "[")
                 .replace("{replace-two}", "]")
                 .replace("{replace_comma_gray}", "&7,");
+    }
+
+    public interface manager {
+
+        static boolean reload() {
+            ConfigGetter cfg = new ConfigGetter();
+            switch (cfg.getLang()) {
+                case ENGLISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                    break;
+                case SPANISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_es.yml");
+                    break;
+                case SIMPLIFIED_CHINESE:
+                    msg_file = new File(plugin.getDataFolder(), "messages_zh.yml");
+                    break;
+                case ITALIAN:
+                    msg_file = new File(plugin.getDataFolder(), "messages_it.yml");
+                    break;
+                case POLISH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_pl.yml");
+                    break;
+                case FRENCH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_fr.yml");
+                    break;
+                case CZECH:
+                    msg_file = new File(plugin.getDataFolder(), "messages_cz.yml");
+                    break;
+                case UNKNOWN:
+                    Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
+                    msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
+                    break;
+            }
+
+            try {
+                messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
+            } catch (Throwable ex) {
+                logger.scheduleLog(Level.GRAVE, ex);
+                Console.send(plugin, "An error occurred while loading messages", Level.GRAVE);
+            }
+
+            try {
+                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                if (reloader.reloadAndCopy()) {
+                    messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
+                    return true;
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
+            }
+
+            return false;
+        }
     }
 }

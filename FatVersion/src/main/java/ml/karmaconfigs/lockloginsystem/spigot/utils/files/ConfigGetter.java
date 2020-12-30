@@ -30,7 +30,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class ConfigGetter implements LockLoginSpigot {
 
     private final static File spigot = new File(plugin.getServer().getWorldContainer().getPath(), "spigot.yml");
-    
+
     private final static File config = new File(plugin.getDataFolder(), "config.yml");
     private final static YamlConfiguration configuration = YamlConfiguration.loadConfiguration(config);
 
@@ -55,24 +55,6 @@ public final class ConfigGetter implements LockLoginSpigot {
         if (!loaded) {
             manager.reload();
             loaded = true;
-        }
-    }
-
-    public interface manager {
-
-        static boolean reload() {
-            try {
-                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
-                if (reloader.reloadAndCopy()) {
-                    configuration.loadFromString(reloader.getYamlString());
-                    return true;
-                }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while reloading config file");
-            }
-
-            return false;
         }
     }
 
@@ -214,7 +196,9 @@ public final class ConfigGetter implements LockLoginSpigot {
         return configuration.getBoolean("AntiBot", false);
     }
 
-    public final boolean AllowSameIp() { return configuration.getBoolean("AllowSameIp", true); }
+    public final boolean AllowSameIp() {
+        return configuration.getBoolean("AllowSameIp", true);
+    }
 
     public final boolean EnablePins() {
         return configuration.getBoolean("Pin", true);
@@ -277,5 +261,23 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final String BungeeProxy() {
         return configuration.getString("BungeeProxy", "&cPlease, connect through bungeecord proxy!");
+    }
+
+    public interface manager {
+
+        static boolean reload() {
+            try {
+                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
+                if (reloader.reloadAndCopy()) {
+                    configuration.loadFromString(reloader.getYamlString());
+                    return true;
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
+            }
+
+            return false;
+        }
     }
 }

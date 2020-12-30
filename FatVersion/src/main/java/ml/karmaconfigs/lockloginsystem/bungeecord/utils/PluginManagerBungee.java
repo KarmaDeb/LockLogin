@@ -112,7 +112,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
         Configuration configuration = null;
         try {
             configuration = YamlConfiguration.getProvider(YamlConfiguration.class).load(config_file);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         if (configuration != null) {
             String random = StringUtils.randomString(5);
@@ -120,14 +121,14 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 configuration.set("ServerName", random);
             }
         }
-        
+
         ConfigGetter cfg = new ConfigGetter();
         if (cfg.MainLobby().equals(cfg.AuthLobby()) || cfg.MainLobby().equals(cfg.FallBackAuth())) {
             Console.send(plugin, "Your lobby and auth lobby are the same, if you don't have auth lobby," +
                     " LockLogin will detect it automatically and use the player server as auth server " +
                     "( REMEMBER TO INSTALL LOCKLOGIN IN EACH SERVER SO THIS WILL HAPPEN )", Level.WARNING);
         }
-        
+
         File msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
         switch (cfg.getLang()) {
             case ENGLISH:
@@ -185,7 +186,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
             AllowedCommands commands = new AllowedCommands();
             commands.addAll(allowed.getStringList("AllowedCommands"));
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         try {
             YamlConfiguration.getProvider(YamlConfiguration.class).save(configuration, config_file);

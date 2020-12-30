@@ -82,7 +82,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
         user.Message("&eTrimmed&7: &f" + getUUId(tName).toString().replace("-", ""));
         if (isOnline(tName)) {
             Player target = plugin.getServer().getPlayer(tName);
-           User targetUser = new User(target);
+            User targetUser = new User(target);
 
             user.Message("&eIP&7: &f" + target.getAddress().getAddress().getHostName());
             if (!targetUser.isLogged()) {
@@ -117,7 +117,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
             user.Message("&eServer&7: &f" + target.getServer().getName());
         } else {
             if (config.isYaml()) {
-               OfflineUser targetUser = new OfflineUser(tName);
+                OfflineUser targetUser = new OfflineUser(tName);
 
                 if (targetUser.exists()) {
                     user.Message("&eIP&7: &cDISCONNECTED");

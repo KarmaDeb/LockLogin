@@ -1,4 +1,5 @@
 package ml.karmaconfigs.lockloginim.shared.pluginmanager;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -29,7 +30,7 @@ public class Reflections {
         while (true) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.getName().equals(fieldname))
-                    return (T)((Field)setAccessible(clazz.getDeclaredField(fieldname))).get(obj);
+                    return (T) ((Field) setAccessible(clazz.getDeclaredField(fieldname))).get(obj);
             }
             if ((clazz = clazz.getSuperclass()) == null)
                 throw new NoSuchFieldException("Can't find field " + fieldname);
@@ -40,7 +41,7 @@ public class Reflections {
         while (true) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.getName().equals(fieldname))
-                    return (T)((Field)setAccessible(clazz.getDeclaredField(fieldname))).get(null);
+                    return (T) ((Field) setAccessible(clazz.getDeclaredField(fieldname))).get(null);
             }
             if ((clazz = clazz.getSuperclass()) == null)
                 throw new NoSuchFieldException("Can't find field " + fieldname);
@@ -52,7 +53,7 @@ public class Reflections {
         while (true) {
             for (Field field : clazz.getDeclaredFields()) {
                 if (field.getName().equals(fieldname)) {
-                    ((Field)setAccessible(clazz.getDeclaredField(fieldname))).set(obj, value);
+                    ((Field) setAccessible(clazz.getDeclaredField(fieldname))).set(obj, value);
                     return;
                 }
             }
@@ -66,7 +67,7 @@ public class Reflections {
         do {
             for (Method method : clazz.getDeclaredMethods()) {
                 if (method.getName().equals(methodname) && (method.getParameterTypes()).length == args.length)
-                    ((Method)setAccessible(method)).invoke(obj, args);
+                    ((Method) setAccessible(method)).invoke(obj, args);
             }
         } while ((clazz = clazz.getSuperclass()) != null);
     }

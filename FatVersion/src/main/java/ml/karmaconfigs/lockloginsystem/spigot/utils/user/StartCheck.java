@@ -28,8 +28,8 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
     /**
      * Start the checker
      *
-     * @param player    the player
-     * @param type the check type
+     * @param player the player
+     * @param type   the check type
      */
     public StartCheck(Player player, CheckType type) {
         StartSendingMessage(player, type);
@@ -39,13 +39,14 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
             case REGISTER:
                 timer.schedule(new TimerTask() {
                     int back = config.RegisterOut();
+
                     @Override
                     public void run() {
                         if (player.isOnline()) {
                             User user = new User(player);
                             if (back != 0) {
                                 if (user.isRegistered()) {
-                                    user.sendTitle("", "", 0 ,5 ,0);
+                                    user.sendTitle("", "", 0, 5, 0);
                                     cancel();
                                 } else {
                                     user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back), 0, 2, 0);
@@ -64,6 +65,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
             case LOGIN:
                 timer.schedule(new TimerTask() {
                     int back = config.LoginOut();
+
                     @Override
                     public void run() {
                         if (player.isOnline()) {

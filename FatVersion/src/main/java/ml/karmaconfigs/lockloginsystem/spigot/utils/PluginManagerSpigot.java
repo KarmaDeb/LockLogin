@@ -140,9 +140,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         config.copy(config_file);
 
         YamlConfiguration cfg_yml = YamlConfiguration.loadConfiguration(config_file);
-        
+
         String random = StringUtils.randomString(5);
-        
+
         if (cfg_yml.getString("ServerName", "").isEmpty()) {
             cfg_yml.set("ServerName", random);
         }
@@ -203,7 +203,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
         allowedCMDs.copy(allowed_file);
         YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
-        
+
         AllowedCommands commands = new AllowedCommands();
         commands.addAll(allowed.getStringList("AllowedCommands"));
 
@@ -224,7 +224,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         if (!new ConfigGetter().isBungeeCord()) {
             File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
             FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml");
-            
+
             mysql.copy(sql_file);
 
             MySQLData SQLData = new MySQLData();

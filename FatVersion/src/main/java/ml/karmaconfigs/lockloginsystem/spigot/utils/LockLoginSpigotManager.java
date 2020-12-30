@@ -146,15 +146,14 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
      * Get the .jar version
      *
      * @param readFrom the file to read from
-     *
-     * Private GSA code
-     *
-     * The use of this code
-     * without GSA team authorization
-     * will be a violation of
-     * terms of use determined
-     * in <a href="https://karmaconfigs.ml/license/"> here </a>
-     *
+     *                 <p>
+     *                 Private GSA code
+     *                 <p>
+     *                 The use of this code
+     *                 without GSA team authorization
+     *                 will be a violation of
+     *                 terms of use determined
+     *                 in <a href="https://karmaconfigs.ml/license/"> here </a>
      * @return the .jar version
      */
     private String getJarVersion(File readFrom) {
@@ -180,7 +179,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
 
     /**
      * Private GSA code
-     *
+     * <p>
      * The use of this code
      * without GSA team authorization
      * will be a violation of
@@ -214,14 +213,16 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
     /**
      * Apply LockLogin pending updates
      * or reload the plugin
-     *
+     * <p>
      * Private GSA code
-     *
+     * <p>
      * The use of this code
      * without GSA team authorization
      * will be a violation of
      * terms of use determined
      * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     *
+     * @return if the plugin was able to apply the update
      */
     public final boolean applyUpdate() {
         String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");

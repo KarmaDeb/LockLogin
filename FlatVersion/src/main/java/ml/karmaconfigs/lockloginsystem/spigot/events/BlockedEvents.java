@@ -281,7 +281,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         cancel();
                     }
                 }
-            }.runTaskTimerAsynchronously(plugin, 0,1);
+            }.runTaskTimerAsynchronously(plugin, 0, 1);
         }
     }
 
@@ -597,7 +597,8 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         return cmdData[1];
                     }
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
             return cmd.split(" ")[0].replace("/", "");
         } else {
             if (cmd.contains(" ")) {

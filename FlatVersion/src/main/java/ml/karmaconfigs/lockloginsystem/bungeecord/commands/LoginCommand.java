@@ -95,8 +95,9 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
 
                                 Timer unban = new Timer();
                                 unban.schedule(new TimerTask() {
-                                    int back = config.BFBlockTime();
                                     final BFSystem saved_system = bf_prevention;
+                                    int back = config.BFBlockTime();
+
                                     @Override
                                     public void run() {
                                         if (back == 0) {

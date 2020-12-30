@@ -378,23 +378,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Get the player pin
-     *
-     * @return the player pin
-     */
-    public final String getPin() {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            return playerFile.getPin();
-        } else {
-            Utils sql = new Utils(player);
-
-            return sql.getPin();
-        }
-    }
-
-    /**
      * Set the player password
      *
      * @param password the password
@@ -408,6 +391,23 @@ public final class User implements LockLoginBungee, BungeeFiles {
             Utils sql = new Utils(player);
 
             sql.setPassword(password, false);
+        }
+    }
+
+    /**
+     * Get the player pin
+     *
+     * @return the player pin
+     */
+    public final String getPin() {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            return playerFile.getPin();
+        } else {
+            Utils sql = new Utils(player);
+
+            return sql.getPin();
         }
     }
 

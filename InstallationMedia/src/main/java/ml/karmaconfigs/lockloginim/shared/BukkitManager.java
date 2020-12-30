@@ -11,7 +11,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
-import java.util.*;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 
 public final class BukkitManager {
@@ -19,6 +21,8 @@ public final class BukkitManager {
 
     /**
      * Unload a plugin
+     *
+     * @param plugin the plugin to unload
      */
     public final void unload(final JavaPlugin plugin) {
         String name = plugin.getName();

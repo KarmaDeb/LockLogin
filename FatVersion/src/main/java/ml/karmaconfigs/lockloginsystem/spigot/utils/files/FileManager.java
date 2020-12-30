@@ -13,7 +13,7 @@ import java.util.List;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -294,7 +294,7 @@ public final class FileManager implements LockLoginSpigot {
      */
     public final void delete() {
         if (managed.delete()) {
-           Console.send(plugin, "The file {0} have been removed", Level.INFO, managed.getName());
+            Console.send(plugin, "The file {0} have been removed", Level.INFO, managed.getName());
         } else {
             Console.send(plugin, "The file {0} couldn't be removed", Level.WARNING, managed.getName());
         }

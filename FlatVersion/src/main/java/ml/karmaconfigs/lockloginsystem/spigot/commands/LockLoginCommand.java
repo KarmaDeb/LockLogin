@@ -321,7 +321,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
             Connection connection = null;
             try {
                 connection = Bucket.getBucket().getConnection();
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
 
             if (connection != null) {
                 user.Message(messages.Prefix() + messages.MigratingAll());
@@ -380,7 +381,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
             Connection connection = null;
             try {
                 connection = Bucket.getBucket().getConnection();
-            } catch (Exception | Error ignore) {}
+            } catch (Exception | Error ignore) {
+            }
 
             if (connection != null) {
                 Console.send(messages.Prefix() + messages.MigratingAll());
@@ -408,7 +410,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
      * Do an AuthMe sqlite migration
      *
      * @param database the database name
-     * @param table the database table where the info is
+     * @param table    the database table where the info is
      */
     private boolean migrateAuthMe(String database, String table, String realnameColumn, String passwordColumn) {
         File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "AuthMe");

@@ -2,7 +2,6 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
@@ -170,21 +169,21 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Get the player pin
-     *
-     * @return the player pin
-     */
-    public final String getPin() {
-        return manager.getString("Pin");
-    }
-
-    /**
      * Set the player's password
      *
      * @param newPassword the new player password
      */
     public final void setPassword(String newPassword) {
         manager.set("Password", new PasswordUtils(newPassword).Hash());
+    }
+
+    /**
+     * Get the player pin
+     *
+     * @return the player pin
+     */
+    public final String getPin() {
+        return manager.getString("Pin");
     }
 
     /**

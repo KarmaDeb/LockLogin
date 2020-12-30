@@ -16,7 +16,7 @@ import java.util.*;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -88,7 +88,7 @@ public final class IPStorager {
             this.file = file;
         } else {
             this.file = null;
-            this.ip  = null;
+            this.ip = null;
         }
     }
 
@@ -152,7 +152,7 @@ public final class IPStorager {
             this.file = file;
         } else {
             this.file = null;
-            this.ip  = null;
+            this.ip = null;
         }
     }
 

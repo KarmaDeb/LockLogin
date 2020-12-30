@@ -15,8 +15,6 @@ import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.File;
 import java.net.URL;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /*

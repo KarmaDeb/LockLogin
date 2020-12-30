@@ -125,12 +125,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     /**
      * Send a title to the players
      *
-     * @param title the title
+     * @param title    the title
      * @param subtitle the subtitle
-     *
-     * @param fadeIn time to show title to screen
-     * @param fadeOut time to hide title from screen
-     * @param show time to show title in screen
+     * @param fadeIn   time to show title to screen
+     * @param fadeOut  time to hide title from screen
+     * @param show     time to show title in screen
      */
     public final void sendTitle(String title, String subtitle, int fadeIn, int show, int fadeOut) {
         if (!title.isEmpty() || !subtitle.isEmpty()) {
@@ -195,15 +194,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final void removeEffect(PotionEffectType type) {
         player.removePotionEffect(type);
-    }
-
-    /**
-     * Set the player session status
-     *
-     * @param value true/false
-     */
-    public final void setLogStatus(boolean value) {
-        logStatus.put(player, value);
     }
 
     /**
@@ -284,8 +274,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                     Timer unban = new Timer();
                     unban.schedule(new TimerTask() {
-                        int back = config.BFBlockTime();
                         final BFSystem saved_system = bf_prevention;
+                        int back = config.BFBlockTime();
+
                         @Override
                         public void run() {
                             if (back == 0) {
@@ -480,40 +471,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Set the player password
-     *
-     * @param password the password
-     */
-    public final void setPassword(String password) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPassword(password);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPassword(password, false);
-        }
-    }
-
-    /**
-     * Set the player pin
-     *
-     * @param pin the pin
-     */
-    public final void setPin(Object pin) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPin(pin);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPin(pin, false);
-        }
-    }
-
-    /**
      * Remove the user pin
      */
     public final void removePin() {
@@ -526,16 +483,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
             sql.delPin();
         }
-    }
-
-    /**
-     * Set if the player is in temp-login
-     * status
-     *
-     * @param value true/false
-     */
-    public final void setTempLog(boolean value) {
-        tempLog.put(player, value);
     }
 
     /**
@@ -671,6 +618,15 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set the player session status
+     *
+     * @param value true/false
+     */
+    public final void setLogStatus(boolean value) {
+        logStatus.put(player, value);
+    }
+
+    /**
      * Check if the player has tries left
      *
      * @return if the player has login tries left
@@ -696,6 +652,16 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean isTempLog() {
         return tempLog.getOrDefault(player, false);
+    }
+
+    /**
+     * Set if the player is in temp-login
+     * status
+     *
+     * @param value true/false
+     */
+    public final void setTempLog(boolean value) {
+        tempLog.put(player, value);
     }
 
     /**
@@ -731,6 +697,23 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set the player password
+     *
+     * @param password the password
+     */
+    public final void setPassword(String password) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPassword(password);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPassword(password, false);
+        }
+    }
+
+    /**
      * Get the player pin
      *
      * @return the player pin
@@ -748,6 +731,23 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             }
         }
         return "";
+    }
+
+    /**
+     * Set the player pin
+     *
+     * @param pin the pin
+     */
+    public final void setPin(Object pin) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPin(pin);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPin(pin, false);
+        }
     }
 
     /**
@@ -840,8 +840,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 class FlyData implements LockLoginSpigot {
 
-    private final Player player;
     private final static KarmaFile data = new KarmaFile(plugin, "fly.userdb", "data");
+    private final Player player;
 
     protected FlyData(Player player) {
         this.player = player;

@@ -7,7 +7,6 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -53,7 +52,7 @@ public final class ConfigGetter {
                 }
             }
         }
-        
+
         if (configuration == null) {
             try {
                 configuration = new FileManager("config.yml");
@@ -66,24 +65,6 @@ public final class ConfigGetter {
         if (!loaded) {
             manager.reload();
             loaded = true;
-        }
-    }
-
-    public interface manager {
-
-        static boolean reload() {
-            try {
-                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
-                if (reloader.reloadAndCopy()) {
-                    logger.scheduleLog(Level.INFO, "Reloaded config file");
-                    return true;
-                }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while reloading config file");
-            }
-
-            return false;
         }
     }
 
@@ -263,5 +244,23 @@ public final class ConfigGetter {
 
     public final String FileSys() {
         return configuration.getString("AccountSys");
+    }
+
+    public interface manager {
+
+        static boolean reload() {
+            try {
+                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
+                if (reloader.reloadAndCopy()) {
+                    logger.scheduleLog(Level.INFO, "Reloaded config file");
+                    return true;
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
+            }
+
+            return false;
+        }
     }
 }

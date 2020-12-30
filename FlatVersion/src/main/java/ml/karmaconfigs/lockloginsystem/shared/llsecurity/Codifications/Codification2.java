@@ -12,7 +12,7 @@ public final class Codification2 {
     /**
      * Initialize the codification
      *
-     * @param value the value to codify
+     * @param value  the value to codify
      * @param hashed is the value hashed?
      */
     public Codification2(Object value, boolean hashed) {
@@ -25,7 +25,7 @@ public final class Codification2 {
      * is correct
      *
      * @param password the password
-     * @param value the value to check
+     * @param value    the value to check
      * @return a boolean
      */
     public static boolean check(Object password, Object value) {

@@ -6,7 +6,7 @@ import java.util.HashSet;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -15,11 +15,10 @@ import java.util.HashSet;
  */
 public final class BFSystem {
 
-    private final InetAddress ip;
-
     private final static HashMap<InetAddress, Integer> data = new HashMap<>();
     private final static HashMap<InetAddress, Long> block_time = new HashMap<>();
     private final static HashSet<InetAddress> blocked = new HashSet<>();
+    private final InetAddress ip;
 
     /**
      * Initialize the brute-force system

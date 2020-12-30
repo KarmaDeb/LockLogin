@@ -15,9 +15,8 @@ import java.util.jar.JarFile;
 
 public final class ModuleLoader {
 
-    private final Module plugin_module;
-
     private final static HashSet<Module> modules = new HashSet<>();
+    private final Module plugin_module;
 
     /**
      * Initialize the LockLogin's module loader
@@ -32,11 +31,11 @@ public final class ModuleLoader {
     /**
      * Inject the module into LockLogin
      *
-     * @throws NoJarException if LockLogin founds that the module plugin
-     * is not a jar file
+     * @throws NoJarException    if LockLogin founds that the module plugin
+     *                           is not a jar file
      * @throws NoPluginException if LockLogin founds that the module plugin
-     * is not a valid plugin file
-     * @throws IOException if java couldn't load the file as JarFile
+     *                           is not a valid plugin file
+     * @throws IOException       if java couldn't load the file as JarFile
      */
     public final void inject() throws NoJarException, NoPluginException, IOException {
         Class<? extends Plugin> main = plugin_module.owner().getClass();

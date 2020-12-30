@@ -1,7 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.utils.user;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
@@ -183,19 +182,6 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Get the player pin
-     *
-     * @return the player pin
-     */
-    public final String getPin() {
-        if (config.isYaml()) {
-            return manager.getString("Pin");
-        } else {
-            return sql.getPin();
-        }
-    }
-
-    /**
      * Set the player's password
      *
      * @param newPassword the new player password
@@ -205,6 +191,19 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
             manager.set("Password", new PasswordUtils(newPassword).Hash());
         } else {
             sql.setPassword(newPassword, false);
+        }
+    }
+
+    /**
+     * Get the player pin
+     *
+     * @return the player pin
+     */
+    public final String getPin() {
+        if (config.isYaml()) {
+            return manager.getString("Pin");
+        } else {
+            return sql.getPin();
         }
     }
 

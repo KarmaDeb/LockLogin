@@ -32,7 +32,8 @@ public final class PlayerLeave implements Listener {
             if (!ModuleLoader.manager.isLoaded(temp_module)) {
                 loader.inject();
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         IpData data = new IpData(temp_module, e.getPlayer().getAddress().getAddress());
         data.delIP();

@@ -20,7 +20,7 @@ import java.util.Objects;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -29,12 +29,10 @@ import java.util.Objects;
  */
 public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
+    private final static ArrayList<Player> verified = new ArrayList<>();
+    private final static HashMap<Player, String> input = new HashMap<>();
     private static Player player;
     private final Inventory inventory;
-
-    private final static ArrayList<Player> verified = new ArrayList<>();
-
-    private final static HashMap<Player, String> input = new HashMap<>();
 
     /**
      * Intiailize the pin inventory for
@@ -45,6 +43,13 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
     public PinInventory(Player player) {
         PinInventory.player = player;
         inventory = plugin.getServer().createInventory(null, 45, StringUtils.toColor("&eLockLogin pinner"));
+    }
+
+    /**
+     * Clear the list of verified players
+     */
+    public static void clearVerifiedList() {
+        verified.clear();
     }
 
     /**
@@ -92,41 +97,6 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
         if (player != null && player.isOnline()) {
             player.getInventory();
             player.closeInventory();
-        }
-    }
-
-    /**
-     * Set the player pin input
-     *
-     * @param newInput the input
-     */
-    public final void setInput(String newInput) {
-        String finalNew = "/-/-/-/";
-
-        if (input.getOrDefault(player, "/-/-/-/").contains("/")) {
-            String[] current = input.getOrDefault(player, "/-/-/-/").split("-");
-            String first = current[0];
-            String second = current[1];
-            String third = current[2];
-            String fourth = current[3];
-
-            if (first.equals("/")) {
-                finalNew = newInput + "-/-/-/";
-            } else {
-                if (second.equals("/")) {
-                    finalNew = first + "-" + newInput + "-/-/";
-                } else {
-                    if (third.equals("/")) {
-                        finalNew = first + "-" + second + "-" + newInput + "-/";
-                    } else {
-                        if (fourth.equals("/")) {
-                            finalNew = first + "-" + second + "-" + third + "-" + newInput;
-                        }
-                    }
-                }
-            }
-
-            input.put(player, finalNew);
         }
     }
 
@@ -216,20 +186,6 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Set the player verification status
-     *
-     * @param status the status
-     */
-    public final void setVerified(boolean status) {
-        if (status) {
-            if (!verified.contains(player))
-                verified.add(player);
-        } else {
-            verified.remove(player);
-        }
-    }
-
-    /**
      * Get the player pin input as
      * item
      *
@@ -244,6 +200,41 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
         paper.setItemMeta(paperMeta);
 
         return paper;
+    }
+
+    /**
+     * Set the player pin input
+     *
+     * @param newInput the input
+     */
+    public final void setInput(String newInput) {
+        String finalNew = "/-/-/-/";
+
+        if (input.getOrDefault(player, "/-/-/-/").contains("/")) {
+            String[] current = input.getOrDefault(player, "/-/-/-/").split("-");
+            String first = current[0];
+            String second = current[1];
+            String third = current[2];
+            String fourth = current[3];
+
+            if (first.equals("/")) {
+                finalNew = newInput + "-/-/-/";
+            } else {
+                if (second.equals("/")) {
+                    finalNew = first + "-" + newInput + "-/-/";
+                } else {
+                    if (third.equals("/")) {
+                        finalNew = first + "-" + second + "-" + newInput + "-/";
+                    } else {
+                        if (fourth.equals("/")) {
+                            finalNew = first + "-" + second + "-" + third + "-" + newInput;
+                        }
+                    }
+                }
+            }
+
+            input.put(player, finalNew);
+        }
     }
 
     /**
@@ -275,9 +266,16 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Clear the list of verified players
+     * Set the player verification status
+     *
+     * @param status the status
      */
-    public static void clearVerifiedList() {
-        verified.clear();
+    public final void setVerified(boolean status) {
+        if (status) {
+            if (!verified.contains(player))
+                verified.add(player);
+        } else {
+            verified.remove(player);
+        }
     }
 }

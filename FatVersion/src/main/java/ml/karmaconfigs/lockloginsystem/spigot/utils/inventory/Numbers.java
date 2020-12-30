@@ -15,7 +15,7 @@ import java.util.UUID;
 
 /**
  * Private GSA code
- *
+ * <p>
  * The use of this code
  * without GSA team authorization
  * will be a violation of
@@ -78,10 +78,11 @@ public interface Numbers {
     }
 
     static ItemStack getOne() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(1));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 1));
 
@@ -91,10 +92,11 @@ public interface Numbers {
     }
 
     static ItemStack getTwo() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(2));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 2));
 
@@ -104,10 +106,11 @@ public interface Numbers {
     }
 
     static ItemStack getThree() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(3));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 3));
 
@@ -117,10 +120,11 @@ public interface Numbers {
     }
 
     static ItemStack getFour() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(4));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 4));
 
@@ -130,10 +134,11 @@ public interface Numbers {
     }
 
     static ItemStack getFive() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(5));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 5));
 
@@ -143,10 +148,11 @@ public interface Numbers {
     }
 
     static ItemStack getSix() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(6));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 6));
 
@@ -156,10 +162,11 @@ public interface Numbers {
     }
 
     static ItemStack getSeven() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(7));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 7));
 
@@ -169,10 +176,11 @@ public interface Numbers {
     }
 
     static ItemStack getEight() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(8));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 8));
 
@@ -182,10 +190,11 @@ public interface Numbers {
     }
 
     static ItemStack getNine() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(9));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 9));
 
@@ -195,10 +204,11 @@ public interface Numbers {
     }
 
     static ItemStack getZero() {
-        ItemStack stack  = getRandomItemStack();
+        ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(getNumberProperties(0));
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 0));
 
@@ -216,7 +226,8 @@ public interface Numbers {
         ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(props);
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&aConfirm"));
 
@@ -234,7 +245,8 @@ public interface Numbers {
         ItemStack stack = getRandomItemStack();
         try {
             stack = getSkull(props);
-        } catch (Throwable ignore) {}
+        } catch (Throwable ignore) {
+        }
         ItemMeta stackMeta = stack.getItemMeta();
         stackMeta.setDisplayName(StringUtils.toColor("&7Erase"));
 

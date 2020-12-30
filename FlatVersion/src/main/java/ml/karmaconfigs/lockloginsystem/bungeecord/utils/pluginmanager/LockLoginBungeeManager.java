@@ -46,6 +46,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
     public final void unloadPlugin() {
         IllegalStateException error = new IllegalStateException("Errors occurred while unloading plugin " + plugin.getDescription().getName()) {
             private static final long serialVersionUID = 1L;
+
             @Override
             public synchronized Throwable fillInStackTrace() {
                 return this;
@@ -167,7 +168,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
                                 Main.class.getClassLoader().getClass()
                                         .getDeclaredConstructor(ProxyServer.class, PluginDescription.class, URL[].class)
                         )
-                                .newInstance(proxyserver, desc, new URL[] {pluginfile.toURI().toURL()})
+                                .newInstance(proxyserver, desc, new URL[]{pluginfile.toURI().toURL()})
                                 .loadClass(desc.getMain()).getDeclaredConstructor()
                                 .newInstance();
                 Reflections.invokeMethod(plugin, "init", proxyserver, desc);
@@ -182,9 +183,9 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
 
     /**
      * Get the .jar version
-     *
+     * <p>
      * Private GSA code
-     *
+     * <p>
      * The use of this code
      * without GSA team authorization
      * will be a violation of
@@ -217,7 +218,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
 
     /**
      * Private GSA code
-     *
+     * <p>
      * The use of this code
      * without GSA team authorization
      * will be a violation of
@@ -251,9 +252,9 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
     /**
      * Apply LockLogin pending updates
      * or reload the plugin
-     *
+     * <p>
      * Private GSA code
-     *
+     * <p>
      * The use of this code
      * without GSA team authorization
      * will be a violation of

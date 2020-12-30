@@ -17,14 +17,14 @@ GNU LESSER GENERAL PUBLIC LICENSE
 /**
  * Success = Login / Register action have been completed successfully<br>
  * Success_Temp = Login action have been completed but 2fa is needed<br>
- *<br>
+ * <br>
  * Cancelled = Login / Register event have been cancelled or the player
  * is no longer online<br>
- *<br>
+ * <br>
  * Offline = The player seems offline<br>
- *<br>
+ * <br>
  * Idle = Well, nothing happened
  */
 public enum AuthResult {
-    SUCCESS,SUCCESS_TEMP,CANCELLED,OFFLINE,IDLE
+    SUCCESS, SUCCESS_TEMP, CANCELLED, OFFLINE, IDLE
 }

@@ -35,13 +35,13 @@ public final class Bucket {
      * Connection pool
      * </code> connection
      *
-     * @param host the mysql host
+     * @param host     the mysql host
      * @param database the mysql database name
-     * @param table the mysql database table name
-     * @param user the mysql user
+     * @param table    the mysql database table name
+     * @param user     the mysql user
      * @param password the mysql username password
-     * @param port the mysql port
-     * @param useSSL connect to mysql using SSL?
+     * @param port     the mysql port
+     * @param useSSL   connect to mysql using SSL?
      */
     public Bucket(String host, String database, String table, String user, String password, int port, boolean useSSL) {
         Bucket.host = host;
@@ -61,16 +61,18 @@ public final class Bucket {
      * the connection pool
      *
      * @param connection the mysql connection
-     * @param statement the mysql command
+     * @param statement  the mysql command
      */
     public static void close(Connection connection, PreparedStatement statement) {
         if (connection != null) try {
             connection.close();
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         if (statement != null) try {
             statement.close();
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
     }
 
     /**
@@ -121,9 +123,9 @@ public final class Bucket {
     /**
      * Set extra Bucket options
      *
-     * @param max the max amount of connections
-     * @param min the minimum amount of connections
-     * @param timeout the connections time outs
+     * @param max      the max amount of connections
+     * @param min      the minimum amount of connections
+     * @param timeout  the connections time outs
      * @param lifetime the connection life time
      */
     public final void setOptions(int max, int min, int timeout, int lifetime) {
@@ -220,7 +222,7 @@ public final class Bucket {
             ResultSetMetaData rsMetaData = rs.getMetaData();
             int columnCount = rsMetaData.getColumnCount();
 
-            for (int i = 1; i <= columnCount; i++ ) {
+            for (int i = 1; i <= columnCount; i++) {
                 String name = rsMetaData.getColumnName(i);
 
                 if (!name.equalsIgnoreCase("player")
@@ -282,7 +284,7 @@ public final class Bucket {
         PreparedStatement statement = null;
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD "  + column +" " + type);
+            statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD " + column + " " + type);
             statement.executeUpdate();
 
             return true;

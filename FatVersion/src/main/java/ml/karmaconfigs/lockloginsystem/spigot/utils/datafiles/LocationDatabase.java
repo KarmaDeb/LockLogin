@@ -44,7 +44,8 @@ public final class LocationDatabase implements LockLoginSpigot {
 
         try {
             Files.createFile(loc_file.toPath());
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         manager = new FileManager("locations.yml", "userdata");
         this.player = player;
         this.UUID = player.getUniqueId().toString().replace("-", "");

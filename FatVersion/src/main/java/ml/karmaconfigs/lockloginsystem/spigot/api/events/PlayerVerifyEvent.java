@@ -32,12 +32,16 @@ public class PlayerVerifyEvent extends Event implements Cancellable, SpigotFiles
     /**
      * Initialize the player verify event
      *
-     * @param player   the player
+     * @param player the player
      */
     public PlayerVerifyEvent(Player player) {
         this.player = player;
         loginMessage = messages.Logged(player);
         cancelMessage = "&cSorry {player}, we couldn't process your login attempt".replace("{player}", player.getName());
+    }
+
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
     }
 
     /**
@@ -111,10 +115,6 @@ public class PlayerVerifyEvent extends Event implements Cancellable, SpigotFiles
 
     @Override
     public final HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

@@ -37,6 +37,10 @@ public class PlayerPinEvent extends Event implements SpigotFiles {
         this.isCorrect = status;
     }
 
+    public static HandlerList getHandlerList() {
+        return HANDLERS;
+    }
+
     /**
      * Get the event player
      *
@@ -57,10 +61,6 @@ public class PlayerPinEvent extends Event implements SpigotFiles {
 
     @Override
     public final HandlerList getHandlers() {
-        return HANDLERS;
-    }
-
-    public static HandlerList getHandlerList() {
         return HANDLERS;
     }
 }

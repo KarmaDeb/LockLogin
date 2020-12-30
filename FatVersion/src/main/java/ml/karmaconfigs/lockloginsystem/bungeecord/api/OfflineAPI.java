@@ -15,6 +15,7 @@ public class OfflineAPI implements BungeeFiles {
 
     private final Module module;
     private final String player;
+
     /**
      * Initialize LockLogin bungee's API
      *
