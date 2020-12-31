@@ -1,5 +1,5 @@
 name: "LockLogin"
-version: 1.0.2.4
+version: 1.0.2.5
 main: ml.karmaconfigs.lockloginsystem.spigot.Main
 api-version: "1.13"
 authors:
