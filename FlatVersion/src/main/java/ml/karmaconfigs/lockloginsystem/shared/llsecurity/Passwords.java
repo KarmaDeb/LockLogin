@@ -36,4 +36,15 @@ public interface Passwords {
     static boolean isSecure(String password, ProxiedPlayer player) {
         return !password.contains(player.getName()) && isSecure(password);
     }
+
+    static boolean isLegacySalt(String token) {
+        try {
+            PasswordUtils utils = new PasswordUtils(token);
+            token = utils.UnHash();
+            String token_salt = token.split("\\$")[1];
+            return token_salt.length() <= 1;
+        } catch (Throwable ex) {
+            return false;
+        }
+    }
 }

@@ -8,6 +8,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -88,6 +89,11 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 dataSender.openPinGUI(player);
                             }
                             dataSender.blindEffect(player, false, config.LoginNausea());
+
+                            if (Passwords.isLegacySalt(user.getPassword())) {
+                                user.setPassword(password);
+                                user.Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                            }
                         } else {
                             if (bf_prevention.getTries() >= config.BFMaxTries() && config.BFMaxTries() > 0) {
                                 bf_prevention.block();

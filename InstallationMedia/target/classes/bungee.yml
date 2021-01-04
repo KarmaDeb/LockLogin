@@ -1,7 +1,0 @@
-name: "LockLoginIM"
-version: 1.0.0.0
-main: ml.karmaconfigs.lockloginim.bungee.Main
-author: KarmaConfigs
-softdepends:
-  - LockLogin
-description: "LockLogin Installation media, is a tool to install LockLogin"

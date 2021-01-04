@@ -263,6 +263,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 Message(messages.Prefix() + event.getLoginMessage());
                             }
                         }
+
+                        if (Passwords.isLegacySalt(getPassword())) {
+                            setPassword(password);
+                            Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                        }
                     } else {
                         Message(messages.Prefix() + event.getCancelMessage());
                     }

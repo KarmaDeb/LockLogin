@@ -1,5 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications;
 
+import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
+
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
@@ -17,7 +19,7 @@ public final class Codification {
     /**
      * Prefix for our hash, every user should change this
      */
-    public static final String ID = "$G$";
+    public static final String ID = "$" + StringUtils.randomString(16).toUpperCase() + "$";
 
     /**
      * basically number of iterations
@@ -30,20 +32,6 @@ public final class Codification {
      * Algorithm to use, this is the best i know, PM me if you know better one
      */
     private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
-
-    /**
-     * layout of our hash
-     * change the first G to your ID without removing the $
-     * if you changed SIZE you have to generate hash and get the length of it
-     * example token: $G$128$sIfLCAPmizFnaV1qRqkiZAZdfy3ndff_S32EFtht162OiHu_Eu0_UgKw8JuP0yrAtL8WuFfHxi7c9AypiJRGU44bAJQKQEIXpIKYSN1VF7Fh6R-aV_HEh3Wxu5FrBWSa5hwZSaWBZmn203ggQTB5gJ2iXVlK6pUgiVD0du9j-4I
-     * if we split the token by  $
-     * we get:
-     * $G = our ID
-     * $512 = our cost
-     * $dDGf1rKDRI103VhNZCujG1gL7PNS1sI8hh6z69LTh6hG4KONbmAdDaVFUyuvqGAoiBzdDEZXOfDVfDt202HPDQM6sMU7han2k4Ic0yh0PuXTksq8LFxNKNJap37ICjO1Ljt4NlGdEoXd1k6L8TI0Grx2miCn4P0_G9L6iobi4lbd2z40ZA6eXbo-mTy44OS_WZbe5R1mZTzTEGlGqMcS6as3LxrCBK5F2wsQ_9wrXLIludjKLr2I7Y9GnwMVGTOpS8fZ0wA5kTSWs_jgfZVx1Tn7asqp3p7pJCr9e3ZhJtQaEN-nr0NnaFlkCo65g8dswvKvIy9fRRWpyGSkuz0xxg
-     * = our hash
-     */
-    private static final Pattern layout = Pattern.compile("\\$G\\$(\\d\\d\\d?)\\$(.{512})");
 
     /**
      * Size of PBEKeySpec in method pbkdf2(args...)
@@ -123,6 +111,8 @@ public final class Codification {
      * @return true if passwords match
      */
     public final boolean auth(String password, String token) {
+        String[] info = token.split("\\$");
+        Pattern layout = Pattern.compile("\\$" + info[1] + "\\$(\\d\\d\\d?)\\$(.{512})");
         Matcher m = layout.matcher(token);
         if (!m.matches()) {
             throw new IllegalArgumentException("Invalid token");
