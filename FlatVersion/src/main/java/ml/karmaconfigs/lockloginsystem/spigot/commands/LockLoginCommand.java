@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.lockloginsystem.shared.InsertInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.filemigration.FileInserter;
@@ -23,9 +24,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.sql.Connection;
+import java.util.HashSet;
+import java.util.List;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -43,6 +47,9 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
+    private static CommandSender migrating_owner = null;
+    private static int passed_migration = 0;
+    private static int max_migrations = 0;
     private final Permission migratePermission = new Permission("locklogin.migrate", PermissionDefault.FALSE);
     private final Permission applyUpdatePermission = new Permission("locklogin.update", PermissionDefault.FALSE);
 
@@ -58,97 +65,125 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 if (args[0] != null) {
                     if (args[0].equals("migrate")) {
                         if (player.hasPermission(migratePermission)) {
-                            if (!config.isBungeeCord()) {
-                                if (args.length == 1) {
-                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
-                                } else {
-                                    if (args.length == 2) {
-                                        String method = args[1];
-                                        switch (method) {
-                                            case "MySQL":
-                                                migrateMySQL(player);
-                                                break;
-                                            case "AuthMe":
-                                                user.Message(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/AuthMe folder)");
-                                                break;
-                                            default:
-                                                user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
-                                                break;
-                                        }
+                            if (migrating_owner == null) {
+                                if (!config.isBungeeCord()) {
+                                    if (args.length == 1) {
+                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                     } else {
-                                        if (args.length == 3) {
+                                        if (args.length == 2) {
                                             String method = args[1];
                                             switch (method) {
                                                 case "MySQL":
-                                                    user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                    migrateMySQL(player);
                                                     break;
                                                 case "AuthMe":
-                                                    user.Message(messages.Prefix() + "&cPlease, specify table name");
-                                                    break;
-                                                case "UserLogin":
-                                                    user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate UserLogin");
+                                                    user.Message(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/AuthMe folder)");
                                                     break;
                                                 default:
                                                     user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                     break;
                                             }
                                         } else {
-                                            if (args.length == 4) {
+                                            if (args.length == 3) {
                                                 String method = args[1];
                                                 switch (method) {
                                                     case "MySQL":
                                                         user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
                                                     case "AuthMe":
-                                                        user.Message(messages.Prefix() + "&cPlease specify the 'realname' column");
+                                                        user.Message(messages.Prefix() + "&cPlease, specify table name");
+                                                        break;
+                                                    case "UserLogin":
+                                                        user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate UserLogin");
                                                         break;
                                                     default:
                                                         user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                         break;
                                                 }
                                             } else {
-                                                if (args.length == 5) {
+                                                if (args.length == 4) {
                                                     String method = args[1];
                                                     switch (method) {
                                                         case "MySQL":
                                                             user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                             break;
                                                         case "AuthMe":
-                                                            user.Message(messages.Prefix() + "&cPlease specify the 'password' column");
+                                                            user.Message(messages.Prefix() + "&cPlease specify the 'realname' column");
                                                             break;
                                                         default:
                                                             user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                             break;
                                                     }
                                                 } else {
-                                                    if (args.length == 6) {
+                                                    if (args.length == 5) {
                                                         String method = args[1];
                                                         switch (method) {
                                                             case "MySQL":
                                                                 user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                                 break;
                                                             case "AuthMe":
-                                                                user.Message(messages.Prefix() + "&aMigrating from AuthMe sqlite");
-                                                                if (migrateAuthMe(args[2], args[3], args[4], args[5])) {
-                                                                    user.Message(messages.Prefix() + "&aMigration successfully");
-                                                                } else {
-                                                                    user.Message(messages.Prefix() + "&cSome error occurred while migrating");
-                                                                }
+                                                                user.Message(messages.Prefix() + "&cPlease specify the 'password' column");
                                                                 break;
                                                             default:
                                                                 user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                                 break;
                                                         }
                                                     } else {
-                                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                        if (args.length == 6) {
+                                                            String method = args[1];
+                                                            switch (method) {
+                                                                case "MySQL":
+                                                                    user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                                    break;
+                                                                case "AuthMe":
+                                                                    user.Message(messages.Prefix() + "&aMigrating from AuthMe sqlite");
+                                                                    BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
+                                                                    message.send(true);
+                                                                    if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
+                                                                        new BukkitRunnable() {
+                                                                            @Override
+                                                                            public void run() {
+                                                                                if (migrating_owner == null) {
+                                                                                    cancel();
+                                                                                    message.setMessage("&8Migration progress:&a Complete");
+                                                                                    message.stop();
+                                                                                } else {
+                                                                                    double division = (double) passed_migration / max_migrations;
+                                                                                    long iPart = (long) division;
+                                                                                    double fPart = division - iPart;
+
+                                                                                    String colour = "&c";
+                                                                                    if (fPart >= 37.5)
+                                                                                        colour = "&e";
+                                                                                    if (fPart >= 75)
+                                                                                        colour = "&a";
+
+                                                                                    message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                                                                                }
+                                                                            }
+                                                                        }.runTaskTimer(plugin, 0, 20);
+                                                                        user.Message(messages.Prefix() + "&aMigration successfully");
+                                                                    } else {
+                                                                        user.Message(messages.Prefix() + "&cSome error occurred while migrating");
+                                                                    }
+                                                                    break;
+                                                                default:
+                                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                                    break;
+                                                            }
+                                                        } else {
+                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
                                     }
+                                } else {
+                                    user.Message(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
                                 }
                             } else {
-                                user.Message(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
+                                user.Message(messages.Prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
                             }
                         }
                     } else {
@@ -175,94 +210,98 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 Console.send(messages.Prefix() + "&cSpecify an action &7( &e/locklogin migrate &7|| &e/locklogin applyUpdates &7)");
             } else {
                 if (args[0].equals("migrate")) {
-                    if (!config.isBungeeCord()) {
-                        if (args.length == 1) {
-                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
-                        } else {
-                            if (args.length == 2) {
-                                String method = args[1];
-                                switch (method) {
-                                    case "MySQL":
-                                        migrateMySQL();
-                                        break;
-                                    case "AuthMe":
-                                        Console.send(messages.Prefix() + "&cPlease, specify database name, table name, realname and password column name (must exist in plugins/AuthMe folder)");
-                                        break;
-                                    default:
-                                        Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
-                                        break;
-                                }
+                    if (migrating_owner == null) {
+                        if (!config.isBungeeCord()) {
+                            if (args.length == 1) {
+                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                             } else {
-                                if (args.length == 3) {
+                                if (args.length == 2) {
                                     String method = args[1];
                                     switch (method) {
                                         case "MySQL":
-                                            Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                            migrateMySQL(sender);
                                             break;
                                         case "AuthMe":
-                                            Console.send(messages.Prefix() + "&cPlease, specify table name");
+                                            Console.send(messages.Prefix() + "&cPlease, specify database name, table name, realname and password column name (must exist in plugins/AuthMe folder)");
                                             break;
                                         default:
                                             Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                             break;
                                     }
                                 } else {
-                                    if (args.length == 4) {
+                                    if (args.length == 3) {
                                         String method = args[1];
                                         switch (method) {
                                             case "MySQL":
                                                 Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                 break;
                                             case "AuthMe":
-                                                Console.send(messages.Prefix() + "&cPlease specify the 'realname' column");
+                                                Console.send(messages.Prefix() + "&cPlease, specify table name");
                                                 break;
                                             default:
                                                 Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                 break;
                                         }
                                     } else {
-                                        if (args.length == 5) {
+                                        if (args.length == 4) {
                                             String method = args[1];
                                             switch (method) {
                                                 case "MySQL":
                                                     Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                     break;
                                                 case "AuthMe":
-                                                    Console.send(messages.Prefix() + "&cPlease specify the 'password' column");
+                                                    Console.send(messages.Prefix() + "&cPlease specify the 'realname' column");
                                                     break;
                                                 default:
                                                     Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                     break;
                                             }
                                         } else {
-                                            if (args.length == 6) {
+                                            if (args.length == 5) {
                                                 String method = args[1];
                                                 switch (method) {
                                                     case "MySQL":
                                                         Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
                                                     case "AuthMe":
-                                                        Console.send(messages.Prefix() + "&aMigrating from AuthMe sqlite");
-                                                        if (migrateAuthMe(args[2], args[3], args[4], args[5])) {
-                                                            Console.send(messages.Prefix() + "&aMigration successfully");
-                                                        } else {
-                                                            Console.send(messages.Prefix() + "&cSome error occurred while migrating");
-                                                        }
+                                                        Console.send(messages.Prefix() + "&cPlease specify the 'password' column");
                                                         break;
                                                     default:
                                                         Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
                                                         break;
                                                 }
                                             } else {
-                                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                if (args.length == 6) {
+                                                    String method = args[1];
+                                                    switch (method) {
+                                                        case "MySQL":
+                                                            Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                            break;
+                                                        case "AuthMe":
+                                                            Console.send(messages.Prefix() + "&aMigrating from AuthMe sqlite");
+                                                            if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
+                                                                Console.send(messages.Prefix() + "&aMigration successfully");
+                                                            } else {
+                                                                Console.send(messages.Prefix() + "&cSome error occurred while migrating");
+                                                            }
+                                                            break;
+                                                        default:
+                                                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                            break;
+                                                    }
+                                                } else {
+                                                    Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
+                        } else {
+                            Console.send(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
                         }
                     } else {
-                        Console.send(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
+                        Console.send(messages.Prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
                     }
                 } else {
                     if (args[0].equals("applyUpdates")) {
@@ -288,122 +327,152 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
      * @param player the executor
      */
     private void migrateMySQL(Player player) {
-        User user = new User(player);
+        migrating_owner = player;
 
-        if (config.isMySQL()) {
-            Utils sql = new Utils();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            User user = new User(player);
 
-            user.Message(messages.Prefix() + messages.MigratingAll());
-
-            for (String id : sql.getUUIDs()) {
-                Utils sqlUUID = new Utils(id);
-
-                new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
-
-                user.Message(messages.Prefix() + messages.MigratingYaml(id));
-            }
-            user.Message(messages.Prefix() + messages.Migrated());
-        } else {
-            user.Message(messages.Prefix() + "&bTrying to establish a connection with MySQL");
-            MySQLData SQLData = new MySQLData();
-
-            Bucket bucket = new Bucket(
-                    SQLData.getHost(),
-                    SQLData.getDatabase(),
-                    SQLData.getTable(),
-                    SQLData.getUser(),
-                    SQLData.getPassword(),
-                    SQLData.getPort(),
-                    SQLData.useSSL());
-
-            bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
-
-            Connection connection = null;
-            try {
-                connection = Bucket.getBucket().getConnection();
-            } catch (Throwable ignore) {
-            }
-
-            if (connection != null) {
-                user.Message(messages.Prefix() + messages.MigratingAll());
-                bucket.prepareTables();
-
+            if (config.isMySQL()) {
                 Utils sql = new Utils();
 
-                for (String id : sql.getUUIDs()) {
+                user.Message(messages.Prefix() + messages.MigratingAll());
+
+                List<String> uuids = sql.getUUIDs();
+                max_migrations = uuids.size();
+                for (String id : uuids) {
                     Utils sqlUUID = new Utils(id);
 
                     new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
 
                     user.Message(messages.Prefix() + messages.MigratingYaml(id));
+                    passed_migration = passed_migration + 1;
                 }
+                migrating_owner = null;
+
                 user.Message(messages.Prefix() + messages.Migrated());
             } else {
-                user.Message(messages.Prefix() + messages.MigrationConnectionError());
+                user.Message(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                MySQLData SQLData = new MySQLData();
+
+                Bucket bucket = new Bucket(
+                        SQLData.getHost(),
+                        SQLData.getDatabase(),
+                        SQLData.getTable(),
+                        SQLData.getUser(),
+                        SQLData.getPassword(),
+                        SQLData.getPort(),
+                        SQLData.useSSL());
+
+                bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
+
+                Connection connection = null;
+                try {
+                    connection = Bucket.getBucket().getConnection();
+                } catch (Throwable ignore) {
+                }
+
+                if (connection != null) {
+                    user.Message(messages.Prefix() + messages.MigratingAll());
+                    bucket.prepareTables();
+
+                    Utils sql = new Utils();
+
+                    List<String> uuids = sql.getUUIDs();
+                    max_migrations = uuids.size();
+                    for (String id : uuids) {
+                        Utils sqlUUID = new Utils(id);
+
+                        new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+
+                        user.Message(messages.Prefix() + messages.MigratingYaml(id));
+                        passed_migration = passed_migration + 1;
+                    }
+                    migrating_owner = null;
+
+                    user.Message(messages.Prefix() + messages.Migrated());
+                } else {
+                    migrating_owner = null;
+                    user.Message(messages.Prefix() + messages.MigrationConnectionError());
+                }
             }
-        }
+        });
     }
 
     /**
      * Do a mysql migration
      */
-    private void migrateMySQL() {
-        if (config.isMySQL()) {
-            Utils sql = new Utils();
+    private void migrateMySQL(CommandSender sender) {
+        migrating_owner = sender;
 
-            Console.send(messages.Prefix() + messages.MigratingAll());
-
-            sql.checkTables();
-
-            for (String id : sql.getUUIDs()) {
-                Utils sqlUUID = new Utils(id);
-
-                new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
-
-                Console.send(messages.Prefix() + messages.MigratingYaml(id));
-            }
-            Console.send(messages.Prefix() + messages.Migrated());
-        } else {
-            Console.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
-            MySQLData SQLData = new MySQLData();
-
-            Bucket bucket = new Bucket(
-                    SQLData.getHost(),
-                    SQLData.getDatabase(),
-                    SQLData.getTable(),
-                    SQLData.getUser(),
-                    SQLData.getPassword(),
-                    SQLData.getPort(),
-                    SQLData.useSSL());
-
-            bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
-
-            Connection connection = null;
-            try {
-                connection = Bucket.getBucket().getConnection();
-            } catch (Exception | Error ignore) {
-            }
-
-            if (connection != null) {
-                Console.send(messages.Prefix() + messages.MigratingAll());
-                bucket.prepareTables();
-
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (config.isMySQL()) {
                 Utils sql = new Utils();
+
+                Console.send(messages.Prefix() + messages.MigratingAll());
 
                 sql.checkTables();
 
-                for (String id : sql.getUUIDs()) {
+                List<String> uuids = sql.getUUIDs();
+                max_migrations = uuids.size();
+                for (String id : uuids) {
                     Utils sqlUUID = new Utils(id);
 
                     new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
 
                     Console.send(messages.Prefix() + messages.MigratingYaml(id));
+                    passed_migration = passed_migration + 1;
                 }
+                migrating_owner = null;
+
                 Console.send(messages.Prefix() + messages.Migrated());
             } else {
-                Console.send(messages.Prefix() + messages.MigrationConnectionError());
+                Console.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                MySQLData SQLData = new MySQLData();
+
+                Bucket bucket = new Bucket(
+                        SQLData.getHost(),
+                        SQLData.getDatabase(),
+                        SQLData.getTable(),
+                        SQLData.getUser(),
+                        SQLData.getPassword(),
+                        SQLData.getPort(),
+                        SQLData.useSSL());
+
+                bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
+
+                Connection connection = null;
+                try {
+                    connection = Bucket.getBucket().getConnection();
+                } catch (Exception | Error ignore) {
+                }
+
+                if (connection != null) {
+                    Console.send(messages.Prefix() + messages.MigratingAll());
+                    bucket.prepareTables();
+
+                    Utils sql = new Utils();
+
+                    sql.checkTables();
+
+                    List<String> uuids = sql.getUUIDs();
+                    max_migrations = uuids.size();
+                    for (String id : uuids) {
+                        Utils sqlUUID = new Utils(id);
+
+                        new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+
+                        Console.send(messages.Prefix() + messages.MigratingYaml(id));
+                        passed_migration = passed_migration + 1;
+                    }
+                    migrating_owner = null;
+
+                    Console.send(messages.Prefix() + messages.Migrated());
+                } else {
+                    migrating_owner = null;
+                    Console.send(messages.Prefix() + messages.MigrationConnectionError());
+                }
             }
-        }
+        });
     }
 
     /**
@@ -412,7 +481,9 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
      * @param database the database name
      * @param table    the database table where the info is
      */
-    private boolean migrateAuthMe(String database, String table, String realnameColumn, String passwordColumn) {
+    private boolean migrateAuthMe(CommandSender sender, String database, String table, String realnameColumn, String passwordColumn) {
+        migrating_owner = sender;
+
         File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "AuthMe");
         if (authMe.exists()) {
             File data = new File(authMe, database + ".db");
@@ -421,7 +492,40 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 SQLiteReader reader = new SQLiteReader(data, table, realnameColumn, passwordColumn);
                 if (config.isMySQL()) {
                     if (reader.tryConnection()) {
-                        for (String name : reader.getPlayers()) {
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                            HashSet<String> players = reader.getPlayers();
+                            max_migrations = players.size();
+                            for (String name : players) {
+                                String password = reader.getPassword(name);
+
+                                if (password != null && !password.isEmpty()) {
+                                    try {
+                                        InsertInfo insert = new InsertInfo(name);
+                                        insert.setPassword(password);
+                                        insert.setFly(false);
+                                        insert.setGAuthStatus(false);
+                                        insert.setGauthToken("");
+                                        insert.setPin("");
+
+                                        BucketInserter inserter = new BucketInserter(insert);
+                                        inserter.insert();
+                                    } catch (Throwable e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+
+                                passed_migration = passed_migration + 1;
+                            }
+
+                            migrating_owner = null;
+                        });
+                        return true;
+                    }
+                } else {
+                    plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                        HashSet<String> players = reader.getPlayers();
+                        max_migrations = players.size();
+                        for (String name : players) {
                             String password = reader.getPassword(name);
 
                             if (password != null && !password.isEmpty()) {
@@ -433,35 +537,18 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                     insert.setGauthToken("");
                                     insert.setPin("");
 
-                                    BucketInserter inserter = new BucketInserter(insert);
+                                    FileInserter inserter = new FileInserter(insert);
                                     inserter.insert();
                                 } catch (Throwable e) {
                                     e.printStackTrace();
                                 }
                             }
-                        }
-                        return true;
-                    }
-                } else {
-                    for (String name : reader.getPlayers()) {
-                        String password = reader.getPassword(name);
 
-                        if (password != null && !password.isEmpty()) {
-                            try {
-                                InsertInfo insert = new InsertInfo(name);
-                                insert.setPassword(password);
-                                insert.setFly(false);
-                                insert.setGAuthStatus(false);
-                                insert.setGauthToken("");
-                                insert.setPin("");
-
-                                FileInserter inserter = new FileInserter(insert);
-                                inserter.insert();
-                            } catch (Throwable e) {
-                                e.printStackTrace();
-                            }
+                            passed_migration = passed_migration + 1;
                         }
-                    }
+
+                        migrating_owner = null;
+                    });
                     return true;
                 }
             }

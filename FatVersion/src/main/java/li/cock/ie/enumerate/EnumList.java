@@ -21,14 +21,14 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public class EnumList<E extends Enum<E>> implements List<E> {
-    private EnumHacker _hack;
-    private Class<E> _enumType;
+    private final EnumHacker _hack;
+    private final Class<E> _enumType;
 
-    private int _lazyLevel;
+    private final int _lazyLevel;
 
-    private Field _valuesField;
+    private final Field _valuesField;
 
-    private List<E> _values = new ArrayList<E>();
+    private final List<E> _values = new ArrayList<E>();
 
     public EnumList(EnumHacker hack, Class<E> enumType, int lazyLevel) {
         this._hack = hack;

@@ -53,7 +53,7 @@ public class ReflectionUtil {
 
     public static Enum<?> getEnum(Class<?> clazz, String constant) throws Exception {
         Class<?> c = Class.forName(clazz.getName());
-        Enum<?>[] econstants = (Enum[]) ((Enum[]) c.getEnumConstants());
+        Enum<?>[] econstants = (Enum[]) c.getEnumConstants();
         Enum[] var4 = econstants;
         int var5 = econstants.length;
 
@@ -69,7 +69,7 @@ public class ReflectionUtil {
 
     public static Enum<?> getEnum(Class<?> clazz, String enumname, String constant) throws Exception {
         Class<?> c = Class.forName(clazz.getName() + "$" + enumname);
-        Enum<?>[] econstants = (Enum[]) ((Enum[]) c.getEnumConstants());
+        Enum<?>[] econstants = (Enum[]) c.getEnumConstants();
         Enum[] var5 = econstants;
         int var6 = econstants.length;
 
@@ -197,27 +197,27 @@ public class ReflectionUtil {
     }
 
     public static Object invokeMethod(Class<?> clazz, Object obj, String method) throws Exception {
-        return ((Method) Objects.requireNonNull(getMethod(clazz, method))).invoke(obj);
+        return Objects.requireNonNull(getMethod(clazz, method)).invoke(obj);
     }
 
     public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, Object... initargs) throws Exception {
-        return ((Method) Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, initargs);
+        return Objects.requireNonNull(getMethod(clazz, method, args)).invoke(obj, initargs);
     }
 
     public static Object invokeMethod(Class<?> clazz, Object obj, String method, Class<?>[] args, String string) throws InvocationTargetException, IllegalAccessException {
-        return ((Method) Objects.requireNonNull(getMethod(clazz, method, args))).invoke(obj, string);
+        return Objects.requireNonNull(getMethod(clazz, method, args)).invoke(obj, string);
     }
 
     public static Object invokeMethod(Class<?> clazz, Object obj, String method, Object... initargs) throws Exception {
-        return ((Method) Objects.requireNonNull(getMethod(clazz, method))).invoke(obj, initargs);
+        return Objects.requireNonNull(getMethod(clazz, method)).invoke(obj, initargs);
     }
 
     public static Object invokeMethod(Object obj, String method) throws Exception {
-        return ((Method) Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj);
+        return Objects.requireNonNull(getMethod(obj.getClass(), method)).invoke(obj);
     }
 
     public static Object invokeMethod(Object obj, String method, Object[] initargs) throws Exception {
-        return ((Method) Objects.requireNonNull(getMethod(obj.getClass(), method))).invoke(obj, initargs);
+        return Objects.requireNonNull(getMethod(obj.getClass(), method)).invoke(obj, initargs);
     }
 
     private static void setFieldAccessible(Field f) throws Exception {

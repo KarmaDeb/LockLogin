@@ -68,7 +68,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         Console.send(" ");
         Console.send("&bEnabling {0} &bversion {1}", name, version);
         Console.send("&aInitializing files...");
-        setupFiles(true);
+        setupFiles();
         Console.send("&aRegistering commands....");
         registerCommands();
         Console.send("&aRegistering events...");
@@ -116,9 +116,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         Console.send(" ");
         Console.send("&bDisabling {0}", name);
         Console.send("&aChecking files...");
-        setupFiles(false);
-        ConfigGetter.manager.reload();
-        MessageGetter.manager.reload();
         Console.send(" ");
         Console.send("--------------------");
         unsetPlayers();
@@ -134,7 +131,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
     /**
      * Setup the plugin files
      */
-    private void setupFiles(boolean onEnable) {
+    private void setupFiles() {
         File config_file = new File(plugin.getDataFolder(), "config.yml");
         FileCopy config = new FileCopy(plugin, "configs/config_spigot.yml");
         config.copy(config_file);
@@ -187,9 +184,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         if (cfg.FileSysValid()) {
             if (cfg.isMySQL()) {
-                if (onEnable) {
-                    setupMySQL();
-                }
+                setupMySQL();
             }
         } else {
             cfg_yml.set("AccountSys", "File");

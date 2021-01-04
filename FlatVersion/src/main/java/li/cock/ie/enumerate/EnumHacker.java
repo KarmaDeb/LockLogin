@@ -21,7 +21,7 @@ import li.cock.ie.reflect.DuckBypass;
 import java.lang.reflect.Field;
 
 public class EnumHacker {
-    private DuckBypass _bypass;
+    private final DuckBypass _bypass;
     private Field _ordinal;
 
     private boolean _lazy = true;

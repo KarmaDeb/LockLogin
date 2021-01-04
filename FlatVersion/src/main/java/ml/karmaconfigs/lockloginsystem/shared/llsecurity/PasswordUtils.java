@@ -16,7 +16,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.AuthMeAuth;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.AuthMeBcrypt;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.LoginSecurity.LoginSecurityAuth;
 import org.apache.commons.codec.binary.Base64;
 
@@ -94,9 +93,10 @@ public final class PasswordUtils {
      * @return if the password is correct
      */
     public final boolean PasswordIsOk() {
-        try {
-            byte[] decode = Base64.decodeBase64(token);
+        byte[] decode = Base64.decodeBase64(token);
 
+
+        try {
             if (new Codification().auth(password, new String(decode))) {
                 return true;
             } else {
@@ -106,16 +106,9 @@ public final class PasswordUtils {
                     return new LoginSecurityAuth().check(password, token);
                 }
             }
-        } catch (Throwable e) {
-            if (new AuthMeAuth().check(password, token)) {
-                return true;
-            } else {
-                if (new AuthMeBcrypt().check(password, token)) {
-                    return true;
-                } else {
-                    return new LoginSecurityAuth().check(password, token);
-                }
-            }
+        } catch (Throwable ex) {
+            //False positive
+            return false;
         }
     }
 }

@@ -35,7 +35,7 @@ public class MultiImpl implements IAccess {
     private boolean _canSetMethodModifiers;
     private boolean _canGetNewInstance;
 
-    private boolean _preferUnsafe;
+    private final boolean _preferUnsafe;
 
     public MultiImpl(DuckReflect reflect, boolean preferUnsafe, int getValDamage, int setValDamage, int setModifiersDamage, int newInstanceDamage) {
         this._reflect = reflect;

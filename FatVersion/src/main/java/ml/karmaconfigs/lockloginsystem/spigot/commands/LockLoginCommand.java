@@ -21,7 +21,6 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
@@ -29,7 +28,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 
@@ -49,13 +47,11 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
-    private final Permission migratePermission = new Permission("locklogin.migrate", PermissionDefault.FALSE);
-    private final Permission applyUpdatePermission = new Permission("locklogin.update", PermissionDefault.FALSE);
-
     private static CommandSender migrating_owner = null;
-
     private static int passed_migration = 0;
     private static int max_migrations = 0;
+    private final Permission migratePermission = new Permission("locklogin.migrate", PermissionDefault.FALSE);
+    private final Permission applyUpdatePermission = new Permission("locklogin.update", PermissionDefault.FALSE);
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
@@ -141,7 +137,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                     break;
                                                                 case "AuthMe":
                                                                     user.Message(messages.Prefix() + "&aMigrating from AuthMe sqlite");
-                                                                    BarMessage message = new BarMessage(player, "Migrating progress: starting");
+                                                                    BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
                                                                     message.send(true);
                                                                     if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
                                                                         new BukkitRunnable() {
@@ -149,13 +145,20 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                             public void run() {
                                                                                 if (migrating_owner == null) {
                                                                                     cancel();
+                                                                                    message.setMessage("&8Migration progress:&a Complete");
                                                                                     message.stop();
                                                                                 } else {
                                                                                     double division = (double) passed_migration / max_migrations;
                                                                                     long iPart = (long) division;
                                                                                     double fPart = division - iPart;
 
-                                                                                    message.setMessage("Migrating progress: " + fPart + "%");
+                                                                                    String colour = "&c";
+                                                                                    if (fPart >= 37.5)
+                                                                                        colour = "&e";
+                                                                                    if (fPart >= 75)
+                                                                                        colour = "&a";
+
+                                                                                    message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
                                                                                 }
                                                                             }
                                                                         }.runTaskTimer(plugin, 0, 20);

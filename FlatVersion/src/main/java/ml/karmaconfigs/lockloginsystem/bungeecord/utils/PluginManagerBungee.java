@@ -63,7 +63,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         Console.send(" ");
         Console.send("&bEnabling {0} &bversion {1}", name, version);
         Console.send("&aInitializing files...");
-        setupFiles(true);
+        setupFiles();
         Console.send("&aRegistering commands....");
         registerCommands();
         Console.send("&aRegistering events...");
@@ -91,9 +91,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
         Console.send(" ");
         Console.send("&bDisabling {0}", name);
         Console.send("&aChecking files...");
-        setupFiles(false);
-        ConfigGetter.manager.reload();
-        MessageGetter.manager.reload();
         Console.send(" ");
         Console.send("--------------------");
         plugin.getProxy().unregisterChannel("ll:info");
@@ -104,7 +101,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
     /**
      * Setup the plugin files
      */
-    private void setupFiles(boolean onEnable) {
+    private void setupFiles() {
         File config_file = new File(plugin.getDataFolder(), "config.yml");
         FileCopy config = new FileCopy(plugin, "configs/config.yml");
         config.copy(config_file);
@@ -168,9 +165,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         if (cfg.FileSysValid()) {
             if (cfg.isMySQL()) {
-                if (onEnable) {
-                    setupMySQL();
-                }
+                setupMySQL();
             }
         } else {
             if (configuration != null) {

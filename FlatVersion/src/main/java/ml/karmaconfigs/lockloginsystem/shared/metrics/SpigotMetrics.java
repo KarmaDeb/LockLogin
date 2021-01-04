@@ -64,7 +64,7 @@ public final class SpigotMetrics {
     // A list with all custom charts
     private final List<CustomChart> charts = new ArrayList<>();
     // Is bStats enabled on this server?
-    private boolean enabled;
+    private final boolean enabled;
 
     /**
      * Class constructor.

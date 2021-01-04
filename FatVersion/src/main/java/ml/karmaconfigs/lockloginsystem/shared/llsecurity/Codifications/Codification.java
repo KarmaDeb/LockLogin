@@ -1,7 +1,5 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications;
 
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
-
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.security.NoSuchAlgorithmException;
@@ -10,21 +8,34 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.Random;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("all")
 public final class Codification {
 
+    private static String randomString(int Size) {
+        int leftLimit = 97;
+        int rightLimit = 122;
+        Random random = new Random();
+
+        return random.ints(leftLimit, rightLimit + 1)
+                .limit(Size)
+                .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
+                .toString();
+    }
+
     /**
      * Prefix for our hash, every user should change this
      */
-    public static final String ID = "$" + StringUtils.randomString(16).toUpperCase() + "$";
+    private String ID = "$" + randomString(16).toUpperCase() + "$";
 
     /**
      * basically number of iterations
      */
-    public static final int DEFAULT_COST = 512;
+    private static final int DEFAULT_COST = 512;
 
     private static final char[] pepper = "abcdefghijklopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".toCharArray();
 
@@ -112,10 +123,14 @@ public final class Codification {
      */
     public final boolean auth(String password, String token) {
         String[] info = token.split("\\$");
-        Pattern layout = Pattern.compile("\\$" + info[1] + "\\$(\\d\\d\\d?)\\$(.{512})");
+        String salt_str = info[1];
+        Pattern layout = Pattern.compile("\\$" + salt_str + "\\$(\\d\\d\\d?)\\$(.{512})");
+        if (salt_str.length() <= 1)
+            layout = Pattern.compile("\\$" + salt_str + "\\$(\\d\\d\\d?)\\$(.{512})");
+
         Matcher m = layout.matcher(token);
         if (!m.matches()) {
-            throw new IllegalArgumentException("Invalid token");
+            return false;
         }
         int iterations = iterations(Integer.parseInt(m.group(1)));
         byte[] hash = Base64.getUrlDecoder().decode(m.group(2));
