@@ -60,7 +60,6 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
 
                             if (!target.equals(player)) {
                                 User targetUser = new User(target);
-                                targetUser.removeServerInfo();
 
                                 if (config.EnableAuth()) {
                                     if (lobbyCheck.AuthIsWorking()) {
@@ -99,7 +98,6 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                             PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
                             if (utils.PasswordIsOk()) {
-                                user.removeServerInfo();
                                 user.remove();
                                 user.setLogStatus(false);
                                 user.Message(messages.Prefix() + messages.AccountDeleted());
@@ -123,8 +121,6 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                 if (plugin.getProxy().getPlayer(tar) != null) {
                     ProxiedPlayer target = plugin.getProxy().getPlayer(tar);
                     User targetUser = new User(target);
-
-                    targetUser.removeServerInfo();
 
                     if (config.EnableAuth()) {
                         if (lobbyCheck.AuthIsWorking()) {

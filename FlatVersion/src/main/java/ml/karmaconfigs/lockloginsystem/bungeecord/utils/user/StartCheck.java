@@ -50,7 +50,6 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                 if (!user.isRegistered()) {
                                     dataSender.sendAccountStatus(p);
                                     user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back));
-                                    user.checkServer();
                                 } else {
                                     user.sendTitle("", "");
                                     task.cancel();
@@ -79,7 +78,6 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                 if (!user.isLogged()) {
                                     dataSender.sendAccountStatus(p);
                                     user.sendTitle(messages.LoginTitle(back), messages.LoginSubtitle(back));
-                                    user.checkServer();
                                 } else {
                                     user.sendTitle("", "");
                                     task.cancel();

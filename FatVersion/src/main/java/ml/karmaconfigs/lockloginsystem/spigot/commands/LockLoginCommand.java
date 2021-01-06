@@ -361,7 +361,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                         SQLData.getUser(),
                         SQLData.getPassword(),
                         SQLData.getPort(),
-                        SQLData.useSSL());
+                        SQLData.useSSL(),
+                        SQLData.ignoreCertificates());
 
                 bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
@@ -436,7 +437,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                         SQLData.getUser(),
                         SQLData.getPassword(),
                         SQLData.getPort(),
-                        SQLData.useSSL());
+                        SQLData.useSSL(),
+                        SQLData.ignoreCertificates());
 
                 bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 

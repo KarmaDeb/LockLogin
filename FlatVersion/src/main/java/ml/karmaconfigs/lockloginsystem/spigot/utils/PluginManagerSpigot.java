@@ -233,7 +233,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                     SQLData.getUser(),
                     SQLData.getPassword(),
                     SQLData.getPort(),
-                    SQLData.useSSL());
+                    SQLData.useSSL(),
+                    SQLData.ignoreCertificates());
 
             bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 

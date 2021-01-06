@@ -11,7 +11,9 @@ import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
+import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
+import net.md_5.bungee.api.connection.Server;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,7 +38,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
 
     private final static HashMap<ProxiedPlayer, Boolean> logStatus = new HashMap<>();
     private final static HashMap<ProxiedPlayer, Integer> playerTries = new HashMap<>();
-    private final static HashMap<ProxiedPlayer, Boolean> correctServer = new HashMap<>();
     private final static HashSet<ProxiedPlayer> tempLog = new HashSet<>();
 
     private final ProxiedPlayer player;
@@ -222,49 +223,25 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * Check the user server
      */
     public final void checkServer() {
-        if (!isInCorrectServer()) {
-            if (config.EnableAuth()) {
-                if (lobbyCheck.AuthOk() && lobbyCheck.AuthIsWorking()) {
-                    if (player.getServer() != null) {
-                        if (player.getServer().getInfo() != null) {
-                            if (player.getServer().getInfo().getName() != null && !player.getServer().getInfo().getName().isEmpty()) {
-                                if (!player.getServer().getInfo().equals(lobbyCheck.generateServerInfo(lobbyCheck.getAuth()))) {
-                                    correctServer.put(player, false);
-                                    sendTo(lobbyCheck.getAuth());
-                                } else {
-                                    correctServer.put(player, true);
-                                }
-                            }
+        Server current_server = player.getServer();
+        if (current_server != null) {
+            if (current_server.isConnected()) {
+                ServerInfo current_info = current_server.getInfo();
+                if (isLogged() && !isTempLog()) {
+                    if (config.EnableMain()) {
+                        if (current_info.getName().equals(lobbyCheck.getAuth())) {
+                            sendTo(lobbyCheck.getMain());
                         }
                     }
-                }
-            } else {
-                if (config.EnableMain()) {
-                    if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
-                        if (player.getServer() != null) {
-                            if (player.getServer().getInfo() != null) {
-                                if (player.getServer().getInfo().getName() != null && !player.getServer().getInfo().getName().isEmpty()) {
-                                    if (!player.getServer().getInfo().equals(lobbyCheck.generateServerInfo(lobbyCheck.getMain()))) {
-                                        correctServer.put(player, false);
-                                        sendTo(lobbyCheck.getMain());
-                                    } else {
-                                        correctServer.put(player, true);
-                                    }
-                                }
-                            }
+                } else {
+                    if (config.EnableAuth()) {
+                        if (!current_info.getName().equals(lobbyCheck.getAuth())) {
+                            sendTo(lobbyCheck.getAuth());
                         }
                     }
                 }
             }
         }
-    }
-
-    /**
-     * Remove the player from correct
-     * server list
-     */
-    public final void removeServerInfo() {
-        correctServer.remove(player);
     }
 
     /**
@@ -346,18 +323,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
         } else {
             return false;
         }
-    }
-
-    /**
-     * Check if the player is in the server
-     * where he should be
-     *
-     * @return if the player is connected to the right server
-     * ( If he's not logged and not in AuthServer or if he's
-     * logged and is in auth server )
-     */
-    public final boolean isInCorrectServer() {
-        return correctServer.getOrDefault(player, false).equals(true);
     }
 
     /**

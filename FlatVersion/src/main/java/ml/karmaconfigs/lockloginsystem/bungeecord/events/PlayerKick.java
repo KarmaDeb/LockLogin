@@ -39,8 +39,6 @@ public final class PlayerKick implements Listener {
 
         if (!e.isCancelled()) {
             data.delIP();
-
-            new User(e.getPlayer()).removeServerInfo();
         }
     }
 }

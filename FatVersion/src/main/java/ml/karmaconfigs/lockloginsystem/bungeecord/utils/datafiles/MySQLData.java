@@ -88,6 +88,17 @@ public final class MySQLData implements LockLoginBungee {
     }
 
     /**
+     * Check if the mysql connection should ignore
+     * CA certificates
+     *
+     * @return if the MySQL connection should ignore CA
+     * certificates
+     */
+    public final boolean ignoreCertificates() {
+        return manager.getBoolean("MySQL.IgnoreCertificates");
+    }
+
+    /**
      * Get the minimum connections
      * that will connect to MySQL
      *

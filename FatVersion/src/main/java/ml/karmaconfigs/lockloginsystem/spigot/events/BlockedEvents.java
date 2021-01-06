@@ -221,7 +221,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
                                         data.fetch(Platform.SPIGOT);
 
-                                        if (data.getConnections() + 1 > config.AccountsPerIp()) {
+                                        if (data.getConnections() >= config.AccountsPerIp()) {
                                             e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp()));
                                         } else {
                                             if (!plugin.getServer().getOfflinePlayer(id).isBanned()) {

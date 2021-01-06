@@ -25,6 +25,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class Bucket {
 
     private static int max = 3, min = 10, timeout = 40, lifetime = 300;
+    private static boolean useSSL,ignoreCertificate;
     private static String host, database, table, username, password;
     private static int port;
 
@@ -43,9 +44,9 @@ public final class Bucket {
      * @param port     the mysql port
      * @param useSSL   connect to mysql using SSL?
      */
-    public Bucket(String host, String database, String table, String user, String password, int port, boolean useSSL) {
+    public Bucket(String host, String database, String table, String user, String password, int port, boolean useSSL, boolean ignoreCertificate) {
         Bucket.host = host;
-        Bucket.database = database + "?autoReconnect=true&useSSL=" + useSSL;
+        Bucket.database = database;
         if (!table.contains("_")) {
             Bucket.table = "ll_" + table;
         } else {
@@ -54,6 +55,8 @@ public final class Bucket {
         Bucket.username = user;
         Bucket.password = password;
         Bucket.port = port;
+        Bucket.useSSL = useSSL;
+        Bucket.ignoreCertificate = ignoreCertificate;
     }
 
     /**
@@ -150,9 +153,12 @@ public final class Bucket {
         config.setPassword(password);
         config.setMinimumIdle(min);
         config.setMaximumPoolSize(max);
-        config.setMaxLifetime(lifetime * 1000);
-        config.setConnectionTimeout(timeout * 1000);
+        config.setMaxLifetime(lifetime * 1000L);
+        config.setConnectionTimeout(timeout * 1000L);
         config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("autoReconnect", true);
+        config.addDataSourceProperty("useSSL", useSSL);
+        config.addDataSourceProperty("verifyServerCertificate", ignoreCertificate);
 
         dataSource = new HikariDataSource(config);
     }

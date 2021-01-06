@@ -37,8 +37,5 @@ public final class PlayerLeave implements Listener {
 
         IpData data = new IpData(temp_module, e.getPlayer().getAddress().getAddress());
         data.delIP();
-
-        User user = new User(e.getPlayer());
-        user.removeServerInfo();
     }
 }

@@ -39,7 +39,6 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
             User user = new User(player);
 
             if (args.length == 0) {
-                user.removeServerInfo();
                 user.setLogStatus(false);
                 new StartCheck(player, CheckType.LOGIN);
                 user.Message(messages.Prefix() + messages.UnLogged());
@@ -55,7 +54,6 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                                 User targetUser = new User(target);
 
                                 if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                                    targetUser.removeServerInfo();
                                     targetUser.setLogStatus(false);
                                     new StartCheck(target, CheckType.LOGIN);
                                     targetUser.Message(messages.Prefix() + messages.ForcedUnLog(player));
@@ -95,7 +93,6 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                     User targetUser = new User(target);
 
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                        targetUser.removeServerInfo();
                         targetUser.setLogStatus(false);
                         new StartCheck(target, CheckType.LOGIN);
                         targetUser.Message(messages.Prefix() + messages.ForcedUnLog(config.ServerName()));

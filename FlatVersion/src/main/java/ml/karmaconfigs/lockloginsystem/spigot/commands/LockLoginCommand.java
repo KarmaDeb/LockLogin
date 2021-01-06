@@ -201,6 +201,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             } else {
                                 user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
                             }
+                        } else {
+                            user.Message(messages.Prefix() + "&cUnknown sub-command: &e" + args[0]);
                         }
                     }
                 }
@@ -314,6 +316,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             if (MessageGetter.manager.reload())
                                 Console.send(messages.Prefix() + "&aMessages file reloaded");
                         }
+                    } else {
+                        Console.send(messages.Prefix() + "&cUnknown sub-command: &e" + args[0]);
                     }
                 }
             }
@@ -361,7 +365,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                         SQLData.getUser(),
                         SQLData.getPassword(),
                         SQLData.getPort(),
-                        SQLData.useSSL());
+                        SQLData.useSSL(),
+                        SQLData.ignoreCertificates());
 
                 bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
@@ -436,7 +441,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                         SQLData.getUser(),
                         SQLData.getPassword(),
                         SQLData.getPort(),
-                        SQLData.useSSL());
+                        SQLData.useSSL(),
+                        SQLData.ignoreCertificates());
 
                 bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 

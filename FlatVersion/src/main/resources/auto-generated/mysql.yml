@@ -11,6 +11,7 @@
 #                                   #
 #####################################
 
+
 #This is LockLogin MySQL system settings
 MySQL:
   #The host of your MySQL database
@@ -34,6 +35,12 @@ MySQL:
   #connection, but your MySQL host needs
   #https
   SSL: false
+  #Ignore mysql host CA certificates
+  #IT IS NOT RECOMMENDED TO ENABLE THIS
+  #AS YOU WILL BE VULNERABLE TO PHISHING
+  #AND OTHER ATTACKS WHILE THE CONNECTION IS
+  #ESTABLISHED
+  IgnoreCertificates: false
 
 #MySQL connection options
 Connection:

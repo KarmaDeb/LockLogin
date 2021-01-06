@@ -215,11 +215,11 @@ public final class ConfigGetter {
     }
 
     public final boolean EnableAuth() {
-        return configuration.getString("Servers.AuthLobby").isEmpty();
+        return !configuration.getString("Servers.AuthLobby").isEmpty();
     }
 
     public final boolean EnableMain() {
-        return configuration.getString("Servers.MainLobby").isEmpty();
+        return !configuration.getString("Servers.MainLobby").isEmpty();
     }
 
     public final String AuthLobby() {

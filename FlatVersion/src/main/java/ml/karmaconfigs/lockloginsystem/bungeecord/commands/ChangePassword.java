@@ -51,7 +51,6 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                     if (!oldPass.equals(newPass)) {
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {
-                                user.removeServerInfo();
                                 user.setPassword(newPass);
                                 user.setLogStatus(false);
                                 user.Message(messages.Prefix() + messages.ChangeDone());

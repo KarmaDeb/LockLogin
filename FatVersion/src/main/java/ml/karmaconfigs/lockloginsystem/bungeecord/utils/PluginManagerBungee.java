@@ -231,7 +231,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 SQLData.getUser(),
                 SQLData.getPassword(),
                 SQLData.getPort(),
-                SQLData.useSSL());
+                SQLData.useSSL(),
+                SQLData.ignoreCertificates());
 
         bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
@@ -340,7 +341,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
     private void reHookPlayers() {
         for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
             User user = new User(player);
-            user.removeServerInfo();
             user.setLogStatus(false);
 
             ConfigGetter config = new ConfigGetter();
@@ -408,7 +408,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
 
             User user = new User(player);
-            user.removeServerInfo();
             user.setLogStatus(false);
 
             MessageGetter messages = new MessageGetter();

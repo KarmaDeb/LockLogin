@@ -81,7 +81,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         IpData data = new IpData(temp_module, e.getConnection().getAddress().getAddress());
                         data.fetch(Platform.BUNGEE);
 
-                        if (data.getConnections() + 1 > config.AccountsPerIp()) {
+                        if (data.getConnections() >= config.AccountsPerIp()) {
                             e.setCancelled(true);
                             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
                         } else {
@@ -188,11 +188,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
             if (!user.isLogged()) {
                 plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                    user.checkServer();
                     if (config.ClearChat()) {
                         for (int i = 0; i < 150; i++) {
                             user.Message(" ");
                         }
                     }
+
                     if (!user.isRegistered()) {
                         new StartCheck(player, CheckType.REGISTER);
                     } else {

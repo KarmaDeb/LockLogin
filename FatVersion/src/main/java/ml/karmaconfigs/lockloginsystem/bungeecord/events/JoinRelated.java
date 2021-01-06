@@ -81,7 +81,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         IpData data = new IpData(temp_module, e.getConnection().getAddress().getAddress());
                         data.fetch(Platform.BUNGEE);
 
-                        if (data.getConnections() + 1 > config.AccountsPerIp()) {
+                        if (data.getConnections() >= config.AccountsPerIp()) {
                             e.setCancelled(true);
                             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
                         } else {
@@ -163,17 +163,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 sql.setName(player.getName());
         }
 
-        if (!user.isLogged()) {
-            user.checkServer();
-        } else {
-            if (config.EnableMain()) {
-                if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
-                    if (e.getReason().equals(ServerConnectEvent.Reason.COMMAND)) {
-                        if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
-                            e.setTarget(lobbyCheck.generateServerInfo(lobbyCheck.getMain()));
-                            e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.AlreadyLogged());
-                        }
+        if (config.EnableMain()) {
+            if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
+                if (e.getReason().equals(ServerConnectEvent.Reason.COMMAND)) {
+                    if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
+                        e.setTarget(lobbyCheck.generateServerInfo(lobbyCheck.getMain()));
+                        e.setCancelled(true);
+                        user.Message(messages.Prefix() + messages.AlreadyLogged());
                     }
                 }
             }
@@ -188,11 +184,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
             if (!user.isLogged()) {
                 plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                    user.checkServer();
                     if (config.ClearChat()) {
                         for (int i = 0; i < 150; i++) {
                             user.Message(" ");
                         }
                     }
+
                     if (!user.isRegistered()) {
                         new StartCheck(player, CheckType.REGISTER);
                     } else {

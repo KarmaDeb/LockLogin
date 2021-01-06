@@ -33,9 +33,10 @@ public class MySQL {
      * @param password the password
      * @param port     the port
      * @param useSSL   if the MySQL uses SSL
+     * @param ignoreCertificates if the MySQL ignores CA certificates
      */
-    public MySQL(String host, String database, String table, String user, String password, int port, boolean useSSL) {
-        bucket = new Bucket(host, database, table, user, password, port, useSSL);
+    public MySQL(String host, String database, String table, String user, String password, int port, boolean useSSL, boolean ignoreCertificates) {
+        bucket = new Bucket(host, database, table, user, password, port, useSSL, ignoreCertificates);
     }
 
     /**
