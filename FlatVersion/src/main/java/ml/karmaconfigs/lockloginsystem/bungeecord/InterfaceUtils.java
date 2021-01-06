@@ -15,6 +15,8 @@ public final class InterfaceUtils {
 
     private static Main plugin;
 
+    private static boolean ready_to_update = false;
+
     /**
      * Start the interface utils
      *
@@ -22,6 +24,15 @@ public final class InterfaceUtils {
      */
     public final void setMain(Main instance) {
         plugin = instance;
+    }
+
+    /**
+     * Set the plugin ready to update status
+     *
+     * @param status the ready to update status
+     */
+    public final void setReadyToUpdate(final boolean status) {
+        ready_to_update = status;
     }
 
     /**
@@ -63,5 +74,14 @@ public final class InterfaceUtils {
                 .replaceAll("[aA-zZ]", "")
                 .replace(".", "")
                 .replace(" ", ""));
+    }
+
+    /**
+     * Check if the plugin is ready to update
+     *
+     * @return if the plugin is ready to update
+     */
+    public final boolean isReadyToUpdate() {
+        return ready_to_update;
     }
 }

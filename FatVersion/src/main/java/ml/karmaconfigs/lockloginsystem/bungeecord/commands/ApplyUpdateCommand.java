@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
+import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
@@ -32,6 +33,7 @@ public final class ApplyUpdateCommand extends Command implements BungeeFiles {
 
     @Override
     public void execute(CommandSender sender, String[] args) {
+        InterfaceUtils utils = new InterfaceUtils();
         if (sender instanceof ProxiedPlayer) {
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
@@ -39,6 +41,7 @@ public final class ApplyUpdateCommand extends Command implements BungeeFiles {
             if (player.hasPermission("locklogin.applyupdates")) {
                 if (new LockLoginBungeeManager().applyUpdate()) {
                     user.Message(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
+                    utils.setReadyToUpdate(false);
                 } else {
                     user.Message(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
                     if (ConfigGetter.manager.reload())
@@ -52,6 +55,7 @@ public final class ApplyUpdateCommand extends Command implements BungeeFiles {
         } else {
             if (new LockLoginBungeeManager().applyUpdate()) {
                 Console.send(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
+                utils.setReadyToUpdate(false);
             } else {
                 Console.send(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
                 if (ConfigGetter.manager.reload())

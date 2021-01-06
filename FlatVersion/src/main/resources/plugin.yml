@@ -61,3 +61,7 @@ commands:
       - delpin
   locklogin:
     description: Main locklogin command
+  updateChecker:
+    description: LockLogin update and version checker
+    aliases:
+      - checkUpdates

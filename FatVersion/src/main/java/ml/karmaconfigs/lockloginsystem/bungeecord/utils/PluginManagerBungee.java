@@ -5,6 +5,7 @@ import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.commands.*;
@@ -208,6 +209,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ApplyUpdateCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new SetPinCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ResetPinCommand());
+        plugin.getProxy().getPluginManager().registerCommand(plugin, new CheckUpdateCommand());
     }
 
     /**
@@ -251,42 +253,51 @@ public final class PluginManagerBungee implements LockLoginBungee {
      * Do the plugin version check
      */
     public final void doVersionCheck() {
-        if (CheckerBungee.isOutdated()) {
-            Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + LockLoginVersion.version + " &f)");
-            if (new ConfigGetter().UpdateSelf()) {
-                String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            if (CheckerBungee.isOutdated()) {
+                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + LockLoginVersion.version + " &f)");
+                if (new ConfigGetter().UpdateSelf()) {
+                    String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
 
-                File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-                File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
+                    File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+                    File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
 
-                if (!updatedLockLogin.exists()) {
-                    try {
-                        DownloadLatest latest = new DownloadLatest(new ConfigGetter().isFatJar());
-                        latest.download();
-                    } catch (Throwable e) {
-                        logger.scheduleLog(Level.GRAVE, e);
-                        logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
-                    }
-                } else {
-                    if (plugin.getProxy().getPlayers().isEmpty()) {
-                        Main.updatePending = true;
-                        Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
-                        new LockLoginBungeeManager().applyUpdate();
+                    InterfaceUtils utils = new InterfaceUtils();
+                    if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+                        try {
+                            DownloadLatest latest = new DownloadLatest(new ConfigGetter().isFatJar());
+                            if (!latest.isDownloading()) {
+                                latest.download(() -> {
+                                    utils.setReadyToUpdate(true);
+                                    Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                                });
+                            }
+                        } catch (Throwable e) {
+                            logger.scheduleLog(Level.GRAVE, e);
+                            logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+                        }
                     } else {
-                        Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+                        if (plugin.getProxy().getPlayers().isEmpty()) {
+                            Main.updatePending = true;
+                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
+                            new LockLoginBungeeManager().applyUpdate();
+                            utils.setReadyToUpdate(false);
+                        } else {
+                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+                        }
                     }
-                }
-            } else {
-                if (!last_changelog.equals(LockLoginVersion.changeLog) || checks >= 3) {
-                    CheckerBungee.sendChangeLog();
-                    last_changelog = LockLoginVersion.changeLog;
-                    checks = 0;
                 } else {
-                    checks++;
+                    if (!last_changelog.equals(LockLoginVersion.changeLog) || checks >= 3) {
+                        CheckerBungee.sendChangeLog();
+                        last_changelog = LockLoginVersion.changeLog;
+                        checks = 0;
+                    } else {
+                        checks++;
+                    }
+                    Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
                 }
-                Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
             }
-        }
+        });
     }
 
     /**

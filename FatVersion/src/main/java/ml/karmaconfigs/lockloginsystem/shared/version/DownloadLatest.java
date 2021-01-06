@@ -24,6 +24,9 @@ public final class DownloadLatest {
     private File update;
     private File destJar;
 
+    private static boolean downloading = false;
+    private static double percentage = 0.0;
+
     /**
      * Initialize the downloader
      *
@@ -46,39 +49,78 @@ public final class DownloadLatest {
 
     /**
      * Download the latest LockLogin jar version
+     *
+     * @param onEnd do something on end...
      */
-    public final void download() {
-        try {
-            int count;
-            URLConnection connection = downloadURL.openConnection();
-            connection.connect();
+    public final void download(Runnable onEnd) {
+        //Prevent the plugin from downloading LockLogin
+        //more than once at the same time, to avoid errors
+        if (!downloading) {
+            try {
+                URLConnection connection = downloadURL.openConnection();
+                int size = connection.getContentLength();
+                connection.connect();
 
-            if (!update.exists()) {
-                if (update.mkdir()) {
-                    PlatformUtils.Alert("Created update folder for LockLogin new update", Level.INFO);
-                } else {
-                    PlatformUtils.Alert("An unknown error occurred while creating update folder", Level.GRAVE);
+                if (!update.exists()) {
+                    if (update.mkdir()) {
+                        PlatformUtils.Alert("Created update folder for LockLogin new update", Level.INFO);
+                    } else {
+                        PlatformUtils.Alert("An unknown error occurred while creating update folder", Level.GRAVE);
+                    }
                 }
+
+                InputStream input = new BufferedInputStream(downloadURL.openStream(), 1024);
+                OutputStream output = new FileOutputStream(destJar);
+
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                double sumCount = 0.0;
+                while ((bytesRead = input.read(dataBuffer, 0, 1024)) != -1) {
+                    output.write(dataBuffer, 0, bytesRead);
+
+                    sumCount += bytesRead;
+                    percentage = (sumCount / size * 100.0);
+
+                    downloading = true;
+                }
+
+                output.flush();
+
+                output.close();
+                input.close();
+
+                PlatformUtils.Alert("Downloaded latest LockLogin version, restart your server to apply changes", Level.INFO);
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while downloading latest LockLogin instance", Level.INFO);
+            } finally {
+                onEnd.run();
+                downloading = false;
             }
+        }
+    }
 
-            InputStream input = new BufferedInputStream(downloadURL.openStream(), 1024);
-            OutputStream output = new FileOutputStream(destJar);
+    /**
+     * Check if the plugin is downloading a plugin
+     * update
+     *
+     * @return if the plugin is being downloaded
+     */
+    public final boolean isDownloading() {
+        return downloading;
+    }
 
-            byte[] data = new byte[1024];
-
-            while ((count = input.read(data)) != -1) {
-                output.write(data, 0, count);
-            }
-
-            output.flush();
-
-            output.close();
-            input.close();
-
-            PlatformUtils.Alert("Downloaded latest LockLogin version, restart your server to apply changes", Level.INFO);
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while downloading latest LockLogin instance", Level.INFO);
+    /**
+     * Get the download percentage of the file
+     *
+     * @return the download percentage of the file
+     */
+    public final int getPercentage() {
+        String per_str = String.valueOf(percentage);
+        try {
+            return Integer.parseInt(per_str.split("\\.")[0]);
+        } catch (Throwable ex) {
+            return 0;
         }
     }
 }
