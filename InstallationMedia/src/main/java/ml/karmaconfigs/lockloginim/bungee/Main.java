@@ -52,9 +52,9 @@ public final class Main extends Plugin {
 
             print("&7Fat version contains dependencies built in the plugin file, which makes it");
             print("&7a bug-proof plugin, but it's a big plugin size\n");
-            print("&fFlat version doesn't contains any dependency, but download them and inject them");
-            print("&fwhich makes it lightweight, but the possibilities of bugs using this version is");
-            print("&fbigger depending on the OS you are, your host, and the server.jar you are using\n\n");
+            print("&fFlat version doesn't contains any dependency, because it will download and inject them");
+            print("&fwhich makes it lightweight, LockLogin installation media will be replaced soon with");
+            print("&fLockLogin flat\n\n");
 
             readForInput();
         }

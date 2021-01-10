@@ -14,7 +14,6 @@ import ml.karmaconfigs.lockloginsystem.shared.dependencies.Dependency;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.File;
-import java.net.URL;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -31,7 +30,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.0", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
+@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.2", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
 public final class Main extends Plugin {
 
     public static boolean updatePending;
@@ -59,10 +58,10 @@ public final class Main extends Plugin {
             JarInjector goauth_injector = new JarInjector(goauth);
             JarInjector slf4j_injector = new JarInjector(slf4j);
 
-            hikari_injector.download(new URL(Dependency.hikari));
-            codecs_injector.download(new URL(Dependency.commons));
-            goauth_injector.download(new URL(Dependency.google));
-            slf4j_injector.download(new URL(Dependency.slf4j));
+            hikari_injector.download(Dependency.hikari);
+            codecs_injector.download(Dependency.commons);
+            goauth_injector.download(Dependency.google);
+            slf4j_injector.download(Dependency.slf4j);
 
             if (hikari_injector.isDownloaded() && codecs_injector.isDownloaded() && goauth_injector.isDownloaded() && slf4j_injector.isDownloaded()) {
                 hikari_injector.inject(this);

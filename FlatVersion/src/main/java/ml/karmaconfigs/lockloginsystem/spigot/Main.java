@@ -11,7 +11,6 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.PluginManagerSpigot;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.net.URL;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -27,7 +26,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.0", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
+@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.2", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
 public final class Main extends JavaPlugin {
 
     @Override
@@ -51,10 +50,10 @@ public final class Main extends JavaPlugin {
             JarInjector goauth_injector = new JarInjector(goauth);
             JarInjector slf4j_injector = new JarInjector(slf4j);
 
-            hikari_injector.download(new URL(Dependency.hikari));
-            codecs_injector.download(new URL(Dependency.commons));
-            goauth_injector.download(new URL(Dependency.google));
-            slf4j_injector.download(new URL(Dependency.slf4j));
+            hikari_injector.download(Dependency.hikari);
+            codecs_injector.download(Dependency.commons);
+            goauth_injector.download(Dependency.google);
+            slf4j_injector.download(Dependency.slf4j);
 
             if (hikari_injector.isDownloaded() && codecs_injector.isDownloaded() && goauth_injector.isDownloaded() && slf4j_injector.isDownloaded()) {
                 hikari_injector.inject(this);

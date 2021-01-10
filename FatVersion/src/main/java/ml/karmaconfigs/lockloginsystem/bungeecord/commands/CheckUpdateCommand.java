@@ -116,8 +116,59 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                              user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
                          }
                          break;
+                     case "switchFlat":
+                         if (player.hasPermission("locklogin.forceupdate")) {
+                             if (!downloading) {
+                                 user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+                                 user.Message("&aWe will notice you when it's downloaded");
+
+                                 InterfaceUtils utils = new InterfaceUtils();
+                                 if (!utils.isReadyToUpdate()) {
+                                     LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                                         try {
+                                             DownloadLatest latest = new DownloadLatest(false);
+
+                                             Timer timer = new Timer();
+                                             timer.schedule(new TimerTask() {
+                                                 @Override
+                                                 public void run() {
+                                                     if (player.isConnected() && latest.getPercentage() <= 97) {
+                                                         player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%")));
+                                                     } else {
+                                                         cancel();
+                                                     }
+                                                 }
+                                             }, 0, TimeUnit.SECONDS.toMillis(1));
+
+                                             if (latest.isDownloading()) {
+                                                 user.Message("&cLockLogin is already downloading an update");
+                                             } else {
+                                                 latest.download(() -> {
+                                                     if (player.isConnected()) {
+                                                         user.Message("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
+                                                         downloading = false;
+                                                         utils.setReadyToUpdate(true);
+                                                     }
+                                                 });
+                                             }
+                                         } catch (Throwable ex) {
+                                             LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                                             user.Message("&cError while downloading latest LockLogin flat version, see logs for more info");
+                                         }
+                                     });
+                                 } else {
+                                     user.Message("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
+                                 }
+                             } else {
+                                 user.Message("&cLockLogin is already downloading an update");
+                             }
+                         } else {
+                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                         }
+                         break;
                      default:
                          user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                         break;
                  }
             } else {
                 user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
@@ -181,6 +232,38 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                             }
                         } else {
                             Console.send("&cWoah! Are you sure is LockLogin outdated?");
+                        }
+                        break;
+                    case "switchFlat":
+                        if (!downloading) {
+                            Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+                            Console.send("&aWe will notice you when it's downloaded");
+
+                            InterfaceUtils utils = new InterfaceUtils();
+                            if (!utils.isReadyToUpdate()) {
+                                LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                                    try {
+                                        DownloadLatest latest = new DownloadLatest(false);
+
+                                        if (latest.isDownloading()) {
+                                            Console.send("&cLockLogin is already downloading an update");
+                                        } else {
+                                            latest.download(() -> {
+                                                Console.send("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
+                                                downloading = false;
+                                                utils.setReadyToUpdate(true);
+                                            });
+                                        }
+                                    } catch (Throwable ex) {
+                                        LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                                        Console.send("&cError while downloading latest LockLogin flat version, see logs for more info");
+                                    }
+                                });
+                            } else {
+                                Console.send("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
+                            }
+                        } else {
+                            Console.send("&cLockLogin is already downloading an update");
                         }
                         break;
                     default:

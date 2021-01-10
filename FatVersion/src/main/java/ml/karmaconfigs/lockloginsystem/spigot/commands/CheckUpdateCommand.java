@@ -11,6 +11,8 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.CheckerSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.PluginManagerSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -114,6 +116,58 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles, L
                              user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
                          }
                          break;
+                     case "switchFlat":
+                         if (player.hasPermission("locklogin.forceupdate")) {
+                             if (!downloading) {
+                                 user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+                                 user.Message("&aWe will notice you when it's downloaded");
+
+                                 if (!PluginManagerSpigot.manager.isReadyToUpdate()) {
+                                     LockLoginSpigot.plugin.getServer().getScheduler().runTaskAsynchronously(LockLoginSpigot.plugin, () -> {
+                                         try {
+                                             DownloadLatest latest = new DownloadLatest(false);
+
+                                             Timer timer = new Timer();
+                                             BarMessage bar = new BarMessage(player, "&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%");
+                                             bar.send(true);
+                                             timer.schedule(new TimerTask() {
+                                                 @Override
+                                                 public void run() {
+                                                     if (player.isOnline() && latest.getPercentage() <= 97) {
+                                                         bar.setMessage("&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%");
+                                                     } else {
+                                                         bar.stop();
+                                                         cancel();
+                                                     }
+                                                 }
+                                             }, 0, TimeUnit.SECONDS.toMillis(1));
+
+                                             if (latest.isDownloading()) {
+                                                 user.Message("&cLockLogin is already downloading an update");
+                                             } else {
+                                                 latest.download(() -> {
+                                                     if (player.isOnline()) {
+                                                         user.Message("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
+                                                         downloading = false;
+                                                         PluginManagerSpigot.manager.setReadyToUpdate(true);
+                                                     }
+                                                 });
+                                             }
+                                         } catch (Throwable ex) {
+                                             LockLoginSpigot.logger.scheduleLog(Level.GRAVE, ex);
+                                             user.Message("&cError while downloading latest LockLogin flat version, see logs for more info");
+                                         }
+                                     });
+                                 } else {
+                                     user.Message("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
+                                 }
+                             } else {
+                                 user.Message("&cLockLogin is already downloading an update");
+                             }
+                         } else {
+                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                         }
+                         break;
                      default:
                          user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
                  }
@@ -178,6 +232,37 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles, L
                             }
                         } else {
                             Console.send("&cWoah! Are you sure is LockLogin outdated?");
+                        }
+                        break;
+                    case "switchFlat":
+                        if (!downloading) {
+                            Console.send("&aDownloading latest LockLogin flat version &c( this process is async but may lag the server a bit )");
+                            Console.send("&aWe will notice you when it's downloaded");
+
+                            if (!PluginManagerSpigot.manager.isReadyToUpdate()) {
+                                LockLoginSpigot.plugin.getServer().getScheduler().runTaskAsynchronously(LockLoginSpigot.plugin, () -> {
+                                    try {
+                                        DownloadLatest latest = new DownloadLatest(false);
+
+                                        if (latest.isDownloading()) {
+                                            Console.send("&cLockLogin is already downloading an update");
+                                        } else {
+                                            latest.download(() -> {
+                                                Console.send("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
+                                                downloading = false;
+                                                PluginManagerSpigot.manager.setReadyToUpdate(true);
+                                            });
+                                        }
+                                    } catch (Throwable ex) {
+                                        LockLoginSpigot.logger.scheduleLog(Level.GRAVE, ex);
+                                        Console.send("&cError while downloading latest LockLogin flat version, see logs for more info");
+                                    }
+                                });
+                            } else {
+                                Console.send("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
+                            }
+                        } else {
+                            Console.send("&cLockLogin is already downloading an update");
                         }
                         break;
                     default:
