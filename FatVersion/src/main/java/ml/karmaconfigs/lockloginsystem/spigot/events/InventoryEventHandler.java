@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
 import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.AltsAccountInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.Numbers;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
 import org.bukkit.Material;
@@ -38,6 +39,31 @@ public final class InventoryEventHandler implements Listener {
      */
     private boolean isPinGUI(String title) {
         String check = "LockLogin pinner";
+
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < title.length(); i++) {
+            String letter = String.valueOf(title.charAt(i));
+            if (letter.matches(".*[aA-zZ].*") || letter.matches(".*[0-9].*") || letter.matches(" ")) {
+                builder.append(letter);
+            }
+        }
+
+        title = builder.toString();
+
+        builder = new StringBuilder();
+        for (int i = 0; i < check.length(); i++) {
+            String letter = String.valueOf(check.charAt(i));
+            if (letter.matches(".*[aA-zZ].*") || letter.matches(".*[0-9].*") || letter.matches(" ") && !letter.matches("&" + ".*[aA-zZ]") && !letter.matches("&" + ".*[0-9].*")) {
+                builder.append(letter);
+            }
+        }
+        check = builder.toString();
+
+        return title.contains(check);
+    }
+
+    private boolean isAltsGUI(String title) {
+        String check = "Alt accounts";
 
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < title.length(); i++) {
@@ -172,6 +198,29 @@ public final class InventoryEventHandler implements Listener {
                             }
                         }
                         e.setCancelled(true);
+                    } else {
+                        if (isAltsGUI(view.getTitle())) {
+                            e.setCancelled(true);
+
+                            ItemStack clicked = e.getCurrentItem();
+                            if (clicked != null && !clicked.getType().equals(Material.AIR)) {
+                                if (isSimilar(clicked, AltsAccountInventory.utils.nextButton())) {
+                                    AltsAccountInventory inventory = AltsAccountInventory.manager.getInventory(player);
+                                    int player_page = (inventory != null ? inventory.getPlayerPage() : -1);
+
+                                    if (player_page != -1 && player_page + 1 < inventory.getPages())
+                                        inventory.openPage(player_page + 1);
+                                } else {
+                                    if (isSimilar(clicked, AltsAccountInventory.utils.backButton())) {
+                                        AltsAccountInventory inventory = AltsAccountInventory.manager.getInventory(player);
+                                        int player_page = (inventory != null ? inventory.getPlayerPage() : -1);
+
+                                        if (player_page - 1 > 0)
+                                            inventory.openPage(player_page - 1);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

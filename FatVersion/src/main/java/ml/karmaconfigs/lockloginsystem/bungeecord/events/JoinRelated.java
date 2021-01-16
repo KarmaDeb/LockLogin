@@ -81,7 +81,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         IpData data = new IpData(temp_module, e.getConnection().getAddress().getAddress());
                         data.fetch(Platform.BUNGEE);
 
-                        if (data.getConnections() >= config.AccountsPerIp()) {
+                        if (data.getConnections() > config.AccountsPerIp()) {
                             e.setCancelled(true);
                             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
                         } else {
@@ -109,7 +109,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
                         if (config.MaxRegisters() != 0) {
                             try {
-                                if (storager.getStorage().size() >= config.MaxRegisters()) {
+                                if (storager.getStorage().size() > config.MaxRegisters()) {
                                     if (storager.notSet(e.getConnection().getName())) {
                                         e.setCancelled(true);
                                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));

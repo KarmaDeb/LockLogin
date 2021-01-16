@@ -36,6 +36,11 @@ public final class OfflineUser implements LockLoginBungee {
         checkFiles();
     }
 
+    public OfflineUser(UUID uuid) {
+        this.Name = uuid.toString();
+        checkFiles();
+    }
+
     /**
      * Check the files to search for specified player
      * file
@@ -48,11 +53,15 @@ public final class OfflineUser implements LockLoginBungee {
                 File[] files = folder.listFiles();
                 assert files != null;
                 for (File file : files) {
-                    FileManager fileManager = new FileManager(file.getName(), "playerdata");
-
-                    if (fileManager.getString("Player").equals(Name)) {
+                    if (file.getName().equals(Name.replace("-", ""))) {
                         manager = new FileManager(file.getName(), "playerdata");
-                        break;
+                    } else {
+                        FileManager fileManager = new FileManager(file.getName(), "playerdata");
+
+                        if (fileManager.getString("Player").equals(Name)) {
+                            manager = new FileManager(file.getName(), "playerdata");
+                            break;
+                        }
                     }
                 }
             }
@@ -67,6 +76,15 @@ public final class OfflineUser implements LockLoginBungee {
      */
     public final boolean exists() {
         return manager != null;
+    }
+
+    /**
+     * Get the player name
+     *
+     * @return the player name
+     */
+    public final String getName() {
+        return manager.getString("Player");
     }
 
     /**

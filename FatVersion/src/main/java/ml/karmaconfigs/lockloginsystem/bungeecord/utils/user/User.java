@@ -229,13 +229,13 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (current_server.isConnected()) {
                 ServerInfo current_info = current_server.getInfo();
                 if (isLogged() && !isTempLog()) {
-                    if (config.EnableMain()) {
+                    if (config.EnableMain() && plugin.getProxy().getServerInfo(lobbyCheck.getMain()) != null) {
                         if (current_info.getName().equals(lobbyCheck.getAuth())) {
                             sendTo(lobbyCheck.getMain());
                         }
                     }
                 } else {
-                    if (config.EnableAuth()) {
+                    if (config.EnableAuth() && plugin.getProxy().getServerInfo(lobbyCheck.getAuth()) != null) {
                         if (!current_info.getName().equals(lobbyCheck.getAuth())) {
                             sendTo(lobbyCheck.getAuth());
                         }

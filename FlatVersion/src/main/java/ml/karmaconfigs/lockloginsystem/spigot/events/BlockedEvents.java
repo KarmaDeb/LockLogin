@@ -163,7 +163,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                             if (config.AllowSameIp()) {
                                 Player alreadyIn = plugin.getServer().getPlayer(id);
 
-                                if (alreadyIn.getAddress().getAddress().equals(e.getAddress())) {
+                                if (alreadyIn != null && alreadyIn.getAddress() != null && alreadyIn.getAddress().getAddress().equals(e.getAddress())) {
                                     User user = new User(alreadyIn);
                                     user.setLogStatus(false);
                                     plugin.getServer().getScheduler().runTask(plugin, () -> user.Kick("&eLockLogin\n\n" + "&aYou've joined from another location with the same IP, if that's not you, contact the staff now" +
@@ -186,49 +186,6 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                     e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" +
                                             messages.IllegalName(Checker.getIllegalChars(e.getName()))));
-                                }
-                            }
-
-                            if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-                                TempModule temp_module = new TempModule();
-                                ModuleLoader spigot_module_loader = new ModuleLoader(temp_module);
-                                try {
-                                    if (!ModuleLoader.manager.isLoaded(temp_module)) {
-                                        spigot_module_loader.inject();
-                                    }
-                                } catch (Throwable ignored) {
-                                }
-
-                                IPStorager storager = new IPStorager(temp_module, e.getAddress());
-
-                                if (config.MaxRegisters() != 0) {
-                                    try {
-                                        if (storager.getStorage().size() > config.MaxRegisters()) {
-                                            if (storager.notSet(e.getName())) {
-                                                e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-                                                e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters()));
-                                            }
-                                        } else {
-                                            storager.saveStorage(e.getName());
-                                        }
-                                    } catch (NumberFormatException ignored) {
-                                    }
-                                }
-
-                                if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-                                    if (config.AccountsPerIp() != 0) {
-                                        IpData data = new IpData(temp_module, e.getAddress());
-
-                                        data.fetch(Platform.SPIGOT);
-
-                                        if (data.getConnections() >= config.AccountsPerIp()) {
-                                            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp()));
-                                        } else {
-                                            if (!plugin.getServer().getOfflinePlayer(id).isBanned()) {
-                                                data.addIP();
-                                            }
-                                        }
-                                    }
                                 }
                             }
                         }
@@ -392,9 +349,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
             Location to = e.getTo();
 
             if (!user.isLogged() || user.isTempLog()) {
-                e.setCancelled(from.getBlockX() != to.getBlockX()
-                        || from.getBlockZ() != to.getBlockZ()
-                        || !(from.getY() - to.getY() >= 0));
+                if (to != null) {
+                    e.setCancelled(from.getBlockX() != to.getBlockX()
+                            || from.getBlockZ() != to.getBlockZ()
+                            || !(from.getY() - to.getY() >= 0));
+                }
             }
         }
     }
@@ -564,14 +523,10 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 PinInventory inventory = new PinInventory(player);
 
                 InventoryView view = player.getOpenInventory();
-                if (view != null) {
-                    if (view.getTitle() != null && !view.getTitle().isEmpty()) {
-                        if (notPinGUI(view.getTitle())) {
-                            inventory.open();
-                        }
+                if (!view.getTitle().isEmpty()) {
+                    if (notPinGUI(view.getTitle())) {
+                        inventory.open();
                     }
-                } else {
-                    inventory.open();
                 }
             }
             if (!verifier.isVerified()) {
@@ -666,11 +621,9 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 PinInventory inventory = new PinInventory(player);
 
                 InventoryView view = player.getOpenInventory();
-                if (view != null) {
-                    if (view.getTitle() != null && !view.getTitle().isEmpty()) {
-                        if (notPinGUI(view.getTitle())) {
-                            inventory.open();
-                        }
+                if (!view.getTitle().isEmpty()) {
+                    if (notPinGUI(view.getTitle())) {
+                        inventory.open();
                     }
                 } else {
                     inventory.open();
@@ -808,57 +761,31 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
     private void checkInventory(Player player) {
         User user = new User(player);
         plugin.getServer().getScheduler().runTaskLaterAsynchronously(plugin, () -> {
-            if (player.getInventory() != null || player.getOpenInventory() != null) {
-                if (!config.isBungeeCord()) {
-                    if (!user.hasPin()) {
-                        plugin.getServer().getScheduler().runTask(plugin, () -> {
-                            if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                player.closeInventory();
-                            }
-                        });
+            if (!config.isBungeeCord()) {
+                if (!user.hasPin()) {
+                    plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
+                } else {
+                    if (notPinGUI(player.getOpenInventory().getTitle())) {
+                        plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                     } else {
-                        if (notPinGUI(player.getOpenInventory().getTitle())) {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                    player.closeInventory();
-                                }
-                            });
-                        } else {
-                            PinInventory inventory = new PinInventory(player);
+                        PinInventory inventory = new PinInventory(player);
 
-                            if (inventory.isVerified()) {
-                                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                        player.closeInventory();
-                                    }
-                                });
-                            }
+                        if (inventory.isVerified()) {
+                            plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                         }
                     }
+                }
+            } else {
+                if (!BungeeListener.inventoryAccess.contains(player)) {
+                    plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                 } else {
-                    if (!BungeeListener.inventoryAccess.contains(player)) {
-                        plugin.getServer().getScheduler().runTask(plugin, () -> {
-                            if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                player.closeInventory();
-                            }
-                        });
+                    if (notPinGUI(player.getOpenInventory().getTitle())) {
+                        plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                     } else {
-                        if (notPinGUI(player.getOpenInventory().getTitle())) {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                    player.closeInventory();
-                                }
-                            });
-                        } else {
-                            PinInventory inventory = new PinInventory(player);
+                        PinInventory inventory = new PinInventory(player);
 
-                            if (inventory.isVerified()) {
-                                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    if (player.getInventory() != null && player.getOpenInventory() != null) {
-                                        player.closeInventory();
-                                    }
-                                });
-                            }
+                        if (inventory.isVerified()) {
+                            plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                         }
                     }
                 }

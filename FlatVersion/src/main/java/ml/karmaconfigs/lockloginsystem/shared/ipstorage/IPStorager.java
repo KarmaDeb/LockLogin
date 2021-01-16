@@ -22,7 +22,10 @@ import java.util.*;
  * will be a violation of
  * terms of use determined
  * in <a href="https://karmaconfigs.ml/license/"> here </a>
+ * @deprecated This is not longer used as version 1.0.3.6 this is separated
+ * per platform
  */
+@Deprecated
 public final class IPStorager {
 
     private final File file;
@@ -32,7 +35,9 @@ public final class IPStorager {
      * Initialize the IP storage
      * for that IP
      *
-     * @param IP the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param IP     the IP
      */
     public IPStorager(Module loader, InetAddress IP) {
         if (ModuleLoader.manager.isLoaded(loader)) {
@@ -96,7 +101,9 @@ public final class IPStorager {
      * Initialize the IP storage
      * for that IP
      *
-     * @param IP the IP
+     * @param loader the module that will
+     *               execute the call
+     * @param IP     the IP
      */
     public IPStorager(ml.karmaconfigs.lockloginmodules.bungee.Module loader, InetAddress IP) {
         if (ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader.manager.isLoaded(loader)) {

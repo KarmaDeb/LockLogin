@@ -22,7 +22,10 @@ import java.util.*;
  * will be a violation of
  * terms of use determined
  * in <a href="https://karmaconfigs.ml/license/"> here </a>
+ * @deprecated This is not longer used as version 1.0.3.6 this is separated
+ * per platform
  */
+@Deprecated
 public final class IPStorager {
 
     private final File file;

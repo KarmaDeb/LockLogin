@@ -47,21 +47,25 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
 
         SimpleCommandMap commandMap;
 
-        List<Plugin> plugins;
+        List<?> plugins = null;
 
-        Map<String, Plugin> names;
-        Map<String, Command> commands;
+        Map<?, ?> names = null;
+        Map<String, Command> commands = new HashMap<>();
 
         pluginManager.disablePlugin(plugin);
 
         try {
             Field pluginsField = Bukkit.getPluginManager().getClass().getDeclaredField("plugins");
             pluginsField.setAccessible(true);
-            plugins = (List<Plugin>) pluginsField.get(pluginManager);
+            if (pluginsField.get(pluginManager) instanceof List) {
+                plugins = (List<?>) pluginsField.get(pluginManager);
+            }
 
             Field lookupNamesField = Bukkit.getPluginManager().getClass().getDeclaredField("lookupNames");
             lookupNamesField.setAccessible(true);
-            names = (Map<String, Plugin>) lookupNamesField.get(pluginManager);
+            if (lookupNamesField.get(pluginManager) instanceof Map) {
+                names = (Map<?, ?>) lookupNamesField.get(pluginManager);
+            }
 
             Field commandMapField = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
             commandMapField.setAccessible(true);
@@ -69,7 +73,18 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
 
             Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
             knownCommandsField.setAccessible(true);
-            commands = (Map<String, Command>) knownCommandsField.get(commandMap);
+            if (knownCommandsField.get(commandMap) instanceof Map) {
+                Map<?, ?> cmdField = (Map<?, ?>) knownCommandsField.get(commandMap);
+                for (Object key : cmdField.keySet()) {
+                    if (key instanceof String) {
+                        String cmdKey = (String) key;
+                        if (cmdField.get(key) instanceof Command) {
+                            Command cmd = (Command) cmdField.get(key);
+                            commands.put(cmdKey, cmd);
+                        }
+                    }
+                }
+            }
 
             pluginManager.disablePlugin(plugin);
 
@@ -134,8 +149,10 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
     public final void load(File pluginFile) {
         try {
             Plugin target = Bukkit.getPluginManager().loadPlugin(pluginFile);
-            target.onLoad();
-            Bukkit.getPluginManager().enablePlugin(target);
+            if (target != null) {
+                target.onLoad();
+                Bukkit.getPluginManager().enablePlugin(target);
+            }
         } catch (Throwable e) {
             logger.scheduleLog(Level.GRAVE, e);
             logger.scheduleLog(Level.INFO, "Error while loading LockLogin");
@@ -221,8 +238,6 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
      * will be a violation of
      * terms of use determined
      * in <a href="https://karmaconfigs.ml/license/"> here </a>
-     *
-     * @return if the plugin was able to apply the update
      */
     public final boolean applyUpdate() {
         String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");

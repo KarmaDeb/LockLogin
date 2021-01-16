@@ -6,6 +6,7 @@ import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
@@ -14,7 +15,6 @@ import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.ipstorage.IPStorager;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
@@ -81,7 +81,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         IpData data = new IpData(temp_module, e.getConnection().getAddress().getAddress());
                         data.fetch(Platform.BUNGEE);
 
-                        if (data.getConnections() >= config.AccountsPerIp()) {
+                        if (data.getConnections() > config.AccountsPerIp()) {
                             e.setCancelled(true);
                             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
                         } else {
@@ -105,23 +105,21 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         } catch (Throwable ignored) {
                         }
 
-                        IPStorager storager = new IPStorager(temp_module, e.getConnection().getAddress().getAddress());
+                        try {
+                            IPStorager storager = new IPStorager(temp_module, e.getConnection().getAddress().getAddress());
 
-                        if (config.MaxRegisters() != 0) {
-                            try {
-                                if (storager.getStorage().size() >= config.MaxRegisters()) {
-                                    if (storager.notSet(e.getConnection().getName())) {
+                            if (config.MaxRegisters() > 0) {
+                                try {
+                                    if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
+                                        storager.save(e.getConnection().getUniqueId());
+                                    } else {
                                         e.setCancelled(true);
                                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
                                     }
-                                } else {
-                                    if (storager.notSet(e.getConnection().getName())) {
-                                        storager.saveStorage(e.getConnection().getName());
-                                    }
+                                } catch (NumberFormatException ignored) {
                                 }
-                            } catch (NumberFormatException ignored) {
                             }
-                        }
+                        } catch (Throwable ignored) {}
                     }
                 }
             } else {

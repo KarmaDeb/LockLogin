@@ -34,18 +34,15 @@ public final class GetLatestVersion {
             String word;
             List<String> lines = new ArrayList<>();
             while ((word = reader.readLine()) != null)
-                if (!lines.contains(word)) {
-                    lines.add(word);
-                }
+                lines.add((word.replaceAll("\\s", "").isEmpty() ? "&f" : word));
+
             reader.close();
             for (String str : lines) {
-                if (!replaced.contains(str)) {
-                    replaced.add(str
-                            .replace("[", "{open}")
-                            .replace("]", "{close}")
-                            .replace(",", "{comma}")
-                            .replace("_", "&"));
-                }
+                replaced.add(str
+                        .replace("[", "{open}")
+                        .replace("]", "{close}")
+                        .replace(",", "{comma}")
+                        .replace("_", "&"));
             }
             this.latest = Integer.parseInt(replaced.get(0).replaceAll("[aA-zZ]", "").replace(".", ""));
             this.version = replaced.get(0);

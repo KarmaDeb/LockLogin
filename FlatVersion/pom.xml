@@ -5,7 +5,7 @@
     <parent>
         <artifactId>LockLogin</artifactId>
         <groupId>ml.karmaconfigs</groupId>
-        <version>1.0.3.2</version>
+        <version>1.0.3.6</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,8 +17,8 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
+                    <source>8</source>
+                    <target>8</target>
                 </configuration>
             </plugin>
             <plugin>
@@ -32,6 +32,26 @@
                             <shadedPattern>ml.karmaconfigs.shaded.karmapi</shadedPattern>
                         </relocation>
                     </relocations>
+                    <filters>
+                        <filter>
+                            <artifact>*:*</artifact>
+                            <excludes>
+                                <exclude>com/cryptomorin/xseries/XBiome*</exclude>
+                                <exclude>com/cryptomorin/xseries/NMSExtras*</exclude>
+                                <exclude>com/cryptomorin/xseries/NoteBlockMusic*</exclude>
+                                <exclude>com/cryptomorin/xseries/XBlock*</exclude>
+                                <exclude>com/cryptomorin/xseries/XEnchantment*</exclude>
+                                <exclude>com/cryptomorin/xseries/XEntity*</exclude>
+                                <exclude>com/cryptomorin/xseries/XItemStack*</exclude>
+                                <exclude>com/cryptomorin/xseries/XPotion*</exclude>
+                                <exclude>com/cryptomorin/xseries/XSound*</exclude>
+                                <exclude>com/cryptomorin/xseries/messages/Actionbar*</exclude>
+                                <exclude>com/cryptomorin/xseries/messages/Titles*</exclude>
+                                <exclude>com/cryptomorin/xseries/particles/ParticleDisplay*</exclude>
+                                <exclude>com/cryptomorin/xseries/particles/XParticle*</exclude>
+                            </excludes>
+                        </filter>
+                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -78,6 +98,12 @@
             <groupId>ml.karmaconfigs</groupId>
             <artifactId>KarmaAPI</artifactId>
             <version>2.6-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.cryptomorin</groupId>
+            <artifactId>XSeries</artifactId>
+            <version>7.8.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

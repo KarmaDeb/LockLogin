@@ -2,11 +2,15 @@ package ml.karmaconfigs.lockloginsystem.spigot.events;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
@@ -38,35 +42,76 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void playerLogEvent(PlayerLoginEvent e) {
         if (!config.isBungeeCord()) {
-            Player player = e.getPlayer();
+            if (e.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
+                Player player = e.getPlayer();
 
-            if (config.isYaml()) {
-                User user = new User(player);
+                TempModule temp_module = new TempModule();
+                ModuleLoader spigot_module_loader = new ModuleLoader(temp_module);
+                try {
+                    if (!ModuleLoader.manager.isLoaded(temp_module)) {
+                        spigot_module_loader.inject();
+                    }
+                } catch (Throwable ignored) {
+                }
 
-                user.setupFile();
-            } else {
-                String UUID = player.getUniqueId().toString().replace("-", "");
-
-                FileManager manager = new FileManager(UUID + ".yml", "playerdata");
-                manager.setInternal("auto-generated/userTemplate.yml");
-
-                Utils sql = new Utils(player.getUniqueId());
-
-                sql.createUser();
-
-                if (manager.getManaged().exists()) {
-                    if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
-                        if (manager.isSet("Password")) {
-                            if (!manager.isEmpty("Password")) {
-                                new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
-                                Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
-                            }
+                if (config.MaxRegisters() > 0) {
+                    try {
+                        IPStorager storager = new IPStorager(temp_module, e.getAddress());
+                        if (storager.canJoin(player.getUniqueId(), config.MaxRegisters())) {
+                            storager.save(player.getUniqueId());
+                        } else {
+                            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters()));
                         }
+                    } catch (Throwable ignored) {
                     }
                 }
 
-                if (sql.getName() == null || sql.getName().isEmpty())
-                    sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                if (e.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
+                    if (config.AccountsPerIp() != 0) {
+                        IpData data = new IpData(temp_module, e.getAddress());
+
+                        data.fetch(Platform.SPIGOT);
+
+                        if (data.getConnections() > config.AccountsPerIp()) {
+                            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp()));
+                        } else {
+                            if (!plugin.getServer().getOfflinePlayer(e.getPlayer().getUniqueId()).isBanned()) {
+                                data.addIP();
+                            }
+                        }
+                    }
+
+                    if (e.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
+                        if (config.isYaml()) {
+                            User user = new User(player);
+
+                            user.setupFile();
+                        } else {
+                            String UUID = player.getUniqueId().toString().replace("-", "");
+
+                            FileManager manager = new FileManager(UUID + ".yml", "playerdata");
+                            manager.setInternal("auto-generated/userTemplate.yml");
+
+                            Utils sql = new Utils(player.getUniqueId());
+
+                            sql.createUser();
+
+                            if (manager.getManaged().exists()) {
+                                if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                                    if (manager.isSet("Password")) {
+                                        if (!manager.isEmpty("Password")) {
+                                            new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                            Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (sql.getName() == null || sql.getName().isEmpty())
+                                sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                        }
+                    }
+                }
             }
         }
     }
