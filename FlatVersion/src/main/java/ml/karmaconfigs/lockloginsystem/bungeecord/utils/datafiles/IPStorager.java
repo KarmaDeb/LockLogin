@@ -40,7 +40,7 @@ public final class IPStorager implements LockLoginBungee {
             String hashed_ip = new Codification2(ip.getHostName(), false).hash();
             hashed_ips.add(hashed_ip);
 
-            ip_data.set("IPs", hashed_ips);
+            ip_data.set("IPs", new ArrayList<>(hashed_ips));
         } else {
             throw new UnknownHostException();
         }
@@ -49,7 +49,7 @@ public final class IPStorager implements LockLoginBungee {
     /**
      * Load the stored ips in file
      */
-    public final void loadIPs() {
+    private static void loadIPs() {
         List<String> storage = ip_data.getStringList("IPs");
         if (storage == null)
             storage = new ArrayList<>();
@@ -64,6 +64,7 @@ public final class IPStorager implements LockLoginBungee {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
+        System.out.println("Saving " + uuid.toString());
         String hashed_ip = new Codification2(ip.getHostName(), false).hash();
 
         List<String> assigned = ip_data.getStringList(hashed_ip);
@@ -71,6 +72,7 @@ public final class IPStorager implements LockLoginBungee {
             assigned = new ArrayList<>();
 
         if (!assigned.contains(uuid.toString())) {
+            System.out.println("Added uuid to assigned UUIDs");
             assigned.add(uuid.toString());
 
             ip_data.set(hashed_ip, assigned);
@@ -97,7 +99,7 @@ public final class IPStorager implements LockLoginBungee {
 
             if (ip.equals(hashed_ip)) {
                 alts.addAll(assigned);
-                available = true;
+                available = assigned.contains(uuid.toString());
             } else {
                 if (assigned.contains(uuid.toString())) {
                     available = true;
@@ -158,6 +160,9 @@ public final class IPStorager implements LockLoginBungee {
 
         static HashSet<OfflineUser> getAlts(final Module module, final UUID target) {
             if (ModuleLoader.manager.isLoaded(module)) {
+                if (hashed_ips.isEmpty())
+                    loadIPs();
+
                 HashSet<String> alts = new HashSet<>();
                 for (String ip : hashed_ips) {
                     List<String> assigned = ip_data.getStringList(ip);

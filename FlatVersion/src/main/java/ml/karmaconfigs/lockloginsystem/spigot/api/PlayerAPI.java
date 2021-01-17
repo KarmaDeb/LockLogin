@@ -7,19 +7,21 @@ import ml.karmaconfigs.lockloginsystem.shared.AuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
-import ml.karmaconfigs.lockloginsystem.shared.ipstorage.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerRegisterEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerVerifyEvent;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 
 /*
@@ -502,12 +504,12 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
      *
      * @return a list of names that can be associated to that player
      */
-    public final List<String> getAccounts() {
+    public final HashSet<OfflineUser> getAccounts() {
         if (player != null) {
-            return IPStorager.getStorage(player.getName(), false);
+            return IPStorager.manager.getAlts(module, player.getUniqueId());
         }
 
-        return Collections.emptyList();
+        return new HashSet<>();
     }
 
     /**

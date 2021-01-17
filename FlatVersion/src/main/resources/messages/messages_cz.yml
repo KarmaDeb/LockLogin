@@ -72,7 +72,7 @@ MaxRegisters:
   - ''
   - '&ePokud si myslíš, že se jedná o chybu, prosím nahlaste to na'
   - '&bhttps://discordexample.gg'
-LookUpUsage: '&cSprávné použití: &b/lookup -p<player> | -a<IP>'
+LookUpUsage: '&cSprávné použití: &b/lookup <player>'
 IllegalName:
   - '&cZakázané jméno'
   - ''

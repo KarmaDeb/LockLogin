@@ -73,7 +73,7 @@ MaxRegisters:
   - ''
   - '&e如果您认为这是一个错误，请报告'
   - '&bhttps://discordexample.gg'
-LookUpUsage: '&c正确用法: &b/lookup -p<player> | -aIP'
+LookUpUsage: '&c正确用法: &b/lookup <player>'
 IllegalName:
   - '&c非法名称'
   - ''

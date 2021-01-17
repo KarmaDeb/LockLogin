@@ -37,28 +37,14 @@ public final class ApplyUpdateCommand extends Command implements BungeeFiles {
             User user = new User(player);
 
             if (player.hasPermission("locklogin.applyupdates")) {
-                if (new LockLoginBungeeManager().applyUpdate()) {
-                    user.Message(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
-                } else {
-                    user.Message(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                    if (ConfigGetter.manager.reload())
-                        user.Message(messages.Prefix() + "&aConfig file reloaded!");
-                    if (MessageGetter.manager.reload())
-                        user.Message(messages.Prefix() + "&aMessages file reloaded!");
-                }
+                LockLoginBungeeManager b_manager = new LockLoginBungeeManager();
+                b_manager.applyUpdate(user);
             } else {
                 user.Message(messages.Prefix() + messages.PermissionError("locklogin.applyupdates"));
             }
         } else {
-            if (new LockLoginBungeeManager().applyUpdate()) {
-                Console.send(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
-            } else {
-                Console.send(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                if (ConfigGetter.manager.reload())
-                    Console.send(messages.Prefix() + "&aConfig file reloaded!");
-                if (MessageGetter.manager.reload())
-                    Console.send(messages.Prefix() + "&aMessages file reloaded!");
-            }
+            LockLoginBungeeManager b_manager = new LockLoginBungeeManager();
+            b_manager.applyUpdate(null);
         }
     }
 }

@@ -55,6 +55,7 @@ public final class OfflineUser implements LockLoginBungee {
                 for (File file : files) {
                     if (file.getName().equals(Name.replace("-", ""))) {
                         manager = new FileManager(file.getName(), "playerdata");
+                        break;
                     } else {
                         FileManager fileManager = new FileManager(file.getName(), "playerdata");
 

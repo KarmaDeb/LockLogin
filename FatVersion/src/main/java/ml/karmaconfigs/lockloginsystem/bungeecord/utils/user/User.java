@@ -9,13 +9,16 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
-import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
+import org.jetbrains.annotations.Nullable;
 
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -64,9 +67,16 @@ public final class User implements LockLoginBungee, BungeeFiles {
             } else {
                 playerFile.setupFile();
             }
+
+            if (!playerFile.getName().equals(player.getName()))
+                playerFile.setName(player.getName());
         } else {
             Utils sql = new Utils(player);
             sql.createUser();
+
+            String name = sql.getName();
+            if (name != null && !name.equals(player.getName()))
+                sql.setName(player.getName());
         }
     }
 
@@ -226,7 +236,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
     public final void checkServer() {
         Server current_server = player.getServer();
         if (current_server != null) {
-            if (current_server.isConnected()) {
+            if (current_server.isConnected() && player.isConnected()) {
                 ServerInfo current_info = current_server.getInfo();
                 if (isLogged() && !isTempLog()) {
                     if (config.EnableMain() && plugin.getProxy().getServerInfo(lobbyCheck.getMain()) != null) {
@@ -242,6 +252,24 @@ public final class User implements LockLoginBungee, BungeeFiles {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Tries to get the player IP
+     * using socket connection
+     *
+     * @return the player InetAddress
+     */
+    @Nullable
+    public final InetAddress getIp() {
+        try {
+            InetSocketAddress address = (InetSocketAddress) player.getSocketAddress();
+            return address.getAddress();
+        } catch (Throwable ex) {
+            logger.scheduleLog(Level.GRAVE, ex);
+            logger.scheduleLog(Level.INFO, "Failed to retrieve player IP");
+            return null;
         }
     }
 
@@ -533,5 +561,18 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player, config.GetMaxTries());
+    }
+
+    public interface external {
+
+        @Nullable
+        static InetAddress getIp(final SocketAddress connection) {
+            try {
+                InetSocketAddress address = (InetSocketAddress) connection;
+                return address.getAddress();
+            } catch (Throwable ex) {
+                return null;
+            }
+        }
     }
 }

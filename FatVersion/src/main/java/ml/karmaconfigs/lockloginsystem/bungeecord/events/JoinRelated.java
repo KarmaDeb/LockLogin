@@ -6,6 +6,7 @@ import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
@@ -14,21 +15,18 @@ import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.ipstorage.IPStorager;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.PreLoginEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
+import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -48,13 +46,15 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles {
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public final void onPreJoin(PreLoginEvent e) {
+    public final void onPreJoin(LoginEvent e) {
         BFSystem bf_prevention = new BFSystem(e.getConnection().getVirtualHost().getAddress());
         if (bf_prevention.isBlocked() && config.BFMaxTries() > 0) {
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
         } else {
             if (!Main.updatePending) {
+                InetAddress ip = User.external.getIp(e.getConnection().getSocketAddress());
+
                 if (config.CheckNames()) {
                     if (!Checker.isValid(e.getConnection().getName())) {
                         e.setCancelled(true);
@@ -78,7 +78,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         } catch (Throwable ignored) {
                         }
 
-                        IpData data = new IpData(temp_module, e.getConnection().getAddress().getAddress());
+                        IpData data = new IpData(temp_module, ip);
                         data.fetch(Platform.BUNGEE);
 
                         if (data.getConnections() > config.AccountsPerIp()) {
@@ -105,22 +105,25 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         } catch (Throwable ignored) {
                         }
 
-                        IPStorager storager = new IPStorager(temp_module, e.getConnection().getAddress().getAddress());
+                        try {
+                            IPStorager storager = new IPStorager(temp_module, ip);
 
-                        if (config.MaxRegisters() != 0) {
-                            try {
-                                if (storager.getStorage().size() > config.MaxRegisters()) {
-                                    if (storager.notSet(e.getConnection().getName())) {
+                            if (config.MaxRegisters() > 0) {
+                                try {
+                                    if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
+                                        System.out.println("Can save!");
+                                        storager.save(e.getConnection().getUniqueId());
+                                    } else {
+                                        System.out.println("Cancelled");
                                         e.setCancelled(true);
                                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
                                     }
-                                } else {
-                                    if (storager.notSet(e.getConnection().getName())) {
-                                        storager.saveStorage(e.getConnection().getName());
-                                    }
+                                } catch (Throwable ex) {
+                                    ex.printStackTrace();
                                 }
-                            } catch (NumberFormatException ignored) {
                             }
+                        } catch (Throwable ex) {
+                            ex.printStackTrace();
                         }
                     }
                 }
@@ -183,6 +186,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             User user = new User(player);
 
             if (!user.isLogged()) {
+                user.checkServer();
+
                 plugin.getProxy().getScheduler().schedule(plugin, () -> {
                     user.checkServer();
                     if (config.ClearChat()) {

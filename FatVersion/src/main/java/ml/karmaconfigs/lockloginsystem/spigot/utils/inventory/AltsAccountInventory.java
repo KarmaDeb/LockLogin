@@ -3,8 +3,8 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 import com.cryptomorin.xseries.XMaterial;
 import ml.karmaconfigs.api.spigot.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import org.bukkit.Material;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
@@ -30,21 +30,21 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
      * @param user the player that called the inventory
      * @param players the players to show in the GUI
      */
-    public AltsAccountInventory(final Player user, final HashSet<OfflinePlayer> players) {
+    public AltsAccountInventory(final Player user, final HashSet<OfflineUser> players) {
         player = user;
         Inventory page = getBlankPage();
 
-        for (OfflinePlayer player : players) {
+        for (OfflineUser player : players) {
             ItemStack item = new ItemStack(getMaterial());
             try {
                 SkullMeta meta = (SkullMeta) item.getItemMeta();
 
                 meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-                meta.setOwningPlayer(player);
-                if (!player.getUniqueId().equals(user.getUniqueId())) {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
+                meta.setOwningPlayer(plugin.getServer().getOfflinePlayer(player.getUUID()));
+                if (!player.getUUID().equals(user.getUniqueId())) {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
                 } else {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
                 }
 
                 item.setItemMeta(meta);
@@ -52,10 +52,10 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
                 ItemMeta meta = item.getItemMeta();
 
                 meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-                if (!player.getUniqueId().equals(user.getUniqueId())) {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
+                if (!player.getUUID().equals(user.getUniqueId())) {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
                 } else {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
                 }
 
                 item.setItemMeta(meta);

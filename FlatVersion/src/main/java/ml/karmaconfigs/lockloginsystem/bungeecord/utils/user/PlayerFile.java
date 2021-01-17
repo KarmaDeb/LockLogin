@@ -156,6 +156,32 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Get the player name
+     *
+     * @return the player name
+     */
+    public final String getName() {
+        if (config.isYaml()) {
+            return manager.getString("Player");
+        } else {
+            return sql.getName();
+        }
+    }
+
+    /**
+     * Save the player name
+     *
+     * @param name the new player name
+     */
+    public final void setName(final String name) {
+        if (config.isYaml()) {
+            manager.set("Player", name);
+        } else {
+            sql.setName(name);
+        }
+    }
+
+    /**
      * Get the player UUID
      *
      * @return the player UUID

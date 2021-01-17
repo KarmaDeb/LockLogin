@@ -7,16 +7,18 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerRegisterEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerVerifyEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.BungeeSender;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.servers.LobbyChecker;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.AuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
-import ml.karmaconfigs.lockloginsystem.shared.ipstorage.IPStorager;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -448,12 +450,12 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
      *
      * @return a list of names that can be associated to that player
      */
-    public final List<String> getAccounts() {
+    public final HashSet<OfflineUser> getAccounts() {
         if (player != null) {
-            return IPStorager.getStorage(player.getName(), false);
+            return IPStorager.manager.getAlts(module, player.getUniqueId());
         }
 
-        return Collections.emptyList();
+        return new HashSet<>();
     }
 
     /**

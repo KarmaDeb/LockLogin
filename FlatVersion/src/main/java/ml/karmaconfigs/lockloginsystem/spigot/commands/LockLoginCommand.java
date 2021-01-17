@@ -189,15 +189,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     } else {
                         if (args[0].equals("applyUpdates")) {
                             if (player.hasPermission(applyUpdatePermission)) {
-                                if (new LockLoginSpigotManager().applyUpdate()) {
-                                    user.Message(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
-                                } else {
-                                    user.Message(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                                    if (ConfigGetter.manager.reload())
-                                        user.Message(messages.Prefix() + "&aConfig file reloaded!");
-                                    if (MessageGetter.manager.reload())
-                                        user.Message(messages.Prefix() + "&aMessages file reloaded!");
-                                }
+                                LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
+                                s_manager.applyUpdate(user);
                             } else {
                                 user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
                             }
@@ -307,15 +300,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     }
                 } else {
                     if (args[0].equals("applyUpdates")) {
-                        if (new LockLoginSpigotManager().applyUpdate()) {
-                            Console.send(messages.Prefix() + "&aLockLogin have been reloaded and its updates have been applied");
-                        } else {
-                            Console.send(messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                            if (ConfigGetter.manager.reload())
-                                Console.send(messages.Prefix() + "&aConfig file reloaded!");
-                            if (MessageGetter.manager.reload())
-                                Console.send(messages.Prefix() + "&aMessages file reloaded");
-                        }
+                        LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
+                        s_manager.applyUpdate(null);
                     } else {
                         Console.send(messages.Prefix() + "&cUnknown sub-command: &e" + args[0]);
                     }

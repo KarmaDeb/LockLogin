@@ -76,10 +76,17 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 } else {
                     playerFile.setupFile();
                 }
+
+                if (!playerFile.getName().equals(player.getName()))
+                    playerFile.setName(player.getName());
             } else {
                 Utils sql = new Utils(player);
 
                 sql.createUser();
+
+                String name = sql.getName();
+                if (name != null && !name.equals(player.getName()))
+                    sql.setName(player.getName());
             }
         }
     }
@@ -173,9 +180,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param hasParticles if the potion should spawn particles
      */
     public final void sendEffect(PotionEffectType type, int duration, int amp, boolean isSource, boolean hasParticles) {
-        PotionEffect effect = new PotionEffect(type, 20 * duration, amp, isSource, hasParticles);
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            PotionEffect effect = new PotionEffect(type, 20 * duration, amp, isSource, hasParticles);
 
-        player.addPotionEffect(effect);
+            player.addPotionEffect(effect);
+        });
     }
 
     /**

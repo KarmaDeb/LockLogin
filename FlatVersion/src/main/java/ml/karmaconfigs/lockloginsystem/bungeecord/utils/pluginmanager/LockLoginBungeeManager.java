@@ -2,8 +2,13 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.ProxyServer;
 import net.md_5.bungee.api.plugin.Command;
 import net.md_5.bungee.api.plugin.Plugin;
@@ -11,6 +16,7 @@ import net.md_5.bungee.api.plugin.PluginDescription;
 import net.md_5.bungee.api.plugin.PluginManager;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.YamlConfiguration;
+import org.jetbrains.annotations.Nullable;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -260,72 +266,165 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
      * will be a violation of
      * terms of use determined
      * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     *
+     * @param user the issuer
      */
-    public final boolean applyUpdate() {
-        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+    public final void applyUpdate(@Nullable User user) {
+        InterfaceUtils utils = new InterfaceUtils();
 
+        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
         File pluginsFolder = new File(dir.replace("/LockLogin", ""));
         File lockLogin = new File(pluginsFolder, LockLoginBungee.jar);
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
-        try {
-            boolean unloaded = false;
 
-            if (updatedLockLogin.exists()) {
-                Console.send(plugin, "Updating LockLogin, checking new LockLogin.jar info...", Level.INFO);
-                String newVersion = getJarVersion(updatedLockLogin);
-                String thisVersion = getJarVersion(lockLogin);
+        if (user != null) {
+            try {
+                boolean unloaded = false;
 
-                if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
-                    int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-                    int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                if (updatedLockLogin.exists()) {
+                    user.Message("&eUpdating LockLogin, checking new LockLogin.jar info...");
+                    String newVersion = getJarVersion(updatedLockLogin);
+                    String thisVersion = getJarVersion(lockLogin);
 
-                    boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
-                    if (!shouldUpdate) {
-                        shouldUpdate = nVer > aVer;
-                    }
+                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
+                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
 
-                    if (shouldUpdate) {
-                        unloadPlugin();
-                        unloaded = true;
-                        if (lockLogin.delete()) {
-                            if (updatedLockLogin.renameTo(lockLogin)) {
-                                updatedLockLogin = new File(pluginsFolder + "/update/", jar);
+                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
+                        if (!shouldUpdate) {
+                            shouldUpdate = nVer > aVer;
+                        }
 
-                                if (updatedLockLogin.delete()) {
+                        if (shouldUpdate && utils.isReadyToUpdate()) {
+                            unloadPlugin();
+                            unloaded = true;
+                            if (lockLogin.delete()) {
+                                if (updatedLockLogin.renameTo(lockLogin)) {
+                                    if (!updatedLockLogin.delete()) {
+                                        updatedLockLogin.deleteOnExit();
+                                    }
+
                                     logger.scheduleLog(Level.INFO, "LockLogin updated");
-                                    Console.send(plugin, "LockLogin updated successfully", Level.INFO);
-                                    return true;
+                                    user.Message("&aLockLogin updated successfully");
+                                    utils.setReadyToUpdate(false);
                                 }
+                            } else {
+                                loadPlugin(lockLogin);
+                                user.Message("&cLockLogin update failed");
+                                return;
+                            }
+                        } else {
+                            if (utils.isReadyToUpdate()) {
+                                user.Message("&cUpdated cancelled due the plugins/update/" + jar + " LockLogin instance version is lower than the actual");
+                                if (updatedLockLogin.delete()) {
+                                    user.Message("&aOld LockLogin instance removed");
+                                }
+                            } else {
+                                user.Message("&cUpdate cancelled due LockLogin update is still downloading");
                             }
                         }
                     } else {
-                        Console.send(plugin, "Updated cancelled due the plugins/update/{0} LockLogin instance version is lower than the actual", Level.GRAVE, jar);
+                        user.Message("&cNew LockLogin instance plugin.yml is not valid, download the latest version manually from &ehttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
                         if (updatedLockLogin.delete()) {
-                            Console.send(plugin, "Old LockLogin instance removed", Level.INFO);
+                            user.Message("&aCorrupt LockLogin instance removed");
                         }
                     }
                 } else {
-                    Console.send(plugin, "New LockLogin instance plugin.yml is not valid, download the latest version manually from {0}", Level.GRAVE, "https://www.spigotmc.org/resources/gsa-locklogin.75156/");
-                    if (updatedLockLogin.delete()) {
-                        Console.send(plugin, "Corrupt LockLogin instance removed", Level.INFO);
-                    }
+                    user.Message(BungeeFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    if (ConfigGetter.manager.reload())
+                        user.Message(BungeeFiles.messages.Prefix() + "&aConfig file reloaded!");
+                    if (MessageGetter.manager.reload())
+                        user.Message(BungeeFiles.messages.Prefix() + "&aMessages file reloaded!");
                 }
-            }
 
-            if (unloaded) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        loadPlugin(lockLogin);
+                if (unloaded) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            loadPlugin(lockLogin);
+                        }
+                    }, 5000);
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
+                user.Message("&cError while updating LockLogin");
+            }
+        } else {
+            try {
+                boolean unloaded = false;
+
+                if (updatedLockLogin.exists()) {
+                    Console.send(plugin, "Updating LockLogin, checking new LockLogin.jar info...", Level.INFO);
+                    String newVersion = getJarVersion(updatedLockLogin);
+                    String thisVersion = getJarVersion(lockLogin);
+
+                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
+                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+
+                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
+                        if (!shouldUpdate) {
+                            shouldUpdate = nVer > aVer;
+                        }
+
+                        if (shouldUpdate && utils.isReadyToUpdate()) {
+                            unloadPlugin();
+                            unloaded = true;
+                            if (lockLogin.delete()) {
+                                if (updatedLockLogin.renameTo(lockLogin)) {
+                                    if (!updatedLockLogin.delete()) {
+                                        updatedLockLogin.deleteOnExit();
+                                    }
+
+                                    logger.scheduleLog(Level.INFO, "LockLogin updated");
+                                    Console.send(plugin, "LockLogin updated successfully", Level.INFO);
+                                    utils.setReadyToUpdate(false);
+                                }
+                            } else {
+                                loadPlugin(lockLogin);
+                                Console.send(plugin, "LockLogin update failed", Level.WARNING);
+                                return;
+                            }
+                        } else {
+                            if (utils.isReadyToUpdate()) {
+                                Console.send(plugin, "Updated cancelled due the plugins/update/{0} LockLogin instance version is lower than the actual", Level.GRAVE, jar);
+                                if (updatedLockLogin.delete()) {
+                                    Console.send(plugin, "Old LockLogin instance removed", Level.INFO);
+                                }
+                            } else {
+                                Console.send("&cUpdate cancelled due LockLogin update is still downloading");
+                            }
+                        }
+                    } else {
+                        Console.send(plugin, "New LockLogin instance plugin.yml is not valid, download the latest version manually from {0}", Level.GRAVE, "https://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                        if (updatedLockLogin.delete()) {
+                            Console.send(plugin, "Corrupt LockLogin instance removed", Level.INFO);
+                        }
                     }
-                }, 5000);
-            }
-        } catch (Throwable e) {
-            logger.scheduleLog(Level.GRAVE, e);
-            logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
-        }
+                } else {
+                    Console.send(BungeeFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    if (ConfigGetter.manager.reload())
+                        Console.send(BungeeFiles.messages.Prefix() + "&aConfig file reloaded!");
+                    if (MessageGetter.manager.reload())
+                        Console.send(BungeeFiles.messages.Prefix() + "&aMessages file reloaded");
+                }
 
-        return false;
+                if (unloaded) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            loadPlugin(lockLogin);
+                        }
+                    }, 5000);
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
+                Console.send(plugin, "An error occurred while updating LockLogin, check logs for more info", Level.GRAVE);
+            }
+        }
     }
 }

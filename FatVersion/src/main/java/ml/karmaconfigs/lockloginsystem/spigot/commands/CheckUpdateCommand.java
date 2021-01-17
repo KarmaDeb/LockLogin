@@ -116,7 +116,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles, L
                              user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
                          }
                          break;
-                     case "switchFlat":
+                     case "--switchflat":
                          if (player.hasPermission("locklogin.forceupdate")) {
                              if (!downloading) {
                                  user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");

@@ -54,6 +54,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
     private static String last_changelog = "";
     private static int checks = 0;
     private static boolean ready_to_update = false;
+    private static boolean is_bungeecord = false;
 
     /**
      * The onEnable actions the
@@ -87,6 +88,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             setupPlayers();
             registerMetrics();
         } else {
+            is_bungeecord = true;
             startVersionChecker();
 
             new BukkitRunnable() {
@@ -120,7 +122,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         Console.send(" ");
         Console.send("--------------------");
         unsetPlayers();
-        if (!new ConfigGetter().isBungeeCord()) {
+        if (!is_bungeecord) {
             Bucket.terminateMySQL();
         }
         if (plugin.getServer().getMessenger().isIncomingChannelRegistered(plugin, "ll:info")) {
@@ -314,7 +316,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                         if (plugin.getServer().getOnlinePlayers().isEmpty()) {
                             Main.updatePending = true;
                             Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
-                            new LockLoginSpigotManager().applyUpdate();
+                            new LockLoginSpigotManager().applyUpdate(null);
                             ready_to_update = false;
                         } else {
                             Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);

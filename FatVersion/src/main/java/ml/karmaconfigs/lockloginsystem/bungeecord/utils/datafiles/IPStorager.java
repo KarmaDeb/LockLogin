@@ -40,7 +40,7 @@ public final class IPStorager implements LockLoginBungee {
             String hashed_ip = new Codification2(ip.getHostName(), false).hash();
             hashed_ips.add(hashed_ip);
 
-            ip_data.set("IPs", hashed_ips);
+            ip_data.set("IPs", new ArrayList<>(hashed_ips));
         } else {
             throw new UnknownHostException();
         }
@@ -97,7 +97,7 @@ public final class IPStorager implements LockLoginBungee {
 
             if (ip.equals(hashed_ip)) {
                 alts.addAll(assigned);
-                available = true;
+                available = assigned.contains(uuid.toString());
             } else {
                 if (assigned.contains(uuid.toString())) {
                     available = true;

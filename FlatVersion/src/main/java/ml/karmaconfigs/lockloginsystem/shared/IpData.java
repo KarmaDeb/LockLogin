@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.shared;
 
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.entity.Player;
 
@@ -111,7 +112,9 @@ public final class IpData {
                         }
                     } catch (Throwable e) {
                         for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
-                            ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                            InetAddress ip = User.external.getIp(player.getSocketAddress());
+
+                            ips.put(ip, ips.getOrDefault(ip, 0) + 1);
                         }
                     }
                     break;
@@ -122,7 +125,9 @@ public final class IpData {
                     break;
                 case BUNGEE:
                     for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
-                        ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                        InetAddress ip = User.external.getIp(player.getSocketAddress());
+
+                        ips.put(ip, ips.getOrDefault(ip, 0) + 1);
                     }
                     break;
             }

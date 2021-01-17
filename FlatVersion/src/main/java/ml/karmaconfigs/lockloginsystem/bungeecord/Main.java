@@ -30,7 +30,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.6", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
+@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.3.9", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
 public final class Main extends Plugin {
 
     public static boolean updatePending;
@@ -79,7 +79,7 @@ public final class Main extends Plugin {
                 }
                 if (updatePending) {
                     getProxy().getScheduler().schedule(Main.this, () ->
-                            new LockLoginBungeeManager().applyUpdate(), 10, TimeUnit.SECONDS);
+                            new LockLoginBungeeManager().applyUpdate(null), 10, TimeUnit.SECONDS);
                 } else {
                     new PluginManagerBungee().enable();
                 }

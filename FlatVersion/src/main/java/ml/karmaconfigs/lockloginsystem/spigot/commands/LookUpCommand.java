@@ -63,7 +63,7 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
 
                             OfflineUser off_user = new OfflineUser(target);
                             if (off_user.exists()) {
-                                HashSet<OfflinePlayer> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
 
                                 AltsAccountInventory alts_inv = new AltsAccountInventory(player, detected);
                                 alts_inv.openPage(0);
@@ -99,13 +99,13 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
 
                         OfflineUser off_user = new OfflineUser(target);
                         if (off_user.exists()) {
-                            HashSet<OfflinePlayer> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                            HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
 
                             Console.send("&7------------ &eLockLogin alt accounts finder for " + target + " &7------------");
                             System.out.println("\n");
-                            for (OfflinePlayer player : detected) {
+                            for (OfflineUser player : detected) {
                                 Console.send("&e" + player.getName());
-                                Console.send("  &7UUID: &e" + player.getUniqueId());
+                                Console.send("  &7UUID: &e" + player.getUUID());
                             }
                         } else {
                             Console.send(messages.Prefix() + messages.NeverPlayed(target));

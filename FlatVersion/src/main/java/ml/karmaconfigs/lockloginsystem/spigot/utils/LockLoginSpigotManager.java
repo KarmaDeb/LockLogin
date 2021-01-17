@@ -3,6 +3,10 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.MessageGetter;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
@@ -10,6 +14,7 @@ import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.InputStream;
@@ -238,72 +243,163 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
      * will be a violation of
      * terms of use determined
      * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     *
+     * @param user the issuer
      */
-    public final boolean applyUpdate() {
+    public final void applyUpdate(@Nullable User user) {
         String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
-
         File pluginsFolder = new File(dir.replace("/LockLogin", ""));
         File lockLogin = new File(pluginsFolder, LockLoginSpigot.jar);
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
-        try {
-            boolean unloaded = false;
 
-            if (updatedLockLogin.exists()) {
-                Console.send(plugin, "Updating LockLogin, checking new LockLogin.jar info...", Level.INFO);
-                String newVersion = getJarVersion(updatedLockLogin);
-                String thisVersion = getJarVersion(lockLogin);
+        if (user != null) {
+            try {
+                boolean unloaded = false;
 
-                if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
-                    int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-                    int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                if (updatedLockLogin.exists()) {
+                    user.Message("&eUpdating LockLogin, checking new LockLogin.jar info...");
+                    String newVersion = getJarVersion(updatedLockLogin);
+                    String thisVersion = getJarVersion(lockLogin);
 
-                    boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
-                    if (!shouldUpdate) {
-                        shouldUpdate = nVer > aVer;
-                    }
+                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
+                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
 
-                    if (shouldUpdate) {
-                        unload();
-                        unloaded = true;
-                        if (lockLogin.delete()) {
-                            if (updatedLockLogin.renameTo(lockLogin)) {
-                                updatedLockLogin = new File(pluginsFolder + "/update/", jar);
+                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
+                        if (!shouldUpdate) {
+                            shouldUpdate = nVer > aVer;
+                        }
 
-                                if (updatedLockLogin.delete()) {
+                        if (shouldUpdate && PluginManagerSpigot.manager.isReadyToUpdate()) {
+                            unload();
+                            unloaded = true;
+                            if (lockLogin.delete()) {
+                                if (updatedLockLogin.renameTo(lockLogin)) {
+                                    if (!updatedLockLogin.delete()) {
+                                        updatedLockLogin.deleteOnExit();
+                                    }
+
                                     logger.scheduleLog(Level.INFO, "LockLogin updated");
-                                    Console.send(plugin, "LockLogin updated successfully", Level.INFO);
-                                    return true;
+                                    user.Message("&aLockLogin updated successfully");
+                                    PluginManagerSpigot.manager.setReadyToUpdate(false);
                                 }
+                            } else {
+                                load(lockLogin);
+                                user.Message("&cLockLogin update failed");
+                                return;
+                            }
+                        } else {
+                            if (PluginManagerSpigot.manager.isReadyToUpdate()) {
+                                user.Message("&cUpdated cancelled due the plugins/update/" + jar + " LockLogin instance version is lower than the actual");
+                                if (updatedLockLogin.delete()) {
+                                    user.Message("&aOld LockLogin instance removed");
+                                }
+                            } else {
+                                user.Message("&cUpdate cancelled due LockLogin update is still downloading");
                             }
                         }
                     } else {
-                        Console.send(plugin, "Updated cancelled due the plugins/update/{0} LockLogin instance version is lower than the actual", Level.GRAVE, jar);
+                        user.Message("&cNew LockLogin instance plugin.yml is not valid, download the latest version manually from &ehttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
                         if (updatedLockLogin.delete()) {
-                            Console.send(plugin, "Old LockLogin instance removed", Level.INFO);
+                            user.Message("&aCorrupt LockLogin instance removed");
                         }
                     }
                 } else {
-                    Console.send(plugin, "New LockLogin instance plugin.yml is not valid, download the latest version manually from {0}", Level.GRAVE, "https://www.spigotmc.org/resources/gsa-locklogin.75156/");
-                    if (updatedLockLogin.delete()) {
-                        Console.send(plugin, "Corrupt LockLogin instance removed", Level.INFO);
-                    }
+                    user.Message(SpigotFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    if (ConfigGetter.manager.reload())
+                        user.Message(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
+                    if (MessageGetter.manager.reload())
+                        user.Message(SpigotFiles.messages.Prefix() + "&aMessages file reloaded!");
                 }
-            }
 
-            if (unloaded) {
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        load(lockLogin);
+                if (unloaded) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            load(lockLogin);
+                        }
+                    }, 5000);
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
+                user.Message("&cError while updating LockLogin");
+            }
+        } else {
+            try {
+                boolean unloaded = false;
+
+                if (updatedLockLogin.exists()) {
+                    Console.send(plugin, "Updating LockLogin, checking new LockLogin.jar info...", Level.INFO);
+                    String newVersion = getJarVersion(updatedLockLogin);
+                    String thisVersion = getJarVersion(lockLogin);
+
+                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
+                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
+
+                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
+                        if (!shouldUpdate) {
+                            shouldUpdate = nVer > aVer;
+                        }
+
+                        if (shouldUpdate && PluginManagerSpigot.manager.isReadyToUpdate()) {
+                            unload();
+                            unloaded = true;
+                            if (lockLogin.delete()) {
+                                if (updatedLockLogin.renameTo(lockLogin)) {
+                                    if (!updatedLockLogin.delete()) {
+                                        updatedLockLogin.deleteOnExit();
+                                    }
+
+                                    logger.scheduleLog(Level.INFO, "LockLogin updated");
+                                    Console.send(plugin, "LockLogin updated successfully", Level.INFO);
+                                    PluginManagerSpigot.manager.setReadyToUpdate(false);
+                                }
+                            } else {
+                                load(lockLogin);
+                                Console.send(plugin, "LockLogin update failed", Level.WARNING);
+                                return;
+                            }
+                        } else {
+                            if (PluginManagerSpigot.manager.isReadyToUpdate()) {
+                                Console.send(plugin, "Updated cancelled due the plugins/update/{0} LockLogin instance version is lower than the actual", Level.GRAVE, jar);
+                                if (updatedLockLogin.delete()) {
+                                    Console.send(plugin, "Old LockLogin instance removed", Level.INFO);
+                                }
+                            } else {
+                                Console.send("&cUpdate cancelled due LockLogin update is still downloading");
+                            }
+                        }
+                    } else {
+                        Console.send(plugin, "New LockLogin instance plugin.yml is not valid, download the latest version manually from {0}", Level.GRAVE, "https://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                        if (updatedLockLogin.delete()) {
+                            Console.send(plugin, "Corrupt LockLogin instance removed", Level.INFO);
+                        }
                     }
-                }, 5000);
-            }
-        } catch (Throwable e) {
-            logger.scheduleLog(Level.GRAVE, e);
-            logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
-        }
+                } else {
+                    Console.send(SpigotFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    if (ConfigGetter.manager.reload())
+                        Console.send(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
+                    if (MessageGetter.manager.reload())
+                        Console.send(SpigotFiles.messages.Prefix() + "&aMessages file reloaded");
+                }
 
-        return false;
+                if (unloaded) {
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            load(lockLogin);
+                        }
+                    }, 5000);
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
+                Console.send(plugin, "An error occurred while updating LockLogin, check logs for more info", Level.GRAVE);
+            }
+        }
     }
 }

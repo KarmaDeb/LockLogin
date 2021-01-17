@@ -151,6 +151,24 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Get the player name
+     *
+     * @return the player name
+     */
+    public final String getName() {
+        return manager.getString("Player");
+    }
+
+    /**
+     * Save the player name
+     *
+     * @param name the new player name
+     */
+    public final void setName(final String name) {
+        manager.set("Player", name);
+    }
+
+    /**
      * Get the player UUID
      *
      * @return the player UUID

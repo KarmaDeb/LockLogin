@@ -5,7 +5,7 @@ import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import org.bukkit.OfflinePlayer;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -37,7 +37,7 @@ public final class IPStorager implements LockLoginSpigot {
             String hashed_ip = new Codification2(ip.getHostName(), false).hash();
             hashed_ips.add(hashed_ip);
 
-            ip_data.set("IPs", hashed_ips);
+            ip_data.set("IPs", new ArrayList<>(hashed_ips));
         } else {
             throw new UnknownHostException();
         }
@@ -46,12 +46,14 @@ public final class IPStorager implements LockLoginSpigot {
     /**
      * Load the stored ips in file
      */
-    public final void loadIPs() {
-        List<String> storage = ip_data.getStringList("IPs");
-        if (storage == null)
-            storage = new ArrayList<>();
+    private static void loadIPs() {
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            List<String> storage = ip_data.getStringList("IPs");
+            if (storage == null)
+                storage = new ArrayList<>();
 
-        hashed_ips.addAll(storage);
+            hashed_ips.addAll(storage);
+        });
     }
 
     /**
@@ -61,17 +63,19 @@ public final class IPStorager implements LockLoginSpigot {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
-        String hashed_ip = new Codification2(ip.getHostName(), false).hash();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            String hashed_ip = new Codification2(ip.getHostName(), false).hash();
 
-        List<String> assigned = ip_data.getStringList(hashed_ip);
-        if (assigned == null)
-            assigned = new ArrayList<>();
+            List<String> assigned = ip_data.getStringList(hashed_ip);
+            if (assigned == null)
+                assigned = new ArrayList<>();
 
-        if (!assigned.contains(uuid.toString())) {
-            assigned.add(uuid.toString());
+            if (!assigned.contains(uuid.toString())) {
+                assigned.add(uuid.toString());
 
-            ip_data.set(hashed_ip, assigned);
-        }
+                ip_data.set(hashed_ip, assigned);
+            }
+        });
     }
 
     /**
@@ -94,7 +98,7 @@ public final class IPStorager implements LockLoginSpigot {
 
             if (ip.equals(hashed_ip)) {
                 alts.addAll(assigned);
-                available = true;
+                available = assigned.contains(uuid.toString());
             } else {
                 if (assigned.contains(uuid.toString())) {
                     available = true;
@@ -114,7 +118,7 @@ public final class IPStorager implements LockLoginSpigot {
      * @return all the matching IP accounts
      * of the UUID
      */
-    public final HashSet<OfflinePlayer> getAlts(final UUID uuid) {
+    public final HashSet<OfflineUser> getAlts(final UUID uuid) {
         String hashed_ip = new Codification2(ip.getHostName(), false).hash();
         HashSet<String> alts = new HashSet<>();
         for (String ip : hashed_ips) {
@@ -131,9 +135,9 @@ public final class IPStorager implements LockLoginSpigot {
             }
         }
 
-        HashSet<OfflinePlayer> offline = new HashSet<>();
+        HashSet<OfflineUser> offline = new HashSet<>();
         for (String id : alts) {
-            OfflinePlayer player = plugin.getServer().getOfflinePlayer(UUID.fromString(id));
+            OfflineUser player = new OfflineUser(UUID.fromString(id));
             offline.add(player);
         }
 
@@ -152,8 +156,11 @@ public final class IPStorager implements LockLoginSpigot {
 
     public interface manager {
 
-        static HashSet<OfflinePlayer> getAlts(final Module module, final UUID target) {
+        static HashSet<OfflineUser> getAlts(final Module module, final UUID target) {
             if (ModuleLoader.manager.isLoaded(module)) {
+                if (hashed_ips.isEmpty())
+                    loadIPs();
+
                 HashSet<String> alts = new HashSet<>();
                 for (String ip : hashed_ips) {
                     List<String> assigned = ip_data.getStringList(ip);
@@ -165,9 +172,9 @@ public final class IPStorager implements LockLoginSpigot {
                     }
                 }
 
-                HashSet<OfflinePlayer> offline = new HashSet<>();
+                HashSet<OfflineUser> offline = new HashSet<>();
                 for (String id : alts) {
-                    OfflinePlayer player = plugin.getServer().getOfflinePlayer(UUID.fromString(id));
+                    OfflineUser player = new OfflineUser(UUID.fromString(id));
                     offline.add(player);
                 }
 

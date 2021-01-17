@@ -72,7 +72,7 @@ MaxRegisters:
   - ''
   - '&eSi vous pensez que c''est une erreur, veuillez le signaler sur'
   - '&bhttps://discordexample.gg'
-LookUpUsage: '&cUtilisation: &b/lookup -p<player> | -aIP'
+LookUpUsage: '&cUtilisation: &b/lookup <player>'
 IllegalName:
   - '&cNom illégal'
   - ''

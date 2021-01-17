@@ -282,7 +282,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                         if (plugin.getProxy().getPlayers().isEmpty()) {
                             Main.updatePending = true;
                             Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
-                            new LockLoginBungeeManager().applyUpdate();
+                            new LockLoginBungeeManager().applyUpdate(null);
                             utils.setReadyToUpdate(false);
                         } else {
                             Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);

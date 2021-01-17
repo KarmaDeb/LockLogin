@@ -11,6 +11,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -224,12 +225,12 @@ public final class ConfigGetter implements LockLoginSpigot {
     public final boolean isFatJar() {
         String value = configuration.getString("Updater.FileType");
         if (value == null || value.isEmpty())
-            value = "Fat";
+            value = "Flat";
         value = value.toLowerCase();
 
         if (!value.equals("flat") && !value.equals("fat")) {
-            value = "fat";
-            configuration.set("Updater.FileType", "Fat");
+            value = "flat";
+            configuration.set("Updater.FileType", "Flat");
         }
 
         return value.equals("fat");
@@ -267,10 +268,13 @@ public final class ConfigGetter implements LockLoginSpigot {
 
         static boolean reload() {
             try {
-                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
-                if (reloader.reloadAndCopy()) {
-                    configuration.loadFromString(reloader.getYamlString());
-                    return true;
+                InputStream stream = plugin.getResource("configs/config_spigot.yml");
+                if (stream != null) {
+                    YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
+                    if (reloader.reloadAndCopy()) {
+                        configuration.loadFromString(reloader.getYamlString());
+                        return true;
+                    }
                 }
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);

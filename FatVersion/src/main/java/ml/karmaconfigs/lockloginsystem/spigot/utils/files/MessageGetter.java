@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
 import java.io.File;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -566,10 +567,13 @@ public final class MessageGetter implements LockLoginSpigot {
 
                 if (creator.copy(msg_file)) {
                     try {
-                        YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                        InputStream stream = plugin.getResource("messages/" + msg_file.getName());
+                        if (stream != null) {
+                            YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
 
-                        if (reloader.reloadAndCopy())
-                            messages.loadFromString(reloader.getYamlString());
+                            if (reloader.reloadAndCopy())
+                                messages.loadFromString(reloader.getYamlString());
+                        }
                     } catch (Throwable e) {
                         logger.scheduleLog(Level.GRAVE, e);
                         logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
@@ -579,10 +583,13 @@ public final class MessageGetter implements LockLoginSpigot {
 
             try {
                 messages.save(msg_file);
-                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
-                if (reloader.reloadAndCopy()) {
-                    messages.loadFromString(reloader.getYamlString());
-                    return true;
+                InputStream stream = plugin.getResource("messages/" + msg_file.getName());
+                if (stream != null) {
+                    YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                    if (reloader.reloadAndCopy()) {
+                        messages.loadFromString(reloader.getYamlString());
+                        return true;
+                    }
                 }
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);

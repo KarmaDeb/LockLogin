@@ -9,7 +9,7 @@ load: STARTUP
 website: https://karmaconfigs.ml
 prefix: "LockLogin"
 description: "Adds an extra protection to your Bukkit-Spigot-Paper/BungeeCord  server with this plugins that adds 2FA to his security system"
-ignoreUpdateVersion: false
+ignoreUpdateVersion: true
 commands:
   register:
     description: The main register command
