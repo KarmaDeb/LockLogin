@@ -17,9 +17,7 @@ import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /*

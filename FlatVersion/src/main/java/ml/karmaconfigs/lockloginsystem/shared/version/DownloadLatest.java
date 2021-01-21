@@ -20,12 +20,11 @@ import java.net.URLConnection;
  */
 public final class DownloadLatest {
 
+    private static boolean downloading = false;
+    private static double percentage = 0.0;
     private final URL downloadURL;
     private File update;
     private File destJar;
-
-    private static boolean downloading = false;
-    private static double percentage = 0.0;
 
     /**
      * Initialize the downloader

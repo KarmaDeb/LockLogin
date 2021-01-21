@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.AltsAccountInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.BungeeVerifier;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
@@ -14,6 +15,7 @@ import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.UUID;
 
 /*
@@ -48,93 +50,108 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
             ByteArrayDataInput in = ByteStreams.newDataInput(message);
 
             try {
-                String SubChannel = in.readUTF();
+                String subchannel = in.readUTF();
 
-                if (SubChannel.equals("LoginData")) {
-                    String[] data = in.readUTF().split(" ");
-                    String id = data[0];
-                    boolean value = Boolean.parseBoolean(data[1]);
+                String[] data;
+                String id;
+                UUID uuid;
+                switch (subchannel.toLowerCase()) {
+                    case "logindata":
+                        data = in.readUTF().split(" ");
+                        id = data[0];
+                        boolean value = Boolean.parseBoolean(data[1]);
 
-                    UUID uuid = UUID.fromString(id);
+                        uuid = UUID.fromString(id);
 
-                    if (plugin.getServer().getPlayer(uuid) != null) {
-                        player = plugin.getServer().getPlayer(uuid);
-                        User user = new User(player);
+                        if (plugin.getServer().getPlayer(uuid) != null) {
+                            player = plugin.getServer().getPlayer(uuid);
+                            User user = new User(player);
 
-                        new BukkitRunnable() {
-                            @Override
-                            public void run() {
-                                if (user.getLogStatus() != value) {
-                                    user.setLogStatus(value);
-                                } else {
-                                    cancel();
+                            new BukkitRunnable() {
+                                @Override
+                                public void run() {
+                                    if (user.getLogStatus() != value) {
+                                        user.setLogStatus(value);
+                                    } else {
+                                        cancel();
+                                    }
+                                }
+                            }.runTaskTimer(plugin, 0, 20);
+
+                            if (value) {
+                                if (config.TakeBack()) {
+                                    LastLocation lastLoc = new LastLocation(player);
+                                    user.Teleport(lastLoc.getLastLocation());
                                 }
                             }
-                        }.runTaskTimer(plugin, 0, 20);
-
-                        if (value) {
-                            if (config.TakeBack()) {
-                                LastLocation lastLoc = new LastLocation(player);
-                                user.Teleport(lastLoc.getLastLocation());
-                            }
                         }
-                    }
-                } else {
-                    if (SubChannel.equals("VerifyUUID")) {
-                        String id = in.readUTF();
-                        UUID uuid = UUID.fromString(id);
+                        break;
+                    case "verifyuuid":
+                        id = in.readUTF();
+                        uuid = UUID.fromString(id);
                         BungeeVerifier verifier = new BungeeVerifier(uuid);
 
                         verifier.setVerified(true);
-                    } else {
-                        if (SubChannel.equals("OpenPin")) {
-                            String id = in.readUTF();
-                            UUID uuid = UUID.fromString(id);
+                        break;
+                    case "openpin":
+                        id = in.readUTF();
+                        uuid = UUID.fromString(id);
 
-                            if (plugin.getServer().getPlayer(uuid) != null) {
-                                player = plugin.getServer().getPlayer(uuid);
-                                PinInventory inventory = new PinInventory(player);
+                        if (plugin.getServer().getPlayer(uuid) != null) {
+                            player = plugin.getServer().getPlayer(uuid);
+                            PinInventory inventory = new PinInventory(player);
 
-                                if (!inventoryAccess.contains(player)) {
-                                    inventoryAccess.add(player);
-                                    inventory.open();
-                                } else {
-                                    inventory.updateInput();
-                                }
-                            }
-                        } else {
-                            if (SubChannel.equals("ClosePin")) {
-                                UUID uuid = UUID.fromString(in.readUTF());
-
-                                if (plugin.getServer().getPlayer(uuid) != null) {
-                                    PinInventory inventory = new PinInventory(player);
-                                    inventory.setVerified(true);
-                                    inventory.close();
-
-                                    inventoryAccess.remove(player);
-                                }
+                            if (!inventoryAccess.contains(player)) {
+                                inventoryAccess.add(player);
+                                inventory.open();
                             } else {
-                                if (SubChannel.equals("EffectManager")) {
-                                    String[] data = in.readUTF().split("_");
-                                    UUID uuid = UUID.fromString(data[0]);
-                                    boolean apply = Boolean.parseBoolean(data[1]);
-                                    boolean nausea = Boolean.parseBoolean(data[2]);
-
-                                    if (plugin.getServer().getPlayer(uuid) != null) {
-                                        player = plugin.getServer().getPlayer(uuid);
-                                        User user = new User(player);
-
-                                        if (apply) {
-                                            user.saveCurrentEffects();
-                                            user.applyBlindEffect(nausea);
-                                        } else {
-                                            user.removeBlindEffect(nausea);
-                                        }
-                                    }
-                                }
+                                inventory.updateInput();
                             }
                         }
-                    }
+                        break;
+                    case "closepin":
+                        uuid = UUID.fromString(in.readUTF());
+
+                        if (plugin.getServer().getPlayer(uuid) != null) {
+                            PinInventory inventory = new PinInventory(player);
+                            inventory.setVerified(true);
+                            inventory.close();
+
+                            inventoryAccess.remove(player);
+                        }
+                        break;
+                    case "effectmanager":
+                        data = in.readUTF().split("_");
+                        uuid = UUID.fromString(data[0]);
+                        boolean apply = Boolean.parseBoolean(data[1]);
+                        boolean nausea = Boolean.parseBoolean(data[2]);
+
+                        if (plugin.getServer().getPlayer(uuid) != null) {
+                            player = plugin.getServer().getPlayer(uuid);
+                            User user = new User(player);
+
+                            if (apply) {
+                                user.saveCurrentEffects();
+                                user.applyBlindEffect(nausea);
+                            } else {
+                                user.removeBlindEffect(nausea);
+                            }
+                        }
+                        break;
+                    case "lookupgui":
+                        data = in.readUTF().split(";");
+                        uuid = UUID.fromString(data[0]);
+
+                        HashSet<UUID> uuids = new HashSet<>();
+                        for (int i = 1; i < data.length; i++)
+                            uuids.add(UUID.fromString(data[i]));
+
+                        AltsAccountInventory alts = new AltsAccountInventory(uuid, uuids);
+                        alts.openPage(0);
+                        break;
+                    default:
+                        //UNKNOWN PLUGIN MESSAGE...
+                        break;
                 }
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);

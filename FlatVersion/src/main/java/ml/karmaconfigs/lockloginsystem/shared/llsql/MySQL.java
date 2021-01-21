@@ -26,13 +26,13 @@ public class MySQL {
     /**
      * Initialize a bucket MySQl from MySQL
      *
-     * @param host     the host
-     * @param database the database
-     * @param table    the table
-     * @param user     the user
-     * @param password the password
-     * @param port     the port
-     * @param useSSL   if the MySQL uses SSL
+     * @param host               the host
+     * @param database           the database
+     * @param table              the table
+     * @param user               the user
+     * @param password           the password
+     * @param port               the port
+     * @param useSSL             if the MySQL uses SSL
      * @param ignoreCertificates if the MySQL ignores CA certificates
      */
     public MySQL(String host, String database, String table, String user, String password, int port, boolean useSSL, boolean ignoreCertificates) {

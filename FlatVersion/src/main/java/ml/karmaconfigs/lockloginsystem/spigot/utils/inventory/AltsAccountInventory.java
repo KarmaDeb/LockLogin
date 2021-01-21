@@ -1,16 +1,17 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import com.cryptomorin.xseries.XMaterial;
+import dev.dbassett.skullcreator.SkullCreator;
 import ml.karmaconfigs.api.spigot.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
+import org.bukkit.DyeColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -18,16 +19,15 @@ import java.util.*;
 
 public final class AltsAccountInventory implements InventoryHolder, LockLoginSpigot {
 
-    private final ArrayList<Inventory> pages = new ArrayList<>();
     private static final HashMap<UUID, Integer> playerPage = new HashMap<>();
     private static final HashMap<UUID, AltsAccountInventory> inventories = new HashMap<>();
-
+    private final ArrayList<Inventory> pages = new ArrayList<>();
     private final Player player;
 
     /**
      * Initialize the infinite inventory page
      *
-     * @param user the player that called the inventory
+     * @param user    the player that called the inventory
      * @param players the players to show in the GUI
      */
     public AltsAccountInventory(final Player user, final HashSet<OfflineUser> players) {
@@ -35,31 +35,17 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
         Inventory page = getBlankPage();
 
         for (OfflineUser player : players) {
-            ItemStack item = new ItemStack(getMaterial());
-            try {
-                SkullMeta meta = (SkullMeta) item.getItemMeta();
+            ItemStack item = SkullCreator.itemFromUuid(player.getUUID());
+            ItemMeta meta = item.getItemMeta();
 
-                meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-                meta.setOwningPlayer(plugin.getServer().getOfflinePlayer(player.getUUID()));
-                if (!player.getUUID().equals(user.getUniqueId())) {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
-                } else {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
-                }
-
-                item.setItemMeta(meta);
-            } catch (Throwable ex) {
-                ItemMeta meta = item.getItemMeta();
-
-                meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-                if (!player.getUUID().equals(user.getUniqueId())) {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
-                } else {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
-                }
-
-                item.setItemMeta(meta);
+            meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
+            if (!player.getUUID().equals(user.getUniqueId())) {
+                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
+            } else {
+                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
             }
+
+            item.setItemMeta(meta);
 
             page.addItem(item);
         }
@@ -70,19 +56,36 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
     }
 
     /**
-     * Get the material using XMaterial API
-     * which helps to find a material ignoring version
-     * name changes
+     * Initialize the infinite inventory page
      *
-     * @return an org.bukkit material
+     * @param id    the id of the player that called the GUI
+     * @param uuids the id of players to show in the GUI
      */
-    private Material getMaterial() {
-        Optional<XMaterial> material = XMaterial.matchXMaterial("PLAYER_HEAD");
-        if (material.isPresent()) {
-            return material.get().parseMaterial();
-        } else {
-            return Material.STONE;
+    public AltsAccountInventory(final UUID id, final HashSet<UUID> uuids) {
+        player = plugin.getServer().getPlayer(id);
+        Inventory page = getBlankPage();
+
+        for (UUID uuid : uuids) {
+            ItemStack item = SkullCreator.itemFromUuid(uuid);
+            ItemMeta meta = item.getItemMeta();
+
+            OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+
+            meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
+            if (!player.getUniqueId().equals(id)) {
+                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
+            } else {
+                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+            }
+
+            item.setItemMeta(meta);
+
+            page.addItem(item);
         }
+
+        pages.add(page);
+        playerPage.put(player.getUniqueId(), 0);
+        inventories.put(player.getUniqueId(), this);
     }
 
     /**
@@ -154,7 +157,16 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
     public interface utils {
 
         static ItemStack nextButton() {
-            ItemStack next = new ItemStack(Material.GREEN_WOOL, 1);
+            ItemStack next;
+            try {
+                next = new ItemStack(Material.GREEN_WOOL, 1);
+            } catch (Throwable e) {
+                try {
+                    next = new ItemStack(Objects.requireNonNull(Material.matchMaterial("WOOL", true)), 1, DyeColor.GREEN.getWoolData());
+                } catch (Throwable ex) {
+                    next = new ItemStack(Objects.requireNonNull(Material.matchMaterial("WOOL")), 1, DyeColor.GREEN.getWoolData());
+                }
+            }
             ItemMeta meta = next.getItemMeta();
 
             meta.setDisplayName(StringUtils.toColor("&eNext"));
@@ -164,7 +176,16 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
         }
 
         static ItemStack backButton() {
-            ItemStack back = new ItemStack(Material.RED_WOOL, 1);
+            ItemStack back;
+            try {
+                back = new ItemStack(Material.RED_WOOL, 1);
+            } catch (Throwable e) {
+                try {
+                    back = new ItemStack(Objects.requireNonNull(Material.matchMaterial("WOOL", true)), 1, DyeColor.RED.getWoolData());
+                } catch (Throwable ex) {
+                    back = new ItemStack(Objects.requireNonNull(Material.matchMaterial("WOOL")), 1, DyeColor.RED.getWoolData());
+                }
+            }
             ItemMeta meta = back.getItemMeta();
 
             meta.setDisplayName(StringUtils.toColor("&eBack"));

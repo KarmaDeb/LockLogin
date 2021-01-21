@@ -27,15 +27,6 @@ public final class InterfaceUtils {
     }
 
     /**
-     * Set the plugin ready to update status
-     *
-     * @param status the ready to update status
-     */
-    public final void setReadyToUpdate(final boolean status) {
-        ready_to_update = status;
-    }
-
-    /**
      * Get a Main instance
      *
      * @return the plugin BungeeCord main instance
@@ -83,5 +74,14 @@ public final class InterfaceUtils {
      */
     public final boolean isReadyToUpdate() {
         return ready_to_update;
+    }
+
+    /**
+     * Set the plugin ready to update status
+     *
+     * @param status the ready to update status
+     */
+    public final void setReadyToUpdate(final boolean status) {
+        ready_to_update = status;
     }
 }

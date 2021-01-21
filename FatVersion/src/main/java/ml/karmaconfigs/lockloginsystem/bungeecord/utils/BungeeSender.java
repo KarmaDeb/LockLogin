@@ -3,12 +3,14 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
+import java.util.HashSet;
 import java.util.UUID;
 
 /*
@@ -158,6 +160,43 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 try {
                     message.writeUTF("ClosePin");
                     message.writeUTF(player.getUniqueId().toString());
+
+                    try {
+                        player.getServer().getInfo().sendData("ll:info", b.toByteArray());
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                    }
+                } catch (Throwable e) {
+                    logger.scheduleLog(Level.GRAVE, e);
+                    logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                }
+            }
+        }
+    }
+
+    /**
+     * Open the player lookup GUI
+     *
+     * @param player the player that is trying to open the GUI
+     * @param users  the users to show in the GUI
+     */
+    public final void openLookupGUI(final ProxiedPlayer player, final HashSet<OfflineUser> users) {
+        if (plugin.getProxy().getPlayers().isEmpty())
+            return;
+
+        if (player != null) {
+            if (player.getServer() != null) {
+                ByteArrayOutputStream b = new ByteArrayOutputStream();
+                DataOutputStream message = new DataOutputStream(b);
+
+                StringBuilder uuids_builder = new StringBuilder();
+                for (OfflineUser user : users)
+                    uuids_builder.append(";").append(user.getUUID());
+
+                try {
+                    message.writeUTF("LookupGUI");
+                    message.writeUTF(player.getUniqueId() + uuids_builder.toString());
 
                     try {
                         player.getServer().getInfo().sendData("ll:info", b.toByteArray());

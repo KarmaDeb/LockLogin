@@ -21,7 +21,10 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.*;
+import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -111,10 +114,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                             if (config.MaxRegisters() > 0) {
                                 try {
                                     if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
-                                        System.out.println("Can save!");
                                         storager.save(e.getConnection().getUniqueId());
                                     } else {
-                                        System.out.println("Cancelled");
                                         e.setCancelled(true);
                                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
                                     }

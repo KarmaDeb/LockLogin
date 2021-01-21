@@ -3,9 +3,9 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles;
 import ml.karmaconfigs.api.bungee.KarmaFile;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
-import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -17,10 +17,8 @@ import java.util.UUID;
 public final class IPStorager implements LockLoginBungee {
 
     private final static KarmaFile ip_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
-
-    private final InetAddress ip;
-
     private final static HashSet<String> hashed_ips = new HashSet<>();
+    private final InetAddress ip;
 
     /**
      * Initialize the ip storager system
@@ -64,7 +62,6 @@ public final class IPStorager implements LockLoginBungee {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
-        System.out.println("Saving " + uuid.toString());
         String hashed_ip = new Codification2(ip.getHostName(), false).hash();
 
         List<String> assigned = ip_data.getStringList(hashed_ip);
@@ -72,7 +69,6 @@ public final class IPStorager implements LockLoginBungee {
             assigned = new ArrayList<>();
 
         if (!assigned.contains(uuid.toString())) {
-            System.out.println("Added uuid to assigned UUIDs");
             assigned.add(uuid.toString());
 
             ip_data.set(hashed_ip, assigned);
@@ -83,8 +79,8 @@ public final class IPStorager implements LockLoginBungee {
      * Check if the user can join the server
      *
      * @param uuid the uuid of the player
-     * @param max the maximum amount of accounts
-     *            allowed per ip
+     * @param max  the maximum amount of accounts
+     *             allowed per ip
      * @return if the amount of users is over the max or
      * the user is already saved
      */
@@ -110,40 +106,6 @@ public final class IPStorager implements LockLoginBungee {
 
         int count = alts.size();
         return available || count < max;
-    }
-
-    /**
-     * Get the alt accounts of the specified UUID
-     *
-     * @param uuid the uuid of the player
-     * @return all the matching IP accounts
-     * of the UUID
-     */
-    public final HashSet<OfflineUser> getAlts(final UUID uuid) {
-        String hashed_ip = new Codification2(ip.getHostName(), false).hash();
-        HashSet<String> alts = new HashSet<>();
-        for (String ip : hashed_ips) {
-            List<String> assigned = ip_data.getStringList(ip);
-            if (assigned == null)
-                assigned = new ArrayList<>();
-
-            if (ip.equals(hashed_ip)) {
-                alts.addAll(assigned);
-            } else {
-                if (assigned.contains(uuid.toString())) {
-                    alts.addAll(assigned);
-                }
-            }
-        }
-
-        HashSet<OfflineUser> offline = new HashSet<>();
-        for (String id : alts) {
-            OfflineUser user = new OfflineUser(UUID.fromString(id));
-            if (user.exists())
-                offline.add(user);
-        }
-
-        return offline;
     }
 
     /**

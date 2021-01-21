@@ -1,6 +1,5 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.libs;
 
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
 

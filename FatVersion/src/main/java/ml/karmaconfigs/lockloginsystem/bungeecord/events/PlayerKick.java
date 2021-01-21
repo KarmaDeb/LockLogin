@@ -1,7 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import net.md_5.bungee.api.event.ServerKickEvent;
 import net.md_5.bungee.api.plugin.Listener;

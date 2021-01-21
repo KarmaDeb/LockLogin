@@ -25,7 +25,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class Bucket {
 
     private static int max = 3, min = 10, timeout = 40, lifetime = 300;
-    private static boolean useSSL,ignoreCertificate;
+    private static boolean useSSL, ignoreCertificate;
     private static String host, database, table, username, password;
     private static int port;
 

@@ -22,11 +22,11 @@ import java.util.concurrent.TimeUnit;
 
 public final class CheckUpdateCommand extends Command implements BungeeFiles, LockLoginVersion {
 
+    private static boolean downloading = false;
+
     public CheckUpdateCommand() {
         super("updateChecker", "", "checkUpdates");
     }
-
-    private static boolean downloading = false;
 
     @Override
     public void execute(CommandSender sender, String[] args) {
@@ -35,141 +35,141 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
             User user = new User(player);
 
             if (args.length == 1) {
-                 switch (args[0].toLowerCase()) {
-                     case "--version":
-                         if (player.hasPermission("locklogin.readversion")) {
-                             user.Message("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
-                             user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(LockLoginVersion.version));
-                         } else {
-                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
-                         }
-                         break;
-                     case "--update":
-                         if (player.hasPermission("locklogin.checkupdate")) {
-                             if (CheckerBungee.isOutdated()) {
-                                 user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(LockLoginVersion.version));
-                                 user.Message("\n");
-                                 user.Message("&7To update, run /updateChecker --forceUpdate");
-                                 user.Message("&7otherwise, there are other two ways to update it:");
-                                 user.Message("\n");
-                                 user.Message("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
-                                 user.Message("&e1 - &dRemoving current LockLogin plugin file and download");
-                                 user.Message("      &dand install again using LockLogin IM ( LockLogin installation media )");
-                             } else {
-                                 user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
-                             }
-                         } else {
-                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.checkupdate"));
-                         }
-                         break;
-                     case "--forceupdate":
-                         if (player.hasPermission("locklogin.forceupdate")) {
-                             if (CheckerBungee.isOutdated()) {
-                                 if (!downloading) {
-                                     user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
-                                     user.Message("&aWe will notice you when it's downloaded");
+                switch (args[0].toLowerCase()) {
+                    case "--version":
+                        if (player.hasPermission("locklogin.readversion")) {
+                            user.Message("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
+                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(LockLoginVersion.version));
+                        } else {
+                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
+                        }
+                        break;
+                    case "--update":
+                        if (player.hasPermission("locklogin.checkupdate")) {
+                            if (CheckerBungee.isOutdated()) {
+                                user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(LockLoginVersion.version));
+                                user.Message("\n");
+                                user.Message("&7To update, run /updateChecker --forceUpdate");
+                                user.Message("&7otherwise, there are other two ways to update it:");
+                                user.Message("\n");
+                                user.Message("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
+                                user.Message("&e1 - &dRemoving current LockLogin plugin file and download");
+                                user.Message("      &dand install again using LockLogin IM ( LockLogin installation media )");
+                            } else {
+                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                            }
+                        } else {
+                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.checkupdate"));
+                        }
+                        break;
+                    case "--forceupdate":
+                        if (player.hasPermission("locklogin.forceupdate")) {
+                            if (CheckerBungee.isOutdated()) {
+                                if (!downloading) {
+                                    user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+                                    user.Message("&aWe will notice you when it's downloaded");
 
-                                     InterfaceUtils utils = new InterfaceUtils();
-                                     if (!utils.isReadyToUpdate()) {
-                                         LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
-                                             try {
-                                                 DownloadLatest latest = new DownloadLatest(config.isFatJar());
+                                    InterfaceUtils utils = new InterfaceUtils();
+                                    if (!utils.isReadyToUpdate()) {
+                                        LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                                            try {
+                                                DownloadLatest latest = new DownloadLatest(config.isFatJar());
 
-                                                 Timer timer = new Timer();
-                                                 timer.schedule(new TimerTask() {
-                                                     @Override
-                                                     public void run() {
-                                                         if (player.isConnected() && latest.getPercentage() <= 97) {
-                                                             player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + latest.getPercentage() + "&f%")));
-                                                         } else {
-                                                             cancel();
-                                                         }
-                                                     }
-                                                 }, 0, TimeUnit.SECONDS.toMillis(1));
+                                                Timer timer = new Timer();
+                                                timer.schedule(new TimerTask() {
+                                                    @Override
+                                                    public void run() {
+                                                        if (player.isConnected() && latest.getPercentage() <= 97) {
+                                                            player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + latest.getPercentage() + "&f%")));
+                                                        } else {
+                                                            cancel();
+                                                        }
+                                                    }
+                                                }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                                 if (latest.isDownloading()) {
-                                                     user.Message("&cLockLogin is already downloading an update");
-                                                 } else {
-                                                     latest.download(() -> {
-                                                         if (player.isConnected()) {
-                                                             user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
-                                                             downloading = false;
-                                                             utils.setReadyToUpdate(true);
-                                                         }
-                                                     });
-                                                 }
-                                             } catch (Throwable ex) {
-                                                 LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
-                                                 user.Message("&cError while downloading latest LockLogin version, see console for more info");
-                                             }
-                                         });
-                                     } else {
-                                         user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
-                                     }
-                                 } else {
-                                     user.Message("&cLockLogin is already downloading an update");
-                                 }
-                             } else {
-                                 user.Message("&cWoah! Are you sure is LockLogin outdated?");
-                             }
-                         } else {
-                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
-                         }
-                         break;
-                     case "--switchflat":
-                         if (player.hasPermission("locklogin.forceupdate")) {
-                             if (!downloading) {
-                                 user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
-                                 user.Message("&aWe will notice you when it's downloaded");
+                                                if (latest.isDownloading()) {
+                                                    user.Message("&cLockLogin is already downloading an update");
+                                                } else {
+                                                    latest.download(() -> {
+                                                        if (player.isConnected()) {
+                                                            user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                                            downloading = false;
+                                                            utils.setReadyToUpdate(true);
+                                                        }
+                                                    });
+                                                }
+                                            } catch (Throwable ex) {
+                                                LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                                                user.Message("&cError while downloading latest LockLogin version, see console for more info");
+                                            }
+                                        });
+                                    } else {
+                                        user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                    }
+                                } else {
+                                    user.Message("&cLockLogin is already downloading an update");
+                                }
+                            } else {
+                                user.Message("&cWoah! Are you sure is LockLogin outdated?");
+                            }
+                        } else {
+                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                        }
+                        break;
+                    case "--switchflat":
+                        if (player.hasPermission("locklogin.forceupdate")) {
+                            if (!downloading) {
+                                user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+                                user.Message("&aWe will notice you when it's downloaded");
 
-                                 InterfaceUtils utils = new InterfaceUtils();
-                                 if (!utils.isReadyToUpdate()) {
-                                     LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
-                                         try {
-                                             DownloadLatest latest = new DownloadLatest(false);
+                                InterfaceUtils utils = new InterfaceUtils();
+                                if (!utils.isReadyToUpdate()) {
+                                    LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                                        try {
+                                            DownloadLatest latest = new DownloadLatest(false);
 
-                                             Timer timer = new Timer();
-                                             timer.schedule(new TimerTask() {
-                                                 @Override
-                                                 public void run() {
-                                                     if (player.isConnected() && latest.getPercentage() <= 97) {
-                                                         player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%")));
-                                                     } else {
-                                                         cancel();
-                                                     }
-                                                 }
-                                             }, 0, TimeUnit.SECONDS.toMillis(1));
+                                            Timer timer = new Timer();
+                                            timer.schedule(new TimerTask() {
+                                                @Override
+                                                public void run() {
+                                                    if (player.isConnected() && latest.getPercentage() <= 97) {
+                                                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%")));
+                                                    } else {
+                                                        cancel();
+                                                    }
+                                                }
+                                            }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                             if (latest.isDownloading()) {
-                                                 user.Message("&cLockLogin is already downloading an update");
-                                             } else {
-                                                 latest.download(() -> {
-                                                     if (player.isConnected()) {
-                                                         user.Message("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
-                                                         downloading = false;
-                                                         utils.setReadyToUpdate(true);
-                                                     }
-                                                 });
-                                             }
-                                         } catch (Throwable ex) {
-                                             LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
-                                             user.Message("&cError while downloading latest LockLogin flat version, see logs for more info");
-                                         }
-                                     });
-                                 } else {
-                                     user.Message("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
-                                 }
-                             } else {
-                                 user.Message("&cLockLogin is already downloading an update");
-                             }
-                         } else {
-                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
-                         }
-                         break;
-                     default:
-                         user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
-                         break;
-                 }
+                                            if (latest.isDownloading()) {
+                                                user.Message("&cLockLogin is already downloading an update");
+                                            } else {
+                                                latest.download(() -> {
+                                                    if (player.isConnected()) {
+                                                        user.Message("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
+                                                        downloading = false;
+                                                        utils.setReadyToUpdate(true);
+                                                    }
+                                                });
+                                            }
+                                        } catch (Throwable ex) {
+                                            LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                                            user.Message("&cError while downloading latest LockLogin flat version, see logs for more info");
+                                        }
+                                    });
+                                } else {
+                                    user.Message("&cLockLogin has detected there's already an update LockLogin file, run &7/applyUpdates&c and try again");
+                                }
+                            } else {
+                                user.Message("&cLockLogin is already downloading an update");
+                            }
+                        } else {
+                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                        }
+                        break;
+                    default:
+                        user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                        break;
+                }
             } else {
                 user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
             }

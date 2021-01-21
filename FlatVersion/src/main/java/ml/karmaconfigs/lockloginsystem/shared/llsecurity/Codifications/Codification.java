@@ -9,12 +9,42 @@ import java.security.spec.KeySpec;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Random;
-import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("all")
 public final class Codification {
+
+    /**
+     * basically number of iterations
+     */
+    private static final int DEFAULT_COST = 512;
+    private static final char[] pepper = "abcdefghijklopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".toCharArray();
+    /**
+     * Algorithm to use, this is the best i know, PM me if you know better one
+     */
+    private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
+    /**
+     * Size of PBEKeySpec in method pbkdf2(args...)
+     */
+    private static final int SIZE = 1024;
+    /**
+     * Our Random
+     */
+    private final SecureRandom random;
+    private final int cost;
+    /**
+     * Prefix for our hash, every user should change this
+     */
+    private String ID = "$" + randomString(16).toUpperCase() + "$";
+
+    public Codification() {
+        this.cost = DEFAULT_COST;
+        iterations(cost);
+        byte[] seed = new byte[512];
+        new SecureRandom().nextBytes(seed);
+        this.random = new SecureRandom(seed);
+    }
 
     private static String randomString(int Size) {
         int leftLimit = 97;
@@ -25,44 +55,6 @@ public final class Codification {
                 .limit(Size)
                 .collect(StringBuilder::new, StringBuilder::appendCodePoint, StringBuilder::append)
                 .toString();
-    }
-
-    /**
-     * Prefix for our hash, every user should change this
-     */
-    private String ID = "$" + randomString(16).toUpperCase() + "$";
-
-    /**
-     * basically number of iterations
-     */
-    private static final int DEFAULT_COST = 512;
-
-    private static final char[] pepper = "abcdefghijklopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789".toCharArray();
-
-    /**
-     * Algorithm to use, this is the best i know, PM me if you know better one
-     */
-    private static final String ALGORITHM = "PBKDF2WithHmacSHA512";
-
-    /**
-     * Size of PBEKeySpec in method pbkdf2(args...)
-     */
-    private static final int SIZE = 1024;
-
-    /**
-     * Our Random
-     */
-    private final SecureRandom random;
-
-    private final int cost;
-
-
-    public Codification() {
-        this.cost = DEFAULT_COST;
-        iterations(cost);
-        byte[] seed = new byte[512];
-        new SecureRandom().nextBytes(seed);
-        this.random = new SecureRandom(seed);
     }
 
     private static int iterations(int cost) {

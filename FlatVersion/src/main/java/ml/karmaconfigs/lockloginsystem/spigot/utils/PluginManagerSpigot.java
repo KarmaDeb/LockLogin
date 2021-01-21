@@ -450,12 +450,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
     public interface manager {
 
-        static void setReadyToUpdate(final boolean status) {
-            ready_to_update = status;
-        }
-
         static boolean isReadyToUpdate() {
             return ready_to_update;
+        }
+
+        static void setReadyToUpdate(final boolean status) {
+            ready_to_update = status;
         }
     }
 }

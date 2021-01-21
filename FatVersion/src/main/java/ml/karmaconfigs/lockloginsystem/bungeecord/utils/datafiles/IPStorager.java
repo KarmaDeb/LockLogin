@@ -3,9 +3,9 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles;
 import ml.karmaconfigs.api.bungee.KarmaFile;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
-import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -17,10 +17,8 @@ import java.util.UUID;
 public final class IPStorager implements LockLoginBungee {
 
     private final static KarmaFile ip_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
-
-    private final InetAddress ip;
-
     private final static HashSet<String> hashed_ips = new HashSet<>();
+    private final InetAddress ip;
 
     /**
      * Initialize the ip storager system
@@ -81,8 +79,8 @@ public final class IPStorager implements LockLoginBungee {
      * Check if the user can join the server
      *
      * @param uuid the uuid of the player
-     * @param max the maximum amount of accounts
-     *            allowed per ip
+     * @param max  the maximum amount of accounts
+     *             allowed per ip
      * @return if the amount of users is over the max or
      * the user is already saved
      */

@@ -14,7 +14,6 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerVerifyEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
@@ -26,7 +25,6 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.io.File;
-import java.net.InetAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 

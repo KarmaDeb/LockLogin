@@ -9,15 +9,16 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
 
 public final class IPStorager implements LockLoginSpigot {
 
     private final static KarmaFile ip_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
-
-    private final InetAddress ip;
-
     private final static HashSet<String> hashed_ips = new HashSet<>();
+    private final InetAddress ip;
 
     /**
      * Initialize the ip storager system
@@ -82,8 +83,8 @@ public final class IPStorager implements LockLoginSpigot {
      * Check if the user can join the server
      *
      * @param uuid the uuid of the player
-     * @param max the maximum amount of accounts
-     *            allowed per ip
+     * @param max  the maximum amount of accounts
+     *             allowed per ip
      * @return if the amount of users is over the max or
      * the user is already saved
      */

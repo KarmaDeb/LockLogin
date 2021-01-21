@@ -20,9 +20,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
 
-import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE

@@ -66,7 +66,8 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
                                     try {
                                         User user = new User(player);
                                         user.Kick("&eLockLogin\n\n" + messages.MaxRegisters());
-                                    } catch (Throwable ignored) {}
+                                    } catch (Throwable ignored) {
+                                    }
                                 });
                             }
                         } catch (Throwable ignored) {
@@ -84,7 +85,8 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
                                 try {
                                     User user = new User(player);
                                     user.Kick("&eLockLogin\n\n" + messages.MaxIp());
-                                } catch (Throwable ignored) {}
+                                } catch (Throwable ignored) {
+                                }
                             });
                         } else {
                             if (!plugin.getServer().getOfflinePlayer(e.getPlayer().getUniqueId()).isBanned()) {

@@ -165,7 +165,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         if (cfg.FileSysValid()) {
             if (cfg.isMySQL()) {
-                    setupMySQL();
+                setupMySQL();
             }
         } else {
             if (configuration != null) {

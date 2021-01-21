@@ -5,7 +5,7 @@
     <parent>
         <artifactId>LockLogin</artifactId>
         <groupId>ml.karmaconfigs</groupId>
-        <version>1.0.3.9</version>
+        <version>1.0.4.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -31,27 +31,11 @@
                             <pattern>ml.karmaconfigs.api</pattern>
                             <shadedPattern>ml.karmaconfigs.shaded.karmapi</shadedPattern>
                         </relocation>
+                        <relocation>
+                            <pattern>dev.dbassett.skullcreator</pattern>
+                            <shadedPattern>ml.karmaconfigs.shaded.skullcreator</shadedPattern>
+                        </relocation>
                     </relocations>
-                    <filters>
-                        <filter>
-                            <artifact>*:*</artifact>
-                            <excludes>
-                                <exclude>com/cryptomorin/xseries/XBiome*</exclude>
-                                <exclude>com/cryptomorin/xseries/NMSExtras*</exclude>
-                                <exclude>com/cryptomorin/xseries/NoteBlockMusic*</exclude>
-                                <exclude>com/cryptomorin/xseries/XBlock*</exclude>
-                                <exclude>com/cryptomorin/xseries/XEnchantment*</exclude>
-                                <exclude>com/cryptomorin/xseries/XEntity*</exclude>
-                                <exclude>com/cryptomorin/xseries/XItemStack*</exclude>
-                                <exclude>com/cryptomorin/xseries/XPotion*</exclude>
-                                <exclude>com/cryptomorin/xseries/XSound*</exclude>
-                                <exclude>com/cryptomorin/xseries/messages/Actionbar*</exclude>
-                                <exclude>com/cryptomorin/xseries/messages/Titles*</exclude>
-                                <exclude>com/cryptomorin/xseries/particles/ParticleDisplay*</exclude>
-                                <exclude>com/cryptomorin/xseries/particles/XParticle*</exclude>
-                            </excludes>
-                        </filter>
-                    </filters>
                 </configuration>
                 <executions>
                     <execution>
@@ -74,6 +58,18 @@
         </resources>
     </build>
 
+    <properties>
+        <github.global.server>github</github.global.server>
+    </properties>
+
+    <distributionManagement>
+        <repository>
+            <id>internal.repo</id>
+            <name>Temporary Staging Repository</name>
+            <url>file://${project.build.directory}/LockLogin</url>
+        </repository>
+    </distributionManagement>
+
     <repositories>
         <repository>
             <id>KarmaAPI-Repo</id>
@@ -91,6 +87,10 @@
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
         </repository>
+        <repository>
+            <id>skullcreator-repo</id>
+            <url>https://dl.bintray.com/deanveloper/SkullCreator</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -101,9 +101,9 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>com.github.cryptomorin</groupId>
-            <artifactId>XSeries</artifactId>
-            <version>7.8.0</version>
+            <groupId>dev.dbassett</groupId>
+            <artifactId>skullcreator</artifactId>
+            <version>3.0.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

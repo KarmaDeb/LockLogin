@@ -1,9 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
-import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager.LockLoginBungeeManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.CommandSender;

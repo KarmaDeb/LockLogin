@@ -3,10 +3,10 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
@@ -47,7 +47,25 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
                 } else {
                     if (args[0] != null) {
                         if (args.length == 1) {
-                            user.Message(messages.Prefix() + "&cThis command is disabled temporally for users on BungeeCord, use it on console!");
+                            String target = args[0];
+
+                            TempModule temp_module = new TempModule();
+                            ModuleLoader bungee_module_loader = new ModuleLoader(temp_module);
+                            try {
+                                if (!ModuleLoader.manager.isLoaded(temp_module)) {
+                                    bungee_module_loader.inject();
+                                }
+                            } catch (Throwable ignored) {
+                            }
+
+                            OfflineUser off_user = new OfflineUser(target);
+                            if (off_user.exists()) {
+                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+
+                                dataSender.openLookupGUI(player, detected);
+                            } else {
+                                user.Message(messages.Prefix() + messages.NeverPlayed(target));
+                            }
                         } else {
                             user.Message(messages.Prefix() + messages.LookUpUsage());
                         }
