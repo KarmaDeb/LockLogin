@@ -17,7 +17,7 @@
   <dependency>
     <groupId>ml.karmaconfigs</groupId>
     <artifactId>LockLogin</artifactId>
-    <version>1.0.3.9</version>
+    <version>1.0.4.3</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>

@@ -13,7 +13,7 @@ import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.SpigotMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
-import ml.karmaconfigs.lockloginsystem.shared.version.LockLoginVersion;
+import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.commands.*;
 import ml.karmaconfigs.lockloginsystem.spigot.events.*;
@@ -291,8 +291,13 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      */
     private void doVersionCheck() {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (CheckerSpigot.isOutdated()) {
-                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + LockLoginVersion.version + " &f)");
+            GetLatestVersion latest = new GetLatestVersion();
+
+            int last_version_id = latest.GetLatest();
+            int curr_version_id = LockLoginSpigot.versionID;
+
+            if (last_version_id > curr_version_id) {
+                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.GetLatest() + " &f)");
                 if (new ConfigGetter().UpdateSelf()) {
                     String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
 
@@ -301,9 +306,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
                     if (!updatedLockLogin.exists() || !ready_to_update) {
                         try {
-                            DownloadLatest latest = new DownloadLatest(new ConfigGetter().isFatJar());
-                            if (!latest.isDownloading()) {
-                                latest.download(() -> {
+                            DownloadLatest downloader = new DownloadLatest(new ConfigGetter().isFatJar());
+                            if (!downloader.isDownloading()) {
+                                downloader.download(() -> {
                                     ready_to_update = true;
                                     Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
                                 });
@@ -323,14 +328,15 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                         }
                     }
                 } else {
-                    if (!last_changelog.equals(LockLoginVersion.changeLog) || checks >= 3) {
-                        CheckerSpigot.sendChangeLog();
-                        last_changelog = LockLoginVersion.changeLog;
-                        checks = 0;
-                    } else {
-                        checks++;
-                    }
                     Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                }
+
+                if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
+                    last_changelog = latest.getChangeLog();
+                    Console.send(last_changelog);
+                    checks = 0;
+                } else {
+                    checks++;
                 }
             }
         });

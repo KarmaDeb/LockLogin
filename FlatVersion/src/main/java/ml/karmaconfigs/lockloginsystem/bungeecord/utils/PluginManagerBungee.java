@@ -24,7 +24,8 @@ import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.BungeeMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
-import ml.karmaconfigs.lockloginsystem.shared.version.LockLoginVersion;
+import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
+import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -91,7 +92,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
         Console.send("--------------------");
         Console.send(" ");
         Console.send("&bDisabling {0}", name);
-        Console.send("&aChecking files...");
         Console.send(" ");
         Console.send("--------------------");
         plugin.getProxy().unregisterChannel("ll:info");
@@ -256,8 +256,13 @@ public final class PluginManagerBungee implements LockLoginBungee {
      */
     public final void doVersionCheck() {
         plugin.getProxy().getScheduler().runAsync(plugin, () -> {
-            if (CheckerBungee.isOutdated()) {
-                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + LockLoginVersion.version + " &f)");
+            GetLatestVersion latest = new GetLatestVersion();
+
+            int last_version_id = latest.GetLatest();
+            int curr_version_id = LockLoginSpigot.versionID;
+
+            if (last_version_id > curr_version_id) {
+                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.GetLatest() + " &f)");
                 if (new ConfigGetter().UpdateSelf()) {
                     String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
 
@@ -267,9 +272,9 @@ public final class PluginManagerBungee implements LockLoginBungee {
                     InterfaceUtils utils = new InterfaceUtils();
                     if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
                         try {
-                            DownloadLatest latest = new DownloadLatest(new ConfigGetter().isFatJar());
-                            if (!latest.isDownloading()) {
-                                latest.download(() -> {
+                            DownloadLatest downloader = new DownloadLatest(new ConfigGetter().isFatJar());
+                            if (!downloader.isDownloading()) {
+                                downloader.download(() -> {
                                     utils.setReadyToUpdate(true);
                                     Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
                                 });
@@ -289,14 +294,15 @@ public final class PluginManagerBungee implements LockLoginBungee {
                         }
                     }
                 } else {
-                    if (!last_changelog.equals(LockLoginVersion.changeLog) || checks >= 3) {
-                        CheckerBungee.sendChangeLog();
-                        last_changelog = LockLoginVersion.changeLog;
-                        checks = 0;
-                    } else {
-                        checks++;
-                    }
                     Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                }
+
+                if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
+                    last_changelog = latest.getChangeLog();
+                    Console.send(last_changelog);
+                    checks = 0;
+                } else {
+                    checks++;
                 }
             }
         });

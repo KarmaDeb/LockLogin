@@ -3,13 +3,10 @@ package ml.karmaconfigs.lockloginsystem.spigot.api;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.shared.AuthResult;
-import ml.karmaconfigs.lockloginsystem.shared.CheckType;
-import ml.karmaconfigs.lockloginsystem.shared.IpData;
-import ml.karmaconfigs.lockloginsystem.shared.Platform;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerRegisterEvent;
-import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerVerifyEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
@@ -119,42 +116,42 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
     public final AuthResult tryLogin(boolean value, String message) {
         if (player != null) {
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                PlayerAuthEvent event = new PlayerAuthEvent(AuthType.API, EventAuthResult.WAITING, player, message);
+
                 if (player.isOnline()) {
                     User utils = new User(player);
                     if (value) {
                         if (!utils.isLogged()) {
-                            PlayerVerifyEvent event = new PlayerVerifyEvent(player);
-                            plugin.getServer().getPluginManager().callEvent(event);
-
-                            if (!event.isCancelled()) {
-                                if (config.TakeBack()) {
-                                    LastLocation lastLoc = new LastLocation(player);
-                                    utils.Teleport(lastLoc.getLastLocation());
-                                }
-                                if (config.LoginBlind()) {
-                                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
-                                }
-                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
-
-                                if (utils.has2FA()) {
-                                    utils.setLogStatus(true);
-                                    utils.setTempLog(true);
-                                    utils.Message(message);
-                                    utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                    result = AuthResult.SUCCESS_TEMP;
-                                } else {
-                                    utils.setLogStatus(true);
-                                    utils.setTempLog(false);
-                                    utils.Message(message);
-                                    result = AuthResult.SUCCESS;
-                                }
-
-                                utils.sendTitle("", "", 1, 2, 1);
-                            } else {
-                                result = AuthResult.CANCELLED;
+                            if (config.TakeBack()) {
+                                LastLocation lastLoc = new LastLocation(player);
+                                utils.Teleport(lastLoc.getLastLocation());
                             }
+                            if (config.LoginBlind()) {
+                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                            }
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
+
+                            if (utils.has2FA()) {
+                                utils.setLogStatus(true);
+                                utils.setTempLog(true);
+                                utils.Message(message);
+                                utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+
+                                result = AuthResult.SUCCESS_TEMP;
+                                event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
+                            } else {
+                                utils.setLogStatus(true);
+                                utils.setTempLog(false);
+                                utils.Message(message);
+
+                                result = AuthResult.SUCCESS;
+                                event.setAuthResult(EventAuthResult.SUCCESS);
+                            }
+
+                            utils.sendTitle("", "", 1, 2, 1);
                         } else {
                             result = AuthResult.SUCCESS;
+                            event.setAuthResult(EventAuthResult.ERROR);
                         }
                     } else {
                         if (utils.isLogged()) {
@@ -166,7 +163,11 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                     }
                 } else {
                     result = AuthResult.OFFLINE;
+                    event.setAuthResult(EventAuthResult.FAILED);
                 }
+
+                if (value)
+                    plugin.getServer().getPluginManager().callEvent(event);
 
                 logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + (value ? " tried to login " : " tried to un-login ") + player.getName() + " with result " + result.name());
             }, (long) (20 * 1.5));
@@ -184,40 +185,40 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
     public final AuthResult tryLogin(boolean value) {
         if (player != null) {
             plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                PlayerAuthEvent event = new PlayerAuthEvent(AuthType.API, EventAuthResult.WAITING, player, "");
+
                 if (player.isOnline()) {
                     User utils = new User(player);
                     if (value) {
                         if (!utils.isLogged()) {
-                            PlayerVerifyEvent event = new PlayerVerifyEvent(player);
-                            plugin.getServer().getPluginManager().callEvent(event);
 
-                            if (!event.isCancelled()) {
-                                if (config.TakeBack()) {
-                                    LastLocation lastLoc = new LastLocation(player);
-                                    utils.Teleport(lastLoc.getLastLocation());
-                                }
-                                if (config.LoginBlind()) {
-                                    plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
-                                }
-                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
-
-                                if (utils.has2FA()) {
-                                    utils.setLogStatus(true);
-                                    utils.setTempLog(true);
-                                    utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                    result = AuthResult.SUCCESS_TEMP;
-                                } else {
-                                    utils.setLogStatus(true);
-                                    utils.setTempLog(false);
-                                    result = AuthResult.SUCCESS;
-                                }
-
-                                utils.sendTitle("", "", 1, 2, 1);
-                            } else {
-                                result = AuthResult.CANCELLED;
+                            if (config.TakeBack()) {
+                                LastLocation lastLoc = new LastLocation(player);
+                                utils.Teleport(lastLoc.getLastLocation());
                             }
+                            if (config.LoginBlind()) {
+                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                            }
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
+
+                            if (utils.has2FA()) {
+                                utils.setLogStatus(true);
+                                utils.setTempLog(true);
+
+                                result = AuthResult.SUCCESS_TEMP;
+                                event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.gAuthAuthenticate());
+                            } else {
+                                utils.setLogStatus(true);
+                                utils.setTempLog(false);
+
+                                result = AuthResult.SUCCESS;
+                                event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
+                            }
+
+                            utils.sendTitle("", "", 1, 2, 1);
                         } else {
                             result = AuthResult.SUCCESS;
+                            event.setAuthResult(EventAuthResult.ERROR);
                         }
                     } else {
                         if (utils.isLogged()) {
@@ -228,7 +229,11 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                     }
                 } else {
                     result = AuthResult.OFFLINE;
+                    event.setAuthResult(EventAuthResult.FAILED);
                 }
+
+                if (value)
+                    plugin.getServer().getPluginManager().callEvent(event);
 
                 logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + (value ? " tried to login " : " tried to un-login ") + player.getName() + " with result " + result.name());
             }, (long) (20 * 1.5));

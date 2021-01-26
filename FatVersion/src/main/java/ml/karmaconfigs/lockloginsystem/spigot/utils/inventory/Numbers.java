@@ -267,9 +267,13 @@ public interface Numbers {
         try {
             ItemStack head;
             try {
-                head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM", true)), 1, (short) 3);
+                head = new ItemStack(Material.PLAYER_HEAD, 1);
             } catch (Throwable e) {
-                head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM")), 1, (short) 3);
+                try {
+                    head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM", true)), 1, (short) 3);
+                } catch (Throwable ex) {
+                    head = new ItemStack(Objects.requireNonNull(Material.matchMaterial("SKULL_ITEM")), 1, (short) 3);
+                }
             }
 
             SkullMeta headMeta = (SkullMeta) head.getItemMeta();

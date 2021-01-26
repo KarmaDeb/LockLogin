@@ -13,13 +13,6 @@
 #and some plugin messages
 ServerName: ""
 
-#Advanced filtering:
-# Makes the console filter
-# any message that contains
-# sensitive information about
-# players (/pin, /login... )
-AdvancedFiltering: false
-
 #Registration options
 # Blind -> Applies a blind potion
 #          effect when the player
@@ -117,7 +110,7 @@ Updater:
   Check: true
   CheckTime: 10
   AutoUpdate: true
-  FileType: Flat
+  FileType: Fat
 
 #Enable 2FA feature (using Google Authenticator)
 #This adds and extra security layer to your

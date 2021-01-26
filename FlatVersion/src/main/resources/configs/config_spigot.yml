@@ -125,7 +125,7 @@ Updater:
   Check: true
   CheckTime: 10
   AutoUpdate: true
-  FileType: Flat
+  FileType: Fat
 
 #Enable 2FA feature (using Google Authenticator)
 #This adds and extra security layer to your

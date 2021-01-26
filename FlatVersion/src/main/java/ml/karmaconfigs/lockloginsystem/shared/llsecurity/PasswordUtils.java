@@ -14,8 +14,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.AuthMeAuth;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.LoginSecurity.LoginSecurityAuth;
@@ -97,29 +95,7 @@ public final class PasswordUtils {
     public final boolean PasswordIsOk() {
         byte[] decode = Base64.decodeBase64(token);
 
-        String decode_str = new String(decode);
 
-        Codification codification = new Codification();
-        AuthMeAuth authme = new AuthMeAuth();
-        LoginSecurityAuth ls_auth = new LoginSecurityAuth();
-
-        try {
-            return authme.check(password, token) || ls_auth.check(password, token) || codification.auth(password, decode_str);
-        } catch (Throwable ex) {
-            PlatformUtils.log(ex, Level.GRAVE);
-            PlatformUtils.log("An error occurred while trying to auth a player ( 1/2 )", Level.INFO);
-            try {
-                return codification.auth(password, decode_str);
-            } catch (Throwable ex_2) {
-                PlatformUtils.log(ex_2, Level.GRAVE);
-                PlatformUtils.log("An error occurred while trying to auth a player ( 2/2 )", Level.INFO);
-                PlatformUtils.log("False positive invalid password - Has been returned to the player, couldn't login", Level.WARNING);
-                //False negative
-                return false;
-            }
-        }
-
-        /*
         try {
             if (new Codification().auth(password, new String(decode))) {
                 return true;
@@ -131,20 +107,8 @@ public final class PasswordUtils {
                 }
             }
         } catch (Throwable ex) {
-
-            try {
-                if (new AuthMeAuth().check(password, token)) {
-                    return true;
-                } else {
-                    return new LoginSecurityAuth().check(password, token);
-                }
-            } catch (Throwable exc) {
-                PlatformUtils.log(ex, Level.GRAVE);
-                PlatformUtils.log("An error occurred while trying to auth a player ( 2/2 )", Level.INFO);
-                PlatformUtils.log("False negative has been returned to the player, couldn't login", Level.WARNING);
-                //False negative
-                return false;
-            }
-        }*/
+            //False positive
+            return false;
+        }
     }
 }

@@ -1,11 +1,15 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerPinEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.BungeeSender;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.Material;
@@ -108,30 +112,74 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
         if (!input.getOrDefault(player, "/-/-/-/").contains("/")) {
             if (!config.isBungeeCord()) {
+                PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PIN, EventAuthResult.WAITING, player, "");
+
                 String pin = input.get(player).replaceAll("-", "");
 
                 PasswordUtils utils = new PasswordUtils(pin, user.getPin());
 
-                if (new PasswordUtils(pin, user.getPin()).PasswordIsOk()) {
+                if (utils.PasswordIsOk()) {
                     if (user.has2FA()) {
-                        user.Message(messages.GAuthInstructions());
+                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
                     } else {
-                        user.setTempLog(false);
-                        user.Message(messages.Prefix() + messages.Logged(player));
+                        event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
                     }
-
-                    verified.add(player);
-                    input.put(player, "/-/-/-/");
-                    updateInput();
-                    close();
                 } else {
-                    user.Message(messages.Prefix() + messages.IncorrectPin());
-                    input.put(player, "/-/-/-/");
-                    updateInput();
+                    event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.IncorrectPin());
                 }
 
-                PlayerPinEvent event = new PlayerPinEvent(player, utils.PasswordIsOk());
-                plugin.getServer().getPluginManager().callEvent(event);
+                switch (event.getAuthResult()) {
+                    case SUCCESS:
+                        if (utils.PasswordIsOk()) {
+                            user.setTempLog(false);
+                            user.Message(event.getAuthMessage());
+
+                            if (config.TakeBack()) {
+                                LastLocation lastLoc = new LastLocation(player);
+                                user.Teleport(lastLoc.getLastLocation());
+                            }
+
+                            if (config.LoginBlind())
+                                user.removeBlindEffect(config.LoginNausea());
+
+                            verified.add(player);
+                            input.put(player, "/-/-/-/");
+                            updateInput();
+                            close();
+                        } else {
+                            logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
+                        }
+                        break;
+                    case SUCCESS_TEMP:
+                        if (utils.PasswordIsOk()) {
+                            verified.add(player);
+
+                            if (!user.has2FA()) {
+                                if (config.TakeBack()) {
+                                    LastLocation lastLoc = new LastLocation(player);
+                                    user.Teleport(lastLoc.getLastLocation());
+                                }
+
+                                if (config.LoginBlind())
+                                    user.removeBlindEffect(config.LoginNausea());
+
+                                user.setTempLog(false);
+                            }
+                        } else {
+                            logger.scheduleLog(Level.WARNING, "Someone tried to force temp log (PIN AUTH) " + player.getName() + " using event API");
+                        }
+
+                        user.Message(event.getAuthMessage());
+                        break;
+                    case FAILED:
+                    case ERROR:
+                    case WAITING:
+                        user.Message(event.getAuthMessage());
+                        break;
+                }
+
+                PlayerPinEvent pin_event = new PlayerPinEvent(player, utils.PasswordIsOk());
+                plugin.getServer().getPluginManager().callEvent(pin_event);
             } else {
                 String pinText = input.get(player).replaceAll("-", "");
 

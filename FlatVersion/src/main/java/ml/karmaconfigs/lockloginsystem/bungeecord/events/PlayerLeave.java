@@ -1,7 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import net.md_5.bungee.api.event.PlayerDisconnectEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -35,7 +34,7 @@ public final class PlayerLeave implements Listener {
         } catch (Throwable ignored) {
         }
 
-        IpData data = new IpData(temp_module, User.external.getIp(e.getPlayer().getSocketAddress()));
+        IpData data = new IpData(temp_module, e.getPlayer().getAddress().getAddress());
         data.delIP();
     }
 }

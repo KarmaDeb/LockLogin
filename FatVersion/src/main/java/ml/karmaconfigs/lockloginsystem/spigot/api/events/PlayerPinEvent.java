@@ -19,6 +19,10 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
+/**
+ * @deprecated Switched to PlayerAuthEvent.AuthType.PIN
+ */
+@Deprecated
 public class PlayerPinEvent extends Event implements SpigotFiles {
 
     private static final HandlerList HANDLERS = new HandlerList();

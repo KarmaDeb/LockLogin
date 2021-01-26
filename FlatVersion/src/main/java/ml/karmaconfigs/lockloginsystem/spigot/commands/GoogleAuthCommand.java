@@ -2,9 +2,13 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
+import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
@@ -14,6 +18,8 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+
+import java.net.InetSocketAddress;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -64,24 +70,58 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                     if (args.length == 1) {
                         if (user.has2FA()) {
                             if (user.isLogged() && user.isTempLog()) {
+                                PlayerAuthEvent event = new PlayerAuthEvent(AuthType.FA_2, EventAuthResult.WAITING, player, "");
+
+                                boolean valid_code = false;
                                 try {
                                     int code = Integer.parseInt(args[0]);
                                     if (user.validateCode(code)) {
-                                        LastLocation lastLoc = new LastLocation(player);
-
-                                        user.setTempLog(false);
-                                        user.Message(messages.Prefix() + messages.gAuthCorrect());
-                                        if (config.TakeBack()) {
-                                            user.Teleport(lastLoc.getLastLocation());
-                                        }
-
-                                        player.setAllowFlight(user.hasFly());
+                                        valid_code = true;
+                                        event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.gAuthCorrect());
                                     } else {
-                                        user.Message(messages.Prefix() + messages.gAuthIncorrect());
+                                        event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.gAuthIncorrect());
                                     }
                                 } catch (NumberFormatException e) {
-                                    user.Message(messages.Prefix() + messages.gAuthIncorrect());
-                                    return false;
+                                    event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.gAuthIncorrect());
+                                }
+
+                                plugin.getServer().getPluginManager().callEvent(event);
+
+                                switch (event.getAuthResult()) {
+                                    case SUCCESS:
+                                    case SUCCESS_TEMP:
+                                        if (valid_code) {
+                                            InetSocketAddress ip = player.getAddress();
+
+                                            if (ip != null) {
+                                                BFSystem bf_prevention = new BFSystem(ip.getAddress());
+                                                bf_prevention.success();
+                                            }
+
+                                            user.sendTitle("", "", 1, 2, 1);
+                                            user.setTempLog(false);
+
+                                            user.Message(event.getAuthMessage());
+
+                                            if (config.TakeBack()) {
+                                                LastLocation lastLoc = new LastLocation(player);
+                                                user.Teleport(lastLoc.getLastLocation());
+                                            }
+
+                                            if (config.LoginBlind())
+                                                user.removeBlindEffect(config.LoginNausea());
+
+                                            player.setAllowFlight(user.hasFly());
+                                        } else {
+                                            logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
+                                            user.Message(event.getAuthMessage());
+                                        }
+                                        break;
+                                    case FAILED:
+                                    case ERROR:
+                                    case WAITING:
+                                        user.Message(event.getAuthMessage());
+                                        break;
                                 }
                             } else {
                                 if (!user.isLogged()) {

@@ -5,11 +5,11 @@ import ml.karmaconfigs.api.bungee.StringUtils;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.CheckerBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
-import ml.karmaconfigs.lockloginsystem.shared.version.LockLoginVersion;
+import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
+import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -20,7 +20,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-public final class CheckUpdateCommand extends Command implements BungeeFiles, LockLoginVersion {
+public final class CheckUpdateCommand extends Command implements BungeeFiles {
 
     private static boolean downloading = false;
 
@@ -30,6 +30,11 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
 
     @Override
     public void execute(CommandSender sender, String[] args) {
+        GetLatestVersion latest = new GetLatestVersion();
+
+        int last_version_id = latest.GetLatest();
+        int curr_version_id = LockLoginSpigot.versionID;
+
         if (sender instanceof ProxiedPlayer) {
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
@@ -39,15 +44,15 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                     case "--version":
                         if (player.hasPermission("locklogin.readversion")) {
                             user.Message("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
-                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(LockLoginVersion.version));
+                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersionString()));
                         } else {
                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
                         }
                         break;
                     case "--update":
                         if (player.hasPermission("locklogin.checkupdate")) {
-                            if (CheckerBungee.isOutdated()) {
-                                user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(LockLoginVersion.version));
+                            if (last_version_id > curr_version_id) {
+                                user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersionString()));
                                 user.Message("\n");
                                 user.Message("&7To update, run /updateChecker --forceUpdate");
                                 user.Message("&7otherwise, there are other two ways to update it:");
@@ -64,7 +69,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                         break;
                     case "--forceupdate":
                         if (player.hasPermission("locklogin.forceupdate")) {
-                            if (CheckerBungee.isOutdated()) {
+                            if (last_version_id > curr_version_id) {
                                 if (!downloading) {
                                     user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
                                     user.Message("&aWe will notice you when it's downloaded");
@@ -73,24 +78,24 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                                     if (!utils.isReadyToUpdate()) {
                                         LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
                                             try {
-                                                DownloadLatest latest = new DownloadLatest(config.isFatJar());
+                                                DownloadLatest downloader = new DownloadLatest(config.isFatJar());
 
                                                 Timer timer = new Timer();
                                                 timer.schedule(new TimerTask() {
                                                     @Override
                                                     public void run() {
-                                                        if (player.isConnected() && latest.getPercentage() <= 97) {
-                                                            player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + latest.getPercentage() + "&f%")));
+                                                        if (player.isConnected() && downloader.getPercentage() <= 97) {
+                                                            player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + downloader.getPercentage() + "&f%")));
                                                         } else {
                                                             cancel();
                                                         }
                                                     }
                                                 }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                                if (latest.isDownloading()) {
+                                                if (downloader.isDownloading()) {
                                                     user.Message("&cLockLogin is already downloading an update");
                                                 } else {
-                                                    latest.download(() -> {
+                                                    downloader.download(() -> {
                                                         if (player.isConnected()) {
                                                             user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
                                                             downloading = false;
@@ -126,24 +131,24 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                                 if (!utils.isReadyToUpdate()) {
                                     LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
                                         try {
-                                            DownloadLatest latest = new DownloadLatest(false);
+                                            DownloadLatest downloader = new DownloadLatest(false);
 
                                             Timer timer = new Timer();
                                             timer.schedule(new TimerTask() {
                                                 @Override
                                                 public void run() {
-                                                    if (player.isConnected() && latest.getPercentage() <= 97) {
-                                                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin flat: &e" + latest.getPercentage() + "&f%")));
+                                                    if (player.isConnected() && downloader.getPercentage() <= 97) {
+                                                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin flat: &e" + downloader.getPercentage() + "&f%")));
                                                     } else {
                                                         cancel();
                                                     }
                                                 }
                                             }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                            if (latest.isDownloading()) {
+                                            if (downloader.isDownloading()) {
                                                 user.Message("&cLockLogin is already downloading an update");
                                             } else {
-                                                latest.download(() -> {
+                                                downloader.download(() -> {
                                                     if (player.isConnected()) {
                                                         user.Message("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
                                                         downloading = false;
@@ -178,17 +183,18 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                 switch (args[0].toLowerCase()) {
                     case "--version":
                         Console.send("&cLockLogin current version: &e{0}", StringUtils.stripColor(LockLoginBungee.version));
-                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(LockLoginVersion.version));
+                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(latest.getVersionString()));
                         break;
                     case "--version&changelog":
                         Console.send("&cLockLogin current version: &e{0}", StringUtils.stripColor(LockLoginBungee.version));
-                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(LockLoginVersion.version));
+                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(latest.getVersionString()));
                         System.out.println("\n");
-                        CheckerBungee.sendChangeLog();
+
+                        Console.send(latest.getChangeLog());
                         break;
                     case "--update":
-                        if (CheckerBungee.isOutdated()) {
-                            Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(LockLoginVersion.version));
+                        if (last_version_id > curr_version_id) {
+                            Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersionString()));
                             System.out.println("\n");
                             Console.send("&7If you want to download the new update run the command /updateChecker --forceUpdate");
                             Console.send("&7otherwise, there are other two ways to update it:");
@@ -200,7 +206,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                         }
                         break;
                     case "--forceupdate":
-                        if (CheckerBungee.isOutdated()) {
+                        if (last_version_id > curr_version_id) {
                             if (!downloading) {
                                 Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
                                 Console.send("&aWe will notice you when it's downloaded");
@@ -209,11 +215,11 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                                 if (!utils.isReadyToUpdate()) {
                                     LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
                                         try {
-                                            DownloadLatest latest = new DownloadLatest(config.isFatJar());
-                                            if (latest.isDownloading()) {
+                                            DownloadLatest downloader = new DownloadLatest(config.isFatJar());
+                                            if (downloader.isDownloading()) {
                                                 Console.send(LockLoginBungee.plugin, "LockLogin is already downloading an update", Level.GRAVE);
                                             } else {
-                                                latest.download(() -> {
+                                                downloader.download(() -> {
                                                     Console.send(LockLoginBungee.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates", Level.INFO);
                                                     downloading = false;
                                                     utils.setReadyToUpdate(true);
@@ -234,7 +240,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                             Console.send("&cWoah! Are you sure is LockLogin outdated?");
                         }
                         break;
-                    case "switchFlat":
+                    case "--switchFlat":
                         if (!downloading) {
                             Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
                             Console.send("&aWe will notice you when it's downloaded");
@@ -243,12 +249,12 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles, Lo
                             if (!utils.isReadyToUpdate()) {
                                 LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
                                     try {
-                                        DownloadLatest latest = new DownloadLatest(false);
+                                        DownloadLatest downloader = new DownloadLatest(false);
 
-                                        if (latest.isDownloading()) {
+                                        if (downloader.isDownloading()) {
                                             Console.send("&cLockLogin is already downloading an update");
                                         } else {
-                                            latest.download(() -> {
+                                            downloader.download(() -> {
                                                 Console.send("&aLockLogin flat version has been downloaded, to use it simply type /applyUpdates");
                                                 downloading = false;
                                                 utils.setReadyToUpdate(true);

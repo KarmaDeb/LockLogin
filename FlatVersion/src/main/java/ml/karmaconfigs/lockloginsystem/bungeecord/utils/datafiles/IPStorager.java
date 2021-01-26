@@ -47,7 +47,7 @@ public final class IPStorager implements LockLoginBungee {
     /**
      * Load the stored ips in file
      */
-    private static void loadIPs() {
+    public final void loadIPs() {
         List<String> storage = ip_data.getStringList("IPs");
         if (storage == null)
             storage = new ArrayList<>();
@@ -109,6 +109,40 @@ public final class IPStorager implements LockLoginBungee {
     }
 
     /**
+     * Get the alt accounts of the specified UUID
+     *
+     * @param uuid the uuid of the player
+     * @return all the matching IP accounts
+     * of the UUID
+     */
+    public final HashSet<OfflineUser> getAlts(final UUID uuid) {
+        String hashed_ip = new Codification2(ip.getHostName(), false).hash();
+        HashSet<String> alts = new HashSet<>();
+        for (String ip : hashed_ips) {
+            List<String> assigned = ip_data.getStringList(ip);
+            if (assigned == null)
+                assigned = new ArrayList<>();
+
+            if (ip.equals(hashed_ip)) {
+                alts.addAll(assigned);
+            } else {
+                if (assigned.contains(uuid.toString())) {
+                    alts.addAll(assigned);
+                }
+            }
+        }
+
+        HashSet<OfflineUser> offline = new HashSet<>();
+        for (String id : alts) {
+            OfflineUser user = new OfflineUser(UUID.fromString(id));
+            if (user.exists())
+                offline.add(user);
+        }
+
+        return offline;
+    }
+
+    /**
      * Check if the specified ip is valid
      *
      * @param address the ip to check
@@ -122,9 +156,6 @@ public final class IPStorager implements LockLoginBungee {
 
         static HashSet<OfflineUser> getAlts(final Module module, final UUID target) {
             if (ModuleLoader.manager.isLoaded(module)) {
-                if (hashed_ips.isEmpty())
-                    loadIPs();
-
                 HashSet<String> alts = new HashSet<>();
                 for (String ip : hashed_ips) {
                     List<String> assigned = ip_data.getStringList(ip);

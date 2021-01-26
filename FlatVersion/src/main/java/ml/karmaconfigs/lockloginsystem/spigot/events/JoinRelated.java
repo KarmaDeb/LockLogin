@@ -144,8 +144,7 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
         }
 
         user.setLogStatus(false);
-
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, user::checkStatus);
+        user.checkStatus();
 
         if (config.HandleSpawn()) {
             if (player.isDead())

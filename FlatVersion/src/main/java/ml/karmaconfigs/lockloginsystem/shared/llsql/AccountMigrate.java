@@ -15,9 +15,19 @@ import java.util.Objects;
  */
 public final class AccountMigrate {
 
+    private final Utils sql_instance;
+    private final Migrate migration_type;
+    private final Platform migration_platform;
+
     public AccountMigrate(Utils sqlAccount, Migrate migration, Platform platform) {
-        if (!sqlAccount.userExists()) {
-            sqlAccount.createUser();
+        sql_instance = sqlAccount;
+        migration_type = migration;
+        migration_platform = platform;
+    }
+
+    public final void start() {
+        if (!sql_instance.userExists()) {
+            sql_instance.createUser();
         }
 
         ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager spigotManager;
@@ -29,11 +39,11 @@ public final class AccountMigrate {
         boolean has2FA = false;
         String token = "";
         boolean hasFly = false;
-        switch (migration) {
+        switch (migration_type) {
             case MySQL:
-                switch (platform) {
+                switch (migration_platform) {
                     case BUNGEE:
-                        UUID = Objects.requireNonNull(sqlAccount.getUUID()).toString().replace("-", "");
+                        UUID = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
                         bungeeManager = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager(UUID + ".yml", "playerdata");
                         player = bungeeManager.getString("Player");
                         password = bungeeManager.getString("Password");
@@ -43,7 +53,7 @@ public final class AccountMigrate {
                         hasFly = bungeeManager.getBoolean("Fly");
                         break;
                     case SPIGOT:
-                        UUID = Objects.requireNonNull(sqlAccount.getUUID()).toString().replace("-", "");
+                        UUID = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
                         spigotManager = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager(UUID + ".yml", "playerdata");
                         player = spigotManager.getString("Player");
                         password = spigotManager.getString("Password");
@@ -53,27 +63,27 @@ public final class AccountMigrate {
                         hasFly = spigotManager.getBoolean("Fly");
                         break;
                 }
-                if (!sqlAccount.userExists()) {
-                    sqlAccount.createUser();
+                if (!sql_instance.userExists()) {
+                    sql_instance.createUser();
                 }
 
-                sqlAccount.setName(player);
-                sqlAccount.setPassword(password, true);
-                sqlAccount.setPin(pin, true);
-                sqlAccount.gAuthStatus(has2FA);
-                sqlAccount.setGAuth(token, false);
-                sqlAccount.setFly(hasFly);
+                sql_instance.setName(player);
+                sql_instance.setPassword(password, true);
+                sql_instance.setPin(pin, true);
+                sql_instance.gAuthStatus(has2FA);
+                sql_instance.setGAuth(token, false);
+                sql_instance.setFly(hasFly);
                 break;
             case YAML:
-                String UUIDForFile = Objects.requireNonNull(sqlAccount.getUUID()).toString().replace("-", "");
-                UUID = sqlAccount.getUUID().toString();
-                player = sqlAccount.getName();
-                password = sqlAccount.getPassword();
-                pin = sqlAccount.getPin();
-                has2FA = sqlAccount.has2fa();
-                token = sqlAccount.getToken();
-                hasFly = sqlAccount.hasFly();
-                switch (platform) {
+                String UUIDForFile = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
+                UUID = sql_instance.getUUID().toString();
+                player = sql_instance.getName();
+                password = sql_instance.getPassword();
+                pin = sql_instance.getPin();
+                has2FA = sql_instance.has2fa();
+                token = sql_instance.getToken();
+                hasFly = sql_instance.hasFly();
+                switch (migration_platform) {
                     case BUNGEE:
                         bungeeManager = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager(UUIDForFile + ".yml", "playerdata");
                         bungeeManager.set("Player", player);

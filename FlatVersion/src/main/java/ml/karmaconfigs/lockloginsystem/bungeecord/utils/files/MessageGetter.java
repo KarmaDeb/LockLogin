@@ -31,7 +31,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class MessageGetter implements LockLoginBungee {
 
     private static File msg_file = new File(plugin.getDataFolder(), "messages_en.yml");
-    private static Configuration messages = null;
+    private static Configuration messages;
 
     private static boolean loaded = false;
 

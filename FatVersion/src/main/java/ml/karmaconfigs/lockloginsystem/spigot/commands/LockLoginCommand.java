@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.InsertInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.filemigration.FileInserter;
@@ -25,7 +26,6 @@ import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
-import java.sql.Connection;
 import java.util.HashSet;
 import java.util.List;
 
@@ -141,11 +141,15 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                         new BukkitRunnable() {
                                                                             @Override
                                                                             public void run() {
-                                                                                if (migrating_owner == null) {
+                                                                                if (passed_migration == max_migrations) {
                                                                                     cancel();
-                                                                                    message.setMessage("&8Migration progress:&a Complete");
+                                                                                    migrating_owner.sendMessage(StringUtils.toColor(messages.Prefix() + messages.Migrated()));
+                                                                                    message.setMessage("&8Migrating progress: &aComplete");
                                                                                     message.stop();
-                                                                                } else {
+                                                                                    migrating_owner = null;
+                                                                                }
+
+                                                                                if (migrating_owner != null) {
                                                                                     double division = (double) passed_migration / max_migrations;
                                                                                     long iPart = (long) division;
                                                                                     double fPart = division - iPart;
@@ -160,7 +164,6 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                                 }
                                                                             }
                                                                         }.runTaskTimer(plugin, 0, 20);
-                                                                        user.Message(messages.Prefix() + "&aMigration successfully");
                                                                     } else {
                                                                         user.Message(messages.Prefix() + "&cSome error occurred while migrating");
                                                                     }
@@ -271,7 +274,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                         case "AuthMe":
                                                             Console.send(messages.Prefix() + "&aMigrating from AuthMe sqlite");
                                                             if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
-                                                                Console.send(messages.Prefix() + "&aMigration successfully");
+                                                                Console.send(messages.Prefix() + messages.Migrated());
                                                             } else {
                                                                 Console.send(messages.Prefix() + "&cSome error occurred while migrating");
                                                             }
@@ -292,7 +295,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             Console.send(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
                         }
                     } else {
-                        Console.send(messages.Prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
+                        Console.send(messages.Prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
                     }
                 } else {
                     if (args[0].equals("applyUpdates")) {
@@ -323,40 +326,62 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
 
                 List<String> uuids = sql.getUUIDs();
                 max_migrations = uuids.size();
+
+                BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
+                message.send(true);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        if (passed_migration == max_migrations) {
+                            cancel();
+                            migrating_owner.sendMessage(StringUtils.toColor(messages.Prefix() + messages.Migrated()));
+                            message.setMessage("&8Migrating progress: &aComplete");
+                            message.stop();
+                            migrating_owner = null;
+                        }
+
+                        if (migrating_owner != null) {
+                            double division = (double) passed_migration / max_migrations;
+                            long iPart = (long) division;
+                            double fPart = division - iPart;
+
+                            String colour = "&c";
+                            if (fPart >= 37.5)
+                                colour = "&e";
+                            if (fPart >= 75)
+                                colour = "&a";
+
+                            message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                        }
+                    }
+                }.runTaskTimer(plugin, 0, 20);
+
                 for (String id : uuids) {
                     Utils sqlUUID = new Utils(id);
 
-                    new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    migrate.start();
 
                     user.Message(messages.Prefix() + messages.MigratingYaml(id));
                     passed_migration = passed_migration + 1;
                 }
-                migrating_owner = null;
-
-                user.Message(messages.Prefix() + messages.Migrated());
             } else {
                 user.Message(messages.Prefix() + "&bTrying to establish a connection with MySQL");
-                MySQLData SQLData = new MySQLData();
-
-                Bucket bucket = new Bucket(
-                        SQLData.getHost(),
-                        SQLData.getDatabase(),
-                        SQLData.getTable(),
-                        SQLData.getUser(),
-                        SQLData.getPassword(),
-                        SQLData.getPort(),
-                        SQLData.useSSL(),
-                        SQLData.ignoreCertificates());
-
-                bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
-
-                Connection connection = null;
                 try {
-                    connection = Bucket.getBucket().getConnection();
-                } catch (Throwable ignore) {
-                }
+                    MySQLData SQLData = new MySQLData();
 
-                if (connection != null) {
+                    Bucket bucket = new Bucket(
+                            SQLData.getHost(),
+                            SQLData.getDatabase(),
+                            SQLData.getTable(),
+                            SQLData.getUser(),
+                            SQLData.getPassword(),
+                            SQLData.getPort(),
+                            SQLData.useSSL(),
+                            SQLData.ignoreCertificates());
+
+                    bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
+
                     user.Message(messages.Prefix() + messages.MigratingAll());
                     bucket.prepareTables();
 
@@ -364,18 +389,46 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
 
                     List<String> uuids = sql.getUUIDs();
                     max_migrations = uuids.size();
+
+                    BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
+                    message.send(true);
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            if (passed_migration == max_migrations) {
+                                cancel();
+                                migrating_owner.sendMessage(StringUtils.toColor(messages.Prefix() + messages.Migrated()));
+                                message.setMessage("&8Migrating progress: &aComplete");
+                                message.stop();
+                                migrating_owner = null;
+                            }
+
+                            if (migrating_owner != null) {
+                                double division = (double) passed_migration / max_migrations;
+                                long iPart = (long) division;
+                                double fPart = division - iPart;
+
+                                String colour = "&c";
+                                if (fPart >= 37.5)
+                                    colour = "&e";
+                                if (fPart >= 75)
+                                    colour = "&a";
+
+                                message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                            }
+                        }
+                    }.runTaskTimer(plugin, 0, 20);
+
                     for (String id : uuids) {
                         Utils sqlUUID = new Utils(id);
 
-                        new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
 
                         user.Message(messages.Prefix() + messages.MigratingYaml(id));
                         passed_migration = passed_migration + 1;
                     }
-                    migrating_owner = null;
-
-                    user.Message(messages.Prefix() + messages.Migrated());
-                } else {
+                } catch (Throwable ex) {
                     migrating_owner = null;
                     user.Message(messages.Prefix() + messages.MigrationConnectionError());
                 }
@@ -402,7 +455,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 for (String id : uuids) {
                     Utils sqlUUID = new Utils(id);
 
-                    new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    migrate.start();
 
                     Console.send(messages.Prefix() + messages.MigratingYaml(id));
                     passed_migration = passed_migration + 1;
@@ -411,41 +465,36 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
 
                 Console.send(messages.Prefix() + messages.Migrated());
             } else {
-                Console.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
-                MySQLData SQLData = new MySQLData();
-
-                Bucket bucket = new Bucket(
-                        SQLData.getHost(),
-                        SQLData.getDatabase(),
-                        SQLData.getTable(),
-                        SQLData.getUser(),
-                        SQLData.getPassword(),
-                        SQLData.getPort(),
-                        SQLData.useSSL(),
-                        SQLData.ignoreCertificates());
-
-                bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
-
-                Connection connection = null;
                 try {
-                    connection = Bucket.getBucket().getConnection();
-                } catch (Exception | Error ignore) {
-                }
+                    Console.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                    MySQLData SQLData = new MySQLData();
 
-                if (connection != null) {
+                    Bucket bucket = new Bucket(
+                            SQLData.getHost(),
+                            SQLData.getDatabase(),
+                            SQLData.getTable(),
+                            SQLData.getUser(),
+                            SQLData.getPassword(),
+                            SQLData.getPort(),
+                            SQLData.useSSL(),
+                            SQLData.ignoreCertificates());
+
+                    bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
+
                     Console.send(messages.Prefix() + messages.MigratingAll());
                     bucket.prepareTables();
 
                     Utils sql = new Utils();
-
                     sql.checkTables();
 
                     List<String> uuids = sql.getUUIDs();
                     max_migrations = uuids.size();
+
                     for (String id : uuids) {
                         Utils sqlUUID = new Utils(id);
 
-                        new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
 
                         Console.send(messages.Prefix() + messages.MigratingYaml(id));
                         passed_migration = passed_migration + 1;
@@ -453,7 +502,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     migrating_owner = null;
 
                     Console.send(messages.Prefix() + messages.Migrated());
-                } else {
+                } catch (Throwable ex) {
                     migrating_owner = null;
                     Console.send(messages.Prefix() + messages.MigrationConnectionError());
                 }

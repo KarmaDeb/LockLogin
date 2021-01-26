@@ -39,7 +39,7 @@ ForcedDelAccount: '&4管理员已删除您的帐户{newline}&4可以重新加入
 ForcedDelAccountAdmin: '&a玩家 {player} 的账户已被移除'
 2FaLink: '&b单击此处获取2FA QR码'
 2FaInstructions:
-  - '&f如何使用google身份验证器登录?'
+  - '&f 如何使用google身份验证器登录?'
   - '&71 - 从Google验证器获取代码'
   - '&72 - 在聊天栏中输入 /2fa <code>'
   - '&73 - 每次登录时重复此过程'
@@ -59,7 +59,7 @@ MigratingAll: '&a将所有玩家数据迁移到YAML'
 Migrated: '&a帐户迁移已结束'
 MigrationUsage: '&c正确用法: &b/ll migrate'
 PasswordInsecure: '&c这个密码不安全！请尝试其他密码!'
-LoginInsecure: '&c您的密码已被归类为不安全，必须对其进行更改'
+LoginInsecure: '&c当前使用的密码可能不安全，请尽快更换为更安全的密码'
 PasswordMinChar: '&c密码必须至少包含4个字符'
 MigrationConnectionError: '&c尝试连接到MySQL时出错'
 LocationsReset: '&a所有人的最后下线位置已重置'
@@ -69,30 +69,30 @@ RestLastLocUsage: '&c正确用法: &b/resetlocs [player|@all|@me]'
 PlayerInfoUsage: '&c正确用法: &b/playerinfo [player]'
 2FADisabled: '&c此服务器当前已禁用2FA'
 MaxRegisters:
-  - '&c您已达到服务器中的注册帐户数上限'
+  - '&c注册帐户数量已达到服务器上限'
   - ''
-  - '&e如果您认为这是一个错误，请报告'
+  - '&e如果你认为这是一个错误，请在以下网站上告知作者'
   - '&bhttps://discordexample.gg'
 LookUpUsage: '&c正确用法: &b/lookup <player>'
 IllegalName:
-  - '&c非法名称'
+  - '&c非法ID'
   - ''
-  - '&c您的名字不能包含:'
+  - '&c您的ID不能包含:'
   - '{chars}'
-PinSet: "&aY您的图钉已设置为 &7{pin}"
-AlreadyPin: "&c您已经设定好密码"
-NoPin: "&c你没有别针!"
+PinSet: "&aY您的PIN已设置为 &7{pin}"
+AlreadyPin: "&c已经设定好PIN"
+NoPin: "&c你没有设置PIN!"
 SetPin: "&c正确用法: &b/pin <pin>"
 ResetPin: "&c正确用法: &b/resetPin <pin>"
-PinDisabled: "&c引脚已禁用"
+PinDisabled: "&cPIN已禁用"
 PinLength: "&c密码必须为4位数字"
-IncorrectPin: "&c指定的针脚不正确"
+IncorrectPin: "&c输入的PIN不正确"
 IpBlocked:
-  - '&cLockLogin系统检测到'
-  - '&c您IP上的异常流量已被阻止'
+  - '&cLockLogin 系统检测'
+  - '&c检测到异常流量，已阻止'
   - '&f{time} {time_format}'
 AntiBot:
   - '&f{ServerName}'
   - ''
-  - '&c将此服务器添加到您的服务器列表中'
-  - '&c如果已经拥有，请重新加载服务器列表'
+  - '&c将此服务器添加到当前服务器列表中'
+  - '&c如已添加，请重新加载服务器列表'

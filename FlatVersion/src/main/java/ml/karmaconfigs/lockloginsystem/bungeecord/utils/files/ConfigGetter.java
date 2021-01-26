@@ -183,12 +183,12 @@ public final class ConfigGetter {
     public final boolean isFatJar() {
         String value = configuration.getString("Updater.FileType");
         if (value == null || value.isEmpty())
-            value = "Flat";
+            value = "Fat";
         value = value.toLowerCase();
 
         if (!value.equals("flat") && !value.equals("fat")) {
-            value = "flat";
-            configuration.set("Updater.FileType", "Flat");
+            value = "fat";
+            configuration.set("Updater.FileType", "Fat");
         }
 
         return value.equals("fat");
