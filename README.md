@@ -8,16 +8,16 @@
 ```xml
 <repositories>
   <repository>
-    <id>Repos-master</id>
-    <url>https://github.com/KarmaConfigs/Repos/raw/master/</url>
+    <id>locklogin-repo</id>
+    <url>https://oss.sonatype.org/content/groups/public/</url>
   </repository>
 </repositories>
 
 <dependencies>
   <dependency>
     <groupId>ml.karmaconfigs</groupId>
-    <artifactId>FlatVersion</artifactId>
-    <version>1.0.5.2</version>
+    <artifactId>LockLogin</artifactId>
+    <version>1.0.5.3</version>
     <scope>provided</scope>
   </dependency>
 </dependencies>
