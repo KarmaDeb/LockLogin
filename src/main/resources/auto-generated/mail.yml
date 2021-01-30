@@ -1,0 +1,39 @@
+#####################################
+#                                   #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         []      []                #
+#         [][][]  [][][]            #
+#                                   #
+#####################################
+
+#The email address to sent
+#emails from ( leave empty to disable mail system )
+#Example: example@email.com ( must be a valid and
+#existent email with SMTP enabled )
+# Read this for more info:
+#https://www.arclab.com/en/kb/email/how-to-enable-imap-pop3-smtp-gmail-account.html
+Email: ""
+
+#The email password to login
+#and send the email
+Password: "MySecureP@55word32"
+
+#Send an email to the player when
+#he logs in from a different
+#ip ( may help players to
+#let them know if their password
+#has been leaked )
+LoginEmail: true
+
+#SMTP configuration
+SMTP:
+  Host: "smtp.gmail.com"
+  Port: 587
+  TLS: true
+
+#Email subject messages
+Subjects:
+  PasswordRecovery: "[{server}] Recover your account {player}"
+  LoginLog: "[{server}] New login in your account: {player}"

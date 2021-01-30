@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- Thanks Fapret for fixing pre-release templates -->
+    <title>LockLogin password recovery</title>
+    <meta charset="utf-8">
+
+    <!-- Google fonts imports -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@700&display=swap" rel="stylesheet">
+    <style type="text/css">
+        div {
+            text-align: center;
+            color: #64FFD6;
+            background-color: #262626;
+            font-family: 'Lato', sans-serif;
+        }
+
+        .user_input {
+            color: white;
+        }
+
+        .code_input {
+            color: #56dcb8;
+        }
+
+    </style>
+</head>
+<body>
+<div>
+    <h1>Hi! <span class="user_input">{user_name}</span></h1>
+    <img src="https://cravatar.eu/avatar/{user_name}.png">
+    <h4>We noticed you logged in from another IP.<br>Just to make sure your account is safe, we mailed you</h4>
+    <h4>If this wasn't you, please contact the server staff and change your password immediately.<br>
+        If that's you, please type /confirm <span class="code_input">{code}</span></h4>
+</div>
+</body>
+</html>
