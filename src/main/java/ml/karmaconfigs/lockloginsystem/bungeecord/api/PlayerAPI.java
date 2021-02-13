@@ -462,7 +462,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
      */
     public final int getConnections() {
         if (player != null) {
-            IpData data = new IpData(module, player.getAddress().getAddress());
+            IpData data = new IpData(module, User.external.getIp(player.getSocketAddress()));
             data.fetch(Platform.BUNGEE);
 
             return data.getConnections();

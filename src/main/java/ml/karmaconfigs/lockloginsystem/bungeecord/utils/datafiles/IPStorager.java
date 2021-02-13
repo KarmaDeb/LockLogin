@@ -28,7 +28,7 @@ public final class IPStorager implements LockLoginBungee {
     /**
      * Initialize the ip storager system
      *
-     * @param module the module that is calling the API
+     * @param module  the module that is calling the API
      * @param address the ip address
      */
     public IPStorager(final Module module, final InetAddress address) throws UnknownHostException {

@@ -1,6 +1,5 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import dev.dbassett.skullcreator.SkullCreator;
 import ml.karmaconfigs.api.spigot.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
@@ -12,6 +11,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,8 +35,9 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
         Inventory page = getBlankPage();
 
         for (OfflineUser player : players) {
-            ItemStack item = SkullCreator.itemFromUuid(player.getUUID());
+            ItemStack item = getSkull(player.getUUID());
             ItemMeta meta = item.getItemMeta();
+            assert meta != null;
 
             meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
             if (!player.getUUID().equals(user.getUniqueId())) {
@@ -63,29 +64,65 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
      */
     public AltsAccountInventory(final UUID id, final HashSet<UUID> uuids) {
         player = plugin.getServer().getPlayer(id);
-        Inventory page = getBlankPage();
 
-        for (UUID uuid : uuids) {
-            ItemStack item = SkullCreator.itemFromUuid(uuid);
-            ItemMeta meta = item.getItemMeta();
+        if (player != null && player.isOnline()) {
+            Inventory page = getBlankPage();
 
-            OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+            for (UUID uuid : uuids) {
+                ItemStack item = getSkull(uuid);
+                ItemMeta meta = item.getItemMeta();
+                assert meta != null;
 
-            meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-            if (!player.getUniqueId().equals(id)) {
-                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
-            } else {
-                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+
+                meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
+                if (!player.getUniqueId().equals(id)) {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
+                } else {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                }
+
+                item.setItemMeta(meta);
+
+                page.addItem(item);
             }
 
-            item.setItemMeta(meta);
+            pages.add(page);
+            playerPage.put(player.getUniqueId(), 0);
+            inventories.put(player.getUniqueId(), this);
+        }
+    }
 
-            page.addItem(item);
+    /**
+     * Get a skull item with the specified owner
+     *
+     * @param owner the owner
+     * @return a SkullItem
+     */
+    @SuppressWarnings("deprecation")
+    private ItemStack getSkull(final UUID owner) {
+        ItemStack skull;
+
+        boolean legacy = false;
+        try {
+            skull = new ItemStack(Material.PLAYER_HEAD, 1);
+        } catch (Throwable ex) {
+            skull = new ItemStack(Material.valueOf("SKULL_ITEM"), 1, (byte) 3);
+            legacy = true;
         }
 
-        pages.add(page);
-        playerPage.put(player.getUniqueId(), 0);
-        inventories.put(player.getUniqueId(), this);
+        if (owner != null) {
+            SkullMeta meta = (SkullMeta) skull.getItemMeta();
+            assert meta != null;
+
+            if (legacy) {
+                meta.setOwner(plugin.getServer().getOfflinePlayer(owner).getName());
+            } else {
+                meta.setOwningPlayer(plugin.getServer().getOfflinePlayer(owner));
+            }
+        }
+
+        return skull;
     }
 
     /**
@@ -156,6 +193,7 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
 
     public interface utils {
 
+        @SuppressWarnings("deprecation")
         static ItemStack nextButton() {
             ItemStack next;
             try {
@@ -168,6 +206,7 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
                 }
             }
             ItemMeta meta = next.getItemMeta();
+            assert meta != null;
 
             meta.setDisplayName(StringUtils.toColor("&eNext"));
             next.setItemMeta(meta);
@@ -175,6 +214,7 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
             return next;
         }
 
+        @SuppressWarnings("deprecation")
         static ItemStack backButton() {
             ItemStack back;
             try {
@@ -187,6 +227,7 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
                 }
             }
             ItemMeta meta = back.getItemMeta();
+            assert meta != null;
 
             meta.setDisplayName(StringUtils.toColor("&eBack"));
             back.setItemMeta(meta);

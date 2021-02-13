@@ -84,6 +84,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 1));
 
         stack.setItemMeta(stackMeta);
@@ -98,6 +99,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 2));
 
         stack.setItemMeta(stackMeta);
@@ -112,6 +114,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 3));
 
         stack.setItemMeta(stackMeta);
@@ -126,6 +129,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 4));
 
         stack.setItemMeta(stackMeta);
@@ -140,6 +144,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 5));
 
         stack.setItemMeta(stackMeta);
@@ -154,6 +159,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 6));
 
         stack.setItemMeta(stackMeta);
@@ -168,6 +174,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 7));
 
         stack.setItemMeta(stackMeta);
@@ -182,6 +189,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 8));
 
         stack.setItemMeta(stackMeta);
@@ -196,6 +204,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 9));
 
         stack.setItemMeta(stackMeta);
@@ -210,6 +219,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&b" + 0));
 
         stack.setItemMeta(stackMeta);
@@ -229,6 +239,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&aConfirm"));
 
         stack.setItemMeta(stackMeta);
@@ -248,6 +259,7 @@ public interface Numbers {
         } catch (Throwable ignore) {
         }
         ItemMeta stackMeta = stack.getItemMeta();
+        assert stackMeta != null;
         stackMeta.setDisplayName(StringUtils.toColor("&7Erase"));
 
         stack.setItemMeta(stackMeta);
@@ -261,6 +273,7 @@ public interface Numbers {
      * @param properties the properties
      * @return an ItemStack
      */
+    @SuppressWarnings("deprecation")
     static ItemStack getSkull(Object properties) {
         ItemStack skull = getRandomItemStack();
 
@@ -283,6 +296,7 @@ public interface Numbers {
             ReflectionUtil.invokeMethod(propmap.getClass(), propmap, "put", new Class[]{Object.class, Object.class}, "textures", properties);
 
             Field profileField;
+            assert headMeta != null;
             profileField = headMeta.getClass().getDeclaredField("profile");
             profileField.setAccessible(true);
             profileField.set(headMeta, profile);

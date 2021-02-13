@@ -326,6 +326,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
+    @SuppressWarnings("deprecation")
     public final void onItemPickup(PlayerPickupItemEvent e) {
         Player player = e.getPlayer();
         User user = new User(player);

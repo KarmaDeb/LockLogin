@@ -2,11 +2,13 @@ package ml.karmaconfigs.lockloginsystem.shared;
 
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Private GSA code
@@ -111,22 +113,22 @@ public final class IpData {
                 case ANY:
                     try {
                         for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
-                            ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                            ips.put(Objects.requireNonNull(player.getAddress()).getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
                         }
                     } catch (Throwable e) {
                         for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
-                            ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                            ips.put(User.external.getIp(player.getSocketAddress()), ips.getOrDefault(User.external.getIp(player.getSocketAddress()), 0) + 1);
                         }
                     }
                     break;
                 case SPIGOT:
                     for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
-                        ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                        ips.put(Objects.requireNonNull(player.getAddress()).getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
                     }
                     break;
                 case BUNGEE:
                     for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
-                        ips.put(player.getAddress().getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                        ips.put(User.external.getIp(player.getSocketAddress()), ips.getOrDefault(User.external.getIp(player.getSocketAddress()), 0) + 1);
                     }
                     break;
             }

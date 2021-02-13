@@ -171,7 +171,7 @@ public final class Bucket {
         PreparedStatement statement = null;
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (PLAYER text, UUID text, PASSWORD text, FAON boolean, GAUTH text, FLY boolean, PIN text)");
+            statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (PLAYER text, EMAIL text, UUID text, PASSWORD text, FAON boolean, GAUTH text, FLY boolean, PIN text)");
 
             statement.executeUpdate();
 
@@ -201,6 +201,9 @@ public final class Bucket {
         if (!columnSet("PLAYER")) {
             changes = insertColumn("PLAYER", "text");
         }
+        if (!columnSet("EMAIL")) {
+            changes = insertColumn("EMAIL", "text");
+        }
         if (!columnSet("UUID")) {
             changes = insertColumn("UUID", "text");
         }
@@ -218,9 +221,6 @@ public final class Bucket {
         }
         if (!columnSet("PIN")) {
             changes = insertColumn("PIN", "text");
-        }
-        if (!columnSet("EMAIL")) {
-            changes = insertColumn("EMAIL", "text");
         }
 
         try {
@@ -240,7 +240,8 @@ public final class Bucket {
                         && !name.equalsIgnoreCase("faon")
                         && !name.equalsIgnoreCase("gauth")
                         && !name.equalsIgnoreCase("fly")
-                        && !name.equalsIgnoreCase("pin")) {
+                        && !name.equalsIgnoreCase("pin")
+                        && !name.equalsIgnoreCase("email")) {
                     changes = deleteColumn(name);
                 }
             }

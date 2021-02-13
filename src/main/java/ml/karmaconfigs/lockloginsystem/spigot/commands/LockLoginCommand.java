@@ -16,6 +16,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.LockLoginSpigotManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.MySQLData;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.ModuleListInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -50,6 +51,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     private static int max_migrations = 0;
     private final Permission migratePermission = new Permission("locklogin.migrate", PermissionDefault.FALSE);
     private final Permission applyUpdatePermission = new Permission("locklogin.update", PermissionDefault.FALSE);
+    private final Permission modulePermission = new Permission("locklogin.modules", PermissionDefault.FALSE);
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
@@ -194,6 +196,17 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                 s_manager.applyUpdate(user);
                             } else {
                                 user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
+                            }
+                        } else {
+                            if (args[0].equals("modules")) {
+                                if (player.hasPermission(modulePermission)) {
+                                    ModuleListInventory inv = new ModuleListInventory(player);
+                                    inv.openPage(0);
+                                } else {
+                                    user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
+                                }
+                            } else {
+                                user.Message(messages.Prefix() + "&cUnknown sub-command, /locklogin [migrate|applyUpdates|modules]");
                             }
                         }
                     }

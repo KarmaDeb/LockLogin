@@ -20,7 +20,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.net.InetSocketAddress;
 import java.util.ArrayList;

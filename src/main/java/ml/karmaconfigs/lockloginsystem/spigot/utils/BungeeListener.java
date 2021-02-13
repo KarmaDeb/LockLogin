@@ -7,7 +7,9 @@ import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.AltsAccountInventory;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.ModuleListInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.reader.BungeeModuleReader;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.BungeeVerifier;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
@@ -148,6 +150,22 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
 
                         AltsAccountInventory alts = new AltsAccountInventory(uuid, uuids);
                         alts.openPage(0);
+                        break;
+                    case "modulesinfodata":
+                        String msg = in.readUTF();
+                        data = msg.split("\\{");
+                        uuid = UUID.fromString(data[0]);
+
+                        String modules_data = msg.replace(data[0] + "{", "").replace("}", "");
+                        BungeeModuleReader reader = new BungeeModuleReader(modules_data);
+                        reader.parse();
+
+                        if (plugin.getServer().getPlayer(uuid) != null) {
+                            player = plugin.getServer().getPlayer(uuid);
+
+                            ModuleListInventory listInventory = new ModuleListInventory(player);
+                            listInventory.openPage(0);
+                        }
                         break;
                     default:
                         //UNKNOWN PLUGIN MESSAGE...

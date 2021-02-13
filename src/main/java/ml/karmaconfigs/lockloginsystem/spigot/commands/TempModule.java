@@ -29,10 +29,11 @@ class TempModule extends Module {
 
     @Override
     public @NotNull String description() {
-        return "This module is used to access an API feature";
+        return "This module is used to access an API feature when using /lookup command";
     }
 
     @Override
+    @Deprecated
     public @NotNull String author_url() {
         return "https://karmaconfigs.ml/";
     }

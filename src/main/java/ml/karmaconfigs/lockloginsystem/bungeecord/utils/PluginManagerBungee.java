@@ -266,6 +266,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         plugin.getProxy().getPluginManager().registerCommand(plugin, new SetMailCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ConfirmCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new RecoverCommand());
+        plugin.getProxy().getPluginManager().registerCommand(plugin, new ModuleListCommand());
     }
 
     /**
@@ -418,7 +419,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                     bungee_module_loader.inject();
                 }
                 if (config.AccountsPerIp() != 0) {
-                    IpData data = new IpData(temp_module, player.getAddress().getAddress());
+                    IpData data = new IpData(temp_module, User.external.getIp(player.getSocketAddress()));
                     data.fetch(Platform.BUNGEE);
 
                     if (data.getConnections() + 1 > config.AccountsPerIp()) {
@@ -464,7 +465,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 if (!ModuleLoader.manager.isLoaded(temp_module)) {
                     bungee_module_loader.inject();
                 }
-                IpData data = new IpData(temp_module, player.getAddress().getAddress());
+                IpData data = new IpData(temp_module, User.external.getIp(player.getSocketAddress()));
                 data.delIP();
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);
@@ -508,7 +509,7 @@ class TempModule extends Module {
 
     @Override
     public @NotNull String description() {
-        return "This module is used to access an API feature";
+        return "This module is used to access an API feature when the plugin starts";
     }
 
     @Override

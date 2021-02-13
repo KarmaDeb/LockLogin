@@ -30,7 +30,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.File;
 import java.net.InetSocketAddress;
@@ -112,7 +111,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 Codification3 insecure = new Codification3(email, false);
                 email = insecure.encrypt();
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         if (config.isYaml()) {
             PlayerFile pf = new PlayerFile(player);
@@ -200,7 +200,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param text the message
      */
     public final void Message(String text) {
-        player.sendMessage(StringUtils.toColor(text));
+        if (!text.replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+            player.sendMessage(StringUtils.toColor(text));
     }
 
     /**
@@ -209,9 +210,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param messages the messages
      */
     public final void Message(List<String> messages) {
-        for (String str : messages) {
-            player.sendMessage(StringUtils.toColor(str));
-        }
+        if (!messages.isEmpty())
+            for (String str : messages)
+                player.sendMessage(StringUtils.toColor(str));
     }
 
     /**
@@ -220,7 +221,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param JSonMessage the json message
      */
     public final void Message(TextComponent JSonMessage) {
-        player.spigot().sendMessage(JSonMessage);
+        if (!JSonMessage.getText().replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+            player.spigot().sendMessage(JSonMessage);
     }
 
     /**
@@ -229,9 +231,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param messages the messages
      */
     public final void Message(HashSet<String> messages) {
-        for (String str : messages) {
-            Message(str);
-        }
+        if (!messages.isEmpty())
+            for (String str : messages)
+                Message(str);
     }
 
     /**

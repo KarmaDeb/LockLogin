@@ -23,7 +23,6 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 
 /*
@@ -148,7 +147,8 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
         if (isValidEmailAddress(user.getEmail())) {
             try {
                 user.setEmail(user.getEmail(), false);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         if (!player.hasMetadata("LockLoginUser")) {

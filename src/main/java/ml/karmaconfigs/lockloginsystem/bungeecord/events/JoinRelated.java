@@ -204,7 +204,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             if (isValidEmailAddress(user.getEmail())) {
                 try {
                     user.setEmail(user.getEmail(), false);
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             }
 
             if (!user.isLogged()) {

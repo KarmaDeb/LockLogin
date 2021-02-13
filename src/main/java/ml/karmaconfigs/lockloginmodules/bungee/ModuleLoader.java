@@ -135,7 +135,7 @@ public final class ModuleLoader {
             HashSet<Module> list = new HashSet<>();
 
             for (Module module : modules) {
-                if (module.owner() == plugin)
+                if (module.owner().getDescription().getName().equals(plugin.getDescription().getName()))
                     list.add(module);
             }
 

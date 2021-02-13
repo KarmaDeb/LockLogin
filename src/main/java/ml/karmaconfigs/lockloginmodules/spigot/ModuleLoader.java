@@ -5,6 +5,7 @@ import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginmodules.shared.NoJarException;
 import ml.karmaconfigs.lockloginmodules.shared.NoPluginException;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
@@ -85,7 +86,7 @@ public final class ModuleLoader {
         if (module != null) {
             modules.remove(module);
 
-            Console.send(LockLoginSpigot.plugin, "Module {0} [ {1} ] by {1} un-injected from LockLogin", Level.GRAVE,
+            Console.send(LockLoginSpigot.plugin, "Module {0} [ {1} ] by {1} un-injected from LockLogin", Level.INFO,
                     module.name(),
                     module.version(),
                     module.author());
@@ -128,11 +129,11 @@ public final class ModuleLoader {
          * @return a list of modules owned
          * by a plugin
          */
-        static HashSet<Module> getByPlugin(final JavaPlugin plugin) {
+        static HashSet<Module> getByPlugin(final Plugin plugin) {
             HashSet<Module> list = new HashSet<>();
 
             for (Module module : modules) {
-                if (module.owner() == plugin)
+                if (module.owner().getName().equals(plugin.getName()))
                     list.add(module);
             }
 

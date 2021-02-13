@@ -189,7 +189,8 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param text the message
      */
     public final void Message(String text) {
-        player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(text)));
+        if (!text.replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+            player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(text)));
     }
 
     /**
@@ -198,9 +199,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param texts the messages
      */
     public final void Message(List<String> texts) {
-        for (String str : texts) {
-            Message(str);
-        }
+        if (!texts.isEmpty())
+            for (String str : texts)
+                Message(str);
     }
 
     /**
@@ -209,7 +210,8 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param JSonMessage the json message
      */
     public final void Message(TextComponent JSonMessage) {
-        player.sendMessage(JSonMessage);
+        if (!JSonMessage.getText().replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+            player.sendMessage(JSonMessage);
     }
 
     /**
@@ -218,9 +220,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param messages the messages
      */
     public final void Message(HashSet<String> messages) {
-        for (String str : messages) {
-            Message(str);
-        }
+        if (!messages.isEmpty())
+            for (String str : messages)
+                Message(str);
     }
 
     /**

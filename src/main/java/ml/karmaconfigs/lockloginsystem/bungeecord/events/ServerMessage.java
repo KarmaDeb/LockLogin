@@ -17,7 +17,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
-import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;

@@ -14,7 +14,6 @@ import ml.karmaconfigs.lockloginsystem.shared.metrics.SpigotMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.Main;
 import ml.karmaconfigs.lockloginsystem.spigot.commands.*;
 import ml.karmaconfigs.lockloginsystem.spigot.events.*;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
@@ -542,7 +541,7 @@ class TempModule extends Module {
 
     @Override
     public @NotNull String description() {
-        return "This module is used to access an API feature";
+        return "This module is used to access an API feature when the plugin starts";
     }
 
     @Override

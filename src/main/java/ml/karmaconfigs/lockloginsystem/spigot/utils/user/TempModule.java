@@ -29,7 +29,7 @@ class TempModule extends Module {
 
     @Override
     public @NotNull String description() {
-        return "This module is used to access an API feature";
+        return "This module is used to access an API feature when performing user login";
     }
 
     @Override

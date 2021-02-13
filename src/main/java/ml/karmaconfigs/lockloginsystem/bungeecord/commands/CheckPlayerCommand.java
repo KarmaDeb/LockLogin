@@ -15,6 +15,7 @@ import org.json.simple.JSONValue;
 
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.UUID;
 
 /*
@@ -84,7 +85,7 @@ public final class CheckPlayerCommand extends Command implements LockLoginBungee
             ProxiedPlayer target = plugin.getProxy().getPlayer(tName);
             User targetUser = new User(target);
 
-            user.Message("&eIP&7: &f" + target.getAddress().getAddress().getHostName());
+            user.Message("&eIP&7: &f" + Objects.requireNonNull(User.external.getIp(target.getSocketAddress())).getHostName());
             if (!targetUser.isLogged()) {
                 if (targetUser.isRegistered()) {
                     user.Message("&eStatus&7: &cNot logged");
@@ -176,7 +177,7 @@ public final class CheckPlayerCommand extends Command implements LockLoginBungee
             ProxiedPlayer target = plugin.getProxy().getPlayer(tName);
             User targetUser = new User(target);
 
-            Console.send("&eIP&7: &f" + target.getAddress().getAddress().getHostName());
+            Console.send("&eIP&7: &f" + Objects.requireNonNull(User.external.getIp(target.getSocketAddress())).getHostName());
             if (!targetUser.isLogged()) {
                 if (targetUser.isRegistered()) {
                     Console.send("&eStatus&7: &cNot logged");

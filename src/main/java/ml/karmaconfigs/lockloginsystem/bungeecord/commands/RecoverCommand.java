@@ -16,7 +16,7 @@ import net.md_5.bungee.api.plugin.Command;
 
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.net.InetSocketAddress;
+import java.net.InetAddress;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -72,9 +72,9 @@ public final class RecoverCommand extends Command implements LockLoginBungee, Bu
                                                 loader.inject();
                                             }
 
-                                            InetSocketAddress ip = player.getAddress();
+                                            InetAddress ip = User.external.getIp(player.getSocketAddress());
                                             if (ip != null) {
-                                                IPStorager storager = new IPStorager(module, ip.getAddress());
+                                                IPStorager storager = new IPStorager(module, ip);
                                                 storager.saveLastIP(player.getUniqueId());
                                                 user.Message(messages.Prefix() + messages.recoveryValidated());
                                                 user.setPassword(null);

@@ -213,6 +213,41 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Open the modules viewer GUI
+     *
+     * @param player the player that is trying to open the GUI
+     */
+    public final void openModulesGUI(final ProxiedPlayer player) {
+        if (plugin.getProxy().getPlayers().isEmpty())
+            return;
+
+        if (player != null) {
+            if (player.getServer() != null) {
+                ByteArrayOutputStream b = new ByteArrayOutputStream();
+                DataOutputStream message = new DataOutputStream(b);
+
+                ModuleSerializer serializer = new ModuleSerializer(player);
+                String serialized = serializer.serialize();
+
+                try {
+                    message.writeUTF("ModulesInfoData");
+                    message.writeUTF(serialized);
+
+                    try {
+                        player.getServer().getInfo().sendData("ll:info", b.toByteArray());
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                    }
+                } catch (Throwable e) {
+                    logger.scheduleLog(Level.GRAVE, e);
+                    logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                }
+            }
+        }
+    }
+
+    /**
      * Send a request to apply blind effects to
      * the player
      *

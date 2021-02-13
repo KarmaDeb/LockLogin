@@ -36,6 +36,7 @@ public final class ComponentMaker {
      *
      * @param text the text
      */
+    @SuppressWarnings("deprecation")
     public final void setHoverText(String text) {
         component.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, TextComponent.fromLegacyText(ChatColor.translateAlternateColorCodes('&', text))));
     }

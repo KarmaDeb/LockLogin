@@ -28,7 +28,7 @@ public final class IPStorager implements LockLoginSpigot {
     /**
      * Initialize the ip storager system
      *
-     * @param module the module is calling the API
+     * @param module  the module is calling the API
      * @param address the ip address
      */
     public IPStorager(final Module module, final InetAddress address) throws UnknownHostException {

@@ -20,7 +20,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public class Reflections {
 
-    public static final <T extends java.lang.reflect.AccessibleObject> T setAccessible(T t) {
+    public static <T extends java.lang.reflect.AccessibleObject> T setAccessible(T t) {
         t.setAccessible(true);
         return t;
     }

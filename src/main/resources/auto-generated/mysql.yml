@@ -34,6 +34,10 @@ MySQL:
   #connection, but your MySQL host needs
   #https
   SSL: false
+  #Ignore certificates so you can perform
+  #a connection for non-setup mysql hosts
+  #(not recommended)
+  IgnoreCertificates: false
 
 #MySQL connection options
 Connection:
