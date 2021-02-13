@@ -58,10 +58,6 @@
                             <pattern>ml.karmaconfigs.api</pattern>
                             <shadedPattern>ml.karmaconfigs.shaded.karmapi</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>dev.dbassett.skullcreator</pattern>
-                            <shadedPattern>ml.karmaconfigs.shaded.skullcreator</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
