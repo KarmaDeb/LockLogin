@@ -2,10 +2,10 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
@@ -30,7 +30,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
-import javax.mail.internet.InternetAddress;
 import java.net.InetAddress;
 import java.util.concurrent.TimeUnit;
 
@@ -201,13 +200,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             ProxiedPlayer player = e.getPlayer();
             User user = new User(player);
 
-            if (isValidEmailAddress(user.getEmail())) {
-                try {
-                    user.setEmail(user.getEmail(), false);
-                } catch (Throwable ignored) {
-                }
-            }
-
             if (!user.isLogged()) {
                 user.checkServer();
 
@@ -242,16 +234,5 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             dataSender.sendAccountStatus(player);
             dataSender.sendUUID(e.getPlayer().getUniqueId(), e.getPlayer().getServer());
         }, 1, TimeUnit.SECONDS);
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

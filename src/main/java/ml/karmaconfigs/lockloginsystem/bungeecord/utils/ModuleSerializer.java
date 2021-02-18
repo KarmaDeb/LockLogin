@@ -43,15 +43,20 @@ public final class ModuleSerializer implements LockLoginBungee {
         for (Plugin plugin : loaded_modules.keySet()) {
             HashSet<Module> modules = loaded_modules.getOrDefault(plugin, new HashSet<>());
 
-            //Format: <uuid>:{Owner=<Owner>,Name=<Name>,Author=<Author>,Version=<Version>,Description=<Description>,Enabled=<Status>;Owner...;}
+            //Format: <uuid>:{Owner=<Owner>,Name=<Name>,Author=<Author>,Version=<Version>,Description=<Description>,Enabled=<Status>,Updated=true,URL=<Update url>;Owner...;}
 
             for (Module module : modules) {
+                HashMap<Boolean, String> update_info = module.getUpdateInfo();
+                boolean outdated = update_info.containsKey(true);
+
                 serialized.append("Owner").append("=").append(module.owner().getDescription().getName()).append(",")
                         .append("Name").append("=").append(module.name()).append(",")
                         .append("Author").append("=").append(module.author()).append(",")
                         .append("Version").append("=").append(module.version()).append(",")
                         .append("Description").append("=").append(module.description()).append(",")
-                        .append("Enabled").append("=").append(true).append(";");
+                        .append("Enabled").append("=").append(true).append(",")
+                        .append("Outdated").append("=").append(outdated).append(",")
+                        .append("URL").append("=").append(update_info.get(outdated)).append(";");
             }
         }
 

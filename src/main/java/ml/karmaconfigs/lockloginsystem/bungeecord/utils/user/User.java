@@ -4,14 +4,11 @@ import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification3;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
-import ml.karmaconfigs.lockloginsystem.shared.mailer.Email;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -19,9 +16,6 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.Nullable;
 
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -48,8 +42,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
 
     private final static HashMap<ProxiedPlayer, Boolean> logStatus = new HashMap<>();
     private final static HashMap<ProxiedPlayer, Integer> playerTries = new HashMap<>();
-    private final static HashMap<ProxiedPlayer, String> ipAuth_codes = new HashMap<>();
-    private final static HashMap<ProxiedPlayer, String> password_codes = new HashMap<>();
     private final static HashSet<ProxiedPlayer> tempLog = new HashSet<>();
 
     private final ProxiedPlayer player;
@@ -86,101 +78,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (name != null && !name.equals(player.getName()))
                 sql.setName(player.getName());
         }
-    }
-
-    /**
-     * Set the player email
-     *
-     * @param email     the player email
-     * @param encrypted if the email is encrypted
-     */
-    public final void setEmail(String email, final boolean encrypted) {
-        try {
-            if (!encrypted) {
-                Codification3 insecure = new Codification3(email, false);
-                email = insecure.encrypt();
-            }
-        } catch (Throwable ignored) {
-        }
-
-        if (config.isYaml()) {
-            PlayerFile pf = new PlayerFile(player);
-            pf.setEmail(email);
-        } else {
-            Utils sql = new Utils(player);
-            sql.setEmail(email);
-        }
-    }
-
-    /**
-     * Send the player a recovery email
-     * if he lost his password
-     */
-    public final void sendRecoverEmail() {
-        if (password_codes.getOrDefault(player, "").isEmpty()) {
-            password_codes.put(player, StringUtils.randomString(16).toUpperCase());
-            plugin.getProxy().getScheduler().runAsync(plugin, () -> {
-                try {
-                    Mailer mailer = new Mailer();
-                    String name = player.getName();
-
-                    if (isValidEmailAddress(mailer.getEmail())) {
-                        Email email = new Email(mailer.getEmail(), mailer.getPassword());
-                        email.setOptions(mailer.getHost(), mailer.getPort(), mailer.useTLS());
-
-                        if (isValidEmailAddress(getEmail())) {
-                            email.sendMail(getEmail(), mailer.getPasswordSubject(name), name, config.ServerName(), password_codes.get(player), new File(plugin.getDataFolder() + File.separator + "mailer", "password_recovery.html"));
-                            Message(messages.Prefix() + messages.emailSent());
-                        } else {
-                            Message(messages.Prefix() + messages.emailDisabled());
-                        }
-                    }
-                } catch (Throwable ex) {
-                    logger.scheduleLog(Level.GRAVE, ex);
-                    logger.scheduleLog(Level.INFO, "Error while sending password recovery email to " + player.getName());
-                    Message(messages.Prefix() + messages.emailError());
-                }
-            });
-        }
-    }
-
-    /**
-     * Send the player a recovery email
-     * if he lost his password
-     */
-    public final void sendLoginEmail() {
-        if (ipAuth_codes.getOrDefault(player, "").isEmpty()) {
-            ipAuth_codes.put(player, StringUtils.randomString(8));
-            plugin.getProxy().getScheduler().runAsync(plugin, () -> {
-                try {
-                    Mailer mailer = new Mailer();
-                    String name = player.getName();
-
-                    if (isValidEmailAddress(mailer.getEmail())) {
-                        Email email = new Email(mailer.getEmail(), mailer.getPassword());
-                        email.setOptions(mailer.getHost(), mailer.getPort(), mailer.useTLS());
-
-                        if (isValidEmailAddress(getEmail())) {
-                            email.sendMail(getEmail(), mailer.getLoginLog(name), name, config.ServerName(), ipAuth_codes.get(player), new File(plugin.getDataFolder() + File.separator + "mailer", "login_alert.html"));
-                        } else {
-                            Message(messages.Prefix() + messages.emailDisabled());
-                        }
-                    }
-                } catch (Throwable ex) {
-                    logger.scheduleLog(Level.GRAVE, ex);
-                    logger.scheduleLog(Level.INFO, "Error while sending login confirmation email to " + player.getName());
-                    Message(messages.Prefix() + messages.emailError());
-                }
-            });
-        }
-    }
-
-    /**
-     * Remove the player codes
-     */
-    public final void removeCodes() {
-        ipAuth_codes.remove(player);
-        password_codes.remove(player);
     }
 
     /**
@@ -398,47 +295,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Check if the player needs ip validation
-     *
-     * @return if the player is queued for IP validation
-     */
-    public final boolean needsIpValidation() {
-        return !ipAuth_codes.getOrDefault(player, "").isEmpty();
-    }
-
-    /**
-     * Check if the player requested a password recovery
-     *
-     * @return if the player is queued for password recovery
-     */
-    public final boolean hasPasswordRecovery() {
-        return !password_codes.getOrDefault(player, "").isEmpty();
-    }
-
-    /**
-     * Check if the code the player typed
-     * is the correct code
-     *
-     * @param code the player code
-     * @return if the player code is correct
-     */
-    public final boolean validateCode(final String code) {
-        if (code.length() == 8) {
-            if (ipAuth_codes.getOrDefault(player, "").equals(code)) {
-                ipAuth_codes.remove(player);
-                return true;
-            }
-        } else {
-            if (password_codes.getOrDefault(player, "").equals(code)) {
-                password_codes.remove(player);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Check if the player is registered
      *
      * @return if the player is registered
@@ -497,21 +353,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
             }
         } else {
             return false;
-        }
-    }
-
-    /**
-     * Get the player email
-     *
-     * @return the player email
-     */
-    public final String getEmail() {
-        if (config.isYaml()) {
-            PlayerFile pf = new PlayerFile(player);
-            return pf.getEmail();
-        } else {
-            Utils sql = new Utils(player);
-            return sql.getEmail();
         }
     }
 
@@ -722,17 +563,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player, config.GetMaxTries());
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (AddressException ex) {
-            result = false;
-        }
-        return result;
     }
 
     public interface external {

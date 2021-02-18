@@ -36,7 +36,6 @@ public final class PlayerLeave implements Listener {
         }
 
         User user = new User(e.getPlayer());
-        user.removeCodes();
 
         IpData data = new IpData(temp_module, user.getIp());
         data.delIP();

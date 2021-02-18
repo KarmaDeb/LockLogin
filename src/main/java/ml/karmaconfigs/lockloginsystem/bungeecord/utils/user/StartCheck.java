@@ -79,7 +79,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                         if (p.isConnected()) {
                             dataSender.sendUUID(p.getUniqueId(), p.getServer());
                             User user = new User(p);
-                            if (user.isRegistered() && !user.hasPasswordRecovery()) {
+                            if (user.isRegistered()) {
                                 if (back != 0) {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
                                     if (!user.isLogged()) {
@@ -136,7 +136,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
     private void StartSendingMessage(ProxiedPlayer player, CheckType type) {
         msTask = plugin.getProxy().getScheduler().schedule(plugin, () -> {
             User user = new User(player);
-            if (!user.isLogged() && !user.hasPasswordRecovery()) {
+            if (!user.isLogged()) {
                 if (type.equals(CheckType.LOGIN)) {
                     sendAuthMessage(player, CheckType.LOGIN);
                 } else {

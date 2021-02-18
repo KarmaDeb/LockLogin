@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord;
 
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
+import ml.karmaconfigs.api.shared.StringUtils;
 
 /**
  * Private GSA code

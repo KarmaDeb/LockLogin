@@ -1,12 +1,12 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.BungeeListener;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;

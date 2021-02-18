@@ -59,10 +59,12 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
 
                             OfflineUser off_user = new OfflineUser(target);
                             if (off_user.exists()) {
-                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, player, off_user.getUUID());
 
-                                AltsAccountInventory alts_inv = new AltsAccountInventory(player, detected);
-                                alts_inv.openPage(0);
+                                if (detected != null) {
+                                    AltsAccountInventory alts_inv = new AltsAccountInventory(player, detected);
+                                    alts_inv.openPage(0);
+                                }
                             } else {
                                 user.Message(messages.Prefix() + messages.NeverPlayed(target));
                             }
@@ -95,13 +97,15 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
 
                         OfflineUser off_user = new OfflineUser(target);
                         if (off_user.exists()) {
-                            HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                            HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, null, off_user.getUUID());
 
-                            Console.send("&7------------ &eLockLogin alt accounts finder for " + target + " &7------------");
-                            System.out.println("\n");
-                            for (OfflineUser player : detected) {
-                                Console.send("&e" + player.getName());
-                                Console.send("  &7UUID: &e" + player.getUUID());
+                            if (detected != null) {
+                                Console.send("&7------------ &eLockLogin alt accounts finder for " + target + " &7------------");
+                                System.out.println("\n");
+                                for (OfflineUser player : detected) {
+                                    Console.send("&e" + player.getName());
+                                    Console.send("  &7UUID: &e" + player.getUUID());
+                                }
                             }
                         } else {
                             Console.send(messages.Prefix() + messages.NeverPlayed(target));

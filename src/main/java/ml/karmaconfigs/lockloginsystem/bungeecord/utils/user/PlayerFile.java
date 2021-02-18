@@ -156,32 +156,6 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Get the player email
-     *
-     * @return the player email
-     */
-    public final String getEmail() {
-        if (config.isYaml()) {
-            return manager.getString("Email");
-        } else {
-            return sql.getEmail();
-        }
-    }
-
-    /**
-     * Set the player email
-     *
-     * @param email the player email
-     */
-    public final void setEmail(final String email) {
-        if (config.isYaml()) {
-            manager.set("Email", email);
-        } else {
-            sql.setEmail(email);
-        }
-    }
-
-    /**
      * Get the player name
      *
      * @return the player name

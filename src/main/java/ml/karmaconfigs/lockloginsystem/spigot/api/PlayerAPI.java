@@ -9,11 +9,9 @@ import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerRegisterEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
 
@@ -332,22 +330,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                 User utils = new User(player);
 
                 if (utils.isRegistered()) {
-                    logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " unregistered to " + player.getName());
-
-                    if (config.TakeBack()) {
-                        LastLocation lastLocation = new LastLocation(player);
-                        lastLocation.saveLocation();
-                    }
-                    if (config.HandleSpawn()) {
-                        Spawn spawn = new Spawn();
-                        utils.Teleport(spawn.getSpawn());
-                    }
-
-                    utils.Kick("&eLockLogin" + "\n\n" + messages.AccountDeleted());
-                    utils.setLogStatus(false);
-                    utils.setTempLog(utils.has2FA());
-                    utils.setPassword("");
-                    new StartCheck(player, CheckType.REGISTER);
+                    utils.remove();
                 }
             }, (long) (20 * 1.5));
         }
@@ -509,7 +492,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
      */
     public final HashSet<OfflineUser> getAccounts() {
         if (player != null) {
-            return IPStorager.manager.getAlts(module, player.getUniqueId());
+            return IPStorager.manager.getAlts(module, null, player.getUniqueId());
         }
 
         return new HashSet<>();

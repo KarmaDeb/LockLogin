@@ -65,9 +65,3 @@ commands:
     description: LockLogin update and version checker
     aliases:
       - checkUpdates
-  setmail:
-    description: Set your email address
-  confirm:
-    description: Confirm your IP using the email confirmation code
-  recovery:
-    description: Request a recovery code to your email

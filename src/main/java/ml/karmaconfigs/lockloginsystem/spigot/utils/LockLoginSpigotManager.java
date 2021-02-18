@@ -2,7 +2,9 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
@@ -307,6 +309,14 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
                         user.Message(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
                     if (MessageGetter.manager.reload())
                         user.Message(SpigotFiles.messages.Prefix() + "&aMessages file reloaded!");
+
+                    File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
+                    FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
+                    allowedCMDs.copy(allowed_file);
+                    YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
+
+                    AllowedCommands commands = new AllowedCommands();
+                    commands.addAll(allowed.getStringList("AllowedCommands"));
                 }
 
                 if (unloaded) {
@@ -381,6 +391,14 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
                         Console.send(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
                     if (MessageGetter.manager.reload())
                         Console.send(SpigotFiles.messages.Prefix() + "&aMessages file reloaded");
+
+                    File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
+                    FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
+                    allowedCMDs.copy(allowed_file);
+                    YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
+
+                    AllowedCommands commands = new AllowedCommands();
+                    commands.addAll(allowed.getStringList("AllowedCommands"));
                 }
 
                 if (unloaded) {

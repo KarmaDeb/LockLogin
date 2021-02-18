@@ -2,7 +2,9 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
+import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
@@ -31,10 +33,12 @@ import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.YamlConfiguration;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -105,33 +109,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
      * Setup the plugin files
      */
     private void setupFiles() {
-        File login_alert = new File(plugin.getDataFolder() + File.separator + "mailer", "login_alert.html");
-        File password_recovery = new File(plugin.getDataFolder() + File.separator + "mailer", "password_recovery.html");
-
-        if (!login_alert.exists()) {
-            if (!login_alert.getParentFile().exists() && login_alert.getParentFile().mkdirs())
-                Console.send(plugin, "Created html templates folder for emails", Level.INFO);
-
-            InputStream stream = plugin.getResourceAsStream("auto-generated/login_alert.html");
-            if (stream != null)
-                try {
-                    Files.copy(stream, login_alert.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (Throwable ignored) {
-                }
-        }
-
-        if (!password_recovery.exists()) {
-            if (!password_recovery.getParentFile().exists() && password_recovery.getParentFile().mkdirs())
-                Console.send(plugin, "Created html templates folder for emails", Level.INFO);
-
-            InputStream stream = plugin.getResourceAsStream("auto-generated/password_recovery.html");
-            if (stream != null)
-                try {
-                    Files.copy(stream, password_recovery.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (Throwable ignored) {
-                }
-        }
-
         File config_file = new File(plugin.getDataFolder(), "config.yml");
         FileCopy config = new FileCopy(plugin, "configs/config.yml");
         config.copy(config_file);
@@ -221,19 +198,102 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         try {
             File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-            File mail_file = new File(plugin.getDataFolder(), "mail.yml");
 
             FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
-            FileCopy mailFile = new FileCopy(plugin, "auto-generated/mail.yml");
 
             allowedCMDs.copy(allowed_file);
-            mailFile.copy(mail_file);
 
             Configuration allowed = YamlConfiguration.getProvider(YamlConfiguration.class).load(allowed_file);
 
             AllowedCommands commands = new AllowedCommands();
             commands.addAll(allowed.getStringList("AllowedCommands"));
+            commands.add("recovery");
+            commands.add("lockloginmailer:recovery");
         } catch (Throwable ignored) {
+        }
+
+        try {
+            File mail = new File(plugin.getDataFolder(), "mail.yml");
+            if (mail.exists()) {
+                //Prepare plugin to migrate from LockLogin email system to LockLoginMailer module...
+                Configuration mailer = YamlConfiguration.getProvider(YamlConfiguration.class).load(mail);
+
+                String email = mailer.getString("Email", "");
+                assert email != null;
+
+                if (!email.replaceAll("\\s", "").isEmpty()) {
+                    Console.send(plugin, "Detected valid email configuration, migrating from LockLogin email system to LockLogin mailer module", Level.INFO);
+
+                    String password = mailer.getString("Password", "");
+                    boolean login_email = mailer.getBoolean("LoginEmail", true);
+
+                    String smtp_host = mailer.getString("SMTP.Host", "smtp.gmail.com");
+                    int smtp_port = mailer.getInt("SMTP.Port", 587);
+                    boolean use_tls = mailer.getBoolean("SMTP.TLS", true);
+
+                    String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
+                    String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
+
+                    File new_config = new File(plugin.getDataFolder().getParentFile() + File.separator + "LockLoginMailer", "config.yml");
+                    if (!new_config.exists()) {
+                        if (!new_config.getParentFile().exists())
+                            Files.createDirectories(new_config.getParentFile().toPath());
+
+                        Files.createFile(new_config.toPath());
+                    }
+
+                    FileCopy copy = new FileCopy(plugin, "auto-generated/mail.yml");
+                    copy.copy(new_config);
+
+                    Configuration new_cfg = YamlConfiguration.getProvider(YamlConfiguration.class).load(new_config);
+                    new_cfg.set("Email", email);
+                    new_cfg.set("Password", password);
+                    new_cfg.set("ConfirmEmails", true);
+                    new_cfg.set("VerifyIpChanges", login_email);
+                    new_cfg.set("SMTP.Host", smtp_host);
+                    new_cfg.set("SMTP.Port", smtp_port);
+                    new_cfg.set("SMTP.TLS", use_tls);
+                    new_cfg.set("Subjects.PasswordRecovery", recovery_subject);
+                    new_cfg.set("Subjects.LoginLog", confirm_subject);
+
+                    YamlConfiguration.getProvider(YamlConfiguration.class).save(new_cfg, new_config);
+
+                    YamlReloader reloader = new YamlReloader(plugin, new_config, "auto-generated/mail.yml");
+                    reloader.reloadAndCopy();
+
+                    Files.delete(mail.toPath());
+
+                    Console.send(plugin, "Downloading LockLoginMailer...", Level.INFO);
+
+                    File destJar = new File(plugin.getDataFolder().getParentFile(), "LockLoginMailer.jar");
+                    try {
+                        URL download_url = new URL("https://karmaconfigs.github.io/updates/LockLogin/modules/mailer/LockLoginMailer.jar");
+
+                        URLConnection connection = download_url.openConnection();
+                        connection.connect();
+
+                        InputStream input = new BufferedInputStream(download_url.openStream(), 1024);
+                        OutputStream output = new FileOutputStream(destJar);
+
+                        byte[] dataBuffer = new byte[1024];
+                        int bytesRead;
+                        while ((bytesRead = input.read(dataBuffer, 0, 1024)) != -1) {
+                            output.write(dataBuffer, 0, bytesRead);
+                        }
+
+                        output.flush();
+                        output.close();
+                        input.close();
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
+                    } finally {
+                        LockLoginBungeeManager manager = new LockLoginBungeeManager();
+                        manager.loadPlugin(destJar);
+                    }
+                }
+            }
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
 
         try {
@@ -263,9 +323,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ResetPinCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new CheckUpdateCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new MigrateCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new SetMailCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new ConfirmCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new RecoverCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ModuleListCommand());
     }
 

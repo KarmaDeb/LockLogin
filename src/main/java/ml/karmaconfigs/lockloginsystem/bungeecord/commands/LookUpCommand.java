@@ -60,9 +60,11 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
 
                             OfflineUser off_user = new OfflineUser(target);
                             if (off_user.exists()) {
-                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                                HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, player, off_user.getUUID());
 
-                                dataSender.openLookupGUI(player, detected);
+                                if (detected != null) {
+                                    dataSender.openLookupGUI(player, detected);
+                                }
                             } else {
                                 user.Message(messages.Prefix() + messages.NeverPlayed(target));
                             }
@@ -95,13 +97,15 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
 
                         OfflineUser off_user = new OfflineUser(target);
                         if (off_user.exists()) {
-                            HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, off_user.getUUID());
+                            HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, null, off_user.getUUID());
 
-                            Console.send("&7------------ &eLockLogin alt accounts finder for " + target + " &7------------");
-                            System.out.println("\n");
-                            for (OfflineUser player : detected) {
-                                Console.send("&e" + player.getName());
-                                Console.send("  &7UUID: &e" + player.getUUID());
+                            if (detected != null) {
+                                Console.send("&7------------ &eLockLogin alt accounts finder for " + target + " &7------------");
+                                System.out.println("\n");
+                                for (OfflineUser player : detected) {
+                                    Console.send("&e" + player.getName());
+                                    Console.send("  &7UUID: &e" + player.getUUID());
+                                }
                             }
                         } else {
                             Console.send(messages.Prefix() + messages.NeverPlayed(target));

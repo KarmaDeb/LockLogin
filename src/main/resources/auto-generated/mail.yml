@@ -20,12 +20,23 @@ Email: ""
 #and send the email
 Password: "MySecureP@55word32"
 
+#NOT IMPLEMENTED YET
+#-------------------
+#Recommended: true
+#While this enabled, when a
+#player changes his email, he
+#will need to confirm it thought
+#his current email.
+#The first time you set an email
+#you won't need to confirm anything
+ConfirmEmails: true
+
 #Send an email to the player when
 #he logs in from a different
 #ip ( may help players to
 #let them know if their password
 #has been leaked )
-LoginEmail: true
+VerifyIpChanges: true
 
 #SMTP configuration
 SMTP:
@@ -33,7 +44,16 @@ SMTP:
   Port: 587
   TLS: true
 
+#Email templates themes name, you can find them by
+#opening the plugins/LockLoginMailer/templates/<name>.html and
+#searching for the comment <!-- TEMPLATE: ### -->, where ### is the
+#template name
+Themes:
+  PasswordRecovery: "default"
+  LoginLog: "default"
+
 #Email subject messages
 Subjects:
-  PasswordRecovery: "[{server}] Recover your account {player}"
-  LoginLog: "[{server}] New login in your account: {player}"
+  PasswordRecovery: "[MyServer] Recover your account {player}"
+  LoginLog: "[MyServer] New login in your account: {player}"
+  #(NOT IMPLEMENTED) ConfirmChange: "[MyServer] Email change confirm for {player}"

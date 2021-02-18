@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
@@ -9,7 +10,6 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
@@ -22,8 +22,6 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.metadata.FixedMetadataValue;
-
-import javax.mail.internet.InternetAddress;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -144,13 +142,6 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
         Player player = e.getPlayer();
         User user = new User(player);
 
-        if (isValidEmailAddress(user.getEmail())) {
-            try {
-                user.setEmail(user.getEmail(), false);
-            } catch (Throwable ignored) {
-            }
-        }
-
         if (!player.hasMetadata("LockLoginUser")) {
             player.setMetadata("LockLoginUser", new FixedMetadataValue(plugin, player.getUniqueId()));
         }
@@ -172,16 +163,5 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
 
             user.Teleport(spawn.getSpawn());
         }
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

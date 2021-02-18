@@ -1,11 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
@@ -17,10 +14,8 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
-import javax.mail.internet.InternetAddress;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.UUID;
@@ -79,31 +74,6 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                             case SUCCESS:
                                 user.Message(event.getAuthMessage());
                                 if (valid_code) {
-                                    Mailer mailer = new Mailer();
-                                    if (isValidEmailAddress(mailer.getEmail()) && mailer.sendLoginEmail()) {
-                                        try {
-                                            TempModule module = new TempModule();
-
-                                            if (!ModuleLoader.manager.isLoaded(module)) {
-                                                ModuleLoader loader = new ModuleLoader(module);
-                                                loader.inject();
-                                            }
-
-                                            InetAddress ip = user.getIp();
-
-                                            if (ip != null) {
-                                                IPStorager storager = new IPStorager(module, ip);
-
-                                                if (storager.differentIP(player.getUniqueId()) && isValidEmailAddress(user.getEmail()) && mailer.sendLoginEmail()) {
-                                                    user.sendLoginEmail();
-                                                } else {
-                                                    storager.saveLastIP(player.getUniqueId());
-                                                }
-                                            }
-                                        } catch (Throwable ignored) {
-                                        }
-                                    }
-
                                     user.setLogStatus(true);
 
                                     new Timer().schedule(new TimerTask() {
@@ -141,52 +111,11 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 user.Message(event.getAuthMessage());
                                 break;
                         }
-
-                        /*if (utils.PasswordIsOk()) {
-                            if (!user.has2FA()) {
-                                user.setTempLog(false);
-                                user.Message(messages.Prefix() + messages.Logged(player));
-
-                                new Timer().schedule(new TimerTask() {
-                                    @Override
-                                    public void run() {
-                                        if (config.EnableMain()) {
-                                            if (lobbyCheck.MainIsWorking()) {
-                                                user.sendTo(lobbyCheck.getMain());
-                                            }
-                                        }
-                                    }
-                                }, TimeUnit.SECONDS.toMillis(1));
-
-                                dataSender.sendAccountStatus(player);
-                            } else {
-                                user.setTempLog(true);
-                                user.Message(messages.GAuthInstructions());
-                            }
-                            dataSender.closePinGUI(player);
-                            dataSender.blindEffect(player, false, config.LoginNausea());
-                        } else {
-                            dataSender.blindEffect(player, true, config.LoginNausea());
-                            dataSender.openPinGUI(player);
-                        }*/
-
-
                     }
                 }
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
         }
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

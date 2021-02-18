@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.MySQLData;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;

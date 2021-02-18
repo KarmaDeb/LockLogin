@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles;
 
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -46,7 +46,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has a world
      */
     public final boolean hasWorld() {
-        return !StringUtils.isNull(manager.get("Spawn.World"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.World"));
     }
 
     /**
@@ -56,7 +56,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has X value
      */
     public final boolean hasX() {
-        return !StringUtils.isNull(manager.get("Spawn.X"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.X"));
     }
 
     /**
@@ -66,7 +66,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has Y value
      */
     public final boolean hasY() {
-        return !StringUtils.isNull(manager.get("Spawn.Y"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.Y"));
     }
 
     /**
@@ -76,7 +76,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has Z value
      */
     public final boolean hasZ() {
-        return !StringUtils.isNull(manager.get("Spawn.Z"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.Z"));
     }
 
     /**
@@ -86,7 +86,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has pitch
      */
     public final boolean hasPitch() {
-        return !StringUtils.isNull(manager.get("Spawn.Pitch"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.Pitch"));
     }
 
     /**
@@ -96,7 +96,7 @@ public final class SpawnData implements LockLoginSpigot {
      * @return if the plugin spawn has yaw
      */
     public final boolean hasYaw() {
-        return !StringUtils.isNull(manager.get("Spawn.Yaw"));
+        return !StringUtils.isNullOrEmpty(manager.get("Spawn.Yaw"));
     }
 
     /**

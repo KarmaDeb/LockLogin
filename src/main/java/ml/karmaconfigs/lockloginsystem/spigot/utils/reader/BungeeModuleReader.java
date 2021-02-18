@@ -28,6 +28,8 @@ public final class BungeeModuleReader {
             String version = "";
             String description = "";
             boolean enabled = true;
+            boolean outdated = false;
+            String updateURL = "";
 
             HashSet<BungeeModule> detected_modules = new HashSet<>();
 
@@ -59,12 +61,18 @@ public final class BungeeModuleReader {
                         case "Enabled":
                             enabled = Boolean.parseBoolean(property_value);
                             break;
+                        case "Outdated":
+                            outdated = Boolean.parseBoolean(property_value);
+                            break;
+                        case "URL":
+                            updateURL = property_value;
+                            break;
                         default:
                             break;
                     }
                 }
 
-                BungeeModule decoded_module = new BungeeModule(owner, name, author, version, description, enabled);
+                BungeeModule decoded_module = new BungeeModule(owner, name, author, version, description, enabled, outdated, updateURL);
                 detected_modules.add(decoded_module);
             }
 
@@ -84,6 +92,8 @@ public final class BungeeModuleReader {
             String version = "";
             String description = "";
             boolean enabled = true;
+            boolean outdated = false;
+            String updateURL = "";
 
             for (String properties : prop_values) {
                 String[] final_data = properties.split("=");
@@ -110,12 +120,18 @@ public final class BungeeModuleReader {
                     case "Enabled":
                         enabled = Boolean.parseBoolean(property_value);
                         break;
+                    case "Outdated":
+                        outdated = Boolean.parseBoolean(property_value);
+                        break;
+                    case "URL":
+                        updateURL = property_value;
+                        break;
                     default:
                         break;
                 }
             }
 
-            BungeeModule decoded_module = new BungeeModule(owner, name, author, version, description, enabled);
+            BungeeModule decoded_module = new BungeeModule(owner, name, author, version, description, enabled, outdated, updateURL);
             String module_owner = decoded_module.getName();
 
             HashSet<BungeeModule> stored_modules = modules.getOrDefault(module_owner, new HashSet<>());

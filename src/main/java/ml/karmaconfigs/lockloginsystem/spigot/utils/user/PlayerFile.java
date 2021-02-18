@@ -91,7 +91,6 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
             boolean fly = old.getBoolean("Fly");
 
             manager.set("Player", name);
-            manager.set("Email", "");
             manager.set("UUID", player.getUniqueId().toString());
             manager.set("Password", password);
             manager.set("Pin", "");
@@ -134,24 +133,6 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
                 manager.set("UUID", player.getUniqueId().toString());
             }
         }
-    }
-
-    /**
-     * Get the player account email
-     *
-     * @return the player email
-     */
-    public final String getEmail() {
-        return manager.getString("Email");
-    }
-
-    /**
-     * Set the player account email
-     *
-     * @param email the email address
-     */
-    public final void setEmail(final String email) {
-        manager.set("Email", email);
     }
 
     /**

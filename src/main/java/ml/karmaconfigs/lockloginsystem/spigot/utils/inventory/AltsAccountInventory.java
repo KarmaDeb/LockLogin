@@ -1,8 +1,11 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import ml.karmaconfigs.api.spigot.StringUtils;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
+import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -15,6 +18,10 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 public final class AltsAccountInventory implements InventoryHolder, LockLoginSpigot {
@@ -35,7 +42,7 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
         Inventory page = getBlankPage();
 
         for (OfflineUser player : players) {
-            ItemStack item = getSkull(player.getUUID());
+            ItemStack item = getPlayerHead(player.getName());
             ItemMeta meta = item.getItemMeta();
             assert meta != null;
 
@@ -69,11 +76,11 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
             Inventory page = getBlankPage();
 
             for (UUID uuid : uuids) {
-                ItemStack item = getSkull(uuid);
+                OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+
+                ItemStack item = getPlayerHead(player.getName());
                 ItemMeta meta = item.getItemMeta();
                 assert meta != null;
-
-                OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
 
                 meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
                 if (!player.getUniqueId().equals(id)) {
@@ -96,33 +103,82 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
     /**
      * Get a skull item with the specified owner
      *
-     * @param owner the owner
      * @return a SkullItem
      */
     @SuppressWarnings("deprecation")
-    private ItemStack getSkull(final UUID owner) {
+    private static ItemStack getSkull() {
         ItemStack skull;
 
-        boolean legacy = false;
         try {
             skull = new ItemStack(Material.PLAYER_HEAD, 1);
         } catch (Throwable ex) {
             skull = new ItemStack(Material.valueOf("SKULL_ITEM"), 1, (byte) 3);
-            legacy = true;
-        }
-
-        if (owner != null) {
-            SkullMeta meta = (SkullMeta) skull.getItemMeta();
-            assert meta != null;
-
-            if (legacy) {
-                meta.setOwner(plugin.getServer().getOfflinePlayer(owner).getName());
-            } else {
-                meta.setOwningPlayer(plugin.getServer().getOfflinePlayer(owner));
-            }
         }
 
         return skull;
+    }
+
+    @SuppressWarnings("deprecation")
+    private static ItemStack getPlayerHead(String owner) {
+        String value = getHeadValue(owner);
+        if (value == null)
+            value = "";
+
+        ItemStack skull = getSkull();
+        UUID hashAsId = new UUID(value.hashCode(), value.hashCode());
+        return Bukkit.getUnsafe().modifyItemStack(skull,
+                "{SkullOwner:{Id:\"" + hashAsId + "\",Properties:{textures:[{Value:\"" + value + "\"}]}}}"
+        );
+    }
+
+    private static String getHeadValue(String name){
+        try {
+            String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
+
+            Gson g = new Gson();
+            JsonObject obj = g.fromJson(result, JsonObject.class);
+
+            String uid = obj.get("id").toString().replace("\"","");
+            String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uid);
+
+            obj = g.fromJson(signature, JsonObject.class);
+
+            String value = obj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
+            String decoded = new String(Base64.getDecoder().decode(value));
+
+            obj = g.fromJson(decoded,JsonObject.class);
+
+            String skinURL = obj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
+
+            byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skinURL + "\"}}}").getBytes();
+
+            return new String(Base64.getEncoder().encode(skinByte));
+        } catch (Exception ignored) {}
+
+        return null;
+    }
+    
+    private static String getURLContent(String urlStr) {
+        URL url;
+        BufferedReader in = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            url = new URL(urlStr);
+            in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8) );
+            String str;
+            while((str = in.readLine()) != null) {
+                sb.append( str );
+            }
+        } catch (Throwable ignored) {
+        } finally {
+            try {
+                if(in!=null) {
+                    in.close();
+                }
+            }catch(Throwable ignored) {}
+        }
+
+        return sb.toString();
     }
 
     /**

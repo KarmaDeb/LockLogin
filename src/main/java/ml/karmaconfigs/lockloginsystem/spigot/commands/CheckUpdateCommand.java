@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.StringUtils;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;

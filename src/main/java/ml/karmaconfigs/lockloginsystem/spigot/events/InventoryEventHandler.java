@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.AltsAccountInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.ModuleListInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.Numbers;

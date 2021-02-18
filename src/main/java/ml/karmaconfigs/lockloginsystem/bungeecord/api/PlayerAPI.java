@@ -314,14 +314,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                 if (utils.isRegistered()) {
                     logger.scheduleLog(Level.INFO, "Module " + module.name() + " by " + module.author() + " unregistered to " + player.getName());
 
-                    utils.Kick("&eLockLogin" + "\n\n" + messages.AccountDeleted());
-                    utils.setLogStatus(false);
-                    utils.setTempLog(utils.has2FA());
-                    utils.setPassword("");
-                    LobbyChecker checker = new LobbyChecker();
-                    if (checker.AuthOk() && checker.AuthIsWorking()) {
-                        utils.sendTo(checker.getAuth());
-                    }
+                    utils.remove();
                 }
             }, (long) 1.5, TimeUnit.SECONDS);
         }
@@ -449,7 +442,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
      */
     public final HashSet<OfflineUser> getAccounts() {
         if (player != null) {
-            return IPStorager.manager.getAlts(module, player.getUniqueId());
+            return IPStorager.manager.getAlts(module, null, player.getUniqueId());
         }
 
         return new HashSet<>();

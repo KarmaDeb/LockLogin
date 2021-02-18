@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.InsertInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.filemigration.FileInserter;
@@ -203,7 +203,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                     ModuleListInventory inv = new ModuleListInventory(player);
                                     inv.openPage(0);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
+                                    user.Message(messages.Prefix() + messages.PermissionError(modulePermission.getName()));
                                 }
                             } else {
                                 user.Message(messages.Prefix() + "&cUnknown sub-command, /locklogin [migrate|applyUpdates|modules]");

@@ -52,58 +52,41 @@ public final class Main extends Plugin {
             File codecs = new File(libs_folder, "CommonsCodec.jar");
             File goauth = new File(libs_folder, "GoogleAuth.jar");
             File slf4j = new File(libs_folder, "slf4j.jar");
-            File sunmailer = new File(libs_folder, "JavaxMail.jar");
-            File mailer = new File(libs_folder, "JavaxMail-API.jar");
-            File activation = new File(libs_folder, "JavaxAction.jar");
 
             JarInjector hikari_injector = new JarInjector(hikari);
             JarInjector codecs_injector = new JarInjector(codecs);
             JarInjector goauth_injector = new JarInjector(goauth);
             JarInjector slf4j_injector = new JarInjector(slf4j);
-            JarInjector mailer_injector = new JarInjector(sunmailer);
-            JarInjector mailer_api_injector = new JarInjector(mailer);
-            JarInjector activation_injector = new JarInjector(activation);
 
-            hikari_injector.download(Dependency.hikari);
-            codecs_injector.download(Dependency.commons);
-            goauth_injector.download(Dependency.google);
-            slf4j_injector.download(Dependency.slf4j);
-            mailer_injector.download(Dependency.sunmailer);
-            mailer_api_injector.download(Dependency.mailer);
-            activation_injector.download(Dependency.activation);
-
-            if (hikari_injector.isDownloaded() && codecs_injector.isDownloaded() && goauth_injector.isDownloaded() && slf4j_injector.isDownloaded() && mailer_injector.isDownloaded() && mailer_api_injector.isDownloaded() && activation_injector.isDownloaded()) {
-                hikari_injector.inject(this);
-                codecs_injector.inject(this);
-                goauth_injector.inject(this);
-                slf4j_injector.inject(this);
-                mailer_injector.inject(this);
-                mailer_api_injector.inject(this);
-                activation_injector.inject(this);
-
-                if (new ConfigGetter().UpdateSelf()) {
-                    String dir = getDataFolder().getPath().replaceAll("\\\\", "/");
-
-                    File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-                    File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
-
-                    updatePending = updatedLockLogin.exists();
-                }
-                if (updatePending) {
-                    getProxy().getScheduler().schedule(Main.this, () ->
-                            new LockLoginBungeeManager().applyUpdate(null), 10, TimeUnit.SECONDS);
-                } else {
-                    new PluginManagerBungee().enable();
-                }
-
-                Logger logger = new Logger(Main.this);
-                logger.scheduleLog(Level.GRAVE, "LockLogin initialized");
-            } else {
-                Logger logger = new Logger(this);
-
-                logger.scheduleLog(Level.GRAVE, "An error occurred while trying to load LockLogin ( dependency injection related )");
-                Console.send(this, "An error occurred while trying to enable LockLogin, check /LockLogin/logs for more info", Level.GRAVE);
+            if (!hikari_injector.isDownloaded() || !codecs_injector.isDownloaded() || !goauth_injector.isDownloaded() || !slf4j_injector.isDownloaded()) {
+                hikari_injector.download(Dependency.hikari);
+                codecs_injector.download(Dependency.commons);
+                goauth_injector.download(Dependency.google);
+                slf4j_injector.download(Dependency.slf4j);
             }
+
+            hikari_injector.inject(this);
+            codecs_injector.inject(this);
+            goauth_injector.inject(this);
+            slf4j_injector.inject(this);
+
+            if (new ConfigGetter().UpdateSelf()) {
+                String dir = getDataFolder().getPath().replaceAll("\\\\", "/");
+
+                File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+                File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
+
+                updatePending = updatedLockLogin.exists();
+            }
+            if (updatePending) {
+                getProxy().getScheduler().schedule(Main.this, () ->
+                        new LockLoginBungeeManager().applyUpdate(null), 10, TimeUnit.SECONDS);
+            } else {
+                new PluginManagerBungee().enable();
+            }
+
+            Logger logger = new Logger(Main.this);
+            logger.scheduleLog(Level.GRAVE, "LockLogin initialized");
         } catch (Throwable e) {
             Logger logger = new Logger(this);
 

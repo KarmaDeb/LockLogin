@@ -2,11 +2,8 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
@@ -18,8 +15,6 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
 
-import javax.mail.internet.InternetAddress;
-import java.net.InetAddress;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
@@ -99,31 +94,6 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                     case SUCCESS_TEMP:
                                         user.Message(event.getAuthMessage());
                                         if (valid_code) {
-                                            Mailer mailer = new Mailer();
-                                            if (isValidEmailAddress(mailer.getEmail()) && mailer.sendLoginEmail()) {
-                                                try {
-                                                    TempModule module = new TempModule();
-
-                                                    if (!ModuleLoader.manager.isLoaded(module)) {
-                                                        ModuleLoader loader = new ModuleLoader(module);
-                                                        loader.inject();
-                                                    }
-
-                                                    InetAddress ip = user.getIp();
-
-                                                    if (ip != null) {
-                                                        IPStorager storager = new IPStorager(module, ip);
-
-                                                        if (storager.differentIP(player.getUniqueId()) && isValidEmailAddress(user.getEmail()) && mailer.sendLoginEmail()) {
-                                                            user.sendLoginEmail();
-                                                        } else {
-                                                            storager.saveLastIP(player.getUniqueId());
-                                                        }
-                                                    }
-                                                } catch (Throwable ignored) {
-                                                }
-                                            }
-
                                             user.setLogStatus(true);
                                             user.setTempLog(false);
 
@@ -274,16 +244,5 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

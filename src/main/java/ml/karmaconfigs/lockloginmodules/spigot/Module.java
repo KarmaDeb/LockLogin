@@ -3,8 +3,9 @@ package ml.karmaconfigs.lockloginmodules.spigot;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
-import java.util.List;
+import java.io.InputStream;
+import java.net.URL;
+import java.util.*;
 
 public abstract class Module {
 
@@ -23,9 +24,48 @@ public abstract class Module {
     @NotNull
     public abstract String description();
 
+    public int spigot_resource_id() {
+        return 75156;
+    }
+
     @NotNull
-    @Deprecated
     public abstract String author_url();
+
+    public final HashMap<Boolean, String> getUpdateInfo() {
+        HashMap<Boolean, String> update_info = new HashMap<>();
+        try {
+            if (!author_url().endsWith(".txt")) {
+                URL spigot_url = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + spigot_resource_id());
+                InputStream input = spigot_url.openStream();
+                Scanner scanner = new Scanner(input);
+
+                String latest = null;
+                if (scanner.hasNext())
+                    latest = scanner.next();
+
+                boolean outdated = latest != null && !latest.equalsIgnoreCase(version());
+                update_info.put(outdated, "https://www.spigotmc.org/resources/" + spigot_resource_id());
+            } else {
+                URL custom_url = new URL(author_url());
+                InputStream input = custom_url.openStream();
+                Scanner scanner = new Scanner(input);
+
+                List<String> lines = new ArrayList<>();
+                while (scanner.hasNext()) {
+                    lines.add(scanner.next());
+                }
+
+                String latest = lines.get(0);
+                String update_url = lines.get(1);
+
+                boolean outdated = latest != null && !latest.equalsIgnoreCase(version());
+                update_info.put(outdated, update_url);
+            }
+        } catch (Throwable ignored) {
+        }
+
+        return update_info;
+    }
 
     public final List<String> getDescription() {
         String description = "&7" + description();

@@ -9,8 +9,11 @@ public final class BungeeModule {
     private final String name;
     private final String author;
     private final String version;
-    private final boolean enabled;
     private final String description;
+    private final boolean enabled;
+    private final boolean outdated;
+    private final String updateURL;
+
 
     /**
      * Initialize the bungee module class
@@ -21,14 +24,18 @@ public final class BungeeModule {
      * @param module_version     the module version
      * @param module_description the module description
      * @param module_status      the module status
+     * @param outdated           if the module is outdated
+     * @param update_url         the module update url
      */
-    public BungeeModule(final String module_owner, final String module_name, final String module_author, final String module_version, final String module_description, final boolean module_status) {
+    public BungeeModule(final String module_owner, final String module_name, final String module_author, final String module_version, final String module_description, final boolean module_status, final boolean module_outdated, final String update_url) {
         owner = parse(module_owner);
         name = parse(module_name);
         author = parse(module_author);
         version = parse(module_version);
         description = parse(module_description);
         enabled = module_status;
+        outdated = module_outdated;
+        updateURL = update_url;
     }
 
     /**
@@ -82,6 +89,24 @@ public final class BungeeModule {
      */
     public final String getVersion() {
         return version;
+    }
+
+    /**
+     * Check if the module is outdated
+     *
+     * @return if the module is outdated
+     */
+    public final boolean isOutdated() {
+        return outdated;
+    }
+
+    /**
+     * Get the module update url
+     *
+     * @return the module update url
+     */
+    public final String getUpdateURL() {
+        return updateURL;
     }
 
     /**

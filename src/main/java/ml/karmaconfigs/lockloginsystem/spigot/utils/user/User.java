@@ -3,25 +3,20 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.KarmaFile;
 import ml.karmaconfigs.api.spigot.reflections.TitleMessage;
-import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification3;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
-import ml.karmaconfigs.lockloginsystem.shared.mailer.Email;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -30,8 +25,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
-import javax.mail.internet.InternetAddress;
-import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -56,8 +49,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     private final static HashMap<Player, Boolean> tempLog = new HashMap<>();
     private final static HashMap<Player, Integer> playerTries = new HashMap<>();
     private final static HashMap<Player, Collection<PotionEffect>> playerEffects = new HashMap<>();
-    private final static HashMap<Player, String> ipAuth_codes = new HashMap<>();
-    private final static HashMap<Player, String> password_codes = new HashMap<>();
 
     private final Player player;
 
@@ -97,101 +88,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                     sql.setName(player.getName());
             }
         }
-    }
-
-    /**
-     * Set the player email
-     *
-     * @param email     the player email
-     * @param encrypted if the email is encrypted
-     */
-    public final void setEmail(String email, final boolean encrypted) {
-        try {
-            if (!encrypted) {
-                Codification3 insecure = new Codification3(email, false);
-                email = insecure.encrypt();
-            }
-        } catch (Throwable ignored) {
-        }
-
-        if (config.isYaml()) {
-            PlayerFile pf = new PlayerFile(player);
-            pf.setEmail(email);
-        } else {
-            Utils sql = new Utils(player);
-            sql.setEmail(email);
-        }
-    }
-
-    /**
-     * Send the player a recovery email
-     * if he lost his password
-     */
-    public final void sendRecoverEmail() {
-        if (password_codes.getOrDefault(player, "").isEmpty()) {
-            password_codes.put(player, StringUtils.randomString(16).toUpperCase());
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    Mailer mailer = new Mailer();
-                    String name = plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName();
-
-                    if (isValidEmailAddress(mailer.getEmail())) {
-                        Email email = new Email(mailer.getEmail(), mailer.getPassword());
-                        email.setOptions(mailer.getHost(), mailer.getPort(), mailer.useTLS());
-
-                        if (isValidEmailAddress(getEmail())) {
-                            email.sendMail(getEmail(), mailer.getPasswordSubject(name), name, config.ServerName(), password_codes.get(player), new File(plugin.getDataFolder() + File.separator + "mailer", "password_recovery.html"));
-                            Message(messages.Prefix() + messages.emailSent());
-                        } else {
-                            Message(messages.Prefix() + messages.emailDisabled());
-                        }
-                    }
-                } catch (Throwable ex) {
-                    logger.scheduleLog(Level.GRAVE, ex);
-                    logger.scheduleLog(Level.INFO, "Error while sending password recovery email to " + player.getName());
-                    Message(messages.Prefix() + messages.emailError());
-                }
-            });
-        }
-    }
-
-    /**
-     * Send the player a recovery email
-     * if he lost his password
-     */
-    public final void sendLoginEmail() {
-        if (ipAuth_codes.getOrDefault(player, "").isEmpty()) {
-            ipAuth_codes.put(player, StringUtils.randomString(8));
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                try {
-                    Mailer mailer = new Mailer();
-                    String name = plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName();
-
-                    if (isValidEmailAddress(mailer.getEmail())) {
-                        Email email = new Email(mailer.getEmail(), mailer.getPassword());
-                        email.setOptions(mailer.getHost(), mailer.getPort(), mailer.useTLS());
-
-                        if (isValidEmailAddress(getEmail())) {
-                            email.sendMail(getEmail(), mailer.getLoginLog(name), name, config.ServerName(), ipAuth_codes.get(player), new File(plugin.getDataFolder() + File.separator + "mailer", "login_alert.html"));
-                        } else {
-                            Message(messages.Prefix() + messages.emailDisabled());
-                        }
-                    }
-                } catch (Throwable ex) {
-                    logger.scheduleLog(Level.GRAVE, ex);
-                    logger.scheduleLog(Level.INFO, "Error while sending login confirmation email to " + player.getName());
-                    Message(messages.Prefix() + messages.emailError());
-                }
-            });
-        }
-    }
-
-    /**
-     * Remove player authentication codes
-     */
-    public final void removeCodes() {
-        ipAuth_codes.remove(player);
-        password_codes.remove(player);
     }
 
     /**
@@ -370,27 +266,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                             }
 
                             player.setAllowFlight(hasFly());
-
-                            Mailer mailer = new Mailer();
-                            if (!isValidEmailAddress(mailer.getEmail()) && mailer.sendLoginEmail()) {
-                                try {
-                                    TempModule module = new TempModule();
-
-                                    if (!ModuleLoader.manager.isLoaded(module)) {
-                                        ModuleLoader loader = new ModuleLoader(module);
-                                        loader.inject();
-                                    }
-
-                                    IPStorager storager = new IPStorager(module, player.getAddress().getAddress());
-
-                                    if (storager.differentIP(player.getUniqueId()) && isValidEmailAddress(getEmail()) && mailer.sendLoginEmail()) {
-                                        sendLoginEmail();
-                                    } else {
-                                        storager.saveLastIP(player.getUniqueId());
-                                    }
-                                } catch (Throwable ignored) {
-                                }
-                            }
                         } else {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                         }
@@ -709,47 +584,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Check if the player needs ip validation
-     *
-     * @return if the player is queued for IP validation
-     */
-    public final boolean needsIpValidation() {
-        return !ipAuth_codes.getOrDefault(player, "").isEmpty();
-    }
-
-    /**
-     * Check if the player requested a password recovery
-     *
-     * @return if the player is queued for password recovery
-     */
-    public final boolean hasPasswordRecovery() {
-        return !password_codes.getOrDefault(player, "").isEmpty();
-    }
-
-    /**
-     * Check if the code the player typed
-     * is the correct code
-     *
-     * @param code the player code
-     * @return if the player code is correct
-     */
-    public final boolean validateCode(final String code) {
-        if (code.length() == 8) {
-            if (ipAuth_codes.getOrDefault(player, "").equals(code)) {
-                ipAuth_codes.remove(player);
-                return true;
-            }
-        } else {
-            if (password_codes.getOrDefault(player, "").equals(code)) {
-                password_codes.remove(player);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
      * Check if the player is registered
      *
      * @return if the player is registered
@@ -919,29 +753,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Get the player email
-     *
-     * @return the player email
-     */
-    public final String getEmail() {
-        String email;
-        if (config.isYaml()) {
-            PlayerFile pf = new PlayerFile(player);
-            email = pf.getEmail();
-        } else {
-            Utils sql = new Utils(player);
-            email = sql.getEmail();
-        }
-
-        try {
-            Codification3 insecure = new Codification3(email, true);
-            return insecure.decrypt();
-        } catch (Throwable ex) {
-            return email;
-        }
-    }
-
-    /**
      * Get the player password
      *
      * @return the player password
@@ -1086,17 +897,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player, config.GetMaxTries());
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }
 

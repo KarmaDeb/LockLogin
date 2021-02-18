@@ -74,7 +74,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                     public void run() {
                         if (player.isOnline()) {
                             User user = new User(player);
-                            if (user.isRegistered() && !user.hasPasswordRecovery()) {
+                            if (user.isRegistered()) {
                                 if (back != 0) {
                                     if (user.isLogged()) {
                                         user.sendTitle("", "", 0, 5, 0);
@@ -133,11 +133,8 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
             @Override
             public void run() {
                 User user = new User(player);
-                boolean send = true;
-                if (type.equals(CheckType.LOGIN))
-                    send = !user.hasPasswordRecovery();
 
-                if (!user.isLogged() && send) {
+                if (!user.isLogged()) {
                     sendAuthMessage(player, type);
                 } else {
                     cancel();

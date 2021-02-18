@@ -1,69 +1,135 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles;
 
+import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.KarmaFile;
+import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
+import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
+import org.apache.commons.io.IOUtils;
+import org.bukkit.entity.Player;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
 
+import java.io.File;
 import java.net.InetAddress;
+import java.net.URL;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 public final class IPStorager implements LockLoginSpigot {
 
-    private final static KarmaFile ip_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
-    private final static KarmaFile user_ips = new KarmaFile(plugin, "ips_v3_users.lldb", "userdata");
-
-    private final static HashSet<String> hashed_ips = new HashSet<>();
-
+    private final static HashMap<Player, Integer> scan_passed = new HashMap<>();
+    private final KarmaFile separated_ip_data;
     private final Module module;
-
-    private final InetAddress ip;
 
     /**
      * Initialize the ip storager system
      *
-     * @param module  the module is calling the API
+     * @param module  the module that is calling the API
      * @param address the ip address
      */
     public IPStorager(final Module module, final InetAddress address) throws UnknownHostException {
         if (isValid(address) && ModuleLoader.manager.isLoaded(module)) {
+            migrateFromV2();
+            migrateFromV3();
             this.module = module;
-            if (hashed_ips.isEmpty())
-                loadIPs();
 
-            ip = address;
+            String hashed_ip = new Codification2(address.getHostName(), false).hash();
 
-            if (!ip_data.exists())
-                ip_data.create();
+            separated_ip_data = new KarmaFile(plugin, hashed_ip, "data", "ips_v4");
 
-            String hashed_ip = new Codification2(ip.getHostName(), false).hash();
-            hashed_ips.add(hashed_ip);
-
-            ip_data.set("IPs", new ArrayList<>(hashed_ips));
+            if (!separated_ip_data.exists())
+                separated_ip_data.create();
         } else {
             throw new UnknownHostException();
         }
     }
 
     /**
-     * Load the stored ips in file
+     * Migrate from LockLogin v2 database
      */
-    private static void loadIPs() {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            List<String> storage = ip_data.getStringList("IPs");
-            if (storage == null)
-                storage = new ArrayList<>();
+    private void migrateFromV2() {
+        KarmaFile old_data = new KarmaFile(plugin, "ips_v2.lldb", "data");
 
-            hashed_ips.addAll(storage);
-        });
+        if (old_data.exists()) {
+            Console.send(plugin, "Trying to migrate from old ip v2 data...", Level.INFO);
+
+            List<String> lines = old_data.readFullFile();
+            for (String str : lines) {
+                String data = str.replace(";", "");
+
+                try {
+                    String ip = data.split(":")[0];
+                    String name = data.replace(ip + ":", "");
+
+                    KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                    if (!new_data.exists())
+                        new_data.create();
+
+                    List<String> uuids = new_data.readFullFile();
+
+                    OfflineUser user = new OfflineUser(name);
+                    if (user.exists()) {
+                        UUID uuid = user.getUUID();
+
+                        if (!uuids.contains(uuid.toString())) {
+                            uuids.add(uuid.toString());
+                            new_data.write(uuids);
+                        }
+                    }
+                } catch (Throwable ignored) {
+                }
+            }
+
+            try {
+                Files.delete(old_data.getFile().toPath());
+            } catch (Throwable ignored) {
+            }
+        }
     }
 
+    /**
+     * Migrate from LockLogin v3 database
+     */
+    private void migrateFromV3() {
+        KarmaFile old_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
+
+        if (old_data.exists()) {
+            Console.send(plugin, "Trying to migrate from old ip v3 data...", Level.INFO);
+
+            List<String> ips = old_data.getStringList("IPs");
+
+            for (String ip : ips) {
+                KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                if (!new_data.exists())
+                    new_data.create();
+
+                List<String> stored_uuids = new_data.readFullFile();
+                for (String uuid : old_data.getStringList(ip)) {
+                    if (!stored_uuids.contains(uuid)) {
+                        stored_uuids.add(uuid);
+                    }
+                }
+
+                new_data.write(stored_uuids);
+            }
+
+            try {
+                Files.delete(old_data.getFile().toPath());
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+    
     /**
      * Add user name to the list of players
      * assigned to the ip
@@ -71,32 +137,12 @@ public final class IPStorager implements LockLoginSpigot {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String hashed_ip = new Codification2(ip.getHostName(), false).hash();
+        List<String> assigned = separated_ip_data.readFullFile();
 
-            List<String> assigned = ip_data.getStringList(hashed_ip);
-            if (assigned == null)
-                assigned = new ArrayList<>();
-
-            if (!assigned.contains(uuid.toString())) {
-                assigned.add(uuid.toString());
-
-                ip_data.set(hashed_ip, assigned);
-            }
-        });
-    }
-
-    /**
-     * Save the player last IP
-     *
-     * @param uuid the player uuid
-     */
-    public final void saveLastIP(final UUID uuid) {
-        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            String hashed_ip = new Codification2(ip.getHostName(), false).hash();
-
-            user_ips.set(uuid.toString(), hashed_ip);
-        });
+        if (!assigned.contains(uuid.toString())) {
+            assigned.add(uuid.toString());
+            separated_ip_data.write(assigned);
+        }
     }
 
     /**
@@ -109,27 +155,20 @@ public final class IPStorager implements LockLoginSpigot {
      * the user is already saved
      */
     public final boolean canJoin(final UUID uuid, final int max) {
+        HashSet<OfflineUser> alts = manager.getAlts(module, null, uuid);
         boolean available = false;
-        String hashed_ip = new Codification2(ip.getHostName(), false).hash();
-        HashSet<String> alts = new HashSet<>();
-        for (String ip : hashed_ips) {
-            List<String> assigned = ip_data.getStringList(ip);
-            if (assigned == null)
-                assigned = new ArrayList<>();
-
-            if (ip.equals(hashed_ip)) {
-                alts.addAll(assigned);
-                available = assigned.contains(uuid.toString());
-            } else {
-                if (assigned.contains(uuid.toString())) {
+        if (alts != null) {
+            for (OfflineUser user : alts) {
+                if (user.getUUID().toString().equals(uuid.toString())) {
                     available = true;
-                    alts.addAll(assigned);
+                    break;
                 }
             }
+
+            return available || alts.size() < max;
         }
 
-        int count = alts.size();
-        return available || count < max;
+        return true;
     }
 
     /**
@@ -140,31 +179,7 @@ public final class IPStorager implements LockLoginSpigot {
      * @return if the player has alt account
      */
     public final boolean hasAltAccounts(final UUID target) {
-        HashSet<OfflineUser> alts = manager.getAlts(module, target);
-
-        HashSet<String> names = new HashSet<>();
-        for (OfflineUser user : alts) {
-            names.add(user.getName());
-        }
-
-        return names.size() > 0;
-    }
-
-    /**
-     * Check if the player IP is the same as
-     * his old IP
-     *
-     * @param uuid the player UUID
-     * @return if the player IP is the same as last one
-     */
-    public final boolean differentIP(final UUID uuid) {
-        String hashed_ip = new Codification2(ip.getHostName(), false).hash();
-        String stored_ip = user_ips.getString(uuid.toString(), null);
-
-        if (stored_ip != null)
-            return !stored_ip.equals(hashed_ip);
-        else
-            return false;
+        return getAltsAmount(target) > 1;
     }
 
     /**
@@ -174,9 +189,11 @@ public final class IPStorager implements LockLoginSpigot {
      * @return the amount of player alt accounts
      */
     public final int getAltsAmount(final UUID target) {
-        HashSet<OfflineUser> alts = manager.getAlts(module, target);
+        HashSet<OfflineUser> alts = manager.getAlts(module, null, target);
+        if (alts != null)
+            return alts.size() - 1;
 
-        return alts.size();
+        return 0;
     }
 
     /**
@@ -191,33 +208,87 @@ public final class IPStorager implements LockLoginSpigot {
 
     public interface manager {
 
-        static HashSet<OfflineUser> getAlts(final Module module, final UUID target) {
+        static HashSet<OfflineUser> getAlts(final Module module, final Player issuer, final UUID target) {
             if (ModuleLoader.manager.isLoaded(module)) {
-                if (hashed_ips.isEmpty())
-                    loadIPs();
+                boolean showBar = false;
+                if (issuer != null) {
+                    showBar = true;
 
-                List<String> alts = new ArrayList<>();
-                for (String ip : hashed_ips) {
-                    List<String> assigned = ip_data.getStringList(ip);
-                    if (assigned == null)
-                        assigned = new ArrayList<>();
-
-                    if (assigned.contains(target.toString())) {
-                        for (String assign : assigned) {
-                            if (!alts.contains(assign.toLowerCase()))
-                                alts.add(assign);
-                        }
+                    if (scan_passed.containsKey(issuer)) {
+                        issuer.sendMessage(StringUtils.toColor("&cAlready searching alts..."));
+                        return null;
                     }
                 }
 
-                HashSet<OfflineUser> offline = new HashSet<>();
-                for (String id : alts) {
-                    OfflineUser player = new OfflineUser(UUID.fromString(id));
-                    offline.add(player);
-                }
+                File main_folder = new File(plugin.getDataFolder() + File.separator + "data", "ips_v4");
+                File[] files = main_folder.listFiles();
 
-                return offline;
+                if (files != null) {
+                    int max = files.length;
+                    scan_passed.put(issuer, 0);
+
+                    if (showBar) {
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                            BarMessage bar = new BarMessage(issuer, "&eScanning ip files: &7STARTING");
+                            bar.send(true);
+
+                            Timer timer = new Timer();
+                            timer.schedule(new TimerTask() {
+                                @Override
+                                public void run() {
+                                    if (!scan_passed.containsKey(issuer)) {
+                                        timer.cancel();
+                                        bar.setMessage("");
+                                        bar.stop();
+                                    } else {
+                                        int updated_passed = scan_passed.getOrDefault(issuer, 0);
+
+                                        double division = (double) updated_passed / max;
+                                        long iPart = (long) division;
+                                        double fPart = division - iPart;
+
+                                        double percentage = fPart * 100.0;
+
+                                        bar.setMessage("&eScanning ip files: &7" + percentage + "&c%");
+                                    }
+                                }
+                            }, 0, TimeUnit.SECONDS.toMillis(2));
+                        });
+                    }
+
+                    HashSet<KarmaFile> matching_files = new HashSet<>();
+                    for (File file : files) {
+                        if (file.isFile()) {
+                            KarmaFile ip_data = new KarmaFile(plugin, file.getName(), "data", "ips_v4");
+                            List<String> assigned = ip_data.readFullFile();
+
+                            if (assigned.contains(target.toString()))
+                                matching_files.add(ip_data);
+                        }
+
+                        scan_passed.put(issuer, scan_passed.getOrDefault(issuer, 0) + 1);
+                    }
+
+                    HashSet<OfflineUser> users = new HashSet<>();
+                    HashSet<String> added_uuids = new HashSet<>();
+                    for (KarmaFile matching : matching_files) {
+                        List<String> uuids = matching.readFullFile();
+
+                        for (String id : uuids) {
+                            if (!added_uuids.contains(id)) {
+                                OfflineUser user = new OfflineUser(UUID.fromString(id));
+                                users.add(user);
+                                added_uuids.add(id);
+                            }
+                        }
+                    }
+
+                    scan_passed.remove(issuer);
+
+                    return users;
+                }
             }
+
             return new HashSet<>();
         }
     }

@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord;
 
 import ml.karmaconfigs.api.bungee.Logger;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.BungeeSender;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.servers.LobbyChecker;
 
 /*

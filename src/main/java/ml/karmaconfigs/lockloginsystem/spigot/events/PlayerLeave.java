@@ -12,6 +12,8 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerQuitEvent;
 
+import java.net.InetSocketAddress;
+
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -41,7 +43,6 @@ public final class PlayerLeave implements Listener, LockLoginSpigot, SpigotFiles
         }
 
         user.setFly(player.getAllowFlight());
-        user.removeCodes();
 
         if (!config.isBungeeCord()) {
             TempModule temp_module = new TempModule();
@@ -53,9 +54,11 @@ public final class PlayerLeave implements Listener, LockLoginSpigot, SpigotFiles
             } catch (Throwable ignored) {
             }
 
-            IpData data = new IpData(temp_module, player.getAddress().getAddress());
-
-            data.delIP();
+            InetSocketAddress ip = player.getAddress();
+            if (ip != null) {
+                IpData data = new IpData(temp_module, ip.getAddress());
+                data.delIP();
+            }
 
             user.setLogStatus(false);
         }

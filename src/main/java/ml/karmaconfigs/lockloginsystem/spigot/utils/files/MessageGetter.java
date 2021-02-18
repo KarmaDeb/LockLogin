@@ -482,54 +482,6 @@ public final class MessageGetter implements LockLoginSpigot {
                 .replace("{replace_comma}", ",");
     }
 
-    public final String emailDisabled() {
-        return messages.getString("EmailDisabled");
-    }
-
-    public final String invalidEmail() {
-        return messages.getString("InvalidEmail");
-    }
-
-    public final String notEmail() {
-        return messages.getString("NoEmail");
-    }
-
-    public final String emailSet(final String mail) {
-        return Objects.requireNonNull(messages.getString("EmailSet")).replace("{email}", mail);
-    }
-
-    public final String emailSent() {
-        return messages.getString("EmailSent");
-    }
-
-    public final String emailError() {
-        return messages.getString("EmailError");
-    }
-
-    public final String noIpValidation() {
-        return messages.getString("NoIpValidation");
-    }
-
-    public final String ipValidated() {
-        return messages.getString("IpValidated");
-    }
-
-    public final String noRecovery() {
-        return messages.getString("NoRecovery");
-    }
-
-    public final String cantRecovery() {
-        return messages.getString("CantRecovery");
-    }
-
-    public final String recoveryValidated() {
-        return messages.getString("Recovery");
-    }
-
-    public final String invalidCode() {
-        return messages.getString("InvalidCode");
-    }
-
     public final String ipBlocked(final long time) {
         String format = "sec(s)";
         int final_time = (int) time;

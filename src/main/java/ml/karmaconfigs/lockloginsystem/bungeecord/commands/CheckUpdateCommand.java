@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.bungee.StringUtils;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;

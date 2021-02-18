@@ -2,7 +2,6 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
@@ -10,9 +9,7 @@ import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
@@ -22,7 +19,6 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import javax.mail.internet.InternetAddress;
 import java.net.InetSocketAddress;
 
 /*
@@ -95,31 +91,6 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                     case SUCCESS:
                                     case SUCCESS_TEMP:
                                         if (valid_code) {
-                                            Mailer mailer = new Mailer();
-                                            if (isValidEmailAddress(mailer.getEmail()) && mailer.sendLoginEmail()) {
-                                                try {
-                                                    TempModule module = new TempModule();
-
-                                                    if (!ModuleLoader.manager.isLoaded(module)) {
-                                                        ModuleLoader loader = new ModuleLoader(module);
-                                                        loader.inject();
-                                                    }
-
-                                                    InetSocketAddress ip = player.getAddress();
-
-                                                    if (ip != null) {
-                                                        IPStorager storager = new IPStorager(module, ip.getAddress());
-
-                                                        if (storager.differentIP(player.getUniqueId()) && isValidEmailAddress(user.getEmail()) && mailer.sendLoginEmail()) {
-                                                            user.sendLoginEmail();
-                                                        } else {
-                                                            storager.saveLastIP(player.getUniqueId());
-                                                        }
-                                                    }
-                                                } catch (Throwable ignored) {
-                                                }
-                                            }
-
                                             InetSocketAddress ip = player.getAddress();
 
                                             if (ip != null) {
@@ -283,16 +254,5 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
         return false;
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

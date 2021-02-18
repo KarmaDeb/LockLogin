@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles;
 
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import org.bukkit.Location;
@@ -101,7 +101,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player has last location
      */
     public final boolean hasLastLoc() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID));
     }
 
     /**
@@ -111,7 +111,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has a world
      */
     public final boolean hasWorld() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".World"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".World"));
     }
 
     /**
@@ -121,7 +121,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has X value
      */
     public final boolean hasX() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".X"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".X"));
     }
 
     /**
@@ -131,7 +131,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has Y
      */
     public final boolean hasY() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".Y"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".Y"));
     }
 
     /**
@@ -141,7 +141,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has Z
      */
     public final boolean hasZ() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".Z"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".Z"));
     }
 
     /**
@@ -151,7 +151,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has Pitch
      */
     public final boolean hasPitch() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".Pitch"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".Pitch"));
     }
 
     /**
@@ -161,7 +161,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @return if the player last location has Yaw
      */
     public final boolean hasYaw() {
-        return !StringUtils.isNull(manager.get("LastLoc." + UUID + ".Yaw"));
+        return !StringUtils.isNullOrEmpty(manager.get("LastLoc." + UUID + ".Yaw"));
     }
 
     /**

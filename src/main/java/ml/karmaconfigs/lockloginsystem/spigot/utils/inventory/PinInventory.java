@@ -1,17 +1,14 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
 import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.BungeeSender;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Mailer;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.Material;
@@ -20,8 +17,6 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import javax.mail.internet.InternetAddress;
-import java.net.InetSocketAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -137,31 +132,6 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                 switch (event.getAuthResult()) {
                     case SUCCESS:
                         if (utils.PasswordIsOk()) {
-                            Mailer mailer = new Mailer();
-                            if (!mailer.getEmail().replaceAll("\\s", "").isEmpty() && mailer.sendLoginEmail()) {
-                                try {
-                                    TempModule module = new TempModule();
-
-                                    if (!ModuleLoader.manager.isLoaded(module)) {
-                                        ModuleLoader loader = new ModuleLoader(module);
-                                        loader.inject();
-                                    }
-
-                                    InetSocketAddress ip = player.getAddress();
-
-                                    if (ip != null) {
-                                        IPStorager storager = new IPStorager(module, ip.getAddress());
-
-                                        if (storager.differentIP(player.getUniqueId()) && isValidEmailAddress(user.getEmail()) && mailer.sendLoginEmail()) {
-                                            user.sendLoginEmail();
-                                        } else {
-                                            storager.saveLastIP(player.getUniqueId());
-                                        }
-                                    }
-                                } catch (Throwable ignored) {
-                                }
-                            }
-
                             user.setTempLog(false);
                             user.Message(event.getAuthMessage());
 
@@ -271,6 +241,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
     public final ItemStack getInput() {
         ItemStack paper = new ItemStack(Material.PAPER, 1);
         ItemMeta paperMeta = paper.getItemMeta();
+        assert paperMeta != null;
 
         paperMeta.setDisplayName(StringUtils.toColor("&c" + input.getOrDefault(player, "/-/-/-/")));
 
@@ -354,16 +325,5 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
         } else {
             verified.remove(player);
         }
-    }
-
-    private boolean isValidEmailAddress(final String email) {
-        boolean result = true;
-        try {
-            InternetAddress address = new InternetAddress(email);
-            address.validate();
-        } catch (Throwable ex) {
-            result = false;
-        }
-        return result;
     }
 }

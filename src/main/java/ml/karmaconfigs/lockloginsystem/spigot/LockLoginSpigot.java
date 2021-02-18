@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot;
 
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Logger;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.StringUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /*
