@@ -58,91 +58,86 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
         } else {
-            if (!Main.updatePending) {
-                InetAddress ip = User.external.getIp(connection.getSocketAddress());
+            InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
-                if (config.CheckNames()) {
-                    if (!Checker.isValid(e.getConnection().getName())) {
-                        e.setCancelled(true);
-                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.IllegalName(Checker.getIllegalChars(e.getConnection().getName())))));
-                    }
-                }
-
-                if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
+            if (config.CheckNames()) {
+                if (!Checker.isValid(e.getConnection().getName())) {
                     e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.AlreadyPlaying())));
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.IllegalName(Checker.getIllegalChars(e.getConnection().getName())))));
+                }
+            }
+
+            if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
+                e.setCancelled(true);
+                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.AlreadyPlaying())));
+            }
+
+            if (!e.isCancelled()) {
+                if (config.AccountsPerIp() != 0) {
+                    TempModule temp_module = new TempModule();
+                    try {
+                        ModuleLoader loader = new ModuleLoader(temp_module);
+                        if (!ModuleLoader.manager.isLoaded(temp_module)) {
+                            loader.inject();
+                        }
+                    } catch (Throwable ignored) {
+                    }
+
+                    IpData data = new IpData(temp_module, ip);
+                    data.fetch(Platform.BUNGEE);
+
+                    if (data.getConnections() > config.AccountsPerIp()) {
+                        e.setCancelled(true);
+                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
+                    } else {
+                        plugin.getProxy().getScheduler().schedule(plugin, () -> {
+                            if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
+                                if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()).isConnected()) {
+                                    data.addIP();
+                                }
+                            }
+                        }, 1, TimeUnit.SECONDS);
+                    }
                 }
 
                 if (!e.isCancelled()) {
-                    if (config.AccountsPerIp() != 0) {
-                        TempModule temp_module = new TempModule();
-                        try {
-                            ModuleLoader loader = new ModuleLoader(temp_module);
-                            if (!ModuleLoader.manager.isLoaded(temp_module)) {
-                                loader.inject();
-                            }
-                        } catch (Throwable ignored) {
+                    TempModule temp_module = new TempModule();
+                    try {
+                        ModuleLoader loader = new ModuleLoader(temp_module);
+                        if (!ModuleLoader.manager.isLoaded(temp_module)) {
+                            loader.inject();
                         }
-
-                        IpData data = new IpData(temp_module, ip);
-                        data.fetch(Platform.BUNGEE);
-
-                        if (data.getConnections() > config.AccountsPerIp()) {
-                            e.setCancelled(true);
-                            e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
-                        } else {
-                            plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                                if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
-                                    if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()).isConnected()) {
-                                        data.addIP();
-                                    }
-                                }
-                            }, 1, TimeUnit.SECONDS);
-                        }
+                    } catch (Throwable ignored) {
                     }
 
-                    if (!e.isCancelled()) {
-                        TempModule temp_module = new TempModule();
-                        try {
-                            ModuleLoader loader = new ModuleLoader(temp_module);
-                            if (!ModuleLoader.manager.isLoaded(temp_module)) {
-                                loader.inject();
-                            }
-                        } catch (Throwable ignored) {
-                        }
+                    try {
+                        IPStorager storager = new IPStorager(temp_module, ip);
 
-                        try {
-                            IPStorager storager = new IPStorager(temp_module, ip);
+                        if (config.MaxRegisters() > 0) {
+                            try {
+                                if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
+                                    storager.save(e.getConnection().getUniqueId());
 
-                            if (config.MaxRegisters() > 0) {
-                                try {
-                                    if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
-                                        storager.save(e.getConnection().getUniqueId());
+                                    if (storager.hasAltAccounts(e.getConnection().getUniqueId())) {
+                                        for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
+                                            User user = new User(online);
 
-                                        if (storager.hasAltAccounts(e.getConnection().getUniqueId())) {
-                                            for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
-                                                User user = new User(online);
-
-                                                if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(e.getConnection().getUniqueId()))
-                                                    user.Message(messages.Prefix() + messages.altsFound(e.getConnection().getName(), storager.getAltsAmount(e.getConnection().getUniqueId())));
-                                            }
+                                            if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(e.getConnection().getUniqueId()))
+                                                user.Message(messages.Prefix() + messages.altsFound(e.getConnection().getName(), storager.getAltsAmount(e.getConnection().getUniqueId())));
                                         }
-                                    } else {
-                                        e.setCancelled(true);
-                                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
                                     }
-                                } catch (Throwable ex) {
-                                    ex.printStackTrace();
+                                } else {
+                                    e.setCancelled(true);
+                                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
                                 }
+                            } catch (Throwable ex) {
+                                ex.printStackTrace();
                             }
-                        } catch (Throwable ex) {
-                            ex.printStackTrace();
                         }
+                    } catch (Throwable ex) {
+                        ex.printStackTrace();
                     }
                 }
-            } else {
-                e.setCancelled(true);
-                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + "&cPlugin update in queue, please wait...")));
             }
         }
     }

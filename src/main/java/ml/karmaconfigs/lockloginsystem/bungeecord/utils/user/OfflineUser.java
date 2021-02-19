@@ -22,8 +22,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginBungee {
 
-    private static FileManager manager;
-    private final String Name;
+    private FileManager manager = null;
+    private final Object finder;
 
     /**
      * Initialize the offline player
@@ -32,12 +32,12 @@ public final class OfflineUser implements LockLoginBungee {
      * @param name the player name
      */
     public OfflineUser(String name) {
-        this.Name = name;
+        this.finder = name;
         checkFiles();
     }
 
     public OfflineUser(UUID uuid) {
-        this.Name = uuid.toString();
+        this.finder = uuid;
         checkFiles();
     }
 
@@ -53,15 +53,23 @@ public final class OfflineUser implements LockLoginBungee {
                 File[] files = folder.listFiles();
                 assert files != null;
                 for (File file : files) {
-                    if (file.getName().equals(Name.replace("-", ""))) {
-                        manager = new FileManager(file.getName(), "playerdata");
-                    } else {
-                        FileManager fileManager = new FileManager(file.getName(), "playerdata");
+                    if (manager != null)
+                        break;
 
-                        if (fileManager.getString("Player").equals(Name)) {
-                            manager = new FileManager(file.getName(), "playerdata");
-                            break;
-                        }
+                    String file_name = file.getName();
+                    if (finder instanceof UUID) {
+                        UUID uuid = (UUID) finder;
+
+                        String supposed_file = uuid.toString().replace("-", "") + ".yml";
+
+                        if (file_name.equals(supposed_file))
+                            manager = new FileManager(file_name, "playerdata");
+                    } else {
+                        String name = String.valueOf(finder);
+
+                        FileManager current = new FileManager(file_name, "playerdata");
+                        if (current.getString("Player").equals(name))
+                            manager = current;
                     }
                 }
             }

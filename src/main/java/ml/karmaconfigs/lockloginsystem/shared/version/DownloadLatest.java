@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.shared.version;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 
@@ -23,6 +24,7 @@ public final class DownloadLatest {
     private static boolean downloading = false;
     private static double percentage = 0.0;
     private final URL downloadURL;
+    private File main;
     private File update;
     private File destJar;
 
@@ -35,12 +37,14 @@ public final class DownloadLatest {
         downloadURL = new URL("https://karmaconfigs.github.io/updates/LockLogin/LockLogin.jar");
 
         try {
+            main = new File(LockLoginSpigot.jar);
             update = new File(LockLoginSpigot.plugin.getServer().getWorldContainer() + "/plugins/update");
             destJar = new File(update + "/", LockLoginSpigot.jar);
         } catch (Throwable e) {
             String dir = LockLoginBungee.plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
             File pluginsFolder = new File(dir.replace("/LockLogin", ""));
 
+            main = new File(LockLoginBungee.jar);
             update = new File(pluginsFolder + "/update");
             destJar = new File(update + "/", LockLoginBungee.jar);
         }
@@ -52,6 +56,17 @@ public final class DownloadLatest {
      * @param onEnd do something on end...
      */
     public final void download(Runnable onEnd) {
+        if (destJar.exists()) {
+            String dest_version = FileInfo.getJarVersion(destJar);
+            String curr_version = FileInfo.getJarVersion(main);
+
+            if (dest_version.equals(curr_version)) {
+                percentage = 100;
+                downloading = false;
+                return;
+            }
+        }
+
         //Prevent the plugin from downloading LockLogin
         //more than once at the same time, to avoid errors
         if (!downloading) {

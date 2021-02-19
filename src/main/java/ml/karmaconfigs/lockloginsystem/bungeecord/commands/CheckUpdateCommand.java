@@ -9,7 +9,6 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
-import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -33,7 +32,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
         GetLatestVersion latest = new GetLatestVersion();
 
         int last_version_id = latest.GetLatest();
-        int curr_version_id = LockLoginSpigot.versionID;
+        int curr_version_id = LockLoginBungee.versionID;
 
         if (sender instanceof ProxiedPlayer) {
             ProxiedPlayer player = (ProxiedPlayer) sender;
@@ -58,7 +57,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                                 user.Message("&7otherwise, there are other two ways to update it:");
                                 user.Message("\n");
                                 user.Message("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
-                                user.Message("&e1 - &dRemoving current LockLogin plugin file and download");
+                                user.Message("&e2 - &dRemoving current LockLogin plugin file and download");
                                 user.Message("      &dand install again using LockLogin IM ( LockLogin installation media )");
                             } else {
                                 user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");

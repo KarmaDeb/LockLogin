@@ -9,6 +9,7 @@ import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.ConsoleFilter;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
@@ -435,37 +436,40 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             if (last_version_id > curr_version_id) {
                 Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.GetLatest() + " &f)");
-                if (new ConfigGetter().UpdateSelf()) {
-                    String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+                String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
 
-                    File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-                    File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
+                File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+                File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
 
-                    if (!updatedLockLogin.exists() || !ready_to_update) {
+                if (updatedLockLogin.exists()) {
+                    String dest_version = FileInfo.getJarVersion(updatedLockLogin);
+                    String curr_version = FileInfo.getJarVersion(new File(jar));
+
+                    if (!dest_version.equals(curr_version)) {
                         try {
-                            DownloadLatest downloader = new DownloadLatest();
-                            if (!downloader.isDownloading()) {
-                                downloader.download(() -> {
-                                    ready_to_update = true;
-                                    Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
-                                });
-                            }
-                        } catch (Throwable e) {
-                            logger.scheduleLog(Level.GRAVE, e);
-                            logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+                            Files.delete(updatedLockLogin.toPath());
+                        } catch (Throwable ignored) {}
+                    }
+                }
+
+                if (!updatedLockLogin.exists() || !ready_to_update) {
+                    try {
+                        DownloadLatest downloader = new DownloadLatest();
+                        if (!downloader.isDownloading()) {
+                            downloader.download(() -> {
+                                ready_to_update = true;
+                                Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                            });
                         }
-                    } else {
-                        if (plugin.getServer().getOnlinePlayers().isEmpty()) {
-                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
-                            new LockLoginSpigotManager().applyUpdate(null);
-                            ready_to_update = false;
-                        } else {
-                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
-                        }
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
                     }
                 } else {
-                    Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                    Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
                 }
+
+                Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
 
                 if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
                     last_changelog = latest.getChangeLog();

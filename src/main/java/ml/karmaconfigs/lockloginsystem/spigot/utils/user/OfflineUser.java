@@ -22,8 +22,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginSpigot {
 
-    private static FileManager manager;
-    private final String Name;
+    private FileManager manager;
+    private final Object finder;
 
     /**
      * Initialize the offline player
@@ -32,7 +32,7 @@ public final class OfflineUser implements LockLoginSpigot {
      * @param name the player name
      */
     public OfflineUser(String name) {
-        this.Name = name;
+        this.finder = name;
         checkFiles();
     }
 
@@ -43,7 +43,7 @@ public final class OfflineUser implements LockLoginSpigot {
      * @param id the player uuid
      */
     public OfflineUser(UUID id) {
-        this.Name = id.toString();
+        this.finder = id;
         checkFiles();
     }
 
@@ -59,18 +59,23 @@ public final class OfflineUser implements LockLoginSpigot {
                 File[] files = folder.listFiles();
                 assert files != null;
                 for (File file : files) {
-                    if (file.getName().equals(Name.replace("-", ""))) {
-                        manager = new FileManager(file.getName(), "playerdata");
-                        manager.setInternal("auto-generated/userTemplate.yml");
+                    if (manager != null)
                         break;
-                    } else {
-                        FileManager fileManager = new FileManager(file.getName(), "playerdata");
 
-                        if (fileManager.getString("Player").equals(Name)) {
-                            manager = new FileManager(file.getName(), "playerdata");
-                            manager.setInternal("auto-generated/userTemplate.yml");
-                            break;
-                        }
+                    String file_name = file.getName();
+                    if (finder instanceof UUID) {
+                        UUID uuid = (UUID) finder;
+
+                        String supposed_file = uuid.toString().replace("-", "") + ".yml";
+
+                        if (file_name.equals(supposed_file))
+                            manager = new FileManager(file_name, "playerdata");
+                    } else {
+                        String name = String.valueOf(finder);
+
+                        FileManager current = new FileManager(file_name, "playerdata");
+                        if (current.getString("Player").equals(name))
+                            manager = current;
                     }
                 }
             }

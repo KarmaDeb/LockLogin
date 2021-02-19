@@ -168,7 +168,7 @@ public final class ConfigGetter {
     }
 
     public final int UpdateCheck() {
-        if (configuration.getInt("Updater.CheckTime") >= 5 && configuration.getInt("Updater.CheckTime") <= 1440) {
+        if (configuration.getInt("Updater.CheckTime") >= 5 && configuration.getInt("Updater.CheckTime") <= 86400) {
             return (int) TimeUnit.MINUTES.toSeconds(configuration.getInt("Updater.CheckTime"));
         } else {
             configuration.set("Updater.CheckTime", 5);

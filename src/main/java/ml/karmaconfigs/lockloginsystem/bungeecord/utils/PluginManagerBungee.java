@@ -9,7 +9,6 @@ import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.commands.*;
 import ml.karmaconfigs.lockloginsystem.bungeecord.events.*;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.AllowedCommands;
@@ -20,6 +19,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager.LockLoginB
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
@@ -376,39 +376,41 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
             if (last_version_id > curr_version_id) {
                 Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.GetLatest() + " &f)");
-                if (new ConfigGetter().UpdateSelf()) {
-                    String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+                String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
 
-                    File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-                    File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
+                File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+                File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
 
-                    InterfaceUtils utils = new InterfaceUtils();
-                    if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+                if (updatedLockLogin.exists()) {
+                    String dest_version = FileInfo.getJarVersion(updatedLockLogin);
+                    String curr_version = FileInfo.getJarVersion(new File(jar));
+
+                    if (!dest_version.equals(curr_version)) {
                         try {
-                            DownloadLatest downloader = new DownloadLatest();
-                            if (!downloader.isDownloading()) {
-                                downloader.download(() -> {
-                                    utils.setReadyToUpdate(true);
-                                    Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
-                                });
-                            }
-                        } catch (Throwable e) {
-                            logger.scheduleLog(Level.GRAVE, e);
-                            logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+                            Files.delete(updatedLockLogin.toPath());
+                        } catch (Throwable ignored) {}
+                    }
+                }
+
+                InterfaceUtils utils = new InterfaceUtils();
+                if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+                    try {
+                        DownloadLatest downloader = new DownloadLatest();
+                        if (!downloader.isDownloading()) {
+                            downloader.download(() -> {
+                                utils.setReadyToUpdate(true);
+                                Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                            });
                         }
-                    } else {
-                        if (plugin.getProxy().getPlayers().isEmpty()) {
-                            Main.updatePending = true;
-                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, and LockLogin will apply updates automatically due no online players were found", Level.INFO);
-                            new LockLoginBungeeManager().applyUpdate(null);
-                            utils.setReadyToUpdate(false);
-                        } else {
-                            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
-                        }
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
                     }
                 } else {
-                    Console.send("&3You can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                    Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
                 }
+
+                Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
 
                 if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
                     last_changelog = latest.getChangeLog();

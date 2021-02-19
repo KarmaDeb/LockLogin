@@ -1,0 +1,3 @@
+project_name: ${project.name}
+project_version: ${project.version}
+project_developers: ${project.author}

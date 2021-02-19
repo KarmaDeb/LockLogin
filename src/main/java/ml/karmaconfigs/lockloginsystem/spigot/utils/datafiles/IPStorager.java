@@ -7,20 +7,14 @@ import ml.karmaconfigs.api.spigot.KarmaFile;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
-import org.apache.commons.io.IOUtils;
 import org.bukkit.entity.Player;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONValue;
 
 import java.io.File;
 import java.net.InetAddress;
-import java.net.URL;
 import java.net.UnknownHostException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -159,9 +153,11 @@ public final class IPStorager implements LockLoginSpigot {
         boolean available = false;
         if (alts != null) {
             for (OfflineUser user : alts) {
-                if (user.getUUID().toString().equals(uuid.toString())) {
-                    available = true;
-                    break;
+                if (user.exists()) {
+                    if (user.getUUID().toString().equals(uuid.toString())) {
+                        available = true;
+                        break;
+                    }
                 }
             }
 
@@ -271,12 +267,14 @@ public final class IPStorager implements LockLoginSpigot {
 
                     HashSet<OfflineUser> users = new HashSet<>();
                     HashSet<String> added_uuids = new HashSet<>();
+                    OfflineUser user;
                     for (KarmaFile matching : matching_files) {
                         List<String> uuids = matching.readFullFile();
 
                         for (String id : uuids) {
                             if (!added_uuids.contains(id)) {
-                                OfflineUser user = new OfflineUser(UUID.fromString(id));
+                                user = new OfflineUser(UUID.fromString(id));
+
                                 users.add(user);
                                 added_uuids.add(id);
                             }

@@ -52,8 +52,8 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                 user.Message("&7To update, run /updateChecker --forceUpdate");
                                 user.Message("&7otherwise, there are other two ways to update it:");
                                 user.Message("\n");
-                                user.Message("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
-                                user.Message("&e1 - &dRemoving current LockLogin plugin file and download");
+                                user.Message("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
+                                user.Message("&e2 - &dRemoving current LockLogin plugin file and download");
                                 user.Message("      &dand install again using LockLogin IM ( LockLogin installation media )");
                             } else {
                                 user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
@@ -94,7 +94,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                                 } else {
                                                     downloader.download(() -> {
                                                         if (player.isOnline()) {
-                                                            user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                                            user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
                                                             downloading = false;
                                                             PluginManagerSpigot.manager.setReadyToUpdate(true);
                                                         }
@@ -106,7 +106,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                             }
                                         });
                                     } else {
-                                        user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                        user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
                                     }
                                 } else {
                                     user.Message("&cLockLogin is already downloading an update");
@@ -145,7 +145,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             Console.send("&7If you want to download the new update run the command /updateChecker --forceUpdate");
                             Console.send("&7otherwise, there are other two ways to update it:");
                             System.out.println("\n");
-                            Console.send("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
+                            Console.send("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
                             Console.send("&e1 - &dRemoving current LockLogin plugin file and download and install again using LockLogin IM ( LockLogin installation media )");
                         } else {
                             Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
@@ -165,7 +165,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                                 Console.send(LockLoginSpigot.plugin, "LockLogin is already downloading an update", Level.GRAVE);
                                             } else {
                                                 downloader.download(() -> {
-                                                    Console.send(LockLoginSpigot.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates", Level.INFO);
+                                                    Console.send(LockLoginSpigot.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates", Level.INFO);
                                                     downloading = false;
                                                     PluginManagerSpigot.manager.setReadyToUpdate(true);
                                                 });
@@ -176,7 +176,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                         }
                                     });
                                 } else {
-                                    Console.send(LockLoginSpigot.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates", Level.INFO);
+                                    Console.send(LockLoginSpigot.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates", Level.INFO);
                                 }
                             } else {
                                 Console.send(LockLoginSpigot.plugin, "LockLogin is already downloading an update", Level.GRAVE);

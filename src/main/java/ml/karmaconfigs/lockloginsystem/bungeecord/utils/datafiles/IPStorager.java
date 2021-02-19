@@ -8,6 +8,7 @@ import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.PlayerFile;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -151,9 +152,11 @@ public final class IPStorager implements LockLoginBungee {
         boolean available = false;
         if (alts != null) {
             for (OfflineUser user : alts) {
-                if (user.getUUID().toString().equals(uuid.toString())) {
-                    available = true;
-                    break;
+                if (user.exists()) {
+                    if (user.getUUID().toString().equals(uuid.toString())) {
+                        available = true;
+                        break;
+                    }
                 }
             }
 
@@ -261,12 +264,14 @@ public final class IPStorager implements LockLoginBungee {
 
                     HashSet<OfflineUser> users = new HashSet<>();
                     HashSet<String> added_uuids = new HashSet<>();
+                    OfflineUser user;
                     for (KarmaFile matching : matching_files) {
                         List<String> uuids = matching.readFullFile();
 
                         for (String id : uuids) {
                             if (!added_uuids.contains(id)) {
-                                OfflineUser user = new OfflineUser(UUID.fromString(id));
+                                user = new OfflineUser(UUID.fromString(id));
+
                                 users.add(user);
                                 added_uuids.add(id);
                             }

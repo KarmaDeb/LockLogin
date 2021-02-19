@@ -210,7 +210,7 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final int UpdateCheck() {
-        if (configuration.getInt("Updater.CheckTime", 10) >= 5 && configuration.getInt("Updater.CheckTime", 10) <= 1440) {
+        if (configuration.getInt("Updater.CheckTime", 10) >= 5 && configuration.getInt("Updater.CheckTime", 10) <= 86400) {
             return (int) TimeUnit.MINUTES.toSeconds(configuration.getInt("Updater.CheckTime"));
         } else {
             configuration.set("Updater.CheckTime", 5);

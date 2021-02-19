@@ -87,19 +87,13 @@ Pin: true
 #
 # CheckTime -> The time (in minutes) before each
 #              update check, the minimum is 5 and
-#              the maximum is 60 (1 hour)
+#              the maximum is 86400 (1 day)
 #
 # ChangeLog -> Enable changelog displayer in each
 #              new update found message
-#
-# AutoUpdate -> Enable LockLogin auto-updater system (LLAUS)
-#               this one will update the plugin if there's a new
-#               update and there's no player in the server, you can
-#               always force the update with /locklogin applyUpdates
 Updater:
   Check: true
   CheckTime: 10
-  AutoUpdate: true
 
 #Enable 2FA feature (using Google Authenticator)
 #This adds and extra security layer to your
