@@ -8,7 +8,6 @@ import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.PlayerFile;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -54,73 +53,77 @@ public final class IPStorager implements LockLoginBungee {
      * Migrate from LockLogin v2 database
      */
     private void migrateFromV2() {
-        KarmaFile old_data = new KarmaFile(plugin, "ips_v2.lldb", "data");
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            KarmaFile old_data = new KarmaFile(plugin, "ips_v2.lldb", "data");
 
-        if (old_data.exists()) {
-            Console.send(plugin, "Trying to migrate from old ip v2 data...", Level.INFO);
+            if (old_data.exists()) {
+                Console.send(plugin, "Trying to migrate from old ip v2 data...", Level.INFO);
 
-            List<String> lines = old_data.readFullFile();
-            for (String str : lines) {
-                String data = str.replace(";", "");
+                List<String> lines = old_data.readFullFile();
+                for (String str : lines) {
+                    String data = str.replace(";", "");
+
+                    try {
+                        String ip = data.split(":")[0];
+                        String name = data.replace(ip + ":", "");
+
+                        KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                        if (!new_data.exists())
+                            new_data.create();
+
+                        List<String> uuids = new_data.readFullFile();
+
+                        OfflineUser user = new OfflineUser(name);
+                        if (user.exists()) {
+                            UUID uuid = user.getUUID();
+
+                            if (!uuids.contains(uuid.toString())) {
+                                uuids.add(uuid.toString());
+                                new_data.write(uuids);
+                            }
+                        }
+                    } catch (Throwable ignored) {}
+                }
 
                 try {
-                    String ip = data.split(":")[0];
-                    String name = data.replace(ip + ":", "");
-
-                    KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
-                    if (!new_data.exists())
-                        new_data.create();
-
-                    List<String> uuids = new_data.readFullFile();
-
-                    OfflineUser user = new OfflineUser(name);
-                    if (user.exists()) {
-                        UUID uuid = user.getUUID();
-
-                        if (!uuids.contains(uuid.toString())) {
-                            uuids.add(uuid.toString());
-                            new_data.write(uuids);
-                        }
-                    }
+                    Files.delete(old_data.getFile().toPath());
                 } catch (Throwable ignored) {}
             }
-
-            try {
-                Files.delete(old_data.getFile().toPath());
-            } catch (Throwable ignored) {}
-        }
+        });
     }
 
     /**
      * Migrate from LockLogin v3 database
      */
     private void migrateFromV3() {
-        KarmaFile old_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            KarmaFile old_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
 
-        if (old_data.exists()) {
-            Console.send(plugin, "Trying to migrate from old ip v3 data...", Level.INFO);
+            if (old_data.exists()) {
+                Console.send(plugin, "Trying to migrate from old ip v3 data...", Level.INFO);
 
-            List<String> ips = old_data.getStringList("IPs");
+                List<String> ips = old_data.getStringList("IPs");
 
-            for (String ip : ips) {
-                KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
-                if (!new_data.exists())
-                    new_data.create();
+                for (String ip : ips) {
+                    KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                    if (!new_data.exists())
+                        new_data.create();
 
-                List<String> stored_uuids = new_data.readFullFile();
-                for (String uuid : old_data.getStringList(ip)) {
-                    if (!stored_uuids.contains(uuid)) {
-                        stored_uuids.add(uuid);
+                    List<String> stored_uuids = new_data.readFullFile();
+                    for (String uuid : old_data.getStringList(ip)) {
+                        if (!stored_uuids.contains(uuid)) {
+                            stored_uuids.add(uuid);
+                        }
                     }
+
+                    new_data.write(stored_uuids);
                 }
 
-                new_data.write(stored_uuids);
+                try {
+                    Files.delete(old_data.getFile().toPath());
+                } catch (Throwable ignored) {}
             }
-
-            try {
-                Files.delete(old_data.getFile().toPath());
-            } catch (Throwable ignored) {}
-        }
+        });
     }
 
     /**
@@ -174,7 +177,7 @@ public final class IPStorager implements LockLoginBungee {
      * @return if the player has alt account
      */
     public final boolean hasAltAccounts(final UUID target) {
-        return getAltsAmount(target) > 1;
+        return getAltsAmount(target) > 0;
     }
 
     /**

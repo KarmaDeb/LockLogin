@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.SkullCache;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import org.bukkit.Bukkit;
 import org.bukkit.DyeColor;
@@ -38,28 +39,36 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
      */
     public AltsAccountInventory(final Player user, final HashSet<OfflineUser> players) {
         player = user;
-        Inventory page = getBlankPage();
 
-        for (OfflineUser player : players) {
-            ItemStack item = getPlayerHead(player.getName());
-            ItemMeta meta = item.getItemMeta();
-            assert meta != null;
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            Inventory page = getBlankPage();
 
-            meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-            if (!player.getUUID().equals(user.getUniqueId())) {
-                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
-            } else {
-                meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+            for (OfflineUser player : players) {
+                ItemStack item = getPlayerHead(player.getName());
+                ItemMeta meta = item.getItemMeta();
+                assert meta != null;
+
+                meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
+                if (!player.getUUID().equals(user.getUniqueId())) {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID())));
+                } else {
+                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUUID()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                }
+
+                item.setItemMeta(meta);
+
+                page.addItem(item);
             }
 
-            item.setItemMeta(meta);
+            pages.add(page);
+            playerPage.put(player.getUniqueId(), 0);
+            inventories.put(player.getUniqueId(), this);
 
-            page.addItem(item);
-        }
-
-        pages.add(page);
-        playerPage.put(player.getUniqueId(), 0);
-        inventories.put(player.getUniqueId(), this);
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
+                player.openInventory(pages.get(0));
+                playerPage.put(player.getUniqueId(), 0);
+            });
+        });
     }
 
     /**
@@ -71,32 +80,39 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
     public AltsAccountInventory(final UUID id, final HashSet<UUID> uuids) {
         player = plugin.getServer().getPlayer(id);
 
-        if (player != null && player.isOnline()) {
-            Inventory page = getBlankPage();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (player != null && player.isOnline()) {
+                Inventory page = getBlankPage();
 
-            for (UUID uuid : uuids) {
-                OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
+                for (UUID uuid : uuids) {
+                    OfflinePlayer player = plugin.getServer().getOfflinePlayer(uuid);
 
-                ItemStack item = getPlayerHead(player.getName());
-                ItemMeta meta = item.getItemMeta();
-                assert meta != null;
+                    ItemStack item = getPlayerHead(player.getName());
+                    ItemMeta meta = item.getItemMeta();
+                    assert meta != null;
 
-                meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
-                if (!player.getUniqueId().equals(id)) {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
-                } else {
-                    meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                    meta.setDisplayName(StringUtils.toColor("&f" + player.getName()));
+                    if (!player.getUniqueId().equals(id)) {
+                        meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId())));
+                    } else {
+                        meta.setLore(Arrays.asList("\n", StringUtils.toColor("&7UUID: &e" + player.getUniqueId()), StringUtils.toColor("&8&l&o( &cYOU &8&l&o)")));
+                    }
+
+                    item.setItemMeta(meta);
+
+                    page.addItem(item);
                 }
 
-                item.setItemMeta(meta);
+                pages.add(page);
+                playerPage.put(player.getUniqueId(), 0);
+                inventories.put(player.getUniqueId(), this);
 
-                page.addItem(item);
+                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                    player.openInventory(pages.get(0));
+                    playerPage.put(player.getUniqueId(), 0);
+                });
             }
-
-            pages.add(page);
-            playerPage.put(player.getUniqueId(), 0);
-            inventories.put(player.getUniqueId(), this);
-        }
+        });
     }
 
     /**
@@ -119,7 +135,16 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
 
     @SuppressWarnings("deprecation")
     private static ItemStack getPlayerHead(String owner) {
-        String value = getHeadValue(owner);
+        SkullCache cache = new SkullCache(owner);
+        String value;
+        if (cache.needsCache() || cache.getValue() == null) {
+            value = getHeadValue(owner);
+
+            if (value != null)
+                cache.saveSkullValue(value);
+        } else {
+            value = cache.getValue();
+        }
         if (value == null)
             value = "";
 
@@ -189,7 +214,6 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
     public final void openPage(int page) {
         player.openInventory(pages.get(page));
         playerPage.put(player.getUniqueId(), page);
-
     }
 
     /**

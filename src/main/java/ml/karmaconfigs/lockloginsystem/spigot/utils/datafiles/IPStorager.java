@@ -175,7 +175,7 @@ public final class IPStorager implements LockLoginSpigot {
      * @return if the player has alt account
      */
     public final boolean hasAltAccounts(final UUID target) {
-        return getAltsAmount(target) > 1;
+        return getAltsAmount(target) > 0;
     }
 
     /**

@@ -145,7 +145,7 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                         uuid = UUID.fromString(data[0]);
 
                         HashSet<UUID> uuids = new HashSet<>();
-                        for (int i = 0; i < data.length; i++) {
+                        for (int i = 1; i < data.length; i++) {
                             try {
                                 uuids.add(UUID.fromString(data[i]));
                             } catch (Throwable ignored) {}

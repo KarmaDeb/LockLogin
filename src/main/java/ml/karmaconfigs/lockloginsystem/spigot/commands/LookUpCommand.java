@@ -62,8 +62,7 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
                                 HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, player, off_user.getUUID());
 
                                 if (detected != null) {
-                                    AltsAccountInventory alts_inv = new AltsAccountInventory(player, detected);
-                                    alts_inv.openPage(0);
+                                    new AltsAccountInventory(player, detected);
                                 }
                             } else {
                                 user.Message(messages.Prefix() + messages.NeverPlayed(target));
