@@ -15,6 +15,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
@@ -677,8 +678,16 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
         if (!isNether) {
             for (Location location : netherWasHere) {
-                if (location.distance(player.getLocation()) < 3)
-                    isNether = true;
+                if (location.getWorld() != null) {
+                    World loc_world = location.getWorld();
+
+                    if (loc_world.equals(player.getWorld())) {
+                        if (location.distance(player.getLocation()) < 3) {
+                            isNether = true;
+                            break;
+                        }
+                    }
+                }
             }
         }
 
