@@ -25,6 +25,8 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
 
     private static final HashMap<UUID, Integer> playerPage = new HashMap<>();
     private static final HashMap<UUID, ModuleListInventory> inventories = new HashMap<>();
+    private final static HashMap<Integer, String> item_url = new HashMap<>();
+    private final static HashMap<Integer, String> item_name = new HashMap<>();
     private final ArrayList<Inventory> pages = new ArrayList<>();
     private final Player player;
 
@@ -44,6 +46,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             HashMap<String, HashSet<BungeeModule>> loaded_modules = reader.getBungeeModules();
 
             String last_plugin = "";
+            int module_index = 0;
             for (String plugin : loaded_modules.keySet()) {
                 if (last_plugin.replaceAll("\\s", "").isEmpty())
                     last_plugin = plugin;
@@ -60,6 +63,8 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     ItemMeta meta = item.getItemMeta();
                     assert meta != null;
 
+                    item_name.put(module_index, module.getName());
+
                     meta.setDisplayName(StringUtils.toColor("&f" + module.getName() + " &7&o[ &b" + module.getVersion() + " &7&o]"));
                     List<String> lore = new ArrayList<>();
                     for (String str : module.getDescription()) {
@@ -71,9 +76,15 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     lore.add(StringUtils.toColor("&7Plugin enabled: " + String.valueOf(module.isEnabled()).replace("true", "&ayes").replace("false", "&cno")));
                     lore.add(StringUtils.toColor("&7Needs update: " + String.valueOf(module.isOutdated()).replace("true", "&ayes").replace("false", "&cno")));
                     if (module.isOutdated()) {
-                        lore.add(StringUtils.toColor("&7Update from:"));
-                        lore.add(StringUtils.toColor("&e" + module.getUpdateURL()));
+                        lore.add(StringUtils.toColor("&7Click to get update url"));
+                        item_url.put(module_index, module.getUpdateURL());
                     }
+                    StringBuilder hider = new StringBuilder();
+                    String number = String.valueOf(module_index);
+                    for (int i = 0; i < number.length(); i++)
+                        hider.append("\u00a7").append(number.charAt(i));
+
+                    lore.add(hider.toString());
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
@@ -82,10 +93,13 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     item_index++;
                     if (item_index > page.getSize())
                         item_index = 0;
+
+                    module_index++;
                 }
             }
         } else {
             HashSet<Module> locklogin_modules = ModuleLoader.manager.getByPlugin(plugin);
+            int module_index = 0;
 
             //LockLogin always first
             {
@@ -102,6 +116,8 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     ItemMeta meta = item.getItemMeta();
                     assert meta != null;
 
+                    item_name.put(module_index,module.name());
+
                     meta.setDisplayName(StringUtils.toColor("&f" + module.name() + " &7&o[ &b" + module.version() + " &7&o]"));
                     List<String> lore = new ArrayList<>();
                     for (String str : module.getDescription()) {
@@ -113,15 +129,22 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     lore.add(StringUtils.toColor("&7Plugin enabled: " + String.valueOf(module.owner().getServer().getPluginManager().isPluginEnabled(module.owner())).replace("true", "&ayes").replace("false", "&cno")));
                     lore.add(StringUtils.toColor("&7Needs update: " + String.valueOf(outdated).replace("true", "&ayes").replace("false", "&cno")));
                     if (outdated) {
-                        lore.add(StringUtils.toColor("&7Update from:"));
-                        lore.add(StringUtils.toColor("&e" + updateURL));
+                        lore.add(StringUtils.toColor("&7Click to get update url"));
+                        item_url.put(module_index, updateURL);
                     }
+                    StringBuilder hider = new StringBuilder();
+                    String number = String.valueOf(module_index);
+                    for (int i = 0; i < number.length(); i++)
+                        hider.append("\u00a7").append(number.charAt(i));
+
+                    lore.add(hider.toString());
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
                     page.addItem(item);
 
                     item_index++;
+                    module_index++;
                 }
             }
 
@@ -168,6 +191,8 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     ItemMeta meta = item.getItemMeta();
                     assert meta != null;
 
+                    item_name.put(module_index, module.name());
+
                     meta.setDisplayName(StringUtils.toColor("&f" + module.name() + " &7&o[ &b" + module.version() + " &7&o]"));
                     List<String> lore = new ArrayList<>();
                     for (String str : module.getDescription()) {
@@ -179,9 +204,15 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     lore.add(StringUtils.toColor("&7Plugin enabled: " + String.valueOf(module.owner().getServer().getPluginManager().isPluginEnabled(module.owner())).replace("true", "&ayes").replace("false", "&cno")));
                     lore.add(StringUtils.toColor("&7Needs update: " + String.valueOf(outdated).replace("true", "&ayes").replace("false", "&cno")));
                     if (outdated) {
-                        lore.add(StringUtils.toColor("&7Update from:"));
-                        lore.add(StringUtils.toColor("&e" + updateURL));
+                        lore.add(StringUtils.toColor("&7Click to get update url"));
+                        item_url.put(module_index, updateURL);
                     }
+                    StringBuilder hider = new StringBuilder();
+                    String number = String.valueOf(module_index);
+                    for (int i = 0; i < number.length(); i++)
+                        hider.append("\u00a7").append(number.charAt(i));
+
+                    lore.add(hider.toString());
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
@@ -190,6 +221,8 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     item_index++;
                     if (item_index > page.getSize())
                         item_index = 0;
+
+                    module_index++;
                 }
             }
         }
@@ -324,6 +357,52 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             back.setItemMeta(meta);
 
             return back;
+        }
+
+        static String getUpdateURL(final ItemStack item) {
+            if (item != null) {
+                if (item.getItemMeta() != null && item.hasItemMeta()) {
+                    ItemMeta meta = item.getItemMeta();
+
+                    List<String> lore = meta.getLore();
+                    if (lore != null) {
+                        try {
+                            String line = lore.get(lore.size() - 1);
+                            line = line.replace("\u00a7", "");
+
+                            int id = Integer.parseInt(line);
+                            return item_url.getOrDefault(id, null);
+                        } catch (Throwable ex) {
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        static String getRealName(final ItemStack item) {
+            if (item != null) {
+                if (item.getItemMeta() != null && item.hasItemMeta()) {
+                    ItemMeta meta = item.getItemMeta();
+
+                    List<String> lore = meta.getLore();
+                    if (lore != null) {
+                        try {
+                            String line = lore.get(lore.size() - 1);
+                            line = line.replace("\u00a7", "");
+
+                            int id = Integer.parseInt(line);
+                            return item_name.getOrDefault(id, null);
+                        } catch (Throwable ex) {
+                            return null;
+                        }
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

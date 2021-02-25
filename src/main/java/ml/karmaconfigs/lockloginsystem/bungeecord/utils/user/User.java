@@ -237,22 +237,32 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final void checkServer() {
         Server current_server = player.getServer();
+
         if (current_server != null) {
             if (current_server.isConnected() && player.isConnected()) {
                 ServerInfo current_info = current_server.getInfo();
-                if (isLogged() && !isTempLog()) {
-                    if (config.EnableMain() && plugin.getProxy().getServerInfo(lobbyCheck.getMain()) != null) {
-                        if (current_info.getName().equals(lobbyCheck.getAuth())) {
-                            sendTo(lobbyCheck.getMain());
+                boolean sent = false;
+                if (!isLogged() || isTempLog()) {
+                    if (config.EnableAuth()) {
+                        if (lobbyCheck.AuthOk() && lobbyCheck.AuthIsWorking()) {
+                            if (!current_info.getName().equals(lobbyCheck.getAuth())) {
+                                sendTo(lobbyCheck.getAuth());
+                                sent = true;
+                            }
                         }
                     }
                 } else {
-                    if (config.EnableAuth() && plugin.getProxy().getServerInfo(lobbyCheck.getAuth()) != null) {
-                        if (!current_info.getName().equals(lobbyCheck.getAuth())) {
-                            sendTo(lobbyCheck.getAuth());
+                    sent = current_info.getName().equals(lobbyCheck.getMain());
+                }
+
+                if (!sent)
+                    if (config.EnableMain()) {
+                        if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
+                            if (!current_info.getName().equals(lobbyCheck.getMain())) {
+                                sendTo(lobbyCheck.getMain());
+                            }
                         }
                     }
-                }
             }
         }
     }

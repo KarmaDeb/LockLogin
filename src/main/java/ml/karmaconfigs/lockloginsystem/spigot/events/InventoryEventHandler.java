@@ -5,6 +5,9 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.AltsAccountInvento
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.ModuleListInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.Numbers;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -13,6 +16,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.Random;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -265,6 +270,21 @@ public final class InventoryEventHandler implements Listener {
 
                                             if (player_page - 1 > 0)
                                                 inventory.openPage(player_page - 1);
+                                        } else {
+                                            String update_url = ModuleListInventory.utils.getUpdateURL(clicked);
+                                            if (update_url != null) {
+                                                player.closeInventory();
+                                                User user = new User(player);
+
+                                                String module_name = ModuleListInventory.utils.getRealName(clicked);
+                                                if (module_name == null)
+                                                    module_name = "module#" + new Random().nextInt(75156);
+
+                                                TextComponent clickable_msg = new TextComponent(StringUtils.toColor("&7Click me to get &b" + module_name + "&7 update url"));
+                                                clickable_msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, update_url));
+
+                                                user.Message(clickable_msg);
+                                            }
                                         }
                                     }
                                 }

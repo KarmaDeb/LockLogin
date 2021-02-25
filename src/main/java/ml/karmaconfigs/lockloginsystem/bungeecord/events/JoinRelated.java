@@ -196,8 +196,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             User user = new User(player);
 
             if (!user.isLogged()) {
-                user.checkServer();
-
                 plugin.getProxy().getScheduler().schedule(plugin, () -> {
                     user.checkServer();
                     if (config.ClearChat()) {
@@ -206,11 +204,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         }
                     }
 
-                    if (!user.isRegistered()) {
-                        new StartCheck(player, CheckType.REGISTER);
-                    } else {
-                        new StartCheck(player, CheckType.LOGIN);
-                    }
+                    new StartCheck(player, (user.isRegistered() ? CheckType.LOGIN : CheckType.REGISTER));
                 }, 1, TimeUnit.SECONDS);
             }
 

@@ -447,7 +447,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
     private void registerMetrics() {
         BungeeMetrics metrics = new BungeeMetrics(plugin, 6512);
 
-        metrics.addCustomChart(new BungeeMetrics.SimplePie("used_locale", () -> new ConfigGetter().MSGLang()));
+        metrics.addCustomChart(new BungeeMetrics.SimplePie("used_locale", () -> new ConfigGetter().getLang().friendlyName()));
         metrics.addCustomChart(new BungeeMetrics.SimplePie("country_protect", () -> "Removed in 3.0.2"));
         metrics.addCustomChart(new BungeeMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().ClearChat())
                 .replace("true", "Clear chat")
