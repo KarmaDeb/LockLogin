@@ -1,4 +1,4 @@
-package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.LoginSecurity;
+package ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.loginsecurity;
 
 import java.nio.charset.StandardCharsets;
 import java.security.SecureRandom;
@@ -490,7 +490,7 @@ public class BCrypt {
     }
 
     /**
-     * Hash a password using the OpenBSD bcrypt scheme
+     * hashEncrypted a password using the OpenBSD bcrypt scheme
      *
      * @param password the password to hash
      * @param salt     the salt to hash with (perhaps generated

@@ -16,8 +16,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.messaging.PluginMessageListener;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /*
@@ -36,7 +36,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class BungeeListener implements PluginMessageListener, LockLoginSpigot, SpigotFiles {
 
-    public static ArrayList<Player> inventoryAccess = new ArrayList<>();
+    public static Set<UUID> inventoryAccess = new HashSet<>();
 
     /**
      * When a plugin message is received
@@ -104,7 +104,7 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                             PinInventory inventory = new PinInventory(player);
 
                             if (!inventoryAccess.contains(player)) {
-                                inventoryAccess.add(player);
+                                inventoryAccess.add(player.getUniqueId());
                                 inventory.open();
                             } else {
                                 inventory.updateInput();
@@ -148,7 +148,8 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                         for (int i = 1; i < data.length; i++) {
                             try {
                                 uuids.add(UUID.fromString(data[i]));
-                            } catch (Throwable ignored) {}
+                            } catch (Throwable ignored) {
+                            }
                         }
 
                         AltsAccountInventory alts = new AltsAccountInventory(uuid, uuids);

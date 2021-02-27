@@ -47,7 +47,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
 
                 PasswordUtils utils = new PasswordUtils(oldPass, user.getPassword());
 
-                if (utils.PasswordIsOk()) {
+                if (utils.checkPW()) {
                     if (!oldPass.equals(newPass)) {
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {
@@ -56,7 +56,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                                 user.Message(messages.Prefix() + messages.ChangeDone());
                                 new StartCheck(player, CheckType.LOGIN);
 
-                                if (config.EnableAuth()) {
+                                if (config.enableAuthLobby()) {
                                     if (lobbyCheck.AuthIsWorking()) {
                                         user.sendTo(lobbyCheck.getAuth());
                                     }

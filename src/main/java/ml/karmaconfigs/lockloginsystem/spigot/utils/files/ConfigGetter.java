@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
+import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -124,67 +125,75 @@ public final class ConfigGetter implements LockLoginSpigot {
         }
     }
 
-    public final String FileSys() {
+    public final String accountSys() {
         return configuration.getString("AccountSys", "file");
     }
 
     public final boolean isYaml() {
-        return FileSys().equalsIgnoreCase("File") || FileSys().equalsIgnoreCase("file");
+        return accountSys().equalsIgnoreCase("File") || accountSys().equalsIgnoreCase("file");
     }
 
     public final boolean isMySQL() {
         if (!isBungeeCord()) {
-            return FileSys().equalsIgnoreCase("MySQL") || FileSys().equalsIgnoreCase("mysql");
+            return accountSys().equalsIgnoreCase("MySQL") || accountSys().equalsIgnoreCase("mysql");
         } else {
             return false;
         }
     }
 
-    public final boolean FileSysValid() {
+    public final boolean accountSysValid() {
         return isYaml() || isMySQL();
     }
 
-    public final String ServerName() {
+    public final String serverName() {
         return configuration.getString("ServerName", StringUtils.randomString(8));
     }
 
-    public final boolean RegisterBlind() {
+    public final boolean registerRestricted() {
+        return configuration.getBoolean("Azuriom.Restrict", false);
+    }
+
+    public final boolean semiPremium() {
+        return configuration.getBoolean("Azuriom.SemiPremium", false);
+    }
+
+    public final boolean blindRegister() {
         return configuration.getBoolean("Register.Blind", false);
     }
 
-    public final boolean RegisterNausea() {
+    public final boolean nauseaRegister() {
         return configuration.getBoolean("Register.Nausea", false);
     }
 
-    public final int RegisterOut() {
+    public final int registerTimeOut() {
         return configuration.getInt("Register.TimeOut", 60);
     }
 
-    public final int MaxRegisters() {
+    public final int maxRegister() {
         return configuration.getInt("Register.Max", 2);
     }
 
-    public final boolean LoginBlind() {
+    public final boolean blindLogin() {
         return configuration.getBoolean("Login.Blind", true);
     }
 
-    public final boolean LoginNausea() {
+    public final boolean nauseaLogin() {
         return configuration.getBoolean("Login.Nausea", true);
     }
 
-    public final int LoginOut() {
+    public final int loginTimeOut() {
         return configuration.getInt("Login.TimeOut", 30);
     }
 
-    public final int GetMaxTries() {
+    public final int loginMaxTries() {
         return configuration.getInt("Login.MaxTries", 5);
     }
 
-    public final int BFMaxTries() {
+    public final int bfMaxTries() {
         return configuration.getInt("BruteForce.Tries");
     }
 
-    public final int BFBlockTime() {
+    public final int bfBlockTime() {
         int val = configuration.getInt("BruteForce.BlockTime");
 
         if (val <= 0)
@@ -193,23 +202,40 @@ public final class ConfigGetter implements LockLoginSpigot {
         return (int) TimeUnit.MINUTES.toSeconds(val);
     }
 
-    public final boolean AntiBot() {
+    public final boolean antiBot() {
         return configuration.getBoolean("AntiBot", false);
     }
 
-    public final boolean AllowSameIp() {
+    public final boolean allowSameIP() {
         return configuration.getBoolean("AllowSameIp", true);
     }
 
-    public final boolean EnablePins() {
+    public final boolean enablePin() {
         return configuration.getBoolean("Pin", true);
     }
 
-    public final boolean CheckForUpdates() {
+    public final VersionChannel getUpdateChannel() {
+        String value = configuration.getString("Updater.Channel", "RELEASE");
+        assert value != null;
+
+        switch (value.toLowerCase()) {
+            case "rc":
+            case "releasecandidate":
+            case "release_candidate":
+                return VersionChannel.RC;
+            case "snapshot":
+                return VersionChannel.SNAPSHOT;
+            case "release":
+            default:
+                return VersionChannel.RELEASE;
+        }
+    }
+
+    public final boolean checkUpdates() {
         return configuration.getBoolean("Updater.Check", true);
     }
 
-    public final int UpdateCheck() {
+    public final int checkInterval() {
         if (configuration.getInt("Updater.CheckTime", 10) >= 5 && configuration.getInt("Updater.CheckTime", 10) <= 86400) {
             return (int) TimeUnit.MINUTES.toSeconds(configuration.getInt("Updater.CheckTime"));
         } else {
@@ -218,15 +244,11 @@ public final class ConfigGetter implements LockLoginSpigot {
         }
     }
 
-    public final boolean UpdateSelf() {
-        return configuration.getBoolean("Updater.AutoUpdate", true);
-    }
-
-    public final boolean Enable2FA() {
+    public final boolean enable2FA() {
         return configuration.getBoolean("2FA", true);
     }
 
-    public final boolean HandleSpawn() {
+    public final boolean enableSpawn() {
         return configuration.getBoolean("Spawn.Manage", false);
     }
 
@@ -246,7 +268,7 @@ public final class ConfigGetter implements LockLoginSpigot {
         return configuration.getBoolean("CheckNames", false);
     }
 
-    public final String BungeeProxy() {
+    public final String bungeeProxy() {
         return configuration.getString("BungeeProxy", "&cPlease, connect through bungeecord proxy!");
     }
 

@@ -174,7 +174,7 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String Enable2FA() {
-        return messages.getString("Enable2FA");
+        return messages.getString("enable2FA");
     }
 
     public final String ToggleFAError() {
@@ -190,11 +190,11 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String LoginOut() {
-        return messages.getString("LoginOut");
+        return messages.getString("loginTimeOut");
     }
 
     public final String RegisterOut() {
-        return messages.getString("RegisterOut");
+        return messages.getString("registerTimeOut");
     }
 
     public final String MaxIp() {
@@ -384,7 +384,7 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String MaxRegisters() {
-        List<String> replaced = messages.getStringList("MaxRegisters");
+        List<String> replaced = messages.getStringList("maxRegister");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
                     .replace("[", "{replace_open}")
@@ -463,11 +463,11 @@ public final class MessageGetter implements LockLoginSpigot {
     public final String AntiBot() {
         ConfigGetter cfg = new ConfigGetter();
 
-        List<String> replaced = messages.getStringList("AntiBot");
+        List<String> replaced = messages.getStringList("antiBot");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
-                    .replace("{config:ServerName}", cfg.ServerName())
-                    .replace("{ServerName}", cfg.ServerName())
+                    .replace("{config:serverName}", cfg.serverName())
+                    .replace("{serverName}", cfg.serverName())
                     .replace("[", "{replace_open}")
                     .replace("]", "{replace_close}")
                     .replace(",", "{replace_comma}") + "&r");
@@ -485,7 +485,7 @@ public final class MessageGetter implements LockLoginSpigot {
     public final String ipBlocked(final long time) {
         String format = "sec(s)";
         int final_time = (int) time;
-        if (TimeUnit.SECONDS.toMinutes(time) >= 1 && TimeUnit.SECONDS.toMinutes(time) <= 60) {
+        if (TimeUnit.SECONDS.toMinutes(time) >= 1 && TimeUnit.SECONDS.toMinutes(time) <= 59) {
             format = "min(s)";
             final_time = (int) TimeUnit.SECONDS.toMinutes(time);
         } else {
@@ -517,6 +517,28 @@ public final class MessageGetter implements LockLoginSpigot {
                 .replace("{replace-one}", "[")
                 .replace("{replace-two}", "]")
                 .replace("{replace_comma_gray}", "&7,");
+    }
+
+    public final String onlyAzuriom() {
+        ConfigGetter cfg = new ConfigGetter();
+
+        List<String> replaced = messages.getStringList("OnlyAzuriom");
+        for (int i = 0; i < replaced.size(); i++) {
+            replaced.set(i, replaced.get(i)
+                    .replace("{config:serverName}", cfg.serverName())
+                    .replace("{serverName}", cfg.serverName())
+                    .replace("[", "{replace_open}")
+                    .replace("]", "{replace_close}")
+                    .replace(",", "{replace_comma}") + "&r");
+        }
+
+        return replaced.toString()
+                .replace("[", "")
+                .replace("]", "")
+                .replace(",", "&r\n&r")
+                .replace("{replace_open}", "[")
+                .replace("{replace_close}", "]")
+                .replace("{replace_comma}", ",");
     }
 
     public interface manager {

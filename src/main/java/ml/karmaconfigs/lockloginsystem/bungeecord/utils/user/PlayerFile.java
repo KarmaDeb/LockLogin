@@ -6,7 +6,6 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
-import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.io.File;
@@ -33,7 +32,6 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
     private final String uuid;
 
     private FileManager manager;
-    private Utils sql;
 
     /**
      * Start the player file manager
@@ -44,30 +42,26 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
         this.player = player;
         this.uuid = player.getUniqueId().toString().replace("-", "");
 
-        if (config.isYaml()) {
             /*File playerdata = new File(plugin.getDataFolder(), "playerdata");
             File player_file = new File(playerdata, uuid + ".yml");
 
             FileCopy copy = new FileCopy(plugin, "auto-generated/userTemplate.yml");
             copy.copy(player_file);*/
 
-            manager = new FileManager(uuid + ".yml", "playerdata");
-            manager.setInternal("auto-generated/userTemplate.yml");
+        manager = new FileManager(uuid + ".yml", "playerdata");
+        manager.setInternal("auto-generated/userTemplate.yml");
 
-            if (manager.get("Security.Password") != null) {
-                manager.set("Password", manager.getString("Security.Password"));
-                manager.unset("Security.Password");
-            }
-            if (manager.get("Security.GAuth") != null) {
-                manager.set("GAuth", manager.getString("Security.GAuth"));
-                manager.unset("Security.GAuth");
-            }
-            if (manager.get("Security.2FA") != null) {
-                manager.set("2FA", manager.getBoolean("Security.2FA"));
-                manager.unset("Security.2FA");
-            }
-        } else {
-            this.sql = new Utils(player.getUniqueId());
+        if (manager.get("Security.Password") != null) {
+            manager.set("Password", manager.getString("Security.Password"));
+            manager.unset("Security.Password");
+        }
+        if (manager.get("Security.GAuth") != null) {
+            manager.set("GAuth", manager.getString("Security.GAuth"));
+            manager.unset("Security.GAuth");
+        }
+        if (manager.get("Security.2FA") != null) {
+            manager.set("2FA", manager.getBoolean("Security.2FA"));
+            manager.unset("Security.2FA");
         }
     }
 
@@ -134,24 +128,19 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * Setup the player file
      */
     public final void setupFile() {
-        if (config.isYaml()) {
-            if (manager.get("Player") != null) {
-                if (manager.get("Player").toString().isEmpty()) {
-                    manager.set("Player", player.getName());
-                }
-            } else {
+        if (manager.get("Player") != null) {
+            if (manager.get("Player").toString().isEmpty()) {
                 manager.set("Player", player.getName());
             }
-            if (manager.get("UUID") != null) {
-                if (manager.get("UUID").toString().isEmpty()) {
-                    manager.set("UUID", player.getUniqueId().toString());
-                }
-            } else {
+        } else {
+            manager.set("Player", player.getName());
+        }
+        if (manager.get("UUID") != null) {
+            if (manager.get("UUID").toString().isEmpty()) {
                 manager.set("UUID", player.getUniqueId().toString());
             }
         } else {
-            sql.createUser();
-            sql.setName(player.getName());
+            manager.set("UUID", player.getUniqueId().toString());
         }
     }
 
@@ -161,11 +150,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return the player name
      */
     public final String getName() {
-        if (config.isYaml()) {
-            return manager.getString("Player");
-        } else {
-            return sql.getName();
-        }
+        return manager.getString("Player");
     }
 
     /**
@@ -174,11 +159,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param name the new player name
      */
     public final void setName(final String name) {
-        if (config.isYaml()) {
-            manager.set("Player", name);
-        } else {
-            sql.setName(name);
-        }
+        manager.set("Player", name);
     }
 
     /**
@@ -187,11 +168,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return the player UUID
      */
     public final UUID getUUID() {
-        if (config.isYaml()) {
-            return UUID.fromString(manager.getString("UUID"));
-        } else {
-            return sql.getUUID();
-        }
+        return UUID.fromString(manager.getString("UUID"));
     }
 
     /**
@@ -200,11 +177,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return the player password
      */
     public final String getPassword() {
-        if (config.isYaml()) {
-            return manager.getString("Password");
-        } else {
-            return sql.getPassword();
-        }
+        return manager.getString("Password");
     }
 
     /**
@@ -213,11 +186,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param newPassword the new player password
      */
     public final void setPassword(String newPassword) {
-        if (config.isYaml()) {
-            manager.set("Password", new PasswordUtils(newPassword).Hash());
-        } else {
-            sql.setPassword(newPassword, false);
-        }
+        manager.set("Password", new PasswordUtils(newPassword).hashEncrypted());
     }
 
     /**
@@ -226,11 +195,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return the player pin
      */
     public final String getPin() {
-        if (config.isYaml()) {
-            return manager.getString("Pin");
-        } else {
-            return sql.getPin();
-        }
+        return manager.getString("Pin");
     }
 
     /**
@@ -239,22 +204,14 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param pin the pin
      */
     public final void setPin(Object pin) {
-        if (config.isYaml()) {
-            manager.set("Pin", new PasswordUtils(String.valueOf(pin)).Hash());
-        } else {
-            sql.setPin(pin, false);
-        }
+        manager.set("Pin", new PasswordUtils(String.valueOf(pin)).hashEncrypted());
     }
 
     /**
      * Remove the player pin
      */
     public final void delPin() {
-        if (config.isYaml()) {
-            manager.set("Pin", "");
-        } else {
-            sql.delPin();
-        }
+        manager.set("Pin", "");
     }
 
     /**
@@ -263,11 +220,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return the player google auth token
      */
     public final String getToken() {
-        if (config.isYaml()) {
-            return manager.getString("GAuth");
-        } else {
-            return sql.getToken();
-        }
+        return manager.getString("GAuth");
     }
 
     /**
@@ -276,11 +229,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param token the token
      */
     public final void setToken(String token) {
-        if (config.isYaml()) {
-            manager.set("GAuth", new PasswordUtils(token).HashString());
-        } else {
-            sql.setGAuth(token, true);
-        }
+        manager.set("GAuth", new PasswordUtils(token).hashPassword());
     }
 
     /**
@@ -289,11 +238,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @return if the player has 2FA
      */
     public final boolean has2FA() {
-        if (config.isYaml()) {
-            return manager.getBoolean("2FA");
-        } else {
-            return sql.has2fa();
-        }
+        return manager.getBoolean("2FA");
     }
 
     /**
@@ -302,23 +247,15 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param status true = 2FA enabled ; false = 2FA disabled
      */
     public final void set2FA(boolean status) {
-        if (config.isYaml()) {
-            manager.set("2FA", status);
-        } else {
-            sql.gAuthStatus(status);
-        }
+        manager.set("2FA", status);
     }
 
     /**
      * Remove the player file
      */
     public final void removeFile() {
-        if (config.isYaml()) {
-            File player_data = new File(plugin.getDataFolder(), "playerdata");
-            File player_file = new File(player_data, uuid + ".yml");
-            player_file.delete();
-        } else {
-            sql.removeUser();
-        }
+        File player_data = new File(plugin.getDataFolder(), "playerdata");
+        File player_file = new File(player_data, uuid + ".yml");
+        player_file.delete();
     }
 }

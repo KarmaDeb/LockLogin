@@ -71,6 +71,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (!playerFile.getName().equals(player.getName()))
                 playerFile.setName(player.getName());
         } else {
+            if (config.registerRestricted() && !isRegistered())
+                return;
+
             Utils sql = new Utils(player);
             sql.createUser();
 
@@ -155,7 +158,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param reason the kick reason
      */
     public final void Kick(String reason) {
-        player.disconnect(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + reason)));
+        player.disconnect(TextComponent.fromLegacyText(StringUtils.toColor(reason)));
     }
 
     /**
@@ -243,7 +246,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
                 ServerInfo current_info = current_server.getInfo();
                 boolean sent = false;
                 if (!isLogged() || isTempLog()) {
-                    if (config.EnableAuth()) {
+                    if (config.enableAuthLobby()) {
                         if (lobbyCheck.AuthOk() && lobbyCheck.AuthIsWorking()) {
                             if (!current_info.getName().equals(lobbyCheck.getAuth())) {
                                 sendTo(lobbyCheck.getAuth());
@@ -256,7 +259,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
                 }
 
                 if (!sent)
-                    if (config.EnableMain()) {
+                    if (config.enableMainLobby()) {
                         if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
                             if (!current_info.getName().equals(lobbyCheck.getMain())) {
                                 sendTo(lobbyCheck.getMain());
@@ -330,7 +333,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @return if the player has pin
      */
     public final boolean hasPin() {
-        if (config.EnablePins()) {
+        if (config.pinEnabled()) {
             if (config.isYaml()) {
                 PlayerFile playerFile = new PlayerFile(player);
 
@@ -351,7 +354,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @return if the player has 2FA in his account
      */
     public final boolean has2FA() {
-        if (config.Enable2FA()) {
+        if (config.enable2FA()) {
             if (config.isYaml()) {
                 PlayerFile playerFile = new PlayerFile(player);
 
@@ -395,7 +398,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
             playerFile.setPassword(password);
         } else {
             Utils sql = new Utils(player);
-
             sql.setPassword(password, false);
         }
     }
@@ -462,7 +464,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (!unHashed) {
                 return playerFile.getToken();
             } else {
-                return new PasswordUtils(playerFile.getToken()).UnHash();
+                return new PasswordUtils(playerFile.getToken()).unHash();
             }
         } else {
             Utils sql = new Utils(player);
@@ -470,7 +472,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (!unHashed) {
                 return sql.getToken();
             } else {
-                return new PasswordUtils(sql.getToken()).UnHash();
+                return new PasswordUtils(sql.getToken()).unHash();
             }
         }
     }
@@ -523,7 +525,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
         if (playerTries.containsKey(player)) {
             return playerTries.get(player) != 0;
         } else {
-            playerTries.put(player, config.GetMaxTries());
+            playerTries.put(player, config.loginMaxTries());
             return true;
         }
     }
@@ -572,7 +574,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * of the player
      */
     public final int getTriesLeft() {
-        return playerTries.getOrDefault(player, config.GetMaxTries());
+        return playerTries.getOrDefault(player, config.loginMaxTries());
     }
 
     public interface external {

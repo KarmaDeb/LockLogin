@@ -36,7 +36,7 @@ public final class ResetPinCommand extends Command implements LockLoginBungee, B
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
 
-            if (config.EnablePins()) {
+            if (config.pinEnabled()) {
                 if (user.hasPin()) {
                     if (args.length == 1) {
                         try {
@@ -44,7 +44,7 @@ public final class ResetPinCommand extends Command implements LockLoginBungee, B
                                 Integer.parseInt(args[0]);
 
                                 String pin = args[0];
-                                if (new PasswordUtils(pin, user.getPin()).PasswordIsOk()) {
+                                if (new PasswordUtils(pin, user.getPin()).checkPW()) {
                                     user.removePin();
 
                                     user.Message(messages.Prefix() + messages.PinSet("none"));

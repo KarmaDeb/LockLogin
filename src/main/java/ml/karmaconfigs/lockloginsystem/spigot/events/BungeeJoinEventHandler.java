@@ -36,7 +36,7 @@ public final class BungeeJoinEventHandler implements Listener, LockLoginSpigot, 
             player.setMetadata("LockLoginUser", new FixedMetadataValue(plugin, player.getUniqueId()));
         }
 
-        if (config.HandleSpawn()) {
+        if (config.enableSpawn()) {
             Spawn spawn = new Spawn();
 
             user.Teleport(spawn.getSpawn());

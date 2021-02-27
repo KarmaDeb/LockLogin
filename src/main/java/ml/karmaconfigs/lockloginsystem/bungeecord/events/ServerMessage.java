@@ -57,7 +57,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                         PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PIN, EventAuthResult.WAITING, player, "");
 
                         boolean valid_code = false;
-                        if (utils.PasswordIsOk()) {
+                        if (utils.checkPW()) {
                             valid_code = true;
                             if (user.has2FA()) {
                                 event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
@@ -79,7 +79,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                     new Timer().schedule(new TimerTask() {
                                         @Override
                                         public void run() {
-                                            if (config.EnableMain()) {
+                                            if (config.enableMainLobby()) {
                                                 if (lobbyCheck.MainIsWorking()) {
                                                     user.sendTo(lobbyCheck.getMain());
                                                 }
@@ -88,7 +88,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                     }, TimeUnit.SECONDS.toMillis(1));
 
                                     dataSender.sendAccountStatus(player);
-                                    dataSender.blindEffect(player, false, config.LoginNausea());
+                                    dataSender.blindEffect(player, false, config.nauseaLogin());
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                                     dataSender.openPinGUI(player);

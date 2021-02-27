@@ -27,6 +27,29 @@ public final class AccountMigrate {
 
     public final void start() {
         if (!sql_instance.userExists()) {
+            ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter bungeeConfig = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter();
+            ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter spigotConfig = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter();
+
+            switch (migration_platform) {
+                case BUNGEE:
+                    if (bungeeConfig.registerRestricted())
+                        return;
+                    break;
+                case SPIGOT:
+                    if (spigotConfig.registerRestricted())
+                        return;
+                    break;
+                case ANY:
+                    try {
+                        if (bungeeConfig.registerRestricted())
+                            return;
+                    } catch (Throwable ex) {
+                        if (spigotConfig.registerRestricted())
+                            return;
+                    }
+                    break;
+            }
+
             sql_instance.createUser();
         }
 
@@ -62,9 +85,6 @@ public final class AccountMigrate {
                         has2FA = spigotManager.getBoolean("2FA");
                         hasFly = spigotManager.getBoolean("Fly");
                         break;
-                }
-                if (!sql_instance.userExists()) {
-                    sql_instance.createUser();
                 }
 
                 sql_instance.setName(player);

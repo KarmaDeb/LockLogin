@@ -1,4 +1,4 @@
-package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.LoginSecurity;
+package ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.loginsecurity;
 
 public class LoginSecurityAuth {
 

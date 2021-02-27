@@ -73,8 +73,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                             LastLocation lastLoc = new LastLocation(player);
                             utils.Teleport(lastLoc.getLastLocation());
                         }
-                        if (config.LoginBlind()) {
-                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                        if (config.blindLogin()) {
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
                         }
                         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 
@@ -124,8 +124,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                                 LastLocation lastLoc = new LastLocation(player);
                                 utils.Teleport(lastLoc.getLastLocation());
                             }
-                            if (config.LoginBlind()) {
-                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                            if (config.blindLogin()) {
+                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
                             }
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 
@@ -194,8 +194,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                                 LastLocation lastLoc = new LastLocation(player);
                                 utils.Teleport(lastLoc.getLastLocation());
                             }
-                            if (config.LoginBlind()) {
-                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                            if (config.blindLogin()) {
+                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
                             }
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 
@@ -257,8 +257,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         LastLocation lastLoc = new LastLocation(player);
                         utils.Teleport(lastLoc.getLastLocation());
                     }
-                    if (config.RegisterBlind()) {
-                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.RegisterNausea()));
+                    if (config.blindRegister()) {
+                        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaRegister()));
                     }
                     plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 
@@ -291,8 +291,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                             LastLocation lastLoc = new LastLocation(player);
                             utils.Teleport(lastLoc.getLastLocation());
                         }
-                        if (config.RegisterBlind()) {
-                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.RegisterNausea()));
+                        if (config.blindRegister()) {
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaRegister()));
                         }
                         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 
@@ -382,8 +382,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                             LastLocation lastLoc = new LastLocation(player);
                             utils.Teleport(lastLoc.getLastLocation());
                         }
-                        if (config.LoginBlind()) {
-                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.LoginNausea()));
+                        if (config.blindLogin()) {
+                            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
                         }
                         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.setAllowFlight(utils.hasFly()));
 

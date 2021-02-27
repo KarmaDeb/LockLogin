@@ -41,6 +41,15 @@ Register:
   TimeOut: 60
   Max: 2
 
+#Azuriom integration options
+# Restrict -> Restrict new accounts to
+#             azuriom registered accounts
+#
+# SemiPremium -> Try to use online player UUID
+Azuriom:
+  Restrict: false
+  SemiPremium: false
+
 #Login options
 # Blind -> Applies a blind potion
 #          effect when the player
@@ -73,14 +82,14 @@ BruteForce:
   Tries: 3
   BlockTime: 30
 
-#AntiBot is a feature that
+#antiBot is a feature that
 #will try to keep bots away
 #from your server by just checking
 #if the connecting player has pinged
 #the server (bots doesn't ping servers)
 AntiBot: false
 
-#AllowSameIp is a feature that will
+#allowSameIP is a feature that will
 #allow a player that is already connected
 #to join the server if his IP is the same
 #that the one is already connected.
@@ -95,6 +104,12 @@ AllowSameIp: true
 Pin: true
 
 #Updater options
+# Channel -> Update system channel;
+#            Available channels:
+#            - RELEASE
+#            - RC | RELEASECANDIDATE | RELEASE_CANDIDATE
+#            - SNAPSHOT
+#
 # Check -> Enable the update checker
 #          if disabled, an unique check
 #          will be performed on each server
@@ -107,6 +122,7 @@ Pin: true
 # ChangeLog -> Enable changelog displayer in each
 #              new update found message
 Updater:
+  Channel: "RELEASE"
   Check: true
   CheckTime: 10
 

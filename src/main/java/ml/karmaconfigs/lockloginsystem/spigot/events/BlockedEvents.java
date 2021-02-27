@@ -39,6 +39,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetAddress;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 
 /*
@@ -57,8 +58,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFiles {
 
-    private final static HashSet<InetAddress> botVerified = new HashSet<>();
-    private final static HashSet<Location> netherWasHere = new HashSet<>();
+    private final static Set<InetAddress> botVerified = new HashSet<>();
+    private final static Set<Location> netherWasHere = new HashSet<>();
 
     /**
      * Execute an UUID check for the player
@@ -83,7 +84,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                 back--;
                             }
                         } else {
-                            user.Kick(config.BungeeProxy());
+                            user.Kick(config.bungeeProxy());
                             Console.send(plugin, "Player {0} have been kicked for a failed bungee proxy check", Level.INFO, player.getUniqueId());
                         }
                     } else {
@@ -142,11 +143,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         if (!config.isBungeeCord()) {
             if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
                 BFSystem bf_prevention = new BFSystem(e.getAddress());
-                if (bf_prevention.isBlocked() && config.BFMaxTries() > 0) {
+                if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
                     e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft())));
                 } else {
-                    if (config.AntiBot()) {
+                    if (config.antiBot()) {
                         if (!botVerified.contains(e.getAddress())) {
                             e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                             e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.AntiBot()));
@@ -157,7 +158,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         UUID id = e.getUniqueId();
 
                         if (plugin.getServer().getPlayer(id) != null) {
-                            if (config.AllowSameIp()) {
+                            if (config.allowSameIP()) {
                                 Player alreadyIn = plugin.getServer().getPlayer(id);
 
                                 if (alreadyIn != null && alreadyIn.getAddress() != null && alreadyIn.getAddress().getAddress().equals(e.getAddress())) {
@@ -179,7 +180,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
                         if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
                             if (config.CheckNames()) {
-                                if (!Checker.isValid(e.getName())) {
+                                if (Checker.notValid(e.getName())) {
                                     e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" +
                                             messages.IllegalName(Checker.getIllegalChars(e.getName()))));
@@ -286,7 +287,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 }
             }
         } else {
-            if (BungeeListener.inventoryAccess.contains(player)) {
+            if (BungeeListener.inventoryAccess.contains(player.getUniqueId())) {
                 PinInventory inventory = new PinInventory(player);
 
                 if (!inventory.isVerified()) {
@@ -517,7 +518,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         } else {
             BungeeVerifier verifier = new BungeeVerifier(player.getUniqueId());
 
-            if (BungeeListener.inventoryAccess.contains(player)) {
+            if (BungeeListener.inventoryAccess.contains(player.getUniqueId())) {
                 PinInventory inventory = new PinInventory(player);
 
                 InventoryView view = player.getOpenInventory();
@@ -584,8 +585,6 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         if (!config.isBungeeCord()) {
             User user = new User(player);
 
-            AllowedCommands allowed = new AllowedCommands();
-
             String cmd = getCommand(e.getMessage());
 
             if (!user.isLogged()) {
@@ -595,7 +594,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         user.Message(messages.Prefix() + messages.Register());
                     }
                 } else {
-                    if (!allowed.isAllowed(getCompleteCommand(e.getMessage()))) {
+                    if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
                         if (!cmd.equals("login") && !cmd.equals("l") && !cmd.equals("recovery")) {
                             e.setCancelled(true);
                             user.Message(messages.Prefix() + messages.Login());
@@ -615,7 +614,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         } else {
             BungeeVerifier verifier = new BungeeVerifier(player.getUniqueId());
 
-            if (BungeeListener.inventoryAccess.contains(player)) {
+            if (BungeeListener.inventoryAccess.contains(player.getUniqueId())) {
                 PinInventory inventory = new PinInventory(player);
 
                 InventoryView view = player.getOpenInventory();
@@ -656,7 +655,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     }
                 }
             } else {
-                if (!BungeeListener.inventoryAccess.contains(player)) {
+                if (!BungeeListener.inventoryAccess.contains(player.getUniqueId())) {
                     plugin.getServer().getScheduler().runTask(plugin, player::closeInventory);
                 } else {
                     if (notPinGUI(player.getOpenInventory().getTitle())) {

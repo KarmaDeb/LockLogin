@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
+import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import net.md_5.bungee.api.plugin.Plugin;
 
 import java.io.File;
@@ -68,7 +69,7 @@ public final class ConfigGetter {
         }
     }
 
-    public final String ServerName() {
+    public final String serverName() {
         return configuration.getString("ServerName");
     }
 
@@ -103,54 +104,62 @@ public final class ConfigGetter {
     }
 
     public final boolean isYaml() {
-        return FileSys().equalsIgnoreCase("File") || FileSys().equalsIgnoreCase("file");
+        return accountSystem().equalsIgnoreCase("File") || accountSystem().equalsIgnoreCase("file");
     }
 
     public final boolean isMySQL() {
-        return FileSys().equalsIgnoreCase("MySQL") || FileSys().equalsIgnoreCase("mysql");
+        return accountSystem().equalsIgnoreCase("MySQL") || accountSystem().equalsIgnoreCase("mysql");
     }
 
-    public final boolean FileSysValid() {
+    public final boolean accountSysValid() {
         return isYaml() || isMySQL();
     }
 
-    public final boolean RegisterBlind() {
+    public final boolean registerRestricted() {
+        return configuration.getBoolean("Azuriom.Restrict");
+    }
+
+    public final boolean semiPremium() {
+        return configuration.getBoolean("Azuriom.SemiPremium");
+    }
+
+    public final boolean blindRegister() {
         return configuration.getBoolean("Register.Blind");
     }
 
-    public final boolean RegisterNausea() {
+    public final boolean nauseaRegister() {
         return configuration.getBoolean("Register.Nausea");
     }
 
-    public final int MaxRegister() {
+    public final int registerTimeOut() {
         return configuration.getInt("Register.TimeOut");
     }
 
-    public final int MaxRegisters() {
+    public final int maxRegister() {
         return configuration.getInt("Register.Max");
     }
 
-    public final boolean LoginBlind() {
+    public final boolean blindLogin() {
         return configuration.getBoolean("Login.Blind");
     }
 
-    public final boolean LoginNausea() {
+    public final boolean nauseaLogin() {
         return configuration.getBoolean("Login.Nausea");
     }
 
-    public final int MaxLogin() {
+    public final int loginTimeOut() {
         return configuration.getInt("Login.TimeOut");
     }
 
-    public final int GetMaxTries() {
+    public final int loginMaxTries() {
         return configuration.getInt("Login.MaxTries");
     }
 
-    public final int BFMaxTries() {
+    public final int bfMaxTries() {
         return configuration.getInt("BruteForce.Tries");
     }
 
-    public final int BFBlockTime() {
+    public final int bfBlockTime() {
         int val = configuration.getInt("BruteForce.BlockTime");
 
         if (val <= 0)
@@ -159,15 +168,31 @@ public final class ConfigGetter {
         return (int) TimeUnit.MINUTES.toSeconds(val);
     }
 
-    public final boolean EnablePins() {
+    public final boolean pinEnabled() {
         return configuration.getBoolean("Pin");
     }
 
-    public final boolean CheckForUpdates() {
+    public final VersionChannel getUpdateChannel() {
+        String value = configuration.getString("Updater.Channel");
+
+        switch (value.toLowerCase()) {
+            case "rc":
+            case "releasecandidate":
+            case "release_candidate":
+                return VersionChannel.RC;
+            case "snapshot":
+                return VersionChannel.SNAPSHOT;
+            case "release":
+            default:
+                return VersionChannel.RELEASE;
+        }
+    }
+
+    public final boolean checkUpdates() {
         return configuration.getBoolean("Updater.Check");
     }
 
-    public final int UpdateCheck() {
+    public final int checkInterval() {
         if (configuration.getInt("Updater.CheckTime") >= 5 && configuration.getInt("Updater.CheckTime") <= 86400) {
             return (int) TimeUnit.MINUTES.toSeconds(configuration.getInt("Updater.CheckTime"));
         } else {
@@ -176,19 +201,15 @@ public final class ConfigGetter {
         }
     }
 
-    public final boolean UpdateSelf() {
-        return configuration.getBoolean("Updater.AutoUpdate");
-    }
-
-    public final boolean Enable2FA() {
+    public final boolean enable2FA() {
         return configuration.getBoolean("2FA");
     }
 
-    public final boolean ClearChat() {
+    public final boolean clearChat() {
         return configuration.getBoolean("ClearChat");
     }
 
-    public final int AccountsPerIp() {
+    public final int accountsPerIP() {
         if (configuration.getInt("AccountsPerIp") != 0) {
             return configuration.getInt("AccountsPerIp");
         } else {
@@ -196,39 +217,35 @@ public final class ConfigGetter {
         }
     }
 
-    public final boolean CheckNames() {
-        return configuration.getBoolean("CheckNames");
+    public final boolean checkNames() {
+        return configuration.getBoolean("CheckName");
     }
 
-    public final boolean EnableAuth() {
+    public final boolean enableAuthLobby() {
         return !configuration.getString("Servers.AuthLobby").isEmpty();
     }
 
-    public final boolean EnableMain() {
+    public final boolean enableMainLobby() {
         return !configuration.getString("Servers.MainLobby").isEmpty();
     }
 
-    public final String AuthLobby() {
+    public final String getAuthLobby() {
         return configuration.getString("Servers.AuthLobby");
     }
 
-    public final String MainLobby() {
+    public final String getMainLobby() {
         return configuration.getString("Servers.MainLobby");
     }
 
-    public final String FallBackAuth() {
+    public final String getFallBackAuth() {
         return configuration.getString("FallBack.AuthLobby");
     }
 
-    public final String FallBackMain() {
+    public final String getFallBackMain() {
         return configuration.getString("FallBack.MainLobby");
     }
 
-    public final String MSGLang() {
-        return configuration.getString("Lang");
-    }
-
-    public final String FileSys() {
+    public final String accountSystem() {
         return configuration.getString("AccountSys");
     }
 

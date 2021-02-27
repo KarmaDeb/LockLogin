@@ -9,6 +9,8 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
+import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
+import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -31,7 +33,7 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
     public void execute(CommandSender sender, String[] args) {
         GetLatestVersion latest = new GetLatestVersion();
 
-        int last_version_id = latest.GetLatest();
+        int last_version_id = latest.getId();
         int curr_version_id = LockLoginBungee.versionID;
 
         if (sender instanceof ProxiedPlayer) {
@@ -43,7 +45,8 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                     case "--version":
                         if (player.hasPermission("locklogin.readversion")) {
                             user.Message("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
-                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersionString()));
+                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
+                            user.Message("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         } else {
                             user.Message(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
                         }
@@ -51,14 +54,38 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                     case "--update":
                         if (player.hasPermission("locklogin.checkupdate")) {
                             if (last_version_id > curr_version_id) {
-                                user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersionString()));
-                                user.Message("\n");
-                                user.Message("&7To update, run /updateChecker --forceUpdate");
-                                user.Message("&7otherwise, there are other two ways to update it:");
-                                user.Message("\n");
-                                user.Message("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
-                                user.Message("&e2 - &dRemoving current LockLogin plugin file and download");
-                                user.Message("      &dand install again using LockLogin IM ( LockLogin installation media )");
+                                switch (latest.getChannel()) {
+                                    case SNAPSHOT:
+                                        if (config.getUpdateChannel().equals(VersionChannel.SNAPSHOT)) {
+                                            noReleaseMessage(player, latest);
+                                        } else {
+                                            user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                        }
+                                        break;
+                                    case RC:
+                                        switch (config.getUpdateChannel()) {
+                                            case SNAPSHOT:
+                                            case RC:
+                                                noReleaseMessage(player, latest);
+                                                break;
+                                            default:
+                                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                        }
+                                        break;
+                                    case RELEASE:
+                                        switch (config.getUpdateChannel()) {
+                                            case SNAPSHOT:
+                                            case RC:
+                                            case RELEASE:
+                                            default:
+                                                releaseMessage(player, latest);
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                        break;
+                                }
                             } else {
                                 user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                             }
@@ -70,45 +97,38 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                         if (player.hasPermission("locklogin.forceupdate")) {
                             if (last_version_id > curr_version_id) {
                                 if (!downloading) {
-                                    user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
-                                    user.Message("&aWe will notice you when it's downloaded");
-
-                                    InterfaceUtils utils = new InterfaceUtils();
-                                    if (!utils.isReadyToUpdate()) {
-                                        LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
-                                            try {
-                                                DownloadLatest downloader = new DownloadLatest();
-
-                                                Timer timer = new Timer();
-                                                timer.schedule(new TimerTask() {
-                                                    @Override
-                                                    public void run() {
-                                                        if (player.isConnected() && downloader.getPercentage() <= 97) {
-                                                            player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + downloader.getPercentage() + "&f%")));
-                                                        } else {
-                                                            cancel();
-                                                        }
-                                                    }
-                                                }, 0, TimeUnit.SECONDS.toMillis(1));
-
-                                                if (downloader.isDownloading()) {
-                                                    user.Message("&cLockLogin is already downloading an update");
-                                                } else {
-                                                    downloader.download(() -> {
-                                                        if (player.isConnected()) {
-                                                            user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
-                                                            downloading = false;
-                                                            utils.setReadyToUpdate(true);
-                                                        }
-                                                    });
-                                                }
-                                            } catch (Throwable ex) {
-                                                LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
-                                                user.Message("&cError while downloading latest LockLogin version, see console for more info");
+                                    switch (latest.getChannel()) {
+                                        case SNAPSHOT:
+                                            if (config.getUpdateChannel() == VersionChannel.SNAPSHOT) {
+                                                performDownload(player);
+                                            } else {
+                                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                             }
-                                        });
-                                    } else {
-                                        user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                            break;
+                                        case RC:
+                                            switch (config.getUpdateChannel()) {
+                                                case SNAPSHOT:
+                                                case RC:
+                                                    performDownload(player);
+                                                    break;
+                                                default:
+                                                    user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                                    break;
+                                            }
+                                            break;
+                                        case RELEASE:
+                                            switch (config.getUpdateChannel()) {
+                                                case SNAPSHOT:
+                                                case RC:
+                                                case RELEASE:
+                                                default:
+                                                    performDownload(player);
+                                                    break;
+                                            }
+                                            break;
+                                        default:
+                                            user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                            break;
                                     }
                                 } else {
                                     user.Message("&cLockLogin is already downloading an update");
@@ -131,25 +151,52 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
             if (args.length == 1) {
                 switch (args[0].toLowerCase()) {
                     case "--version":
-                        Console.send("&cLockLogin current version: &e{0}", StringUtils.stripColor(LockLoginBungee.version));
-                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(latest.getVersionString()));
+                        Console.send("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
+                        Console.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
+                        Console.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         break;
                     case "--version&changelog":
-                        Console.send("&cLockLogin current version: &e{0}", StringUtils.stripColor(LockLoginBungee.version));
-                        Console.send("&cLatest LockLogin version: &e{0}", StringUtils.stripColor(latest.getVersionString()));
-                        System.out.println("\n");
+                        Console.send("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
+                        Console.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
+                        Console.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
+                        Console.send("\n");
 
                         Console.send(latest.getChangeLog());
                         break;
                     case "--update":
                         if (last_version_id > curr_version_id) {
-                            Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersionString()));
-                            System.out.println("\n");
-                            Console.send("&7If you want to download the new update run the command /updateChecker --forceUpdate");
-                            Console.send("&7otherwise, there are other two ways to update it:");
-                            System.out.println("\n");
-                            Console.send("&e1 - &dUsing LockLogin auto-update system ( run /applyUpdates )");
-                            Console.send("&e1 - &dRemoving current LockLogin plugin file and download and install again using LockLogin IM ( LockLogin installation media )");
+                            switch (latest.getChannel()) {
+                                case SNAPSHOT:
+                                    if (config.getUpdateChannel().equals(VersionChannel.SNAPSHOT)) {
+                                        noReleaseMessage(null, latest);
+                                    } else {
+                                        Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                    }
+                                    break;
+                                case RC:
+                                    switch (config.getUpdateChannel()) {
+                                        case SNAPSHOT:
+                                        case RC:
+                                            noReleaseMessage(null, latest);
+                                            break;
+                                        default:
+                                            Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                    }
+                                    break;
+                                case RELEASE:
+                                    switch (config.getUpdateChannel()) {
+                                        case SNAPSHOT:
+                                        case RC:
+                                        case RELEASE:
+                                        default:
+                                            releaseMessage(null, latest);
+                                            break;
+                                    }
+                                    break;
+                                default:
+                                    Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                    break;
+                            }
                         } else {
                             Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                         }
@@ -157,33 +204,41 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                     case "--forceupdate":
                         if (last_version_id > curr_version_id) {
                             if (!downloading) {
-                                Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
-                                Console.send("&aWe will notice you when it's downloaded");
-
-                                InterfaceUtils utils = new InterfaceUtils();
-                                if (!utils.isReadyToUpdate()) {
-                                    LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
-                                        try {
-                                            DownloadLatest downloader = new DownloadLatest();
-                                            if (downloader.isDownloading()) {
-                                                Console.send(LockLoginBungee.plugin, "LockLogin is already downloading an update", Level.GRAVE);
-                                            } else {
-                                                downloader.download(() -> {
-                                                    Console.send(LockLoginBungee.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates", Level.INFO);
-                                                    downloading = false;
-                                                    utils.setReadyToUpdate(true);
-                                                });
-                                            }
-                                        } catch (Throwable ex) {
-                                            LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
-                                            Console.send(LockLoginBungee.plugin, "Error while downloading latest LockLogin version, see console for more info", Level.GRAVE);
+                                switch (latest.getChannel()) {
+                                    case SNAPSHOT:
+                                        if (config.getUpdateChannel() == VersionChannel.SNAPSHOT) {
+                                            performDownload(null);
+                                        } else {
+                                            Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                         }
-                                    });
-                                } else {
-                                    Console.send(LockLoginBungee.plugin, "Latest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates", Level.INFO);
+                                        break;
+                                    case RC:
+                                        switch (config.getUpdateChannel()) {
+                                            case SNAPSHOT:
+                                            case RC:
+                                                performDownload(null);
+                                                break;
+                                            default:
+                                                Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                                break;
+                                        }
+                                        break;
+                                    case RELEASE:
+                                        switch (config.getUpdateChannel()) {
+                                            case SNAPSHOT:
+                                            case RC:
+                                            case RELEASE:
+                                            default:
+                                                performDownload(null);
+                                                break;
+                                        }
+                                        break;
+                                    default:
+                                        Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                        break;
                                 }
                             } else {
-                                Console.send(LockLoginBungee.plugin, "LockLogin is already downloading an update", Level.GRAVE);
+                                Console.send("&cLockLogin is already downloading an update");
                             }
                         } else {
                             Console.send("&cWoah! Are you sure is LockLogin outdated?");
@@ -195,6 +250,120 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                 }
             } else {
                 Console.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+            }
+        }
+    }
+
+    private void noReleaseMessage(final ProxiedPlayer player, final GetLatestVersion latest) {
+        if (player != null) {
+            User user = new User(player);
+
+            user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
+            user.Message("\n");
+            user.Message("&7To update, run /updateChecker --forceUpdate");
+            user.Message("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginBungee.jar).replace("{1}", LockLoginBungee.jar));
+        } else {
+            Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginBungee.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
+            Console.send("\n");
+            Console.send("&7To update, run /updateChecker --forceUpdate");
+            Console.send("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginBungee.jar).replace("{1}", LockLoginBungee.jar));
+        }
+    }
+
+    private void releaseMessage(final ProxiedPlayer player, final GetLatestVersion latest) {
+        if (player != null) {
+            User user = new User(player);
+
+            user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
+            user.Message("\n");
+            user.Message("&7To update, run /updateChecker --forceUpdate");
+            user.Message("&7otherwise, there are other two ways to update it:");
+            user.Message("\n");
+            user.Message("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
+            user.Message("&e2 - &dRemoving current LockLogin plugin file and replace it with");
+            user.Message("      &dthe new version ( https://www.spigotmc.org/resources/gsa-locklogin.75156/ )");
+        } else {
+            Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
+            Console.send("\n");
+            Console.send("&7To update, run /updateChecker --forceUpdate");
+            Console.send("&7otherwise, there are other two ways to update it:");
+            Console.send("\n");
+            Console.send("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
+            Console.send("&e2 - &dRemoving current LockLogin plugin file and replace it with");
+            Console.send("      &dthe new version ( https://www.spigotmc.org/resources/gsa-locklogin.75156/ )");
+        }
+    }
+
+    private void performDownload(final ProxiedPlayer player) {
+        if (player != null) {
+            User user = new User(player);
+
+            user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+            user.Message("&aWe will notice you when it's downloaded");
+
+            InterfaceUtils utils = new InterfaceUtils();
+            if (!utils.isReadyToUpdate()) {
+                LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                    try {
+                        DownloadLatest downloader = new DownloadLatest();
+
+                        Timer timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            @Override
+                            public void run() {
+                                if (player.isConnected() && downloader.getPercentage() <= 97) {
+                                    player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor("&fDownloading LockLogin update: &e" + downloader.getPercentage() + "&f%")));
+                                } else {
+                                    cancel();
+                                }
+                            }
+                        }, 0, TimeUnit.SECONDS.toMillis(1));
+
+                        if (downloader.isDownloading()) {
+                            user.Message("&cLockLogin is already downloading an update");
+                        } else {
+                            downloader.download(() -> {
+                                if (player.isConnected()) {
+                                    user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                    downloading = false;
+                                    utils.setReadyToUpdate(true);
+                                }
+                            });
+                        }
+                    } catch (Throwable ex) {
+                        LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                        user.Message("&cError while downloading latest LockLogin version, see console for more info");
+                    }
+                });
+            } else {
+                user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+            }
+        } else {
+            Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+            Console.send("&aWe will notice you when it's downloaded");
+
+            InterfaceUtils utils = new InterfaceUtils();
+            if (!utils.isReadyToUpdate()) {
+                LockLoginBungee.plugin.getProxy().getScheduler().runAsync(LockLoginBungee.plugin, () -> {
+                    try {
+                        DownloadLatest downloader = new DownloadLatest();
+
+                        if (downloader.isDownloading()) {
+                            Console.send("&cLockLogin is already downloading an update");
+                        } else {
+                            downloader.download(() -> {
+                                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                downloading = false;
+                                utils.setReadyToUpdate(true);
+                            });
+                        }
+                    } catch (Throwable ex) {
+                        LockLoginBungee.logger.scheduleLog(Level.GRAVE, ex);
+                        Console.send("&cError while downloading latest LockLogin version, see console for more info");
+                    }
+                });
+            } else {
+                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
             }
         }
     }

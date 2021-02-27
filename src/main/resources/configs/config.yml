@@ -34,6 +34,15 @@ Register:
   TimeOut: 60
   Max: 2
 
+#Azuriom integration options
+# Restrict -> Restrict new accounts to
+#             azuriom registered accounts
+#
+# SemiPremium -> Try to use online player UUID
+Azuriom:
+  Restrict: false
+  SemiPremium: false
+
 #Login options
 # Blind -> Applies a blind potion
 #          effect when the player
@@ -66,7 +75,7 @@ BruteForce:
   Tries: 3
   BlockTime: 30
 
-#AntiBot is a feature that
+#antiBot is a feature that
 #will try to keep bots away
 #from your server by just checking
 #if the connecting player has pinged
@@ -80,6 +89,12 @@ AntiBot: false
 Pin: true
 
 #Updater options
+# Channel -> Update system channel;
+#            Available channels:
+#            - RELEASE
+#            - RC | RELEASECANDIDATE | RELEASE_CANDIDATE
+#            - SNAPSHOT
+#
 # Check -> Enable the update checker
 #          if disabled, an unique check
 #          will be performed on each server
@@ -92,6 +107,7 @@ Pin: true
 # ChangeLog -> Enable changelog displayer in each
 #              new update found message
 Updater:
+  Channel: "RELEASE"
   Check: true
   CheckTime: 10
 
@@ -126,13 +142,13 @@ AccountsPerIp: 2
 CheckNames: true
 
 #Server options
-# AuthLobby -> The server used by the
+# getAuthLobby -> The server used by the
 #              plugin to log players.
 #              In that server, the player
 #              will stay there until they
 #              login/register
 #
-# MainLobby -> The server used as lobby.
+# getMainLobby -> The server used as lobby.
 #              The player will be took here
 #              after logging in/register
 Servers:
@@ -144,14 +160,14 @@ Servers:
 #   secondary server used in
 #   case some of the principals
 #   goes down )
-# AuthLobby -> Fallback auth server, in case
+# getAuthLobby -> Fallback auth server, in case
 #              the original goes down, this one
 #              will be used, if the fallback one
 #              goes down, the current server of the player
 #              will be used ( That's why I recommend
 #              to install LockLogin in all your spigot
 #              instances )
-# MainLobby -> Fallback lobby server, in case
+# getMainLobby -> Fallback lobby server, in case
 #              the original goes down, this one
 #              will be used, if the fallback one
 #              goes down, the player won't be took

@@ -13,9 +13,11 @@ import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
+import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.SpigotMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
+import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.commands.*;
 import ml.karmaconfigs.lockloginsystem.spigot.events.*;
@@ -86,7 +88,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         Console.send(" ");
         Console.send("--------------------");
         if (!new ConfigGetter().isBungeeCord()) {
-            if (new ConfigGetter().CheckForUpdates()) {
+            if (new ConfigGetter().checkUpdates()) {
                 startVersionChecker();
             } else {
                 doVersionCheck();
@@ -177,8 +179,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         String random = StringUtils.randomString(5);
 
-        if (cfg_yml.getString("ServerName", "").isEmpty()) {
-            cfg_yml.set("ServerName", random);
+        if (cfg_yml.getString("serverName", "").isEmpty()) {
+            cfg_yml.set("serverName", random);
         }
 
         ConfigGetter cfg = new ConfigGetter();
@@ -240,7 +242,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         mysql.copy(sql_file);
 
-        if (cfg.FileSysValid()) {
+        if (cfg.accountSysValid()) {
             if (cfg.isMySQL()) {
                 setupMySQL();
             }
@@ -282,8 +284,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                         int smtp_port = mailer.getInt("SMTP.Port", 587);
                         boolean use_tls = mailer.getBoolean("SMTP.TLS", true);
 
-                        String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("ServerName", StringUtils.randomString(8))));
-                        String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("ServerName", StringUtils.randomString(8))));
+                        String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("serverName", StringUtils.randomString(8))));
+                        String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("serverName", StringUtils.randomString(8))));
 
                         File new_config = new File(plugin.getDataFolder().getParentFile() + File.separator + "LockLoginMailer", "config.yml");
                         if (!new_config.exists()) {
@@ -378,6 +380,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
             bucket.prepareTables();
+
+            Utils utils = new Utils();
+            utils.checkTables();
         }
     }
 
@@ -431,52 +436,36 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
             GetLatestVersion latest = new GetLatestVersion();
 
-            int last_version_id = latest.GetLatest();
+            int last_version_id = latest.getId();
             int curr_version_id = LockLoginSpigot.versionID;
 
             if (last_version_id > curr_version_id) {
-                Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.GetLatest() + " &f)");
-                String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+                ConfigGetter cfg = new ConfigGetter();
 
-                File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-                File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
-
-                if (updatedLockLogin.exists()) {
-                    String dest_version = FileInfo.getJarVersion(updatedLockLogin);
-                    String curr_version = FileInfo.getJarVersion(new File(jar));
-
-                    if (!dest_version.equals(curr_version)) {
-                        try {
-                            Files.delete(updatedLockLogin.toPath());
-                        } catch (Throwable ignored) {}
-                    }
-                }
-
-                if (!updatedLockLogin.exists() || !ready_to_update) {
-                    try {
-                        DownloadLatest downloader = new DownloadLatest();
-                        if (!downloader.isDownloading()) {
-                            downloader.download(() -> {
-                                ready_to_update = true;
-                                Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
-                            });
+                switch (cfg.getUpdateChannel()) {
+                    case SNAPSHOT:
+                        switch (latest.getChannel()) {
+                            case SNAPSHOT:
+                                snapshot(latest);
+                                break;
+                            case RELEASE:
+                                releaseUpdate(latest);
+                                break;
                         }
-                    } catch (Throwable e) {
-                        logger.scheduleLog(Level.GRAVE, e);
-                        logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
-                    }
-                } else {
-                    Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
-                }
-
-                Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
-
-                if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
-                    last_changelog = latest.getChangeLog();
-                    Console.send(last_changelog);
-                    checks = 0;
-                } else {
-                    checks++;
+                        break;
+                    case RC:
+                        switch (latest.getChannel()) {
+                            case RC:
+                                releaseCandidate(latest);
+                                break;
+                            case RELEASE:
+                                releaseUpdate(latest);
+                                break;
+                        }
+                    case RELEASE:
+                        if (latest.getChannel().equals(VersionChannel.RELEASE))
+                            releaseUpdate(latest);
+                        break;
                 }
             }
         });
@@ -486,7 +475,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * Start the version checker for spigot
      */
     private void startVersionChecker() {
-        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::doVersionCheck, 0, 20 * new ConfigGetter().UpdateCheck());
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::doVersionCheck, 0, 20 * new ConfigGetter().checkInterval());
     }
 
     /**
@@ -494,7 +483,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      */
     private void startAlertChecker() {
         plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, () -> {
-            if (LockLoginAlerts.AlertAvailable()) {
+            if (LockLoginAlerts.available()) {
                 LockLoginAlerts.sendAlert();
             }
         }, 0, 20 * 30);
@@ -516,15 +505,15 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             if (user.isRegistered()) {
                 new StartCheck(player, CheckType.LOGIN);
-                if (config.LoginBlind()) {
+                if (config.blindLogin()) {
                     user.saveCurrentEffects();
-                    user.applyBlindEffect(config.LoginNausea());
+                    user.applyBlindEffect(config.nauseaLogin());
                 }
             } else {
                 new StartCheck(player, CheckType.REGISTER);
-                if (config.RegisterBlind()) {
+                if (config.blindRegister()) {
                     user.saveCurrentEffects();
-                    user.applyBlindEffect(config.RegisterNausea());
+                    user.applyBlindEffect(config.nauseaRegister());
                 }
             }
 
@@ -566,12 +555,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             if (!user.isLogged()) {
                 if (user.isRegistered()) {
-                    if (config.LoginBlind()) {
-                        user.removeBlindEffect(config.LoginNausea());
+                    if (config.blindLogin()) {
+                        user.removeBlindEffect(config.nauseaLogin());
                     }
                 } else {
-                    if (config.RegisterBlind()) {
-                        user.removeBlindEffect(config.RegisterNausea());
+                    if (config.blindRegister()) {
+                        user.removeBlindEffect(config.nauseaRegister());
                     }
                 }
             }
@@ -588,9 +577,166 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         metrics.addCustomChart(new SpigotMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().ClearChat())
                 .replace("true", "Clear chat")
                 .replace("false", "Don't clear chat")));
-        metrics.addCustomChart(new SpigotMetrics.SimplePie("file_system", () -> new ConfigGetter().FileSys()
+        metrics.addCustomChart(new SpigotMetrics.SimplePie("file_system", () -> new ConfigGetter().accountSys()
                 .replace("file", "File")
                 .replace("mysql", "MySQL")));
+    }
+
+    /**
+     * Send snapshot alert
+     *
+     * @param latest the latest version instance
+     */
+    private void snapshot(final GetLatestVersion latest) {
+        Console.send("&eLockLogin &7>> &aNew version snapshot available for LockLogin &f( &3" + latest.getVersion() + " &f)");
+        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+
+        File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+        File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
+
+        if (updatedLockLogin.exists()) {
+            String dest_version = FileInfo.getJarVersion(updatedLockLogin);
+            String curr_version = FileInfo.getJarVersion(new File(jar));
+
+            if (!dest_version.equals(curr_version)) {
+                try {
+                    Files.delete(updatedLockLogin.toPath());
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        
+        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+            try {
+                DownloadLatest downloader = new DownloadLatest();
+                if (!downloader.isDownloading()) {
+                    downloader.download(() -> {
+                        manager.setReadyToUpdate(true);
+                        Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                    });
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+            }
+        } else {
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+        }
+
+        Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginSpigot.jar, LockLoginSpigot.jar);
+        Console.send(plugin, "PLEASE NOTE THIS IS A SNAPSHOT CONTAINING EXPERIMENTAL FEATURES THAT MAY BE REMOVED OR BREAK PLUGIN FUNCTIONALITY", Level.WARNING);
+
+        if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
+            last_changelog = latest.getChangeLog();
+            Console.send(last_changelog);
+            checks = 0;
+        } else {
+            checks++;
+        }
+    }
+
+    /**
+     * Send rc alert
+     *
+     * @param latest the latest version instance
+     */
+    private void releaseCandidate(final GetLatestVersion latest) {
+        Console.send("&eLockLogin &7>> &aNew version candidate available for LockLogin &f( &3" + latest.getVersion() + " &f)");
+        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+
+        File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+        File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
+
+        if (updatedLockLogin.exists()) {
+            String dest_version = FileInfo.getJarVersion(updatedLockLogin);
+            String curr_version = FileInfo.getJarVersion(new File(jar));
+
+            if (!dest_version.equals(curr_version)) {
+                try {
+                    Files.delete(updatedLockLogin.toPath());
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        
+        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+            try {
+                DownloadLatest downloader = new DownloadLatest();
+                if (!downloader.isDownloading()) {
+                    downloader.download(() -> {
+                        manager.setReadyToUpdate(true);
+                        Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                    });
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+            }
+        } else {
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+        }
+
+        Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginSpigot.jar, LockLoginSpigot.jar);
+
+        if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
+            last_changelog = latest.getChangeLog();
+            Console.send(last_changelog);
+            checks = 0;
+        } else {
+            checks++;
+        }
+    }
+
+    /**
+     * Send release alert
+     *
+     * @param latest the latest version instance
+     */
+    private void releaseUpdate(final GetLatestVersion latest) {
+        Console.send("&eLockLogin &7>> &aNew version available for LockLogin &f( &3" + latest.getVersion() + " &f)");
+        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
+
+        File pluginsFolder = new File(dir.replace("/LockLogin", ""));
+        File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
+
+        if (updatedLockLogin.exists()) {
+            String dest_version = FileInfo.getJarVersion(updatedLockLogin);
+            String curr_version = FileInfo.getJarVersion(new File(jar));
+
+            if (!dest_version.equals(curr_version)) {
+                try {
+                    Files.delete(updatedLockLogin.toPath());
+                } catch (Throwable ignored) {
+                }
+            }
+        }
+        
+        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+            try {
+                DownloadLatest downloader = new DownloadLatest();
+                if (!downloader.isDownloading()) {
+                    downloader.download(() -> {
+                        manager.setReadyToUpdate(true);
+                        Console.send(plugin, "[ LLAUS ] LockLogin downloaded latest version and is ready to update", Level.INFO);
+                    });
+                }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
+            }
+        } else {
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+        }
+
+        Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+
+        if (!last_changelog.equals(latest.getChangeLog()) || checks >= 3) {
+            last_changelog = latest.getChangeLog();
+            Console.send(last_changelog);
+            checks = 0;
+        } else {
+            checks++;
+        }
     }
 
     public interface manager {

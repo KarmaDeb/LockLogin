@@ -155,14 +155,14 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
         );
     }
 
-    private static String getHeadValue(String name){
+    private static String getHeadValue(String name) {
         try {
             String result = getURLContent("https://api.mojang.com/users/profiles/minecraft/" + name);
 
             Gson g = new Gson();
             JsonObject obj = g.fromJson(result, JsonObject.class);
 
-            String uid = obj.get("id").toString().replace("\"","");
+            String uid = obj.get("id").toString().replace("\"", "");
             String signature = getURLContent("https://sessionserver.mojang.com/session/minecraft/profile/" + uid);
 
             obj = g.fromJson(signature, JsonObject.class);
@@ -170,36 +170,38 @@ public final class AltsAccountInventory implements InventoryHolder, LockLoginSpi
             String value = obj.getAsJsonArray("properties").get(0).getAsJsonObject().get("value").getAsString();
             String decoded = new String(Base64.getDecoder().decode(value));
 
-            obj = g.fromJson(decoded,JsonObject.class);
+            obj = g.fromJson(decoded, JsonObject.class);
 
             String skinURL = obj.getAsJsonObject("textures").getAsJsonObject("SKIN").get("url").getAsString();
 
             byte[] skinByte = ("{\"textures\":{\"SKIN\":{\"url\":\"" + skinURL + "\"}}}").getBytes();
 
             return new String(Base64.getEncoder().encode(skinByte));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         return null;
     }
-    
+
     private static String getURLContent(String urlStr) {
         URL url;
         BufferedReader in = null;
         StringBuilder sb = new StringBuilder();
         try {
             url = new URL(urlStr);
-            in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8) );
+            in = new BufferedReader(new InputStreamReader(url.openStream(), StandardCharsets.UTF_8));
             String str;
-            while((str = in.readLine()) != null) {
-                sb.append( str );
+            while ((str = in.readLine()) != null) {
+                sb.append(str);
             }
         } catch (Throwable ignored) {
         } finally {
             try {
-                if(in!=null) {
+                if (in != null) {
                     in.close();
                 }
-            }catch(Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         }
 
         return sb.toString();

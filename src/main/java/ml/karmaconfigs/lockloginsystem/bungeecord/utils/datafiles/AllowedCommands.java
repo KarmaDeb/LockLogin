@@ -39,10 +39,6 @@ public final class AllowedCommands implements LockLoginBungee {
         FileManager manager = new FileManager("allowed.yml");
         manager.setInternal("auto-generated/allowed.yml");
 
-        if (!manager.isSet("AllowedCommands")) {
-            manager.set("AllowedCommands", allowed);
-        }
-
         for (String str : manager.getList("AllowedCommands")) {
             if (!allowed.contains(str)) {
                 allowed.add("/" + str.replace("/", ""));
@@ -100,13 +96,10 @@ public final class AllowedCommands implements LockLoginBungee {
         return false;
     }
 
-    /**
-     * Check if the cmd is allowed
-     *
-     * @param cmd the cmd
-     * @return if the command is allowed
-     */
-    public final boolean isAllowed(String cmd) {
-        return allowed.contains("/" + cmd.replace("/", ""));
+    public interface external {
+
+        static boolean isAllowed(final String cmd) {
+            return allowed.contains("/" + cmd.replace("/", ""));
+        }
     }
 }

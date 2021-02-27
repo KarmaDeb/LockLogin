@@ -41,18 +41,18 @@ public final class GoogleAuthResetCommand extends Command implements LockLoginBu
             if (user.isRegistered()) {
                 if (user.isLogged()) {
                     if (!user.isTempLog()) {
-                        if (config.Enable2FA()) {
+                        if (config.enable2FA()) {
                             if (args.length == 2) {
                                 String password = args[0];
 
                                 PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
 
-                                if (passwordUtils.PasswordIsOk()) {
+                                if (passwordUtils.checkPW()) {
                                     try {
                                         int code = Integer.parseInt(args[1]);
 
                                         if (user.validateCode(code)) {
-                                            if (config.EnableAuth()) {
+                                            if (config.enableAuthLobby()) {
                                                 if (lobbyCheck.AuthIsWorking()) {
                                                     user.sendTo(lobbyCheck.getAuth());
                                                 }

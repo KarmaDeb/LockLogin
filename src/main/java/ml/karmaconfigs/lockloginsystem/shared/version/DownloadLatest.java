@@ -77,9 +77,9 @@ public final class DownloadLatest {
 
                 if (!update.exists()) {
                     if (update.mkdir()) {
-                        PlatformUtils.Alert("Created update folder for LockLogin new update", Level.INFO);
+                        PlatformUtils.send("Created update folder for LockLogin new update", Level.INFO);
                     } else {
-                        PlatformUtils.Alert("An unknown error occurred while creating update folder", Level.GRAVE);
+                        PlatformUtils.send("An unknown error occurred while creating update folder", Level.GRAVE);
                     }
                 }
 
@@ -103,7 +103,7 @@ public final class DownloadLatest {
                 output.close();
                 input.close();
 
-                PlatformUtils.Alert("Downloaded latest LockLogin version, restart your server to apply changes", Level.INFO);
+                PlatformUtils.send("Downloaded latest LockLogin version, restart your server to apply changes", Level.INFO);
             } catch (Throwable e) {
                 PlatformUtils.log(e, Level.GRAVE);
                 PlatformUtils.log("Error while downloading latest LockLogin instance", Level.INFO);

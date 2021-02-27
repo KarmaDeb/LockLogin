@@ -12,7 +12,6 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -168,7 +167,7 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String Enable2FA() {
-        return messages.getString("Enable2FA");
+        return messages.getString("enable2FA");
     }
 
     public final String ToggleFAError() {
@@ -184,11 +183,11 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String LoginOut() {
-        return messages.getString("LoginOut");
+        return messages.getString("loginTimeOut");
     }
 
     public final String RegisterOut() {
-        return messages.getString("RegisterOut");
+        return messages.getString("registerTimeOut");
     }
 
     public final String MaxIp() {
@@ -346,7 +345,7 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String MaxRegisters() {
-        List<String> replaced = messages.getStringList("MaxRegisters");
+        List<String> replaced = messages.getStringList("maxRegister");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
                     .replace("[", "{replace_open}")
@@ -423,54 +422,6 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("IncorrectPin");
     }
 
-    public final String emailDisabled() {
-        return messages.getString("EmailDisabled");
-    }
-
-    public final String invalidEmail() {
-        return messages.getString("InvalidEmail");
-    }
-
-    public final String notEmail() {
-        return messages.getString("NoEmail");
-    }
-
-    public final String emailSet(final String mail) {
-        return Objects.requireNonNull(messages.getString("EmailSet")).replace("{email}", mail);
-    }
-
-    public final String emailSent() {
-        return messages.getString("EmailSent");
-    }
-
-    public final String emailError() {
-        return messages.getString("EmailError");
-    }
-
-    public final String noIpValidation() {
-        return messages.getString("NoIpValidation");
-    }
-
-    public final String ipValidated() {
-        return messages.getString("IpValidated");
-    }
-
-    public final String noRecovery() {
-        return messages.getString("NoRecovery");
-    }
-
-    public final String cantRecovery() {
-        return messages.getString("CantRecovery");
-    }
-
-    public final String recoveryValidated() {
-        return messages.getString("Recovery");
-    }
-
-    public final String invalidCode() {
-        return messages.getString("InvalidCode");
-    }
-
     public final String ipBlocked(final long time) {
         String format = "min(s)";
         if (TimeUnit.MINUTES.toSeconds(time) <= 60)
@@ -500,6 +451,28 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace-one}", "[")
                 .replace("{replace-two}", "]")
                 .replace("{replace_comma_gray}", "&7,");
+    }
+
+    public final String onlyAzuriom() {
+        ConfigGetter cfg = new ConfigGetter();
+
+        List<String> replaced = messages.getStringList("OnlyAzuriom");
+        for (int i = 0; i < replaced.size(); i++) {
+            replaced.set(i, replaced.get(i)
+                    .replace("{config:serverName}", cfg.serverName())
+                    .replace("{serverName}", cfg.serverName())
+                    .replace("[", "{replace_open}")
+                    .replace("]", "{replace_close}")
+                    .replace(",", "{replace_comma}") + "&r");
+        }
+
+        return replaced.toString()
+                .replace("[", "")
+                .replace("]", "")
+                .replace(",", "&r\n&r")
+                .replace("{replace_open}", "[")
+                .replace("{replace_close}", "]")
+                .replace("{replace_comma}", ",");
     }
 
     public interface manager {

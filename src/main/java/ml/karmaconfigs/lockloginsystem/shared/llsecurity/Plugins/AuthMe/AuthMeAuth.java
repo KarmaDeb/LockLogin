@@ -1,4 +1,4 @@
-package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe;
+package ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme;
 
 import java.math.BigInteger;
 import java.security.MessageDigest;
@@ -24,7 +24,7 @@ public class AuthMeAuth {
     }
 
     /**
-     * Hash the password as Sha256
+     * hashEncrypted the password as Sha256
      *
      * @param password the password
      * @return a encrypted password

@@ -117,7 +117,7 @@ public final class CheckPlayerCommand extends Command implements LockLoginBungee
             user.Message("&eServer&7: &f" + target.getServer().getInfo().getName());
         } else {
             if (config.isYaml()) {
-                ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser targetUser = new ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser(tName);
+                OfflineUser targetUser = new OfflineUser(tName);
 
                 if (targetUser.exists()) {
                     user.Message("&eIP&7: &cDISCONNECTED");

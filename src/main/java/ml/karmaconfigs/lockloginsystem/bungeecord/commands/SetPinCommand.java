@@ -35,7 +35,7 @@ public final class SetPinCommand extends Command implements LockLoginBungee, Bun
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
 
-            if (config.EnablePins()) {
+            if (config.pinEnabled()) {
                 if (!user.hasPin()) {
                     if (args.length == 1) {
                         try {

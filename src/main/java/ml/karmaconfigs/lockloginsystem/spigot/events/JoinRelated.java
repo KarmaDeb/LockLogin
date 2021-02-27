@@ -45,94 +45,87 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
             if (e.getResult().equals(PlayerLoginEvent.Result.ALLOWED)) {
                 Player player = e.getPlayer();
 
-                plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                    TempModule temp_module = new TempModule();
-                    ModuleLoader spigot_module_loader = new ModuleLoader(temp_module);
+                TempModule temp_module = new TempModule();
+                ModuleLoader spigot_module_loader = new ModuleLoader(temp_module);
+                try {
+                    if (!ModuleLoader.manager.isLoaded(temp_module)) {
+                        spigot_module_loader.inject();
+                    }
+                } catch (Throwable ignored) {
+                }
+
+                if (config.maxRegister() > 0) {
                     try {
-                        if (!ModuleLoader.manager.isLoaded(temp_module)) {
-                            spigot_module_loader.inject();
+                        IPStorager storager = new IPStorager(temp_module, e.getAddress());
+                        if (storager.canJoin(player.getUniqueId(), config.maxRegister())) {
+                            storager.save(player.getUniqueId());
+
+                            if (storager.hasAltAccounts(player.getUniqueId())) {
+                                for (Player online : plugin.getServer().getOnlinePlayers()) {
+                                    User user = new User(online);
+
+                                    if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(player.getUniqueId()))
+                                        user.Message(messages.Prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId())));
+                                }
+                            }
+                        } else {
+                            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters()));
                         }
                     } catch (Throwable ignored) {
                     }
+                }
 
-                    if (config.MaxRegisters() > 0) {
-                        try {
-                            IPStorager storager = new IPStorager(temp_module, e.getAddress());
-                            if (storager.canJoin(player.getUniqueId(), config.MaxRegisters())) {
-                                storager.save(player.getUniqueId());
+                if (config.AccountsPerIp() != 0) {
+                    IpData data = new IpData(temp_module, e.getAddress());
 
-                                if (storager.hasAltAccounts(player.getUniqueId())) {
-                                    for (Player online : plugin.getServer().getOnlinePlayers()) {
-                                        User user = new User(online);
+                    data.fetch(Platform.SPIGOT);
 
-                                        if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(player.getUniqueId()))
-                                            user.Message(messages.Prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId())));
-                                    }
-                                }
-                            } else {
-                                plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters()));
-                                    try {
-                                        User user = new User(player);
-                                        user.Kick("&eLockLogin\n\n" + messages.MaxRegisters());
-                                    } catch (Throwable ignored) {
-                                    }
-                                });
-                            }
-                        } catch (Throwable ignored) {
-                        }
-                    }
-
-                    if (config.AccountsPerIp() != 0) {
-                        IpData data = new IpData(temp_module, e.getAddress());
-
-                        data.fetch(Platform.SPIGOT);
-
-                        if (data.getConnections() > config.AccountsPerIp()) {
-                            plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp()));
-                                try {
-                                    User user = new User(player);
-                                    user.Kick("&eLockLogin\n\n" + messages.MaxIp());
-                                } catch (Throwable ignored) {
-                                }
-                            });
-                        } else {
-                            if (!plugin.getServer().getOfflinePlayer(e.getPlayer().getUniqueId()).isBanned()) {
-                                data.addIP();
-                            }
-                        }
-                    }
-
-                    if (config.isYaml()) {
-                        User user = new User(player);
-
-                        user.setupFile();
+                    if (data.getConnections() > config.AccountsPerIp()) {
+                        e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp()));
                     } else {
-                        String UUID = player.getUniqueId().toString().replace("-", "");
+                        if (!plugin.getServer().getOfflinePlayer(e.getPlayer().getUniqueId()).isBanned()) {
+                            data.addIP();
+                        }
+                    }
+                }
 
-                        FileManager manager = new FileManager(UUID + ".yml", "playerdata");
-                        manager.setInternal("auto-generated/userTemplate.yml");
+                if (config.isYaml()) {
+                    User user = new User(player);
 
-                        Utils sql = new Utils(player.getUniqueId());
+                    user.setupFile();
+                } else {
+                    User user = new User(player);
 
-                        sql.createUser();
+                    if (!user.isRegistered()) {
+                        if (config.registerRestricted()) {
+                            e.disallow(PlayerLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.onlyAzuriom()));
+                            return;
+                        }
+                    }
 
-                        if (manager.getManaged().exists()) {
-                            if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
-                                if (manager.isSet("Password")) {
-                                    if (!manager.isEmpty("Password")) {
-                                        new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
-                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
-                                    }
+                    String UUID = player.getUniqueId().toString().replace("-", "");
+
+                    FileManager manager = new FileManager(UUID + ".yml", "playerdata");
+                    manager.setInternal("auto-generated/userTemplate.yml");
+
+                    Utils sql = new Utils(player.getUniqueId());
+
+                    sql.createUser();
+
+                    if (manager.getManaged().exists()) {
+                        if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                            if (manager.isSet("Password")) {
+                                if (!manager.isEmpty("Password")) {
+                                    new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                    Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
                                 }
                             }
                         }
-
-                        if (sql.getName() == null || sql.getName().isEmpty())
-                            sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                     }
-                });
+
+                    if (sql.getName() == null || sql.getName().isEmpty())
+                        sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                }
             }
         }
     }
@@ -155,7 +148,7 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
         user.setLogStatus(false);
         user.checkStatus();
 
-        if (config.HandleSpawn()) {
+        if (config.enableSpawn()) {
             if (player.isDead())
                 player.spigot().respawn();
 

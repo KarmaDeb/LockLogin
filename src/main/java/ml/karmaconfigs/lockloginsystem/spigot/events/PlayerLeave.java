@@ -65,12 +65,12 @@ public final class PlayerLeave implements Listener, LockLoginSpigot, SpigotFiles
 
         if (!user.isLogged()) {
             if (user.isRegistered()) {
-                if (config.LoginBlind()) {
-                    user.removeBlindEffect(config.LoginNausea());
+                if (config.blindLogin()) {
+                    user.removeBlindEffect(config.nauseaLogin());
                 }
             } else {
-                if (config.RegisterBlind()) {
-                    user.removeBlindEffect(config.RegisterNausea());
+                if (config.blindRegister()) {
+                    user.removeBlindEffect(config.nauseaRegister());
                 }
             }
         }

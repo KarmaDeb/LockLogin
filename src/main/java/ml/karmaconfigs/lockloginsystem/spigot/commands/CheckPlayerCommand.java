@@ -13,6 +13,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.jetbrains.annotations.NotNull;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 
@@ -39,7 +40,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
     private final Permission checkPlayerInfo = new Permission("locklogin.playerinfo", PermissionDefault.FALSE);
 
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);

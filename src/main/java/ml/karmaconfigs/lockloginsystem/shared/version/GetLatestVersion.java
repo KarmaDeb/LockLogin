@@ -55,20 +55,40 @@ public final class GetLatestVersion {
     /**
      * @return the latest version as integer
      */
-    public final int GetLatest() {
+    public final int getId() {
         return latest;
+    }
+
+    /**
+     * Get the latest version
+     *
+     * @return the latest version string
+     */
+    public final String getVersion() {
+        return version.replaceAll("[aA-zZ]", "").replaceAll("\\s", "");
     }
 
     /**
      * @return the latest version status (Beta - Alpha - Release) and his version int
      */
-    public final String getVersionString() {
-        String url = version.replaceAll("[A-z]", "");
-        String versionTxt = version.replaceAll("[0-9]", "").replace(".", "").replace(" ", "");
-        if (!versionTxt.isEmpty()) {
-            return versionTxt + " / " + url.replace(" ", "");
+    public final VersionChannel getChannel() {
+        String version_text = version.replaceAll("[0-9]", "").replace(".", "").replace(" ", "");
+        if (!version_text.replaceAll("\\s", "").isEmpty()) {
+            version_text = version_text.toLowerCase();
         } else {
-            return url.replace(" ", "");
+            version_text = "release";
+        }
+
+        switch (version_text.toLowerCase()) {
+            case "beta":
+            case "releasecandidate":
+            case "rc":
+                return VersionChannel.RC;
+            case "snapshot":
+                return VersionChannel.SNAPSHOT;
+            case "release":
+            default:
+                return VersionChannel.RELEASE;
         }
     }
 

@@ -17,6 +17,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.jetbrains.annotations.NotNull;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -37,7 +38,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
     Permission forceDel = new Permission("locklogin.forcedel", PermissionDefault.FALSE);
 
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
@@ -68,7 +69,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                     lastLocation.saveLocation();
                                 }
 
-                                if (config.HandleSpawn()) {
+                                if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
                                     targetUser.Teleport(spawn.getSpawn());
@@ -104,13 +105,13 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                         if (password.equals(confirmation)) {
                             PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                            if (utils.PasswordIsOk()) {
+                            if (utils.checkPW()) {
                                 if (config.TakeBack()) {
                                     LastLocation lastLocation = new LastLocation(player);
                                     lastLocation.saveLocation();
                                 }
 
-                                if (config.HandleSpawn()) {
+                                if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
                                     user.Teleport(spawn.getSpawn());
@@ -144,7 +145,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                         lastLocation.saveLocation();
                     }
 
-                    if (config.HandleSpawn()) {
+                    if (config.enableSpawn()) {
                         Spawn spawn = new Spawn();
 
                         targetUser.Teleport(spawn.getSpawn());

@@ -14,6 +14,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -32,18 +33,18 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
 
-            if (config.Enable2FA()) {
+            if (config.enable2FA()) {
                 if (args.length == 2) {
                     String password = args[0];
 
                     PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
 
-                    if (passwordUtils.PasswordIsOk()) {
+                    if (passwordUtils.checkPW()) {
                         try {
                             int code = Integer.parseInt(args[1]);
 
@@ -55,7 +56,7 @@ public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginS
                                     lastLocation.saveLocation();
                                 }
 
-                                if (config.HandleSpawn()) {
+                                if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
                                     user.Teleport(spawn.getSpawn());

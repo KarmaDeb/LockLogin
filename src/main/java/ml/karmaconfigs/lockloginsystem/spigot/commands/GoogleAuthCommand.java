@@ -18,6 +18,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 import java.net.InetSocketAddress;
 
@@ -38,12 +39,12 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
 
-            if (config.Enable2FA()) {
+            if (config.enable2FA()) {
                 if (args.length == 0) {
                     if (user.isRegistered()) {
                         if (user.isLogged()) {
@@ -108,8 +109,8 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                                 user.Teleport(lastLoc.getLastLocation());
                                             }
 
-                                            if (config.LoginBlind())
-                                                user.removeBlindEffect(config.LoginNausea());
+                                            if (config.blindLogin())
+                                                user.removeBlindEffect(config.nauseaLogin());
 
                                             player.setAllowFlight(user.hasFly());
                                         } else {
@@ -143,13 +144,13 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                 PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                if (utils.PasswordIsOk()) {
+                                if (utils.checkPW()) {
                                     if (config.TakeBack()) {
                                         LastLocation lastLocation = new LastLocation(player);
                                         lastLocation.saveLocation();
                                     }
 
-                                    if (config.HandleSpawn()) {
+                                    if (config.enableSpawn()) {
                                         Spawn spawn = new Spawn();
 
                                         user.Teleport(spawn.getSpawn());
@@ -192,7 +193,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                         PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                        if (utils.PasswordIsOk()) {
+                                        if (utils.checkPW()) {
                                             if (user.validateCode(code)) {
                                                 user.set2FA(false);
                                                 user.Message(messages.Prefix() + messages.Disabled2FA());

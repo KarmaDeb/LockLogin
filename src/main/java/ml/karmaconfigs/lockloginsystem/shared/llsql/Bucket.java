@@ -47,11 +47,7 @@ public final class Bucket {
     public Bucket(String host, String database, String table, String user, String password, int port, boolean useSSL, boolean ignoreCertificate) {
         Bucket.host = host;
         Bucket.database = database;
-        if (!table.contains("_")) {
-            Bucket.table = "ll_" + table;
-        } else {
-            Bucket.table = table;
-        }
+        Bucket.table = table;
         Bucket.username = user;
         Bucket.password = password;
         Bucket.port = port;
@@ -121,6 +117,16 @@ public final class Bucket {
      */
     public static int getPort() {
         return port;
+    }
+
+    /**
+     * Check if the table is an azuriom table meaning
+     * the server is using azuriom integration
+     *
+     * @return if the server is using azuriom integration
+     */
+    public static boolean isAzuriom() {
+        return columnSet("email_verified_at");
     }
 
     /**
@@ -223,64 +229,9 @@ public final class Bucket {
             changes = insertColumn("PIN", "text");
         }
 
-        try {
-            connection = dataSource.getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + table);
-
-            ResultSet rs = statement.executeQuery();
-            ResultSetMetaData rsMetaData = rs.getMetaData();
-            int columnCount = rsMetaData.getColumnCount();
-
-            for (int i = 1; i <= columnCount; i++) {
-                String name = rsMetaData.getColumnName(i);
-
-                if (!name.equalsIgnoreCase("player")
-                        && !name.equalsIgnoreCase("uuid")
-                        && !name.equalsIgnoreCase("password")
-                        && !name.equalsIgnoreCase("faon")
-                        && !name.equalsIgnoreCase("gauth")
-                        && !name.equalsIgnoreCase("fly")
-                        && !name.equalsIgnoreCase("pin")
-                        && !name.equalsIgnoreCase("email")) {
-                    changes = deleteColumn(name);
-                }
-            }
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while setting up tables and columns", Level.INFO);
-        } finally {
-            close(connection, statement);
-        }
-
         if (changes) {
-            PlatformUtils.Alert("MySQL tables have been resolved", Level.INFO);
+            PlatformUtils.send("MySQL tables have been resolved", Level.INFO);
         }
-    }
-
-    /**
-     * Remove the column
-     *
-     * @param column the column name
-     * @return if the column could be removed
-     */
-    private boolean deleteColumn(String column) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = dataSource.getConnection();
-            statement = connection.prepareStatement("ALTER TABLE " + table + " " + "DROP " + column);
-            statement.executeUpdate();
-
-            PlatformUtils.Alert("Removed column " + column, Level.INFO);
-
-            return true;
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while deleting column " + column, Level.INFO);
-        } finally {
-            close(connection, statement);
-        }
-        return false;
     }
 
     /**
@@ -289,7 +240,7 @@ public final class Bucket {
      * @param column the column name
      * @return if the column could be inserted
      */
-    private boolean insertColumn(String column, String type) {
+    private static boolean insertColumn(String column, String type) {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -313,7 +264,7 @@ public final class Bucket {
      * @param column the column
      * @return if the column exists
      */
-    private boolean columnSet(String column) {
+    private static boolean columnSet(String column) {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();

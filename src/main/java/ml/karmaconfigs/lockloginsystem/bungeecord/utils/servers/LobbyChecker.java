@@ -24,10 +24,10 @@ public final class LobbyChecker implements LockLoginBungee {
 
     private static boolean MainWork = false;
     private static boolean AuthWork = false;
-    private final String Main = config.MainLobby();
-    private final String Auth = config.AuthLobby();
-    private final String FBMain = config.FallBackMain();
-    private final String FBAuth = config.FallBackAuth();
+    private final String Main = config.getMainLobby();
+    private final String Auth = config.getAuthLobby();
+    private final String FBMain = config.getFallBackMain();
+    private final String FBAuth = config.getFallBackAuth();
     private String MainName = "";
     private String AuthName = "";
 
@@ -71,7 +71,7 @@ public final class LobbyChecker implements LockLoginBungee {
         if (!MainName.equals(AuthName)) {
             return AuthName;
         } else {
-            return "AuthLobby";
+            return "getAuthLobby";
         }
     }
 

@@ -45,11 +45,11 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
         User user = new User(player);
 
         if (!user.isRegistered()) {
-            blind = config.RegisterBlind();
-            nausea = config.RegisterNausea();
+            blind = config.blindRegister();
+            nausea = config.nauseaRegister();
         } else {
-            blind = config.LoginBlind();
-            nausea = config.LoginNausea();
+            blind = config.blindLogin();
+            nausea = config.nauseaLogin();
         }
 
         status = user.isLogged();

@@ -8,7 +8,7 @@ import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -82,12 +82,14 @@ public final class IPStorager implements LockLoginBungee {
                                 new_data.write(uuids);
                             }
                         }
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 try {
                     Files.delete(old_data.getFile().toPath());
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             }
         });
     }
@@ -121,7 +123,8 @@ public final class IPStorager implements LockLoginBungee {
 
                 try {
                     Files.delete(old_data.getFile().toPath());
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             }
         });
     }

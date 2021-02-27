@@ -1,6 +1,6 @@
-package ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe;
+package ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme;
 
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.libs.BCrypt;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.libs.BCrypt;
 
 public final class AuthMeBcrypt {
 

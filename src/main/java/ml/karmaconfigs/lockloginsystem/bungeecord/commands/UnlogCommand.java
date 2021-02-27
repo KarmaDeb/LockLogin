@@ -59,7 +59,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                                     targetUser.Message(messages.Prefix() + messages.ForcedUnLog(player));
                                     user.Message(messages.Prefix() + messages.ForcedUnLogAdmin(target));
 
-                                    if (config.EnableAuth()) {
+                                    if (config.enableAuthLobby()) {
                                         if (lobbyCheck.AuthIsWorking()) {
                                             targetUser.sendTo(lobbyCheck.getAuth());
                                         }
@@ -95,10 +95,10 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
                         targetUser.setLogStatus(false);
                         new StartCheck(target, CheckType.LOGIN);
-                        targetUser.Message(messages.Prefix() + messages.ForcedUnLog(config.ServerName()));
+                        targetUser.Message(messages.Prefix() + messages.ForcedUnLog(config.serverName()));
                         Console.send(messages.Prefix() + messages.ForcedUnLog(target));
 
-                        if (config.EnableAuth()) {
+                        if (config.enableAuthLobby()) {
                             if (lobbyCheck.AuthIsWorking()) {
                                 targetUser.sendTo(lobbyCheck.getAuth());
                             }

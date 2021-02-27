@@ -22,8 +22,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginBungee {
 
-    private FileManager manager = null;
     private final Object finder;
+    private FileManager manager = null;
 
     /**
      * Initialize the offline player

@@ -79,8 +79,10 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 if (!playerFile.getName().equals(player.getName()))
                     playerFile.setName(player.getName());
             } else {
-                Utils sql = new Utils(player);
+                if (config.registerRestricted() && !isRegistered())
+                    return;
 
+                Utils sql = new Utils(player);
                 sql.createUser();
 
                 String name = sql.getName();
@@ -220,7 +222,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
             PasswordUtils utils = new PasswordUtils(password, getPassword());
 
-            if (utils.PasswordIsOk()) {
+            if (utils.checkPW()) {
                 if (hasPin()) {
                     event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.Logged(player));
                 } else {
@@ -239,7 +241,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
-                        if (utils.PasswordIsOk()) {
+                        if (utils.checkPW()) {
                             InetSocketAddress ip = player.getAddress();
 
                             if (ip != null) {
@@ -257,8 +259,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 Teleport(lastLoc.getLastLocation());
                             }
 
-                            if (config.LoginBlind())
-                                removeBlindEffect(config.LoginNausea());
+                            if (config.blindLogin())
+                                removeBlindEffect(config.nauseaLogin());
 
                             if (Passwords.isLegacySalt(getPassword())) {
                                 setPassword(password);
@@ -295,14 +297,14 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                                 if (ip != null) {
                                     BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                                    if (bf_prevention.getTries() >= config.BFMaxTries() && config.BFMaxTries() > 0) {
+                                    if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
                                         bf_prevention.block();
-                                        bf_prevention.updateTime(config.BFBlockTime());
+                                        bf_prevention.updateTime(config.bfBlockTime());
 
                                         Timer unban = new Timer();
                                         unban.schedule(new TimerTask() {
                                             final BFSystem saved_system = bf_prevention;
-                                            int back = config.BFBlockTime();
+                                            int back = config.bfBlockTime();
 
                                             @Override
                                             public void run() {
@@ -335,14 +337,14 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                         if (ip != null) {
                             BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                            if (bf_prevention.getTries() >= config.BFMaxTries() && config.BFMaxTries() > 0) {
+                            if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
                                 bf_prevention.block();
-                                bf_prevention.updateTime(config.BFBlockTime());
+                                bf_prevention.updateTime(config.bfBlockTime());
 
                                 Timer unban = new Timer();
                                 unban.schedule(new TimerTask() {
                                     final BFSystem saved_system = bf_prevention;
-                                    int back = config.BFBlockTime();
+                                    int back = config.bfBlockTime();
 
                                     @Override
                                     public void run() {
@@ -528,18 +530,18 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             case REGISTER:
                 Message(messages.Prefix() + messages.Register());
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    if (config.RegisterBlind()) {
+                    if (config.blindRegister()) {
                         saveCurrentEffects();
-                        applyBlindEffect(config.RegisterNausea());
+                        applyBlindEffect(config.nauseaRegister());
                     }
                 }, 5);
                 break;
             case LOGIN:
                 Message(messages.Prefix() + messages.Login());
                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    if (config.LoginBlind()) {
+                    if (config.blindLogin()) {
                         saveCurrentEffects();
-                        applyBlindEffect(config.LoginNausea());
+                        applyBlindEffect(config.nauseaLogin());
                     }
                 }, 5);
                 break;
@@ -610,7 +612,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean hasPin() {
         if (!config.isBungeeCord()) {
-            if (config.EnablePins()) {
+            if (config.enablePin()) {
                 if (config.isYaml()) {
                     PlayerFile playerFile = new PlayerFile(player);
 
@@ -634,7 +636,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean has2FA() {
         if (!config.isBungeeCord()) {
-            if (config.Enable2FA()) {
+            if (config.enable2FA()) {
                 if (config.isYaml()) {
                     PlayerFile playerFile = new PlayerFile(player);
 
@@ -712,7 +714,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             if (playerTries.containsKey(player)) {
                 return playerTries.get(player) != 0;
             } else {
-                playerTries.put(player, config.GetMaxTries());
+                playerTries.put(player, config.loginMaxTries());
                 return true;
             }
         }
@@ -839,14 +841,14 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 if (!unHashed) {
                     return playerFile.getToken();
                 } else {
-                    return new PasswordUtils(playerFile.getToken()).UnHash();
+                    return new PasswordUtils(playerFile.getToken()).unHash();
                 }
             } else {
                 Utils sql = new Utils(player);
                 if (!unHashed) {
                     return sql.getToken();
                 } else {
-                    return new PasswordUtils(sql.getToken()).UnHash();
+                    return new PasswordUtils(sql.getToken()).unHash();
                 }
             }
         }
@@ -896,7 +898,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * of the player
      */
     public final int getTriesLeft() {
-        return playerTries.getOrDefault(player, config.GetMaxTries());
+        return playerTries.getOrDefault(player, config.loginMaxTries());
     }
 }
 

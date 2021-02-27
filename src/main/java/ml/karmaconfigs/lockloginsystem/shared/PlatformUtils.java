@@ -15,7 +15,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
  */
 public interface PlatformUtils {
 
-    static void Message(String message) {
+    static void send(String message) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case SPIGOT:
@@ -29,7 +29,7 @@ public interface PlatformUtils {
         }
     }
 
-    static void Alert(String message, Level level) {
+    static void send(String message, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case SPIGOT:

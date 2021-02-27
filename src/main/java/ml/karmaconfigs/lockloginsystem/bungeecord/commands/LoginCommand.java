@@ -58,7 +58,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                         PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PASSWORD, EventAuthResult.WAITING, player, "");
 
                         boolean valid_password = false;
-                        if (utils.PasswordIsOk()) {
+                        if (utils.checkPW()) {
                             valid_password = true;
                             if (user.hasPin()) {
                                 event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
@@ -85,7 +85,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                     new Timer().schedule(new TimerTask() {
                                         @Override
                                         public void run() {
-                                            if (config.EnableMain()) {
+                                            if (config.enableMainLobby()) {
                                                 if (lobbyCheck.MainIsWorking()) {
                                                     user.sendTo(lobbyCheck.getMain());
                                                 }
@@ -125,14 +125,14 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 }
                                 break;
                             case FAILED:
-                                if (bf_prevention.getTries() >= config.BFMaxTries() && config.BFMaxTries() > 0) {
+                                if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
                                     bf_prevention.block();
-                                    bf_prevention.updateTime(config.BFBlockTime());
+                                    bf_prevention.updateTime(config.bfBlockTime());
 
                                     Timer unban = new Timer();
                                     unban.schedule(new TimerTask() {
                                         final BFSystem saved_system = bf_prevention;
-                                        int back = config.BFBlockTime();
+                                        int back = config.bfBlockTime();
 
                                         @Override
                                         public void run() {
@@ -153,7 +153,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 } else {
                                     bf_prevention.fail();
                                     user.delTries();
-                                    user.Kick(messages.LogError());
+                                    user.Kick("&eLockLogin\n\n" + messages.LogError());
                                 }
                                 break;
                             case ERROR:

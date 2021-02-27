@@ -117,7 +117,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                 PasswordUtils utils = new PasswordUtils(pin, user.getPin());
 
-                if (utils.PasswordIsOk()) {
+                if (utils.checkPW()) {
                     if (user.has2FA()) {
                         event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
                     } else {
@@ -131,7 +131,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
-                        if (utils.PasswordIsOk()) {
+                        if (utils.checkPW()) {
                             user.setTempLog(false);
                             user.Message(event.getAuthMessage());
 
@@ -140,8 +140,8 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                                 user.Teleport(lastLoc.getLastLocation());
                             }
 
-                            if (config.LoginBlind())
-                                user.removeBlindEffect(config.LoginNausea());
+                            if (config.blindLogin())
+                                user.removeBlindEffect(config.nauseaLogin());
 
                             verified.add(player);
                             input.put(player, "/-/-/-/");
@@ -152,7 +152,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                         }
                         break;
                     case SUCCESS_TEMP:
-                        if (utils.PasswordIsOk()) {
+                        if (utils.checkPW()) {
                             verified.add(player);
 
                             if (!user.has2FA()) {
@@ -161,8 +161,8 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                                     user.Teleport(lastLoc.getLastLocation());
                                 }
 
-                                if (config.LoginBlind())
-                                    user.removeBlindEffect(config.LoginNausea());
+                                if (config.blindLogin())
+                                    user.removeBlindEffect(config.nauseaLogin());
 
                                 user.setTempLog(false);
                             }

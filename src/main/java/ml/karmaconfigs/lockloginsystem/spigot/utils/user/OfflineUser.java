@@ -22,8 +22,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginSpigot {
 
-    private FileManager manager;
     private final Object finder;
+    private FileManager manager;
 
     /**
      * Initialize the offline player

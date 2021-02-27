@@ -38,7 +38,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
         switch (type) {
             case REGISTER:
                 timer.schedule(new TimerTask() {
-                    int back = config.RegisterOut();
+                    int back = config.registerTimeOut();
 
                     @Override
                     public void run() {
@@ -68,7 +68,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                 break;
             case LOGIN:
                 timer.schedule(new TimerTask() {
-                    int back = config.LoginOut();
+                    int back = config.loginTimeOut();
 
                     @Override
                     public void run() {
@@ -89,8 +89,8 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                                 back--;
                             } else {
                                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                                    if (config.LoginBlind())
-                                        user.removeBlindEffect(config.LoginNausea());
+                                    if (config.blindLogin())
+                                        user.removeBlindEffect(config.nauseaLogin());
                                 });
 
                                 cancel();

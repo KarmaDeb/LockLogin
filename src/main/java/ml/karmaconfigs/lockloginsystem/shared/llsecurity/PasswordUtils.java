@@ -16,15 +16,17 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.AuthMe.AuthMeAuth;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Plugins.LoginSecurity.LoginSecurityAuth;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.AuthMeAuth;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.libs.BCrypt;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.loginsecurity.LoginSecurityAuth;
 import org.apache.commons.codec.binary.Base64;
 
 public final class PasswordUtils {
 
     private final String password;
     private String token;
+    private boolean useAzuriom = false;
     private byte[] encoded;
 
     /**
@@ -48,12 +50,28 @@ public final class PasswordUtils {
     }
 
     /**
+     * Specify if password utils should use Azuriom's bcrypt
+     *
+     * @param support support Azuriom's BCrypt
+     * @return the same instance with azuriom configuration
+     */
+    public PasswordUtils withAzuriomSupport(final boolean support) {
+        useAzuriom = support;
+        return this;
+    }
+
+    /**
      * Get the encrypted password
      *
      * @return the encrypted password
      */
-    public final String Encrypted() {
-        return new Codification().hash(password);
+    public final String encrypt() {
+        if (useAzuriom) {
+            String salt = BCrypt.gensalt();
+            return BCrypt.hashpw(password, salt).replaceFirst("2a", "2y");
+        } else {
+            return new Codification().hash(password);
+        }
     }
 
     /**
@@ -62,8 +80,8 @@ public final class PasswordUtils {
      *
      * @return a hashed password
      */
-    public final String Hash() {
-        encoded = Base64.encodeBase64(Encrypted().getBytes());
+    public final String hashEncrypted() {
+        encoded = Base64.encodeBase64(encrypt().getBytes());
         return new String(encoded);
     }
 
@@ -73,7 +91,7 @@ public final class PasswordUtils {
      *
      * @return the hash value of password
      */
-    public final String HashString() {
+    public final String hashPassword() {
         encoded = Base64.encodeBase64(password.getBytes());
         return new String(encoded);
     }
@@ -83,7 +101,7 @@ public final class PasswordUtils {
      *
      * @return the unhashed password
      */
-    public final String UnHash() {
+    public final String unHash() {
         byte[] decoded = Base64.decodeBase64(password);
         return new String(decoded);
     }
@@ -94,17 +112,19 @@ public final class PasswordUtils {
      *
      * @return if the password is correct
      */
-    public final boolean PasswordIsOk() {
-        byte[] decode = Base64.decodeBase64(token);
-
-        String decode_str = new String(decode);
+    public final boolean checkPW() {
+        String decode_str = token;
+        if (Base64.isBase64(token)) {
+            byte[] decode = Base64.decodeBase64(token);
+            decode_str = new String(decode);
+        }
 
         Codification codification = new Codification();
         AuthMeAuth authme = new AuthMeAuth();
         LoginSecurityAuth ls_auth = new LoginSecurityAuth();
 
         try {
-            return authme.check(password, token) || ls_auth.check(password, token) || codification.auth(password, decode_str);
+            return authme.check(password, token) || ls_auth.check(password, token) || codification.auth(password, decode_str) || BCrypt.checkpw(password, decode_str.replaceFirst("2y", "2a"));
         } catch (Throwable ex) {
             PlatformUtils.log(ex, Level.GRAVE);
             PlatformUtils.log("An error occurred while trying to auth a player ( 1/2 )", Level.INFO);

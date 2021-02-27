@@ -7,7 +7,7 @@ import ml.karmaconfigs.api.spigot.KarmaFile;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Codifications.Codification2;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import org.bukkit.entity.Player;
@@ -19,9 +19,19 @@ import java.nio.file.Files;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Private GSA code
+ * <p>
+ * The use of this code
+ * without GSA team authorization
+ * will be a violation of
+ * terms of use determined
+ * in <a href="https://karmaconfigs.ml/license/"> here </a>
+ */
 public final class IPStorager implements LockLoginSpigot {
 
-    private final static HashMap<Player, Integer> scan_passed = new HashMap<>();
+    private final static Map<UUID, Integer> scan_passed = new HashMap<>();
+
     private final KarmaFile separated_ip_data;
     private final Module module;
 
@@ -123,7 +133,7 @@ public final class IPStorager implements LockLoginSpigot {
             }
         }
     }
-    
+
     /**
      * Add user name to the list of players
      * assigned to the ip
@@ -131,11 +141,13 @@ public final class IPStorager implements LockLoginSpigot {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
-        List<String> assigned = separated_ip_data.readFullFile();
+        if (ModuleLoader.manager.isLoaded(module)) {
+            List<String> assigned = separated_ip_data.readFullFile();
 
-        if (!assigned.contains(uuid.toString())) {
-            assigned.add(uuid.toString());
-            separated_ip_data.write(assigned);
+            if (!assigned.contains(uuid.toString())) {
+                assigned.add(uuid.toString());
+                separated_ip_data.write(assigned);
+            }
         }
     }
 
@@ -149,22 +161,26 @@ public final class IPStorager implements LockLoginSpigot {
      * the user is already saved
      */
     public final boolean canJoin(final UUID uuid, final int max) {
-        HashSet<OfflineUser> alts = manager.getAlts(module, null, uuid);
-        boolean available = false;
-        if (alts != null) {
-            for (OfflineUser user : alts) {
-                if (user.exists()) {
-                    if (user.getUUID().toString().equals(uuid.toString())) {
-                        available = true;
-                        break;
+        if (ModuleLoader.manager.isLoaded(module)) {
+            HashSet<OfflineUser> alts = manager.getAlts(module, null, uuid);
+            boolean available = false;
+            if (alts != null) {
+                for (OfflineUser user : alts) {
+                    if (user.exists()) {
+                        if (user.getUUID().toString().equals(uuid.toString())) {
+                            available = true;
+                            break;
+                        }
                     }
                 }
+
+                return available || alts.size() < max;
             }
 
-            return available || alts.size() < max;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     /**
@@ -175,7 +191,10 @@ public final class IPStorager implements LockLoginSpigot {
      * @return if the player has alt account
      */
     public final boolean hasAltAccounts(final UUID target) {
-        return getAltsAmount(target) > 0;
+        if (ModuleLoader.manager.isLoaded(module))
+            return getAltsAmount(target) > 0;
+        else
+            return false;
     }
 
     /**
@@ -185,9 +204,13 @@ public final class IPStorager implements LockLoginSpigot {
      * @return the amount of player alt accounts
      */
     public final int getAltsAmount(final UUID target) {
-        HashSet<OfflineUser> alts = manager.getAlts(module, null, target);
-        if (alts != null)
-            return alts.size() - 1;
+        if (ModuleLoader.manager.isLoaded(module)) {
+            HashSet<OfflineUser> alts = manager.getAlts(module, null, target);
+            if (alts != null)
+                return alts.size() - 1;
+
+            return 0;
+        }
 
         return 0;
     }
@@ -210,7 +233,7 @@ public final class IPStorager implements LockLoginSpigot {
                 if (issuer != null) {
                     showBar = true;
 
-                    if (scan_passed.containsKey(issuer)) {
+                    if (scan_passed.containsKey(issuer.getUniqueId())) {
                         issuer.sendMessage(StringUtils.toColor("&cAlready searching alts..."));
                         return null;
                     }
@@ -221,7 +244,8 @@ public final class IPStorager implements LockLoginSpigot {
 
                 if (files != null) {
                     int max = files.length;
-                    scan_passed.put(issuer, 0);
+                    if (issuer != null)
+                        scan_passed.put(issuer.getUniqueId(), 0);
 
                     if (showBar) {
                         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
@@ -232,12 +256,12 @@ public final class IPStorager implements LockLoginSpigot {
                             timer.schedule(new TimerTask() {
                                 @Override
                                 public void run() {
-                                    if (!scan_passed.containsKey(issuer)) {
+                                    if (!scan_passed.containsKey(issuer.getUniqueId())) {
                                         timer.cancel();
                                         bar.setMessage("");
                                         bar.stop();
                                     } else {
-                                        int updated_passed = scan_passed.getOrDefault(issuer, 0);
+                                        int updated_passed = scan_passed.getOrDefault(issuer.getUniqueId(), 0);
 
                                         double division = (double) updated_passed / max;
                                         long iPart = (long) division;
@@ -262,7 +286,8 @@ public final class IPStorager implements LockLoginSpigot {
                                 matching_files.add(ip_data);
                         }
 
-                        scan_passed.put(issuer, scan_passed.getOrDefault(issuer, 0) + 1);
+                        if (issuer != null)
+                            scan_passed.put(issuer.getUniqueId(), scan_passed.getOrDefault(issuer.getUniqueId(), 0) + 1);
                     }
 
                     HashSet<OfflineUser> users = new HashSet<>();
@@ -281,7 +306,8 @@ public final class IPStorager implements LockLoginSpigot {
                         }
                     }
 
-                    scan_passed.remove(issuer);
+                    if (issuer != null)
+                        scan_passed.remove(issuer.getUniqueId());
 
                     return users;
                 }

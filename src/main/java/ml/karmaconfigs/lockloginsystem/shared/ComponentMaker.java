@@ -59,7 +59,7 @@ public final class ComponentMaker {
      * @return The google auth qr url
      */
     public final String getURL(Player player, String token) {
-        return "https://karmaconfigs.ml/qr/?" + player.getName() + "%20" + "(" + SpigotFiles.config.ServerName() + ")?" + token;
+        return "https://karmaconfigs.ml/qr/?" + player.getName() + "%20" + "(" + SpigotFiles.config.serverName() + ")?" + token;
     }
 
     /**
@@ -71,7 +71,7 @@ public final class ComponentMaker {
      * @return The google auth qr url
      */
     public final String getURL(ProxiedPlayer player, String token) {
-        return "https://karmaconfigs.ml/qr/?" + player.getName() + "%20" + "(" + BungeeFiles.config.ServerName() + ")?" + token;
+        return "https://karmaconfigs.ml/qr/?" + player.getName() + "%20" + "(" + BungeeFiles.config.serverName() + ")?" + token;
     }
 
     /**

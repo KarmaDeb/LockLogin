@@ -92,7 +92,12 @@ IpBlocked:
   - "&c检测到异常流量，已阻止"
   - "&f{time} {time_format}"
 AntiBot:
-  - "&f{ServerName}"
+  - "&f{serverName}"
   - ""
   - "&c将此服务器添加到当前服务器列表中"
   - "&c如已添加，请重新加载服务器列表"
+OnlyAzuriom:
+  - "&f{serverName}"
+  - ""
+  - "&c请从以下位置注册您的帐户:"
+  - "&ehttps://myazuriomwebsite.com/user/register"

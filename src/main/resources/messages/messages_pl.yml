@@ -92,7 +92,12 @@ IpBlocked:
   - "&cnietypowy ruch na Twoim IP i został zablokowany"
   - "&f{time} {time_format}"
 AntiBot:
-  - "&7{ServerName}"
+  - "&7{serverName}"
   - ""
   - "&cDodaj ten serwer do listy serwerów"
   - "&cJeśli już go masz, załaduj ponownie listę serwerów"
+OnlyAzuriom:
+  - "&f{serverName}"
+  - ""
+  - "&cZarejestruj swoje konto z:"
+  - "&ehttps://myazuriomwebsite.com/user/register"

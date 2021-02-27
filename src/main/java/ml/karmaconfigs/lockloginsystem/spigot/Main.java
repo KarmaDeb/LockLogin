@@ -26,7 +26,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.6.1", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
+@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.6.3", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
 public final class Main extends JavaPlugin {
 
     @Override
@@ -62,7 +62,8 @@ public final class Main extends JavaPlugin {
             goauth_injector.inject(this);
             slf4j_injector.inject(this);
 
-            new PluginManagerSpigot().enable();
+            PluginManagerSpigot ms = new PluginManagerSpigot();
+            ms.enable();
             LockLoginSpigot.logger.scheduleLog(Level.INFO, "LockLogin initialized");
         } catch (Throwable e) {
             LockLoginSpigot.logger.scheduleLog(Level.GRAVE, e);
@@ -74,7 +75,8 @@ public final class Main extends JavaPlugin {
 
     @Override
     public final void onDisable() {
-        new PluginManagerSpigot().disable();
+        PluginManagerSpigot ms = new PluginManagerSpigot();
+        ms.disable();
         LockLoginSpigot.logger.scheduleLog(Level.INFO, "LockLogin disabled");
     }
 }

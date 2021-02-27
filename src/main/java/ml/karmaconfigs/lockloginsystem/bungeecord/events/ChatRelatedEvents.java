@@ -78,8 +78,6 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
         ProxiedPlayer player = (ProxiedPlayer) e.getSender();
         User user = new User(player);
 
-        AllowedCommands allowed = new AllowedCommands();
-
         String cmd = getCommand(e.getMessage());
 
         if (e.getMessage().startsWith("/")) {
@@ -90,7 +88,7 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                         user.Message(messages.Prefix() + messages.Register());
                     }
                 } else {
-                    if (!allowed.isAllowed(getCompleteCommand(e.getMessage()))) {
+                    if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
                         if (!cmd.equals("login") && !cmd.equals("l")) {
                             e.setCancelled(true);
                             user.Message(messages.Prefix() + messages.Login());

@@ -17,6 +17,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -35,7 +36,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class ChangePassword implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
@@ -46,7 +47,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
 
                 PasswordUtils utils = new PasswordUtils(oldPass, user.getPassword());
 
-                if (utils.PasswordIsOk()) {
+                if (utils.checkPW()) {
                     if (!oldPass.equals(newPass)) {
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {
@@ -57,7 +58,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                                     lastLocation.saveLocation();
                                 }
 
-                                if (config.HandleSpawn()) {
+                                if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
                                     user.Teleport(spawn.getSpawn());

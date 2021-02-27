@@ -5,8 +5,9 @@ import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 
 import java.io.File;
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -24,7 +25,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class AllowedCommands implements LockLoginSpigot {
 
-    private final static List<String> allowed = new ArrayList<>();
+    private final static Set<String> allowed = new HashSet<>();
 
     /**
      * Setup the allowed commands file
@@ -51,13 +52,13 @@ public final class AllowedCommands implements LockLoginSpigot {
     }
 
     /**
-     * Add all the listed cmds to
-     * the list of allowed cmds
+     * Add all the listed cmd to
+     * the list of allowed cmd
      *
-     * @param cmds the cmds
+     * @param cmd the cmd
      */
-    public final void addAll(List<String> cmds) {
-        for (String str : cmds) {
+    public final void addAll(List<String> cmd) {
+        for (String str : cmd) {
             if (!allowed.contains(str)) {
                 allowed.add("/" + str.replace("/", ""));
             }
@@ -100,13 +101,9 @@ public final class AllowedCommands implements LockLoginSpigot {
         return false;
     }
 
-    /**
-     * Check if the cmd is allowed
-     *
-     * @param cmd the cmd
-     * @return if the command is allowed
-     */
-    public final boolean isAllowed(String cmd) {
-        return allowed.contains("/" + cmd.replace("/", ""));
+    public interface external {
+        static boolean isAllowed(String cmd) {
+            return allowed.contains("/" + cmd.replace("/", ""));
+        }
     }
 }

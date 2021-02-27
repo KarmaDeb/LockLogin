@@ -5,7 +5,6 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
@@ -54,14 +53,14 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
         Connection connection = e.getConnection();
 
         BFSystem bf_prevention = new BFSystem(e.getConnection().getVirtualHost().getAddress());
-        if (bf_prevention.isBlocked() && config.BFMaxTries() > 0) {
+        if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
         } else {
             InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
-            if (config.CheckNames()) {
-                if (!Checker.isValid(e.getConnection().getName())) {
+            if (config.checkNames()) {
+                if (Checker.notValid(e.getConnection().getName())) {
                     e.setCancelled(true);
                     e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.IllegalName(Checker.getIllegalChars(e.getConnection().getName())))));
                 }
@@ -73,7 +72,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             }
 
             if (!e.isCancelled()) {
-                if (config.AccountsPerIp() != 0) {
+                if (config.accountsPerIP() != 0) {
                     TempModule temp_module = new TempModule();
                     try {
                         ModuleLoader loader = new ModuleLoader(temp_module);
@@ -86,7 +85,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                     IpData data = new IpData(temp_module, ip);
                     data.fetch(Platform.BUNGEE);
 
-                    if (data.getConnections() > config.AccountsPerIp()) {
+                    if (data.getConnections() > config.accountsPerIP()) {
                         e.setCancelled(true);
                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
                     } else {
@@ -113,9 +112,9 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                     try {
                         IPStorager storager = new IPStorager(temp_module, ip);
 
-                        if (config.MaxRegisters() > 0) {
+                        if (config.maxRegister() > 0) {
                             try {
-                                if (storager.canJoin(e.getConnection().getUniqueId(), config.MaxRegisters())) {
+                                if (storager.canJoin(e.getConnection().getUniqueId(), config.maxRegister())) {
                                     storager.save(e.getConnection().getUniqueId());
 
                                     if (storager.hasAltAccounts(e.getConnection().getUniqueId())) {
@@ -151,12 +150,22 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
         if (config.isYaml()) {
             user.setupFile();
         } else {
+            if (!user.isRegistered()) {
+                if (config.registerRestricted()) {
+                    e.setCancelled(true);
+                    e.setTarget(null);
+
+                    user.Kick(messages.onlyAzuriom());
+
+                    return;
+                }
+            }
+
             String UUID = player.getUniqueId().toString().replace("-", "");
             FileManager manager = new FileManager(UUID + ".yml", "playerdata");
             manager.setInternal("auto-generated/userTemplate.yml");
 
-            Utils sql = new Utils(player.getUniqueId());
-
+            Utils sql = new Utils(player);
             sql.createUser();
 
             if (manager.getManaged().exists()) {
@@ -174,7 +183,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 sql.setName(player.getName());
         }
 
-        if (config.EnableMain()) {
+        if (config.enableMainLobby()) {
             if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
                 if (e.getReason().equals(ServerConnectEvent.Reason.COMMAND)) {
                     if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
@@ -198,7 +207,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             if (!user.isLogged()) {
                 plugin.getProxy().getScheduler().schedule(plugin, () -> {
                     user.checkServer();
-                    if (config.ClearChat()) {
+                    if (config.clearChat()) {
                         for (int i = 0; i < 150; i++) {
                             user.Message(" ");
                         }

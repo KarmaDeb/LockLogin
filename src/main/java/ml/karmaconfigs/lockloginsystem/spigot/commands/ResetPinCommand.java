@@ -10,6 +10,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -37,12 +38,12 @@ public final class ResetPinCommand implements CommandExecutor, LockLoginSpigot, 
      * @return a boolean
      */
     @Override
-    public final boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public final boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
 
-            if (config.EnablePins()) {
+            if (config.enablePin()) {
                 if (user.hasPin()) {
                     if (args.length == 1) {
                         try {
@@ -50,7 +51,7 @@ public final class ResetPinCommand implements CommandExecutor, LockLoginSpigot, 
                                 Integer.parseInt(args[0]);
 
                                 String pin = args[0];
-                                if (new PasswordUtils(pin, user.getPin()).PasswordIsOk()) {
+                                if (new PasswordUtils(pin, user.getPin()).checkPW()) {
                                     user.removePin();
 
                                     user.Message(messages.Prefix() + messages.PinSet("none"));

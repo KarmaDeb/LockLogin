@@ -105,7 +105,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             {
                 GetLatestVersion latest = new GetLatestVersion();
 
-                int last_version_id = latest.GetLatest();
+                int last_version_id = latest.getId();
                 int curr_version_id = LockLoginSpigot.versionID;
 
                 boolean outdated = last_version_id > curr_version_id;
@@ -116,7 +116,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                     ItemMeta meta = item.getItemMeta();
                     assert meta != null;
 
-                    item_name.put(module_index,module.name());
+                    item_name.put(module_index, module.name());
 
                     meta.setDisplayName(StringUtils.toColor("&f" + module.name() + " &7&o[ &b" + module.version() + " &7&o]"));
                     List<String> lore = new ArrayList<>();

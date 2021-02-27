@@ -40,7 +40,7 @@ public interface Passwords {
     static boolean isLegacySalt(String token) {
         try {
             PasswordUtils utils = new PasswordUtils(token);
-            token = utils.UnHash();
+            token = utils.unHash();
             String token_salt = token.split("\\$")[1];
             return token_salt.length() <= 1;
         } catch (Throwable ex) {

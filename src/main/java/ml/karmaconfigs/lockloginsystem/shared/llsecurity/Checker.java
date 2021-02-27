@@ -16,8 +16,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public interface Checker {
 
-    static boolean isValid(String name) {
-        return new NameChecker(name).isValid();
+    static boolean notValid(String name) {
+        return !new NameChecker(name).isValid();
     }
 
     static String getIllegalChars(String name) {

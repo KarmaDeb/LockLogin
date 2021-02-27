@@ -45,7 +45,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
 
-            if (config.Enable2FA()) {
+            if (config.enable2FA()) {
                 if (args.length == 0) {
                     if (user.isRegistered()) {
                         if (user.isLogged()) {
@@ -100,7 +100,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                             new Timer().schedule(new TimerTask() {
                                                 @Override
                                                 public void run() {
-                                                    if (config.EnableMain()) {
+                                                    if (config.enableMainLobby()) {
                                                         if (lobbyCheck.MainIsWorking()) {
                                                             user.sendTo(lobbyCheck.getMain());
                                                         }
@@ -109,7 +109,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                             }, TimeUnit.SECONDS.toMillis(1));
 
                                             dataSender.sendAccountStatus(player);
-                                            dataSender.blindEffect(player, false, config.LoginNausea());
+                                            dataSender.blindEffect(player, false, config.nauseaLogin());
                                         } else {
                                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
                                         }
@@ -140,8 +140,8 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
                                 PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                if (utils.PasswordIsOk()) {
-                                    if (config.EnableAuth()) {
+                                if (utils.checkPW()) {
+                                    if (config.enableAuthLobby()) {
                                         if (lobbyCheck.AuthIsWorking()) {
                                             user.sendTo(lobbyCheck.getAuth());
                                         }
@@ -184,7 +184,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
                                         PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                        if (utils.PasswordIsOk()) {
+                                        if (utils.checkPW()) {
                                             if (user.validateCode(code)) {
                                                 user.set2FA(false);
                                                 user.Message(messages.Prefix() + messages.Disabled2FA());

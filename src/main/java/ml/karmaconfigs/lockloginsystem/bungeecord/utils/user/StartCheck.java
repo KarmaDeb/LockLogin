@@ -40,7 +40,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
         StartSendingMessage(p, type);
         switch (type) {
             case REGISTER:
-                back = config.MaxRegister();
+                back = config.registerTimeOut();
                 task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
                     if (p != null) {
                         if (p.isConnected()) {
@@ -57,7 +57,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                         task.cancel();
                                     }
                                 } else {
-                                    user.Kick(messages.RegisterOut());
+                                    user.Kick("&eLockLogin\n\n" + messages.RegisterOut());
                                     task.cancel();
                                 }
                             } else {
@@ -73,7 +73,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                 }, 0, 1, TimeUnit.SECONDS);
                 break;
             case LOGIN:
-                back = config.MaxLogin();
+                back = config.loginTimeOut();
                 task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
                     if (p != null) {
                         if (p.isConnected()) {
@@ -90,13 +90,13 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                         task.cancel();
                                     }
                                 } else {
-                                    user.Kick(messages.LoginOut());
+                                    user.Kick("&eLockLogin\n\n" + messages.LoginOut());
                                     task.cancel();
                                 }
                                 back--;
                             } else {
                                 task.cancel();
-                                dataSender.blindEffect(p, false, config.LoginNausea());
+                                dataSender.blindEffect(p, false, config.nauseaLogin());
                             }
                         } else {
                             task.cancel();

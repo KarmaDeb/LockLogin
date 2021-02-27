@@ -25,6 +25,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.util.HashSet;
@@ -54,7 +55,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     private final Permission modulePermission = new Permission("locklogin.modules", PermissionDefault.FALSE);
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String arg, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
@@ -68,7 +69,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             if (migrating_owner == null) {
                                 if (!config.isBungeeCord()) {
                                     if (args.length == 1) {
-                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                     } else {
                                         if (args.length == 2) {
                                             String method = args[1];
@@ -76,11 +77,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                 case "MySQL":
                                                     migrateMySQL(player);
                                                     break;
-                                                case "AuthMe":
-                                                    user.Message(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/AuthMe folder)");
+                                                case "authme":
+                                                    user.Message(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/authme folder)");
                                                     break;
                                                 default:
-                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                     break;
                                             }
                                         } else {
@@ -90,14 +91,14 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                     case "MySQL":
                                                         user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
-                                                    case "AuthMe":
+                                                    case "authme":
                                                         user.Message(messages.Prefix() + "&cPlease, specify table name");
                                                         break;
                                                     case "UserLogin":
                                                         user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate UserLogin");
                                                         break;
                                                     default:
-                                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                         break;
                                                 }
                                             } else {
@@ -107,11 +108,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                         case "MySQL":
                                                             user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                             break;
-                                                        case "AuthMe":
+                                                        case "authme":
                                                             user.Message(messages.Prefix() + "&cPlease specify the 'realname' column");
                                                             break;
                                                         default:
-                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                             break;
                                                     }
                                                 } else {
@@ -121,11 +122,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                             case "MySQL":
                                                                 user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                                 break;
-                                                            case "AuthMe":
+                                                            case "authme":
                                                                 user.Message(messages.Prefix() + "&cPlease specify the 'password' column");
                                                                 break;
                                                             default:
-                                                                user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                                user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                                 break;
                                                         }
                                                     } else {
@@ -135,8 +136,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                 case "MySQL":
                                                                     user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                                     break;
-                                                                case "AuthMe":
-                                                                    user.Message(messages.Prefix() + "&aMigrating from AuthMe sqlite");
+                                                                case "authme":
+                                                                    user.Message(messages.Prefix() + "&aMigrating from authme sqlite");
                                                                     BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
                                                                     message.send(true);
                                                                     if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
@@ -171,11 +172,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                     }
                                                                     break;
                                                                 default:
-                                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                                     break;
                                                             }
                                                         } else {
-                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                         }
                                                     }
                                                 }
@@ -220,7 +221,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     if (migrating_owner == null) {
                         if (!config.isBungeeCord()) {
                             if (args.length == 1) {
-                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                             } else {
                                 if (args.length == 2) {
                                     String method = args[1];
@@ -228,11 +229,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                         case "MySQL":
                                             migrateMySQL(sender);
                                             break;
-                                        case "AuthMe":
-                                            Console.send(messages.Prefix() + "&cPlease, specify database name, table name, realname and password column name (must exist in plugins/AuthMe folder)");
+                                        case "authme":
+                                            Console.send(messages.Prefix() + "&cPlease, specify database name, table name, realname and password column name (must exist in plugins/authme folder)");
                                             break;
                                         default:
-                                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                             break;
                                     }
                                 } else {
@@ -242,11 +243,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                             case "MySQL":
                                                 Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                 break;
-                                            case "AuthMe":
+                                            case "authme":
                                                 Console.send(messages.Prefix() + "&cPlease, specify table name");
                                                 break;
                                             default:
-                                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                 break;
                                         }
                                     } else {
@@ -256,11 +257,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                 case "MySQL":
                                                     Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                     break;
-                                                case "AuthMe":
+                                                case "authme":
                                                     Console.send(messages.Prefix() + "&cPlease specify the 'realname' column");
                                                     break;
                                                 default:
-                                                    Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                    Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                     break;
                                             }
                                         } else {
@@ -270,11 +271,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                     case "MySQL":
                                                         Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
-                                                    case "AuthMe":
+                                                    case "authme":
                                                         Console.send(messages.Prefix() + "&cPlease specify the 'password' column");
                                                         break;
                                                     default:
-                                                        Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                        Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                         break;
                                                 }
                                             } else {
@@ -284,8 +285,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                         case "MySQL":
                                                             Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                             break;
-                                                        case "AuthMe":
-                                                            Console.send(messages.Prefix() + "&aMigrating from AuthMe sqlite");
+                                                        case "authme":
+                                                            Console.send(messages.Prefix() + "&aMigrating from authme sqlite");
                                                             if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
                                                                 Console.send(messages.Prefix() + messages.Migrated());
                                                             } else {
@@ -293,11 +294,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                             }
                                                             break;
                                                         default:
-                                                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                            Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                             break;
                                                     }
                                                 } else {
-                                                    Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe>");
+                                                    Console.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                 }
                                             }
                                         }
@@ -520,7 +521,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     }
 
     /**
-     * Do an AuthMe sqlite migration
+     * Do an authme sqlite migration
      *
      * @param database the database name
      * @param table    the database table where the info is
@@ -528,7 +529,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     private boolean migrateAuthMe(CommandSender sender, String database, String table, String realnameColumn, String passwordColumn) {
         migrating_owner = sender;
 
-        File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "AuthMe");
+        File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "authme");
         if (authMe.exists()) {
             File data = new File(authMe, database + ".db");
 

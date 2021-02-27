@@ -16,14 +16,14 @@ public interface LockLoginAlerts {
      *
      * @return if there's a new alert
      */
-    static boolean AlertAvailable() {
-        return new IMSGUtils().AlertAvailable();
+    static boolean available() {
+        return new AlertUtils().available();
     }
 
     /**
      * Send the alert to the server console
      */
     static void sendAlert() {
-        new IMSGUtils().SendAlert();
+        new AlertUtils().sendAlert();
     }
 }

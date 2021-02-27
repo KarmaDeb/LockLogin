@@ -15,6 +15,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.jetbrains.annotations.NotNull;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -35,7 +36,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
     private final Permission forceUnLog = new Permission("locklogin.forceunlog", PermissionDefault.FALSE);
 
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String arg, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull final Command cmd, @NotNull final String arg, String[] args) {
         if (sender instanceof Player) {
             Player player = (Player) sender;
             User user = new User(player);
@@ -46,7 +47,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                     lastLocation.saveLocation();
                 }
 
-                if (config.HandleSpawn()) {
+                if (config.enableSpawn()) {
                     Spawn spawn = new Spawn();
 
                     user.Teleport(spawn.getSpawn());
@@ -57,9 +58,9 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                 user.Message(messages.Prefix() + messages.UnLogged());
             } else {
                 if (args.length == 1) {
-                    if (plugin.getServer().getPlayer(args[0]) != null) {
-                        Player target = plugin.getServer().getPlayer(args[0]);
+                    Player target = plugin.getServer().getPlayer(args[0]);
 
+                    if (target != null) {
                         if (!target.equals(player)) {
                             if (player.hasPermission(forceUnLog)) {
                                 User targetUser = new User(target);
@@ -70,7 +71,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                                         lastLocation.saveLocation();
                                     }
 
-                                    if (config.HandleSpawn()) {
+                                    if (config.enableSpawn()) {
                                         Spawn spawn = new Spawn();
 
                                         targetUser.Teleport(spawn.getSpawn());
@@ -102,8 +103,9 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
             }
         } else {
             if (args.length == 1) {
-                if (plugin.getServer().getPlayer(args[0]) != null) {
-                    Player target = plugin.getServer().getPlayer(args[0]);
+                Player target = plugin.getServer().getPlayer(args[0]);
+
+                if (target != null) {
                     User targetUser = new User(target);
 
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
@@ -112,7 +114,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                             lastLocation.saveLocation();
                         }
 
-                        if (config.HandleSpawn()) {
+                        if (config.enableSpawn()) {
                             Spawn spawn = new Spawn();
 
                             targetUser.Teleport(spawn.getSpawn());
