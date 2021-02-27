@@ -1,0 +1,13 @@
+{
+  "name": "azuriom/locklogin",
+  "type": "azuriom-plugin",
+  "description": "LockLogin plugin for Azuriom",
+  "autoload": {
+    "psr-4": {
+      "Azuriom\\Plugin\\LockLogin\\": "src/"
+    },
+    "files": [
+      "src/helpers.php"
+    ]
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "id": "locklogin",
+  "name": "LockLogin",
+  "description": "LockLogin plugin for Azuriom",
+  "version": "1.0.0",
+  "url": "https://karmaconfigs.ml/",
+  "authors": [
+    "KarmaDev"
+  ],
+  "providers": [
+    "\\Azuriom\\Plugin\\LockLogin\\Providers\\LockLoginServiceProvider",
+    "\\Azuriom\\Plugin\\LockLogin\\Providers\\LoginServiceProvider",
+    "\\Azuriom\\Plugin\\LockLogin\\Providers\\RouteServiceProvider"
+  ]
+}
