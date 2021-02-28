@@ -5,7 +5,10 @@ import com.zaxxer.hikari.HikariDataSource;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DatabaseMetaData;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -130,6 +133,52 @@ public final class Bucket {
     }
 
     /**
+     * Insert a column in the MySQL table
+     *
+     * @param column the column name
+     * @return if the column could be inserted
+     */
+    private static boolean insertColumn(String column, String type) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD " + column + " " + type);
+            statement.executeUpdate();
+
+            return true;
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while inserting column " + column, Level.INFO);
+        } finally {
+            close(connection, statement);
+        }
+        return false;
+    }
+
+    /**
+     * Check if the specified column exists
+     *
+     * @param column the column
+     * @return if the column exists
+     */
+    private static boolean columnSet(String column) {
+        Connection connection = null;
+        try {
+            connection = dataSource.getConnection();
+            DatabaseMetaData md = connection.getMetaData();
+            ResultSet rs = md.getColumns(null, null, table, column);
+            return rs.next();
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while checking for column existence " + column, Level.INFO);
+            return false;
+        } finally {
+            close(connection, null);
+        }
+    }
+
+    /**
      * Set extra Bucket options
      *
      * @param max      the max amount of connections
@@ -231,52 +280,6 @@ public final class Bucket {
 
         if (changes) {
             PlatformUtils.send("MySQL tables have been resolved", Level.INFO);
-        }
-    }
-
-    /**
-     * Insert a column in the MySQL table
-     *
-     * @param column the column name
-     * @return if the column could be inserted
-     */
-    private static boolean insertColumn(String column, String type) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = dataSource.getConnection();
-            statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD " + column + " " + type);
-            statement.executeUpdate();
-
-            return true;
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while inserting column " + column, Level.INFO);
-        } finally {
-            close(connection, statement);
-        }
-        return false;
-    }
-
-    /**
-     * Check if the specified column exists
-     *
-     * @param column the column
-     * @return if the column exists
-     */
-    private static boolean columnSet(String column) {
-        Connection connection = null;
-        try {
-            connection = dataSource.getConnection();
-            DatabaseMetaData md = connection.getMetaData();
-            ResultSet rs = md.getColumns(null, null, table, column);
-            return rs.next();
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while checking for column existence " + column, Level.INFO);
-            return false;
-        } finally {
-            close(connection, null);
         }
     }
 }

@@ -4,13 +4,13 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
-import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.PluginManagerSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
+import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.PluginManagerSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -248,7 +248,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                 Console.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
             }
         }
-        
+
         return false;
     }
 

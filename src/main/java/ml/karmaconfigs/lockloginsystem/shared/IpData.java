@@ -7,8 +7,8 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.entity.Player;
 
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.Objects;
 
 /**
  * Private GSA code
@@ -113,7 +113,10 @@ public final class IpData {
                 case ANY:
                     try {
                         for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
-                            ips.put(Objects.requireNonNull(player.getAddress()).getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                            InetSocketAddress ip = player.getAddress();
+
+                            if (ip != null)
+                                ips.put(ip.getAddress(), ips.getOrDefault(ip.getAddress(), 0) + 1);
                         }
                     } catch (Throwable e) {
                         for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
@@ -123,7 +126,10 @@ public final class IpData {
                     break;
                 case SPIGOT:
                     for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
-                        ips.put(Objects.requireNonNull(player.getAddress()).getAddress(), ips.getOrDefault(player.getAddress().getAddress(), 0) + 1);
+                        InetSocketAddress ip = player.getAddress();
+
+                        if (ip != null)
+                            ips.put(ip.getAddress(), ips.getOrDefault(ip.getAddress(), 0) + 1);
                     }
                     break;
                 case BUNGEE:

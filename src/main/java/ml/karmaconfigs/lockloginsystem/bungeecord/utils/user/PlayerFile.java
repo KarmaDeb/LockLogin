@@ -31,7 +31,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
     private final ProxiedPlayer player;
     private final String uuid;
 
-    private FileManager manager;
+    private final FileManager manager;
 
     /**
      * Start the player file manager

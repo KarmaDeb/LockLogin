@@ -174,7 +174,7 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String Enable2FA() {
-        return messages.getString("enable2FA");
+        return messages.getString("Enable2FA");
     }
 
     public final String ToggleFAError() {
@@ -190,11 +190,11 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String LoginOut() {
-        return messages.getString("loginTimeOut");
+        return messages.getString("LoginOut");
     }
 
     public final String RegisterOut() {
-        return messages.getString("registerTimeOut");
+        return messages.getString("RegisterOut");
     }
 
     public final String MaxIp() {
@@ -384,7 +384,7 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String MaxRegisters() {
-        List<String> replaced = messages.getStringList("maxRegister");
+        List<String> replaced = messages.getStringList("MaxRegisters");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
                     .replace("[", "{replace_open}")

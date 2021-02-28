@@ -32,17 +32,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -611,7 +606,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
             }
         }
-        
+
         if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
@@ -664,7 +659,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
             }
         }
-        
+
         if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
@@ -716,7 +711,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
             }
         }
-        
+
         if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();

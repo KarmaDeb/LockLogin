@@ -16,10 +16,7 @@ import net.md_5.bungee.event.EventPriority;
 
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE

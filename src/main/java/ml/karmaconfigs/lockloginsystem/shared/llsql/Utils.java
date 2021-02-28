@@ -34,8 +34,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 public final class Utils {
 
-    private final String table = Bucket.getTable();
     private final static HashMap<UUID, String> offline_conversion = new HashMap<>();
+    private final String table = Bucket.getTable();
     private String uuid;
 
     /**
@@ -249,30 +249,6 @@ public final class Utils {
         }
     }
 
-    public final void setEmail(String email) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Bucket.getBucket().getConnection();
-            statement = connection.prepareStatement("UPDATE " + table + " SET EMAIL=? WHERE UUID=?");
-
-            if (email != null) {
-                statement.setString(1, email);
-            } else {
-                statement.setString(1, "");
-            }
-            statement.setString(2, uuid);
-            statement.executeUpdate();
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while setting MySQL user password of " + uuid, Level.INFO);
-        } finally {
-            Bucket.close(connection, statement);
-        }
-
-        registerAzuriom();
-    }
-
     private void registerAzuriom() {
         if (Bucket.isAzuriom()) {
             Connection connection = null;
@@ -313,6 +289,30 @@ public final class Utils {
         } finally {
             Bucket.close(connection, statement);
         }
+    }
+
+    public final void setEmail(String email) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = Bucket.getBucket().getConnection();
+            statement = connection.prepareStatement("UPDATE " + table + " SET EMAIL=? WHERE UUID=?");
+
+            if (email != null) {
+                statement.setString(1, email);
+            } else {
+                statement.setString(1, "");
+            }
+            statement.setString(2, uuid);
+            statement.executeUpdate();
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while setting MySQL user password of " + uuid, Level.INFO);
+        } finally {
+            Bucket.close(connection, statement);
+        }
+
+        registerAzuriom();
     }
 
     /**
