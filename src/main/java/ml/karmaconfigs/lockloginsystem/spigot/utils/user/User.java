@@ -66,29 +66,31 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final void setupFile() {
         if (!config.isBungeeCord()) {
-            if (config.isYaml()) {
-                PlayerFile playerFile = new PlayerFile(player);
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                if (config.isYaml()) {
+                    PlayerFile playerFile = new PlayerFile(player);
 
-                if (playerFile.isOld()) {
-                    Console.send(plugin, "Detected old player ( {0} ) data file, converting it...", Level.INFO, player.getUniqueId());
-                    playerFile.startConversion();
+                    if (playerFile.isOld()) {
+                        Console.send(plugin, "Detected old player ( {0} ) data file, converting it...", Level.INFO, player.getUniqueId());
+                        playerFile.startConversion();
+                    } else {
+                        playerFile.setupFile();
+                    }
+
+                    if (!playerFile.getName().equals(player.getName()))
+                        playerFile.setName(player.getName());
                 } else {
-                    playerFile.setupFile();
+                    if (config.registerRestricted() && !isRegistered())
+                        return;
+
+                    Utils sql = new Utils(player);
+                    sql.createUser();
+
+                    String name = sql.getName();
+                    if (name != null && !name.equals(player.getName()))
+                        sql.setName(player.getName());
                 }
-
-                if (!playerFile.getName().equals(player.getName()))
-                    playerFile.setName(player.getName());
-            } else {
-                if (config.registerRestricted() && !isRegistered())
-                    return;
-
-                Utils sql = new Utils(player);
-                sql.createUser();
-
-                String name = sql.getName();
-                if (name != null && !name.equals(player.getName()))
-                    sql.setName(player.getName());
-            }
+            });
         }
     }
 
@@ -170,7 +172,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param reason the kick reason
      */
     public final void Kick(String reason) {
-        player.kickPlayer(StringUtils.toColor(reason));
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            player.kickPlayer(StringUtils.toColor(reason));
+        });
     }
 
     /**
@@ -196,9 +200,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param effects the potion effects
      */
     public final void sendEffects(Collection<PotionEffect> effects) {
-        for (PotionEffect effect : effects) {
-            player.addPotionEffect(effect);
-        }
+        plugin.getServer().getScheduler().runTask(plugin, () -> {
+            for (PotionEffect effect : effects) {
+                player.addPotionEffect(effect);
+            }
+        });
     }
 
     /**
@@ -207,7 +213,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param type the potion effect type
      */
     public final void removeEffect(PotionEffectType type) {
-        player.removePotionEffect(type);
+        plugin.getServer().getScheduler().runTask(plugin, () -> player.removePotionEffect(type));
     }
 
     /**
@@ -236,139 +242,145 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.LogError());
             }
 
-            plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+            plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getServer().getPluginManager().callEvent(event);
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
-                        if (utils.checkPW()) {
-                            InetSocketAddress ip = player.getAddress();
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                            if (utils.checkPW()) {
+                                InetSocketAddress ip = player.getAddress();
 
-                            if (ip != null) {
-                                BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                                bf_prevention.success();
+                                if (ip != null) {
+                                    BFSystem bf_prevention = new BFSystem(ip.getAddress());
+                                    bf_prevention.success();
+                                }
+
+                                sendTitle("", "", 1, 2, 1);
+                                setLogStatus(true);
+
+                                Message(event.getAuthMessage());
+
+                                if (config.TakeBack()) {
+                                    LastLocation lastLoc = new LastLocation(player);
+                                    Teleport(lastLoc.getLastLocation());
+                                }
+
+                                if (config.blindLogin())
+                                    removeBlindEffect(config.nauseaLogin());
+
+                                if (Passwords.isLegacySalt(getPassword())) {
+                                    setPassword(password);
+                                    Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                }
+
+                                player.setAllowFlight(hasFly());
+                            } else {
+                                logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                             }
-
-                            sendTitle("", "", 1, 2, 1);
+                        });
+                        break;
+                    case SUCCESS_TEMP:
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
                             setLogStatus(true);
-
-                            Message(event.getAuthMessage());
-
-                            if (config.TakeBack()) {
-                                LastLocation lastLoc = new LastLocation(player);
-                                Teleport(lastLoc.getLastLocation());
-                            }
-
-                            if (config.blindLogin())
-                                removeBlindEffect(config.nauseaLogin());
-
                             if (Passwords.isLegacySalt(getPassword())) {
                                 setPassword(password);
                                 Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
                             }
 
-                            player.setAllowFlight(hasFly());
-                        } else {
-                            logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
-                        }
-                        break;
-                    case SUCCESS_TEMP:
-                        setLogStatus(true);
-                        if (Passwords.isLegacySalt(getPassword())) {
-                            setPassword(password);
-                            Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
-                        }
-
-                        if (hasPin()) {
-                            PinInventory inventory = new PinInventory(player);
-                            inventory.open();
-
-                            setTempLog(true);
-                        } else {
-                            if (has2FA()) {
-                                Message(event.getAuthMessage());
+                            if (hasPin()) {
+                                PinInventory inventory = new PinInventory(player);
+                                inventory.open();
 
                                 setTempLog(true);
                             } else {
-                                logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
+                                if (has2FA()) {
+                                    Message(event.getAuthMessage());
 
-                                Message(event.getAuthMessage());
-                                InetSocketAddress ip = player.getAddress();
+                                    setTempLog(true);
+                                } else {
+                                    logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
 
-                                if (ip != null) {
-                                    BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                                    if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
-                                        bf_prevention.block();
-                                        bf_prevention.updateTime(config.bfBlockTime());
+                                    Message(event.getAuthMessage());
+                                    InetSocketAddress ip = player.getAddress();
 
-                                        Timer unban = new Timer();
-                                        unban.schedule(new TimerTask() {
-                                            final BFSystem saved_system = bf_prevention;
-                                            int back = config.bfBlockTime();
+                                    if (ip != null) {
+                                        BFSystem bf_prevention = new BFSystem(ip.getAddress());
+                                        if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
+                                            bf_prevention.block();
+                                            bf_prevention.updateTime(config.bfBlockTime());
 
-                                            @Override
-                                            public void run() {
-                                                if (back == 0) {
-                                                    saved_system.unlock();
-                                                    cancel();
+                                            Timer unban = new Timer();
+                                            unban.schedule(new TimerTask() {
+                                                final BFSystem saved_system = bf_prevention;
+                                                int back = config.bfBlockTime();
+
+                                                @Override
+                                                public void run() {
+                                                    if (back == 0) {
+                                                        saved_system.unlock();
+                                                        cancel();
+                                                    }
+                                                    saved_system.updateTime(back);
+                                                    back--;
                                                 }
-                                                saved_system.updateTime(back);
-                                                back--;
-                                            }
-                                        }, 0, TimeUnit.SECONDS.toMillis(1));
+                                            }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                        Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
-                                    } else {
-                                        if (!hasTries()) {
-                                            delTries();
-                                            bf_prevention.fail();
-                                            plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
-                                            return;
+                                            Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                                        } else {
+                                            if (!hasTries()) {
+                                                delTries();
+                                                bf_prevention.fail();
+                                                plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
+                                                return;
+                                            }
+                                            restTries();
+                                            Message(event.getAuthMessage());
                                         }
-                                        restTries();
-                                        Message(event.getAuthMessage());
                                     }
                                 }
                             }
-                        }
+                        });
                         break;
                     case FAILED:
-                        InetSocketAddress ip = player.getAddress();
+                        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                            InetSocketAddress ip = player.getAddress();
 
-                        if (ip != null) {
-                            BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                            if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
-                                bf_prevention.block();
-                                bf_prevention.updateTime(config.bfBlockTime());
+                            if (ip != null) {
+                                BFSystem bf_prevention = new BFSystem(ip.getAddress());
+                                if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
+                                    bf_prevention.block();
+                                    bf_prevention.updateTime(config.bfBlockTime());
 
-                                Timer unban = new Timer();
-                                unban.schedule(new TimerTask() {
-                                    final BFSystem saved_system = bf_prevention;
-                                    int back = config.bfBlockTime();
+                                    Timer unban = new Timer();
+                                    unban.schedule(new TimerTask() {
+                                        final BFSystem saved_system = bf_prevention;
+                                        int back = config.bfBlockTime();
 
-                                    @Override
-                                    public void run() {
-                                        if (back == 0) {
-                                            saved_system.unlock();
-                                            cancel();
+                                        @Override
+                                        public void run() {
+                                            if (back == 0) {
+                                                saved_system.unlock();
+                                                cancel();
+                                            }
+                                            saved_system.updateTime(back);
+                                            back--;
                                         }
-                                        saved_system.updateTime(back);
-                                        back--;
-                                    }
-                                }, 0, TimeUnit.SECONDS.toMillis(1));
+                                    }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
-                            } else {
-                                if (!hasTries()) {
-                                    delTries();
-                                    bf_prevention.fail();
-                                    plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
-                                    return;
+                                    Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                                } else {
+                                    if (!hasTries()) {
+                                        delTries();
+                                        bf_prevention.fail();
+                                        plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
+                                        return;
+                                    }
+                                    restTries();
+                                    Message(event.getAuthMessage());
                                 }
-                                restTries();
-                                Message(event.getAuthMessage());
                             }
-                        }
+                        });
 
                         break;
                     case ERROR:
@@ -518,34 +530,36 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Check the player status
      */
     public final void checkStatus() {
-        CheckType checkType;
-        if (!isRegistered()) {
-            checkType = CheckType.REGISTER;
-        } else {
-            checkType = CheckType.LOGIN;
-        }
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            CheckType checkType;
+            if (!isRegistered()) {
+                checkType = CheckType.REGISTER;
+            } else {
+                checkType = CheckType.LOGIN;
+            }
 
-        new StartCheck(player, checkType);
-        switch (checkType) {
-            case REGISTER:
-                Message(messages.Prefix() + messages.Register());
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    if (config.blindRegister()) {
-                        saveCurrentEffects();
-                        applyBlindEffect(config.nauseaRegister());
-                    }
-                }, 5);
-                break;
-            case LOGIN:
-                Message(messages.Prefix() + messages.Login());
-                plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
-                    if (config.blindLogin()) {
-                        saveCurrentEffects();
-                        applyBlindEffect(config.nauseaLogin());
-                    }
-                }, 5);
-                break;
-        }
+            new StartCheck(player, checkType);
+            switch (checkType) {
+                case REGISTER:
+                    Message(messages.Prefix() + messages.Register());
+                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                        if (config.blindRegister()) {
+                            saveCurrentEffects();
+                            applyBlindEffect(config.nauseaRegister());
+                        }
+                    }, 5);
+                    break;
+                case LOGIN:
+                    Message(messages.Prefix() + messages.Login());
+                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
+                        if (config.blindLogin()) {
+                            saveCurrentEffects();
+                            applyBlindEffect(config.nauseaLogin());
+                        }
+                    }, 5);
+                    break;
+            }
+        });
     }
 
     /**

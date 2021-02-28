@@ -81,17 +81,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 if (valid_password) {
                                     bf_prevention.success();
                                     user.setLogStatus(true);
-
-                                    new Timer().schedule(new TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            if (config.enableMainLobby()) {
-                                                if (lobbyCheck.MainIsWorking()) {
-                                                    user.sendTo(lobbyCheck.getMain());
-                                                }
-                                            }
-                                        }
-                                    }, TimeUnit.SECONDS.toMillis(1));
+                                    user.checkServer();
 
                                     dataSender.sendAccountStatus(player);
                                 } else {

@@ -32,7 +32,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class Utils {
 
     private final String table = Bucket.getTable();
@@ -45,7 +44,8 @@ public final class Utils {
      * <code>This should be used only to
      * get a list of the registered UUIDs</code>
      */
-    public Utils() {}
+    public Utils() {
+    }
 
     /**
      * Starts the MySQL management
@@ -53,7 +53,8 @@ public final class Utils {
      * @param uuid the player UUID
      */
     public Utils(UUID uuid) {
-        this.uuid = uuid.toString().replace("-", "");
+        this.uuid = uuid.toString();
+
         try {
             checkTables();
         } catch (NoClassDefFoundError ignored) {
@@ -66,7 +67,8 @@ public final class Utils {
      * @param uuid the player UUID as string
      */
     public Utils(String uuid) {
-        this.uuid = uuid.replace("-", "");
+        this.uuid = uuid;
+
         try {
             checkTables();
         } catch (NoClassDefFoundError ignored) {
@@ -80,16 +82,26 @@ public final class Utils {
      */
     public Utils(OfflinePlayer player) {
         if (!offline_conversion.containsKey(player.getUniqueId()) || offline_conversion.get(player.getUniqueId()).equals(player.getUniqueId().toString())) {
-            if (!PlatformUtils.isPremium()) {
+            UUID stored_uuid = fetchUUID(player.getName());
+
+            if (stored_uuid == null) {
                 ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter spigotConfig = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter();
 
-                if (spigotConfig.registerRestricted() && spigotConfig.semiPremium()) {
-                    this.uuid = mojangUUID(player.getName()).toString().replace("-", "");
+                if (!PlatformUtils.isPremium()) {
+                    if (spigotConfig.registerRestricted() && spigotConfig.semiPremium()) {
+                        this.uuid = mojangUUID(player.getName()).toString().replace("-", "");
+                    } else {
+                        this.uuid = player.getUniqueId().toString();
+                    }
                 } else {
-                    this.uuid = player.getUniqueId().toString();
+                    if (spigotConfig.semiPremium())
+                        this.uuid = player.getUniqueId().toString().replace("-", "");
+                    else {
+                        this.uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8)).toString();
+                    }
                 }
             } else {
-                this.uuid = player.getUniqueId().toString().replace("-", "");
+                this.uuid = stored_uuid.toString();
             }
 
             offline_conversion.put(player.getUniqueId(), this.uuid);
@@ -110,21 +122,31 @@ public final class Utils {
      */
     public Utils(ProxiedPlayer player) {
         if (!offline_conversion.containsKey(player.getUniqueId()) || offline_conversion.get(player.getUniqueId()).equals(player.getUniqueId().toString())) {
-            if (!PlatformUtils.isPremium()) {
+            UUID stored_uuid = fetchUUID(player.getName());
+
+            if (stored_uuid == null) {
                 ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter bungeeConfig = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter();
 
-                if (bungeeConfig.registerRestricted() && bungeeConfig.semiPremium()) {
-                    this.uuid = mojangUUID(player.getName()).toString().replace("-", "");
+                if (!PlatformUtils.isPremium()) {
+                    if (bungeeConfig.registerRestricted() && bungeeConfig.semiPremium()) {
+                        this.uuid = mojangUUID(player.getName()).toString().replace("-", "");
+                    } else {
+                        this.uuid = player.getUniqueId().toString();
+                    }
                 } else {
-                    this.uuid = player.getUniqueId().toString();
+                    if (bungeeConfig.semiPremium()) {
+                        this.uuid = player.getUniqueId().toString().replace("-", "");
+                    } else {
+                        this.uuid = UUID.nameUUIDFromBytes(("OfflinePlayer: " + player.getName()).getBytes(StandardCharsets.UTF_8)).toString();
+                    }
                 }
             } else {
-                this.uuid = player.getUniqueId().toString().replace("-", "");
+                this.uuid = stored_uuid.toString();
             }
 
             offline_conversion.put(player.getUniqueId(), this.uuid);
         } else {
-            this.uuid = offline_conversion.getOrDefault(player.getUniqueId(), player.getUniqueId().toString()).replace("-", "");
+            this.uuid = offline_conversion.getOrDefault(player.getUniqueId(), player.getUniqueId().toString());
         }
 
         try {
@@ -142,11 +164,14 @@ public final class Utils {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
+            System.out.println("Checking existence of " + uuid);
+
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
 
             ResultSet results = statement.executeQuery();
+            System.out.println("Result: " + results.next());
             return results.next();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -167,23 +192,23 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
 
             ResultSet results = statement.executeQuery();
-            results.next();
-            if (!userExists()) {
-                PreparedStatement add = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
+            if (results.next())
+                if (!userExists()) {
+                    PreparedStatement add = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
 
-                add.setString(1, "");
-                add.setString(2, "");
-                add.setString(3, uuid.replace("-", ""));
-                add.setString(4, "");
-                add.setString(5, "");
-                add.setBoolean(6, false);
-                add.setString(7, "");
-                add.setBoolean(8, false);
-                add.executeUpdate();
-            }
+                    add.setString(1, "");
+                    add.setString(2, "");
+                    add.setString(3, uuid);
+                    add.setString(4, "");
+                    add.setString(5, "");
+                    add.setBoolean(6, false);
+                    add.setString(7, "");
+                    add.setBoolean(8, false);
+                    add.executeUpdate();
+                }
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
@@ -202,7 +227,7 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("DELETE * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
 
             statement.executeUpdate();
         } catch (Throwable e) {
@@ -212,7 +237,7 @@ public final class Utils {
                 connection = Bucket.getBucket().getConnection();
                 statement = connection.prepareStatement("DELETE FROM " + table + " WHERE UUID=?");
 
-                statement.setString(1, uuid.replace("-", ""));
+                statement.setString(1, uuid);
 
                 statement.executeUpdate();
             } catch (Throwable ex) {
@@ -236,7 +261,7 @@ public final class Utils {
             } else {
                 statement.setString(1, "");
             }
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -257,7 +282,7 @@ public final class Utils {
                 statement = connection.prepareStatement("UPDATE " + table + " SET NAME=? WHERE UUID=?");
 
                 statement.setString(1, getName());
-                statement.setString(2, uuid.replace("-", ""));
+                statement.setString(2, uuid);
                 statement.executeUpdate();
             } catch (Throwable e) {
                 PlatformUtils.log(e, Level.GRAVE);
@@ -275,10 +300,12 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getString("EMAIL");
+            if (results.next())
+                return results.getString("EMAIL");
+            else
+                return "";
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user from " + uuid, Level.INFO);
@@ -310,7 +337,7 @@ public final class Utils {
             } else {
                 statement.setString(1, "");
             }
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -339,7 +366,7 @@ public final class Utils {
             } else {
                 statement.setString(1, pin.toString());
             }
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -361,7 +388,7 @@ public final class Utils {
             statement = connection.prepareStatement("UPDATE " + table + " SET PIN=? WHERE UUID=?");
 
             statement.setString(1, "");
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -384,7 +411,7 @@ public final class Utils {
             statement = connection.prepareStatement("UPDATE " + table + " SET FAON=? WHERE UUID=?");
 
             statement.setBoolean(1, Value);
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -412,7 +439,7 @@ public final class Utils {
             } else {
                 statement.setString(1, Token);
             }
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -435,7 +462,7 @@ public final class Utils {
             statement = connection.prepareStatement("UPDATE " + table + " SET FLY=? WHERE UUID=?");
 
             statement.setBoolean(1, Value);
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -457,10 +484,12 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getString("PLAYER");
+            if (results.next())
+                return results.getString("PLAYER");
+            else
+                return "";
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user from " + uuid, Level.INFO);
@@ -483,7 +512,7 @@ public final class Utils {
             statement = connection.prepareStatement("UPDATE " + table + " SET PLAYER=? WHERE UUID=?");
 
             statement.setString(1, name);
-            statement.setString(2, uuid.replace("-", ""));
+            statement.setString(2, uuid);
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -505,7 +534,7 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("UPDATE " + table + " SET UUID=? WHERE PLAYER=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             statement.setString(2, name);
             statement.executeUpdate();
         } catch (Throwable e) {
@@ -528,10 +557,10 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return UUID.fromString(results.getString("UUID"));
+            if (results.next())
+                return UUID.fromString(results.getString("UUID"));
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL stored UUID of " + uuid, Level.INFO);
@@ -556,8 +585,8 @@ public final class Utils {
 
             statement.setString(1, player);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return UUID.fromString(results.getString("UUID"));
+            if (results.next())
+                return UUID.fromString(results.getString("UUID"));
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL stored UUID of " + player, Level.INFO);
@@ -576,13 +605,17 @@ public final class Utils {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
+            System.out.println("Getting password of " + uuid);
+
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getString("PASSWORD");
+            if (results.next())
+                return results.getString("PASSWORD");
+            else
+                return "";
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user password of " + uuid, Level.INFO);
@@ -604,10 +637,12 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getString("PIN");
+            if (results.next())
+                return results.getString("PIN");
+            else
+                return "";
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user pin of " + uuid, Level.INFO);
@@ -630,10 +665,12 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getInt("FAON") == 1;
+            if (results.next())
+                return results.getInt("FAON") == 1;
+            else
+                return false;
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user google auth status of " + uuid, Level.INFO);
@@ -655,10 +692,12 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            return results.getString("GAUTH");
+            if (results.next())
+                return results.getString("GAUTH");
+            else
+                return "";
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user google auth token of " + uuid, Level.INFO);
@@ -680,14 +719,16 @@ public final class Utils {
             connection = Bucket.getBucket().getConnection();
             statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
 
-            statement.setString(1, uuid.replace("-", ""));
+            statement.setString(1, uuid);
             ResultSet results = statement.executeQuery();
-            results.next();
-            if (!String.valueOf(results.getInt("FLY")).isEmpty()) {
-                return results.getInt("FLY") == 1;
-            } else {
+            if (results.next())
+                if (!String.valueOf(results.getInt("FLY")).isEmpty()) {
+                    return results.getInt("FLY") == 1;
+                } else {
+                    return false;
+                }
+            else
                 return false;
-            }
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user fly status of " + uuid, Level.INFO);
@@ -770,7 +811,7 @@ public final class Utils {
                     if (uuid != null && !uuid.toString().isEmpty()) {
                         statement = connection.prepareStatement("UPDATE " + table + " SET UUID=? WHERE PLAYER=?");
 
-                        statement.setString(1, uuid.toString().replace("-", ""));
+                        statement.setString(1, uuid.toString());
                         statement.setString(2, name);
 
                         statement.executeUpdate();

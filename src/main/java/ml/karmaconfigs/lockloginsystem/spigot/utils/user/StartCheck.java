@@ -37,7 +37,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
         Timer timer = new Timer();
         switch (type) {
             case REGISTER:
-                timer.schedule(new TimerTask() {
+                timer.scheduleAtFixedRate(new TimerTask() {
                     int back = config.registerTimeOut();
 
                     @Override

@@ -152,9 +152,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
         } else {
             if (!user.isRegistered()) {
                 if (config.registerRestricted()) {
-                    e.setCancelled(true);
-                    e.setTarget(null);
-
                     user.Kick(messages.onlyAzuriom());
 
                     return;
@@ -213,7 +210,10 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         }
                     }
 
-                    new StartCheck(player, (user.isRegistered() ? CheckType.LOGIN : CheckType.REGISTER));
+                    if (user.isRegistered())
+                        new StartCheck(player, CheckType.LOGIN);
+                    else
+                        new StartCheck(player, CheckType.REGISTER);
                 }, 1, TimeUnit.SECONDS);
             }
 

@@ -75,17 +75,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 user.Message(event.getAuthMessage());
                                 if (valid_code) {
                                     user.setLogStatus(true);
-
-                                    new Timer().schedule(new TimerTask() {
-                                        @Override
-                                        public void run() {
-                                            if (config.enableMainLobby()) {
-                                                if (lobbyCheck.MainIsWorking()) {
-                                                    user.sendTo(lobbyCheck.getMain());
-                                                }
-                                            }
-                                        }
-                                    }, TimeUnit.SECONDS.toMillis(1));
+                                    user.checkServer();
 
                                     dataSender.sendAccountStatus(player);
                                     dataSender.blindEffect(player, false, config.nauseaLogin());

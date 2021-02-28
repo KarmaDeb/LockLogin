@@ -53,12 +53,7 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
                                     user.setPassword(password);
                                     user.setLogStatus(true);
                                     user.Message(messages.Prefix() + messages.Registered());
-
-                                    if (config.enableAuthLobby()) {
-                                        if (lobbyCheck.MainIsWorking()) {
-                                            user.sendTo(lobbyCheck.getMain());
-                                        }
-                                    }
+                                    user.checkServer();
 
                                     dataSender.sendAccountStatus(player);
 

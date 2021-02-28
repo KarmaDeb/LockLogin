@@ -62,76 +62,80 @@ public final class IPStorager implements LockLoginSpigot {
      * Migrate from LockLogin v2 database
      */
     private void migrateFromV2() {
-        KarmaFile old_data = new KarmaFile(plugin, "ips_v2.lldb", "data");
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            KarmaFile old_data = new KarmaFile(plugin, "ips_v2.lldb", "data");
 
-        if (old_data.exists()) {
-            Console.send(plugin, "Trying to migrate from old ip v2 data...", Level.INFO);
+            if (old_data.exists()) {
+                Console.send(plugin, "Trying to migrate from old ip v2 data...", Level.INFO);
 
-            List<String> lines = old_data.readFullFile();
-            for (String str : lines) {
-                String data = str.replace(";", "");
+                List<String> lines = old_data.readFullFile();
+                for (String str : lines) {
+                    String data = str.replace(";", "");
+
+                    try {
+                        String ip = data.split(":")[0];
+                        String name = data.replace(ip + ":", "");
+
+                        KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                        if (!new_data.exists())
+                            new_data.create();
+
+                        List<String> uuids = new_data.readFullFile();
+
+                        OfflineUser user = new OfflineUser(name);
+                        if (user.exists()) {
+                            UUID uuid = user.getUUID();
+
+                            if (!uuids.contains(uuid.toString())) {
+                                uuids.add(uuid.toString());
+                                new_data.write(uuids);
+                            }
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
 
                 try {
-                    String ip = data.split(":")[0];
-                    String name = data.replace(ip + ":", "");
-
-                    KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
-                    if (!new_data.exists())
-                        new_data.create();
-
-                    List<String> uuids = new_data.readFullFile();
-
-                    OfflineUser user = new OfflineUser(name);
-                    if (user.exists()) {
-                        UUID uuid = user.getUUID();
-
-                        if (!uuids.contains(uuid.toString())) {
-                            uuids.add(uuid.toString());
-                            new_data.write(uuids);
-                        }
-                    }
+                    Files.delete(old_data.getFile().toPath());
                 } catch (Throwable ignored) {
                 }
             }
-
-            try {
-                Files.delete(old_data.getFile().toPath());
-            } catch (Throwable ignored) {
-            }
-        }
+        });
     }
 
     /**
      * Migrate from LockLogin v3 database
      */
     private void migrateFromV3() {
-        KarmaFile old_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            KarmaFile old_data = new KarmaFile(plugin, "ips_v3.lldb", "data");
 
-        if (old_data.exists()) {
-            Console.send(plugin, "Trying to migrate from old ip v3 data...", Level.INFO);
+            if (old_data.exists()) {
+                Console.send(plugin, "Trying to migrate from old ip v3 data...", Level.INFO);
 
-            List<String> ips = old_data.getStringList("IPs");
+                List<String> ips = old_data.getStringList("IPs");
 
-            for (String ip : ips) {
-                KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
-                if (!new_data.exists())
-                    new_data.create();
+                for (String ip : ips) {
+                    KarmaFile new_data = new KarmaFile(plugin, ip, "data", "ips_v4");
+                    if (!new_data.exists())
+                        new_data.create();
 
-                List<String> stored_uuids = new_data.readFullFile();
-                for (String uuid : old_data.getStringList(ip)) {
-                    if (!stored_uuids.contains(uuid)) {
-                        stored_uuids.add(uuid);
+                    List<String> stored_uuids = new_data.readFullFile();
+                    for (String uuid : old_data.getStringList(ip)) {
+                        if (!stored_uuids.contains(uuid)) {
+                            stored_uuids.add(uuid);
+                        }
                     }
+
+                    new_data.write(stored_uuids);
                 }
 
-                new_data.write(stored_uuids);
+                try {
+                    Files.delete(old_data.getFile().toPath());
+                } catch (Throwable ignored) {
+                }
             }
-
-            try {
-                Files.delete(old_data.getFile().toPath());
-            } catch (Throwable ignored) {
-            }
-        }
+        });
     }
 
     /**
@@ -141,14 +145,16 @@ public final class IPStorager implements LockLoginSpigot {
      * @param uuid the the player uuid
      */
     public final void save(final UUID uuid) {
-        if (ModuleLoader.manager.isLoaded(module)) {
-            List<String> assigned = separated_ip_data.readFullFile();
+        plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+            if (ModuleLoader.manager.isLoaded(module)) {
+                List<String> assigned = separated_ip_data.readFullFile();
 
-            if (!assigned.contains(uuid.toString())) {
-                assigned.add(uuid.toString());
-                separated_ip_data.write(assigned);
+                if (!assigned.contains(uuid.toString())) {
+                    assigned.add(uuid.toString());
+                    separated_ip_data.write(assigned);
+                }
             }
-        }
+        });
     }
 
     /**
