@@ -41,6 +41,17 @@ Register:
   TimeOut: 60
   Max: 2
 
+#Encryption configuration
+# Available types:
+# "SHA512"
+# "SHA256"
+# "BCrypt"
+# "Argon2i"
+# "Argon2id"
+Encryption:
+  Passwords: "SHA512"
+  Pin: "SHA512"
+
 #Azuriom integration options
 # Restrict -> Restrict new accounts to
 #             azuriom registered accounts

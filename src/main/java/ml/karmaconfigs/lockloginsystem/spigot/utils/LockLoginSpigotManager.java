@@ -1,11 +1,18 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils;
 
+import ml.karmaconfigs.api.shared.FileUtilities;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
+import ml.karmaconfigs.lockloginsystem.shared.Platform;
+import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
+import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
+import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
+import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
+import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
@@ -14,8 +21,11 @@ import org.bukkit.command.Command;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.command.SimpleCommandMap;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.RegisteredListener;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
@@ -24,6 +34,8 @@ import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
@@ -42,36 +54,44 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-public final class LockLoginSpigotManager implements LockLoginSpigot {
+public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFiles {
 
     /**
      * Unload LockLogin
      */
+    @SuppressWarnings("all")
     public final void unload() {
         String name = plugin.getName();
 
         PluginManager pluginManager = Bukkit.getPluginManager();
 
-        SimpleCommandMap commandMap;
+        SimpleCommandMap commandMap = null;
 
-        List<?> plugins = null;
+        List<Plugin> plugins = null;
 
-        Map<?, ?> names = null;
-        Map<String, Command> commands = new HashMap<>();
+        Map<String, Plugin> names = null;
+        Map<String, Command> commands = null;
+        Map<Event, SortedSet<RegisteredListener>> listeners = null;
+
+        boolean reloadlisteners = true;
+
+        pluginManager.disablePlugin(plugin);
 
         try {
-            pluginManager.disablePlugin(JavaPlugin.getProvidingPlugin(Class.forName(plugin.getDescription().getMain())));
-
             Field pluginsField = Bukkit.getPluginManager().getClass().getDeclaredField("plugins");
             pluginsField.setAccessible(true);
-            if (pluginsField.get(pluginManager) instanceof List) {
-                plugins = (List<?>) pluginsField.get(pluginManager);
-            }
+            plugins = (List<Plugin>) pluginsField.get(pluginManager);
 
             Field lookupNamesField = Bukkit.getPluginManager().getClass().getDeclaredField("lookupNames");
             lookupNamesField.setAccessible(true);
-            if (lookupNamesField.get(pluginManager) instanceof Map) {
-                names = (Map<?, ?>) lookupNamesField.get(pluginManager);
+            names = (Map<String, Plugin>) lookupNamesField.get(pluginManager);
+
+            try {
+                Field listenersField = Bukkit.getPluginManager().getClass().getDeclaredField("listeners");
+                listenersField.setAccessible(true);
+                listeners = (Map<Event, SortedSet<RegisteredListener>>) listenersField.get(pluginManager);
+            } catch (Exception e) {
+                reloadlisteners = false;
             }
 
             Field commandMapField = Bukkit.getPluginManager().getClass().getDeclaredField("commandMap");
@@ -80,56 +100,43 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
 
             Field knownCommandsField = SimpleCommandMap.class.getDeclaredField("knownCommands");
             knownCommandsField.setAccessible(true);
-            if (knownCommandsField.get(commandMap) instanceof Map) {
-                Map<?, ?> cmdField = (Map<?, ?>) knownCommandsField.get(commandMap);
-                for (Object key : cmdField.keySet()) {
-                    if (key instanceof String) {
-                        String cmdKey = (String) key;
-                        if (cmdField.get(key) instanceof Command) {
-                            Command cmd = (Command) cmdField.get(key);
-                            commands.put(cmdKey, cmd);
-                        }
+            commands = (Map<String, Command>) knownCommandsField.get(commandMap);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+
+        pluginManager.disablePlugin(plugin);
+
+        if (plugins != null && plugins.contains(plugin))
+            plugins.remove(plugin);
+
+        if (names != null && names.containsKey(name))
+            names.remove(name);
+
+        if (listeners != null && reloadlisteners) {
+            for (SortedSet<RegisteredListener> set : listeners.values()) {
+                set.removeIf(value -> value.getPlugin() == plugin);
+            }
+        }
+
+        if (commandMap != null) {
+            for (Iterator<Map.Entry<String, Command>> it = commands.entrySet().iterator(); it.hasNext(); ) {
+                Map.Entry<String, Command> entry = it.next();
+                if (entry.getValue() instanceof PluginCommand) {
+                    PluginCommand c = (PluginCommand) entry.getValue();
+                    if (c.getPlugin() == plugin) {
+                        c.unregister(commandMap);
+                        it.remove();
                     }
                 }
             }
+        }
 
-            pluginManager.disablePlugin(JavaPlugin.getProvidingPlugin(Class.forName(plugin.getDescription().getMain())));
+        // Attempt to close the classloader to unlock any handles on the plugin's jar file.
+        ClassLoader cl = plugin.getClass().getClassLoader();
 
-            if (plugins != null)
-                plugins.remove(plugin);
-
-            if (names != null)
-                names.remove(name);
-
-            if (commandMap != null) {
-                for (Iterator<Map.Entry<String, Command>> it = commands.entrySet().iterator(); it.hasNext(); ) {
-                    Map.Entry<String, Command> entry = it.next();
-                    if (entry.getValue() instanceof PluginCommand) {
-                        PluginCommand c = (PluginCommand) entry.getValue();
-                        if (c.getPlugin() == plugin) {
-                            c.unregister(commandMap);
-                            it.remove();
-                        }
-                    }
-                }
-            }
-
-            ClassLoader cl = plugin.getClass().getClassLoader();
-
-            for (Thread thread : Thread.getAllStackTraces().keySet()) {
-                if (thread.getClass().getClassLoader() == cl) {
-                    try {
-                        thread.interrupt();
-                        thread.join(2000);
-                        if (thread.isAlive()) {
-                            thread.interrupt();
-                        }
-                    } catch (Throwable ignore) {
-                    }
-                }
-            }
-
-            if (cl instanceof URLClassLoader) {
+        if (cl instanceof URLClassLoader) {
+            try {
                 Field pluginField = cl.getClass().getDeclaredField("plugin");
                 pluginField.setAccessible(true);
                 pluginField.set(cl, null);
@@ -137,12 +144,15 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
                 Field pluginInitField = cl.getClass().getDeclaredField("pluginInit");
                 pluginInitField.setAccessible(true);
                 pluginInitField.set(cl, null);
-
-                ((URLClassLoader) cl).close();
+            } catch (Throwable ex) {
+                ex.printStackTrace();
             }
-        } catch (Throwable e) {
-            logger.scheduleLog(Level.GRAVE, e);
-            logger.scheduleLog(Level.INFO, "Error while unloading LockLogin");
+
+            try {
+                ((URLClassLoader) cl).close();
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
         }
 
         System.gc();
@@ -155,46 +165,13 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
      */
     public final void load(File pluginFile) {
         try {
-            Bukkit.getPluginManager().loadPlugin(pluginFile);
-            Bukkit.getPluginManager().enablePlugin(plugin);
+            Plugin plugin = Bukkit.getPluginManager().loadPlugin(pluginFile);
+            if (plugin != null)
+                Bukkit.getPluginManager().enablePlugin(plugin);
+
         } catch (Throwable e) {
             logger.scheduleLog(Level.GRAVE, e);
             logger.scheduleLog(Level.INFO, "Error while loading LockLogin");
-        }
-    }
-
-    /**
-     * Get the .jar version
-     *
-     * @param readFrom the file to read from
-     *                 <p>
-     *                 Private GSA code
-     *                 <p>
-     *                 The use of this code
-     *                 without GSA team authorization
-     *                 will be a violation of
-     *                 terms of use determined
-     *                 in <a href="https://karmaconfigs.ml/license/"> here </a>
-     * @return the .jar version
-     */
-    private String getJarVersion(File readFrom) {
-        try {
-            JarFile newLockLogin = new JarFile(readFrom);
-            JarEntry pluginYML = newLockLogin.getJarEntry("plugin.yml");
-            if (pluginYML != null) {
-                InputStream pluginInfo = newLockLogin.getInputStream(pluginYML);
-                InputStreamReader reader = new InputStreamReader(pluginInfo, StandardCharsets.UTF_8);
-
-                YamlConfiguration desc = YamlConfiguration.loadConfiguration(reader);
-
-                newLockLogin.close();
-                pluginInfo.close();
-                reader.close();
-                return desc.getString("version");
-            }
-            return null;
-        } catch (Throwable e) {
-            return null;
         }
     }
 
@@ -245,175 +222,266 @@ public final class LockLoginSpigotManager implements LockLoginSpigot {
      *
      * @param user the issuer
      */
-    public final void applyUpdate(@Nullable User user) {
+    public final void applyUpdate(@Nullable final User user) {
         String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
         File pluginsFolder = new File(dir.replace("/LockLogin", ""));
         File lockLogin = new File(pluginsFolder, LockLoginSpigot.jar);
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
 
+        int new_version = Integer.parseInt(FileInfo.getJarVersion(updatedLockLogin).replaceAll("[aA-zZ]", "").replace(".", ""));
+        int cur_version = Integer.parseInt(FileInfo.getJarVersion(lockLogin).replaceAll("[aA-zZ]", "").replace(".", ""));
+
+        VersionChannel new_channel = FileInfo.getChannel(updatedLockLogin);
+        VersionChannel curr_channel = FileInfo.getChannel(lockLogin);
+
+        boolean update;
         if (user != null) {
-            try {
-                boolean unloaded = false;
+            if (updatedLockLogin.exists()) {
+                user.send(messages.Prefix() + "&7Checking update target LockLogin version");
 
-                if (updatedLockLogin.exists()) {
-                    user.Message("&eUpdating LockLogin, checking new LockLogin.jar info...");
-                    String newVersion = getJarVersion(updatedLockLogin);
-                    String thisVersion = getJarVersion(lockLogin);
-
-                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
-                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-
-                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
-                        if (!shouldUpdate) {
-                            shouldUpdate = nVer > aVer;
-                        }
-
-                        if (shouldUpdate && PluginManagerSpigot.manager.isReadyToUpdate()) {
-                            unload();
-                            unloaded = true;
-                            if (lockLogin.delete()) {
-                                if (updatedLockLogin.renameTo(lockLogin)) {
-                                    if (!updatedLockLogin.delete()) {
-                                        updatedLockLogin.deleteOnExit();
-                                    }
-
-                                    logger.scheduleLog(Level.INFO, "LockLogin updated");
-                                    user.Message("&aLockLogin updated successfully");
-                                    PluginManagerSpigot.manager.setReadyToUpdate(false);
-                                }
-                            } else {
-                                load(lockLogin);
-                                user.Message("&cLockLogin update failed");
-                                return;
-                            }
-                        } else {
-                            if (PluginManagerSpigot.manager.isReadyToUpdate()) {
-                                user.Message("&cUpdated cancelled due the plugins/update/" + jar + " LockLogin instance version is lower than the actual");
-                                if (updatedLockLogin.delete()) {
-                                    user.Message("&aOld LockLogin instance removed");
-                                }
-                            } else {
-                                user.Message("&cUpdate cancelled due LockLogin update is still downloading");
-                            }
-                        }
-                    } else {
-                        user.Message("&cNew LockLogin instance plugin.yml is not valid, download the latest version manually from &ehttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
-                        if (updatedLockLogin.delete()) {
-                            user.Message("&aCorrupt LockLogin instance removed");
-                        }
-                    }
+                if (new_version > cur_version) {
+                    update = true;
                 } else {
-                    user.Message(SpigotFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                    if (ConfigGetter.manager.reload())
-                        user.Message(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
-                    if (MessageGetter.manager.reload())
-                        user.Message(SpigotFiles.messages.Prefix() + "&aMessages file reloaded!");
-
-                    File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-                    FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
-                    allowedCMDs.copy(allowed_file);
-                    YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
-
-                    AllowedCommands commands = new AllowedCommands();
-                    commands.addAll(allowed.getStringList("AllowedCommands"));
+                    update = ignoredUpdateVersion(updatedLockLogin);
+                    user.send(messages.Prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
-                if (unloaded) {
+                if (!update) {
+                    switch (curr_channel) {
+                        case SNAPSHOT:
+                            switch (new_channel) {
+                                case RC:
+                                case RELEASE:
+                                    update = true;
+                            }
+                        case RC:
+                            if (new_channel == VersionChannel.RELEASE) {
+                                update = true;
+                            }
+                        case RELEASE:
+                        default:
+                            break;
+                    }
+                }
+
+                if (update) {
+                    unload();
+
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            load(lockLogin);
+                            try {
+                                Files.move(updatedLockLogin.toPath(), lockLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                user.send(messages.Prefix() + "&aMoved new locklogin instance to current LockLogin instance");
+                            } catch (Throwable ex) {
+                                ex.printStackTrace();
+                                user.send(messages.Prefix() + "&cLockLogin update failed");
+                            }
                         }
-                    }, 5000);
+                    }, 3000);
+
+                    Timer load_timer = new Timer();
+                    load_timer.schedule(new TimerTask() {
+                        int second = 7;
+                        @Override
+                        public void run() {
+                            if (second <= 5)
+                                user.send(messages.Prefix() + "&7LockLogin load in " + second + " seconds");
+
+                            if (second <= 0) {
+                                File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
+
+                                load(new_locklogin);
+                                user.send(messages.Prefix() + "&7Update process finished");
+                                load_timer.cancel();
+                            }
+                            second--;
+                        }
+                    }, 0, 1000);
+                } else {
+                    user.send(messages.Prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
                 }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
-                user.Message("&cError while updating LockLogin");
+            } else {
+                if (ConfigGetter.manager.reload())
+                    user.send(messages.Prefix() + "&aConfiguration file reloaded");
+                if (MessageGetter.manager.reload())
+                    user.send(messages.Prefix() + "&aMessages file reloaded");
+
+                PluginManagerSpigot manager = new PluginManagerSpigot();
+                manager.setupFiles();
+
+                if (config.isMySQL()) {
+                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                        User logged_user = new User(player);
+
+                        if (!logged_user.isRegistered()) {
+                            if (config.registerRestricted()) {
+                                logged_user.kick("&eLockLogin\n\n" + messages.onlyAzuriom());
+                                return;
+                            }
+                        }
+
+                        Utils sql = new Utils(player.getUniqueId());
+                        sql.createUser();
+
+                        String UUID = player.getUniqueId().toString().replace("-", "");
+
+                        FileManager fm = new FileManager(UUID + ".yml", "playerdata");
+                        fm.setInternal("auto-generated/userTemplate.yml");
+
+                        if (fm.getManaged().exists()) {
+                            if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                                if (fm.isSet("Password")) {
+                                    if (!fm.isEmpty("Password")) {
+                                        AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                        migrate.start();
+
+                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        fm.delete();
+                                    }
+                                }
+                            }
+                        }
+
+                        if (sql.getName() == null || sql.getName().isEmpty())
+                            sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                    }
+                } else {
+                    Utils utils = new Utils();
+                    for (String id : utils.getUUIDs()) {
+                        utils = new Utils(id);
+
+                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
+                    }
+
+                    Bucket.terminateMySQL();
+                }
             }
         } else {
-            try {
-                boolean unloaded = false;
+            if (updatedLockLogin.exists()) {
+                Console.send(messages.Prefix() + "&7Checking update target LockLogin version");
 
-                if (updatedLockLogin.exists()) {
-                    Console.send(plugin, "Updating LockLogin, checking new LockLogin.jar info...", Level.INFO);
-                    String newVersion = getJarVersion(updatedLockLogin);
-                    String thisVersion = getJarVersion(lockLogin);
-
-                    if (newVersion != null && !newVersion.isEmpty() && thisVersion != null && !thisVersion.isEmpty()) {
-                        int nVer = Integer.parseInt(newVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-                        int aVer = Integer.parseInt(thisVersion.replaceAll("[aA-zZ]", "").replace(".", ""));
-
-                        boolean shouldUpdate = ignoredUpdateVersion(updatedLockLogin);
-                        if (!shouldUpdate) {
-                            shouldUpdate = nVer > aVer;
-                        }
-
-                        if (shouldUpdate && PluginManagerSpigot.manager.isReadyToUpdate()) {
-                            unload();
-                            unloaded = true;
-                            if (lockLogin.delete()) {
-                                if (updatedLockLogin.renameTo(lockLogin)) {
-                                    if (!updatedLockLogin.delete()) {
-                                        updatedLockLogin.deleteOnExit();
-                                    }
-
-                                    logger.scheduleLog(Level.INFO, "LockLogin updated");
-                                    Console.send(plugin, "LockLogin updated successfully", Level.INFO);
-                                    PluginManagerSpigot.manager.setReadyToUpdate(false);
-                                }
-                            } else {
-                                load(lockLogin);
-                                Console.send(plugin, "LockLogin update failed", Level.WARNING);
-                                return;
-                            }
-                        } else {
-                            if (PluginManagerSpigot.manager.isReadyToUpdate()) {
-                                Console.send(plugin, "Updated cancelled due the plugins/update/{0} LockLogin instance version is lower than the actual", Level.GRAVE, jar);
-                                if (updatedLockLogin.delete()) {
-                                    Console.send(plugin, "Old LockLogin instance removed", Level.INFO);
-                                }
-                            } else {
-                                Console.send("&cUpdate cancelled due LockLogin update is still downloading");
-                            }
-                        }
-                    } else {
-                        Console.send(plugin, "New LockLogin instance plugin.yml is not valid, download the latest version manually from {0}", Level.GRAVE, "https://www.spigotmc.org/resources/gsa-locklogin.75156/");
-                        if (updatedLockLogin.delete()) {
-                            Console.send(plugin, "Corrupt LockLogin instance removed", Level.INFO);
-                        }
-                    }
+                if (new_version > cur_version) {
+                    update = true;
                 } else {
-                    Console.send(SpigotFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
-                    if (ConfigGetter.manager.reload())
-                        Console.send(SpigotFiles.messages.Prefix() + "&aConfig file reloaded!");
-                    if (MessageGetter.manager.reload())
-                        Console.send(SpigotFiles.messages.Prefix() + "&aMessages file reloaded");
-
-                    File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-                    FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
-                    allowedCMDs.copy(allowed_file);
-                    YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
-
-                    AllowedCommands commands = new AllowedCommands();
-                    commands.addAll(allowed.getStringList("AllowedCommands"));
+                    update = ignoredUpdateVersion(updatedLockLogin);
+                    Console.send(messages.Prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
-                if (unloaded) {
+                if (!update) {
+                    switch (curr_channel) {
+                        case SNAPSHOT:
+                            switch (new_channel) {
+                                case RC:
+                                case RELEASE:
+                                    update = true;
+                            }
+                        case RC:
+                            if (new_channel == VersionChannel.RELEASE) {
+                                update = true;
+                            }
+                        case RELEASE:
+                        default:
+                            break;
+                    }
+                }
+
+                if (update) {
+                    unload();
+
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
                         @Override
                         public void run() {
-                            load(lockLogin);
+                            try {
+                                Files.move(updatedLockLogin.toPath(), lockLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                                Console.send(messages.Prefix() + "&aMoved new locklogin instance to current LockLogin instance");
+                            } catch (Throwable ex) {
+                                ex.printStackTrace();
+                                Console.send(messages.Prefix() + "&cLockLogin update failed");
+                            }
                         }
-                    }, 5000);
+                    }, 3000);
+
+                    Timer load_timer = new Timer();
+                    load_timer.schedule(new TimerTask() {
+                        int second = 7;
+                        @Override
+                        public void run() {
+                            if (second <= 5)
+                                Console.send(messages.Prefix() + "&7LockLogin load in " + second + " seconds");
+
+                            if (second <= 0) {
+                                File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
+
+                                load(new_locklogin);
+                                Console.send(messages.Prefix() + "&7Update process finished");
+                                load_timer.cancel();
+                            }
+                            second--;
+                        }
+                    }, 0, 1000);
+                } else {
+                    Console.send(messages.Prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
                 }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
-                Console.send(plugin, "An error occurred while updating LockLogin, check logs for more info", Level.GRAVE);
+            } else {
+                if (ConfigGetter.manager.reload())
+                    Console.send(messages.Prefix() + "&aConfiguration file reloaded");
+                if (MessageGetter.manager.reload())
+                    Console.send(messages.Prefix() + "&aMessages file reloaded");
+
+                PluginManagerSpigot manager = new PluginManagerSpigot();
+                manager.setupFiles();
+
+                if (config.isMySQL()) {
+                    for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                        User logged_user = new User(player);
+
+                        if (!logged_user.isRegistered()) {
+                            if (config.registerRestricted()) {
+                                logged_user.kick("&eLockLogin\n\n" + messages.onlyAzuriom());
+                                return;
+                            }
+                        }
+
+                        Utils sql = new Utils(player.getUniqueId());
+                        sql.createUser();
+
+                        String UUID = player.getUniqueId().toString().replace("-", "");
+
+                        FileManager fm = new FileManager(UUID + ".yml", "playerdata");
+                        fm.setInternal("auto-generated/userTemplate.yml");
+
+                        if (fm.getManaged().exists()) {
+                            if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                                if (fm.isSet("Password")) {
+                                    if (!fm.isEmpty("Password")) {
+                                        AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                        migrate.start();
+
+                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        fm.delete();
+                                    }
+                                }
+                            }
+                        }
+
+                        if (sql.getName() == null || sql.getName().isEmpty())
+                            sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                    }
+                } else {
+                    Utils utils = new Utils();
+                    for (String id : utils.getUUIDs()) {
+                        utils = new Utils(id);
+
+                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
+                    }
+
+                    Bucket.terminateMySQL();
+                }
             }
         }
     }

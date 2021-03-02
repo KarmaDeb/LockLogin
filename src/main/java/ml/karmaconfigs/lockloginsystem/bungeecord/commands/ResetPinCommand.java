@@ -44,7 +44,7 @@ public final class ResetPinCommand extends Command implements LockLoginBungee, B
                                 Integer.parseInt(args[0]);
 
                                 String pin = args[0];
-                                if (new PasswordUtils(pin, user.getPin()).checkPW()) {
+                                if (new PasswordUtils(pin, user.getPin()).validate()) {
                                     user.removePin();
 
                                     user.Message(messages.Prefix() + messages.PinSet("none"));

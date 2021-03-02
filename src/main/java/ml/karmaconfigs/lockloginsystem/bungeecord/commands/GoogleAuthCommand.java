@@ -126,7 +126,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
                                 PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                if (utils.checkPW()) {
+                                if (utils.validate()) {
                                     user.checkServer();
 
                                     user.setToken(token);
@@ -166,7 +166,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
                                         PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                        if (utils.checkPW()) {
+                                        if (utils.validate()) {
                                             if (user.validateCode(code)) {
                                                 user.set2FA(false);
                                                 user.Message(messages.Prefix() + messages.Disabled2FA());

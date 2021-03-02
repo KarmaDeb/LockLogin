@@ -41,21 +41,21 @@ public final class ResetLastLoc implements CommandExecutor, LockLoginSpigot, Spi
 
             if (player.hasPermission(resetLastLoc)) {
                 if (args.length == 0) {
-                    user.Message(messages.Prefix() + messages.RestLastLocUsage());
+                    user.send(messages.Prefix() + messages.RestLastLocUsage());
                 } else {
                     if (args[0].equalsIgnoreCase("all") || args[0].equalsIgnoreCase("@me")) {
                         if (args[0].equalsIgnoreCase("all")) {
                             FileManager manager = new FileManager("locations.yml", "userdata");
                             manager.delete();
 
-                            user.Message(messages.Prefix() + messages.LocationsReset());
+                            user.send(messages.Prefix() + messages.LocationsReset());
                         }
                         if (args[0].equalsIgnoreCase("@me")) {
                             LastLocation lastLocation = new LastLocation(player);
 
                             lastLocation.removeLocation();
 
-                            user.Message(messages.Prefix() + messages.LocationReset(player));
+                            user.send(messages.Prefix() + messages.LocationReset(player));
                         } else {
                             String target = args[0];
 
@@ -68,24 +68,24 @@ public final class ResetLastLoc implements CommandExecutor, LockLoginSpigot, Spi
                                 if (plugin.getServer().getPlayer(target) != null) {
                                     Player tar = plugin.getServer().getPlayer(target);
 
-                                    user.Message(messages.Prefix() + messages.LocationReset(tar));
+                                    user.send(messages.Prefix() + messages.LocationReset(tar));
                                 } else {
-                                    user.Message(messages.Prefix() + messages.LocationReset(target));
+                                    user.send(messages.Prefix() + messages.LocationReset(target));
                                 }
                             } else {
                                 if (plugin.getServer().getPlayer(target) != null) {
                                     Player tar = plugin.getServer().getPlayer(target);
 
-                                    user.Message(messages.Prefix() + messages.NoLastLocation(tar));
+                                    user.send(messages.Prefix() + messages.NoLastLocation(tar));
                                 } else {
-                                    user.Message(messages.Prefix() + messages.NoLastLocation(target));
+                                    user.send(messages.Prefix() + messages.NoLastLocation(target));
                                 }
                             }
                         }
                     }
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError(resetLastLoc.getName()));
+                user.send(messages.Prefix() + messages.PermissionError(resetLastLoc.getName()));
             }
         } else {
             if (args.length == 0) {

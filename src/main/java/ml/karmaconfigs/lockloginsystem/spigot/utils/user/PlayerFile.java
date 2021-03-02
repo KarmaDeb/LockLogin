@@ -187,7 +187,7 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
      */
     public final void setPassword(String newPassword) {
         if (newPassword != null) {
-            manager.set("Password", new PasswordUtils(newPassword).hashEncrypted());
+            manager.set("Password", new PasswordUtils(newPassword).hashToken(config.passwordEncryption()));
         } else {
             manager.set("Password", "");
         }
@@ -209,7 +209,7 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
      */
     public final void setPin(Object pin) {
         if (pin != null) {
-            manager.set("Pin", new PasswordUtils(String.valueOf(pin)).hashEncrypted());
+            manager.set("Pin", new PasswordUtils(String.valueOf(pin)).hashToken(config.pinEncryption()));
         } else {
             manager.set("Pin", "");
         }
@@ -237,7 +237,7 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
      * @param token the token
      */
     public final void setToken(String token) {
-        manager.set("GAuth", new PasswordUtils(token).hashPassword());
+        manager.set("GAuth", new PasswordUtils(token).hash());
     }
 
     /**

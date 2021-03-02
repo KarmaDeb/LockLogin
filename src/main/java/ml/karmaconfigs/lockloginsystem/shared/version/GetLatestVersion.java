@@ -24,6 +24,7 @@ public final class GetLatestVersion {
     private int latest;
     private String version = "";
 
+
     /**
      * Starts retrieving the info from the html file
      */
@@ -44,7 +45,7 @@ public final class GetLatestVersion {
                         .replace(",", "{comma}")
                         .replace("_", "&"));
             }
-            this.latest = Integer.parseInt(replaced.get(0).replaceAll("[aA-zZ]", "").replace(".", ""));
+            this.latest = Integer.parseInt(replaced.get(0).replaceAll("\\s", "").replaceAll("[aA-zZ]", "").replace(".", ""));
             this.version = replaced.get(0);
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -65,14 +66,14 @@ public final class GetLatestVersion {
      * @return the latest version string
      */
     public final String getVersion() {
-        return version.replaceAll("[aA-zZ]", "").replaceAll("\\s", "");
+        return version.replaceAll("\\s", "").replaceAll("[aA-zZ]", "").replaceAll("\\s", "");
     }
 
     /**
-     * @return the latest version status (Beta - Alpha - Release) and his version int
+     * @return the latest version status (Snapshot - Release candidate - Release) and his version int
      */
     public final VersionChannel getChannel() {
-        String version_text = version.replaceAll("[0-9]", "").replace(".", "").replace(" ", "");
+        String version_text = version.replaceAll("\\s", "").replaceAll("[0-9]", "").replace(".", "").replace(" ", "");
         if (!version_text.replaceAll("\\s", "").isEmpty()) {
             version_text = version_text.toLowerCase();
         } else {

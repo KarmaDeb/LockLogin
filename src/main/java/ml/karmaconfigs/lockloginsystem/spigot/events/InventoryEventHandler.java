@@ -283,7 +283,7 @@ public final class InventoryEventHandler implements Listener {
                                                 TextComponent clickable_msg = new TextComponent(StringUtils.toColor("&7Click me to get &b" + module_name + "&7 update url"));
                                                 clickable_msg.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, update_url));
 
-                                                user.Message(clickable_msg);
+                                                user.send(clickable_msg);
                                             }
                                         }
                                     }

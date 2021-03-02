@@ -84,7 +84,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                 back--;
                             }
                         } else {
-                            user.Kick(config.bungeeProxy());
+                            user.kick(config.bungeeProxy());
                             Console.send(plugin, "Player {0} have been kicked for a failed bungee proxy check", Level.INFO, player.getUniqueId());
                         }
                     } else {
@@ -164,7 +164,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                 if (alreadyIn != null && alreadyIn.getAddress() != null && alreadyIn.getAddress().getAddress().equals(e.getAddress())) {
                                     User user = new User(alreadyIn);
                                     user.setLogStatus(false);
-                                    plugin.getServer().getScheduler().runTask(plugin, () -> user.Kick("&eLockLogin\n\n" + "&aYou've joined from another location with the same IP, if that's not you, contact the staff now" +
+                                    plugin.getServer().getScheduler().runTask(plugin, () -> user.kick("&eLockLogin\n\n" + "&aYou've joined from another location with the same IP, if that's not you, contact the staff now" +
                                             "\n&aLockLogin will keep your account blocked (need of /login)"));
 
                                     e.allow();
@@ -426,9 +426,9 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 if (!user.isLogged() || user.isTempLog()) {
                     e.setCancelled(true);
                     if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                        user.send(messages.Prefix() + messages.Login());
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 }
             }
@@ -445,7 +445,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     if (attacker.hasMetadata("LockLoginUser")) {
                         if (!user.isLogged() || user.isTempLog()) {
                             e.setCancelled(true);
-                            attackerUser.Message(messages.Prefix() + messages.NotVerified(player));
+                            attackerUser.send(messages.Prefix() + messages.NotVerified(player));
                         }
                     }
                 }
@@ -503,15 +503,15 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 e.setCancelled(true);
                 if (!user.isLogged()) {
                     if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                        user.send(messages.Prefix() + messages.Login());
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 }
                 if (user.isTempLog()) {
                     e.setCancelled(true);
                     if (user.has2FA()) {
-                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                        user.send(messages.Prefix() + messages.gAuthAuthenticate());
                     }
                 }
             }
@@ -591,13 +591,13 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 if (!user.isRegistered()) {
                     if (!cmd.equals("register") && !cmd.equals("reg")) {
                         e.setCancelled(true);
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 } else {
                     if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
                         if (!cmd.equals("login") && !cmd.equals("l") && !cmd.equals("recovery")) {
                             e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.Login());
+                            user.send(messages.Prefix() + messages.Login());
                         }
                     }
                 }
@@ -606,7 +606,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     if (user.has2FA() || user.hasPin()) {
                         if (!cmd.equals("2fa") && !cmd.equals("recovery")) {
                             e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            user.send(messages.Prefix() + messages.gAuthAuthenticate());
                         }
                     }
                 }

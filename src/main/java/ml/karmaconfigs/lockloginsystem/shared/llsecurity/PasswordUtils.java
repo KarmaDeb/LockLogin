@@ -17,6 +17,9 @@ GNU LESSER GENERAL PUBLIC LICENSE
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.argon.Argon2Util;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.AuthMeAuth;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.libs.BCrypt;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.loginsecurity.LoginSecurityAuth;
@@ -26,7 +29,6 @@ public final class PasswordUtils {
 
     private final String password;
     private String token;
-    private boolean useAzuriom = false;
     private byte[] encoded;
 
     /**
@@ -50,27 +52,26 @@ public final class PasswordUtils {
     }
 
     /**
-     * Specify if password utils should use Azuriom's bcrypt
-     *
-     * @param support support Azuriom's BCrypt
-     * @return the same instance with azuriom configuration
-     */
-    public PasswordUtils withAzuriomSupport(final boolean support) {
-        useAzuriom = support;
-        return this;
-    }
-
-    /**
      * Get the encrypted password
      *
      * @return the encrypted password
      */
-    public final String encrypt() {
-        if (useAzuriom) {
-            String salt = BCrypt.gensalt();
-            return BCrypt.hashpw(password, salt).replaceFirst("2a", "2y");
-        } else {
-            return new Codification().hash(password);
+    public final String encrypt(final CryptType type) {
+        switch (type) {
+            case SHA256:
+                return new Codification2(password, false).hash();
+            case BCrypt:
+            case BCryptPHP:
+                return BCrypt.hashpw(password, BCrypt.gensalt()).replaceFirst("2a", "2y");
+            case ARGON2I:
+                return new Argon2Util(password).hashPassword(CryptType.ARGON2I);
+            case ARGON2ID:
+                return new Argon2Util(password).hashPassword(CryptType.ARGON2ID);
+            case SHA512:
+            case UNKNOWN:
+            case NONE:
+            default:
+                return new Codification().hash(password);
         }
     }
 
@@ -80,8 +81,8 @@ public final class PasswordUtils {
      *
      * @return a hashed password
      */
-    public final String hashEncrypted() {
-        encoded = Base64.encodeBase64(encrypt().getBytes());
+    public final String hashToken(final CryptType type) {
+        encoded = Base64.encodeBase64(encrypt(type).getBytes());
         return new String(encoded);
     }
 
@@ -91,9 +92,13 @@ public final class PasswordUtils {
      *
      * @return the hash value of password
      */
-    public final String hashPassword() {
-        encoded = Base64.encodeBase64(password.getBytes());
-        return new String(encoded);
+    public final String hash() {
+        if (!Base64.isBase64(password)) {
+            encoded = Base64.encodeBase64(password.getBytes());
+            return new String(encoded);
+        }
+
+        return password;
     }
 
     /**
@@ -102,8 +107,103 @@ public final class PasswordUtils {
      * @return the unhashed password
      */
     public final String unHash() {
-        byte[] decoded = Base64.decodeBase64(password);
-        return new String(decoded);
+        if (Base64.isBase64(password)) {
+            byte[] decoded = Base64.decodeBase64(password);
+            return new String(decoded);
+        }
+
+        return password;
+    }
+
+    /**
+     * Get the crypto type of the token
+     *
+     * @return the token encryption type
+     */
+    public final CryptType getCrypto() {
+        if (token != null) {
+            String[] token_data;
+            if (Base64.isBase64(token))
+                token_data = new String(Base64.decodeBase64(token)).split("\\$");
+            else
+                token_data = token.split("\\$");
+
+            String type_backend = token_data[2];
+            String type = token_data[1];
+
+            CryptType crypto;
+
+            switch (type.toLowerCase()) {
+                case "sha512":
+                case "512":
+                    crypto = CryptType.SHA512;
+                    break;
+                case "sha256":
+                case "256":
+                    crypto = CryptType.SHA256;
+                    break;
+                case "2y":
+                    crypto = CryptType.BCryptPHP;
+                    break;
+                case "2a":
+                    crypto = CryptType.BCrypt;
+                    break;
+                case "argon2i":
+                    crypto = CryptType.ARGON2I;
+                    break;
+                case "argon2id":
+                    crypto = CryptType.ARGON2ID;
+                    break;
+                default:
+                    crypto = CryptType.UNKNOWN;
+                    break;
+            }
+
+            if (crypto == CryptType.UNKNOWN)
+                switch (type_backend.toLowerCase()) {
+                    case "sha512":
+                    case "512":
+                        crypto = CryptType.SHA512;
+                        break;
+                    case "sha256":
+                    case "256":
+                        crypto = CryptType.SHA256;
+                        break;
+                    case "2y":
+                        crypto = CryptType.BCryptPHP;
+                        break;
+                    case "2a":
+                        crypto = CryptType.BCrypt;
+                        break;
+                    case "argon2i":
+                        crypto = CryptType.ARGON2I;
+                        break;
+                    case "argon2id":
+                        crypto = CryptType.ARGON2ID;
+                        break;
+                    default:
+                        crypto = CryptType.UNKNOWN;
+                        break;
+                }
+
+            return crypto;
+        } else {
+            return CryptType.NONE;
+        }
+    }
+
+    /**
+     * Check if the current token needs a re-hash
+     *
+     * @return if the token needs a re-hash
+     */
+    public final boolean needsRehash(final CryptType current_crypto) {
+        CryptType token_crypto = getCrypto();
+
+        if (!token_crypto.equals(CryptType.NONE) && !token_crypto.equals(CryptType.UNKNOWN))
+            return !current_crypto.equals(token_crypto);
+        else
+            return true;
     }
 
     /**
@@ -112,8 +212,8 @@ public final class PasswordUtils {
      *
      * @return if the password is correct
      */
-    public final boolean checkPW() {
-        String decode_str = token;
+    public final boolean validate() {
+        /*String decode_str = token;
         if (Base64.isBase64(token)) {
             byte[] decode = Base64.decodeBase64(token);
             decode_str = new String(decode);
@@ -137,6 +237,38 @@ public final class PasswordUtils {
                 //False negative
                 return false;
             }
+        }*/
+
+        CryptType current_type = getCrypto();
+
+        String key = token;
+        if (Base64.isBase64(key))
+            key = new String(Base64.decodeBase64(key));
+
+        Codification sha512 = new Codification();
+        Argon2Util argon2id = new Argon2Util(password);
+
+        switch (current_type) {
+            case SHA512:
+                return sha512.auth(password, key);
+            case SHA256:
+                return Codification2.check(password, key);
+            case BCrypt:
+            case BCryptPHP:
+                return BCrypt.checkpw(password, key.replaceFirst("2y", "2a"));
+            case ARGON2I:
+                return argon2id.checkPassword(key, CryptType.ARGON2I);
+            case ARGON2ID:
+                return argon2id.checkPassword(key, CryptType.ARGON2ID);
+            case UNKNOWN:
+                AuthMeAuth authme = new AuthMeAuth();
+                LoginSecurityAuth lsAuth = new LoginSecurityAuth();
+
+                return authme.check(password, key) || lsAuth.check(password, key);
+            case NONE:
+            default:
+                PlatformUtils.log("Error while getting current token hash type: " + current_type.name(), Level.GRAVE);
+                return false;
         }
     }
 }

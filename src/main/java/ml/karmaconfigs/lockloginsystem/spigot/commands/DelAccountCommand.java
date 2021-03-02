@@ -45,12 +45,12 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
 
             if (args.length == 0) {
                 if (user.isLogged()) {
-                    user.Message(messages.Prefix() + messages.DelAccount());
+                    user.send(messages.Prefix() + messages.DelAccount());
                 } else {
                     if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                        user.send(messages.Prefix() + messages.Login());
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 }
             } else {
@@ -72,30 +72,30 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                 if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
-                                    targetUser.Teleport(spawn.getSpawn());
+                                    targetUser.teleport(spawn.getSpawn());
                                 }
 
                                 targetUser.remove();
                                 targetUser.setLogStatus(false);
                                 targetUser.setTempLog(false);
-                                targetUser.Message(messages.Prefix() + messages.ForcedDelAccount(player));
-                                user.Message(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
+                                targetUser.send(messages.Prefix() + messages.ForcedDelAccount(player));
+                                user.send(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
                                 new StartCheck(target, CheckType.REGISTER);
                             } else {
-                                user.Message(messages.Prefix() + messages.DelAccount());
+                                user.send(messages.Prefix() + messages.DelAccount());
                             }
                         } else {
                             OfflineUser targetUser = new OfflineUser(tar);
 
                             if (targetUser.exists()) {
                                 targetUser.delete();
-                                user.Message(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
+                                user.send(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
                             } else {
-                                user.Message(messages.Prefix() + messages.NeverPlayed(tar));
+                                user.send(messages.Prefix() + messages.NeverPlayed(tar));
                             }
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.PermissionError(forceDel.getName()));
+                        user.send(messages.Prefix() + messages.PermissionError(forceDel.getName()));
                     }
                 } else {
                     if (args.length == 2) {
@@ -105,7 +105,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                         if (password.equals(confirmation)) {
                             PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                            if (utils.checkPW()) {
+                            if (utils.validate()) {
                                 if (config.TakeBack()) {
                                     LastLocation lastLocation = new LastLocation(player);
                                     lastLocation.saveLocation();
@@ -114,21 +114,21 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                 if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
-                                    user.Teleport(spawn.getSpawn());
+                                    user.teleport(spawn.getSpawn());
                                 }
 
                                 user.remove();
                                 user.setLogStatus(false);
-                                user.Message(messages.Prefix() + messages.AccountDeleted());
+                                user.send(messages.Prefix() + messages.AccountDeleted());
                                 new StartCheck(player, CheckType.REGISTER);
                             } else {
-                                user.Message(messages.Prefix() + messages.DelAccountError());
+                                user.send(messages.Prefix() + messages.DelAccountError());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.DelAccountMatch());
+                            user.send(messages.Prefix() + messages.DelAccountMatch());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.DelAccount());
+                        user.send(messages.Prefix() + messages.DelAccount());
                     }
                 }
             }
@@ -148,12 +148,12 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                     if (config.enableSpawn()) {
                         Spawn spawn = new Spawn();
 
-                        targetUser.Teleport(spawn.getSpawn());
+                        targetUser.teleport(spawn.getSpawn());
                     }
 
                     targetUser.remove();
                     targetUser.setLogStatus(false);
-                    targetUser.Message(messages.Prefix() + messages.ForcedDelAccount("SERVER"));
+                    targetUser.send(messages.Prefix() + messages.ForcedDelAccount("SERVER"));
                     Console.send(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
                     new StartCheck(target, CheckType.REGISTER);
                 } else {

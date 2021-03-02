@@ -47,7 +47,7 @@ public final class GoogleAuthResetCommand extends Command implements LockLoginBu
 
                                 PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
 
-                                if (passwordUtils.checkPW()) {
+                                if (passwordUtils.validate()) {
                                     try {
                                         int code = Integer.parseInt(args[1]);
 

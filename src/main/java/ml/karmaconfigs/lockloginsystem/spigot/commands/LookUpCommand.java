@@ -43,7 +43,7 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
 
             if (player.hasPermission(checkPlayerInfo)) {
                 if (args.length == 0) {
-                    user.Message(messages.Prefix() + messages.LookUpUsage());
+                    user.send(messages.Prefix() + messages.LookUpUsage());
                 } else {
                     if (args[0] != null) {
                         if (args.length == 1) {
@@ -66,17 +66,17 @@ public final class LookUpCommand implements CommandExecutor, LockLoginSpigot, Sp
                                     new AltsAccountInventory(player, detected);
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.NeverPlayed(target));
+                                user.send(messages.Prefix() + messages.NeverPlayed(target));
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.LookUpUsage());
+                            user.send(messages.Prefix() + messages.LookUpUsage());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.LookUpUsage());
+                        user.send(messages.Prefix() + messages.LookUpUsage());
                     }
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError(checkPlayerInfo));
+                user.send(messages.Prefix() + messages.PermissionError(checkPlayerInfo));
             }
         } else {
             if (args.length == 0) {

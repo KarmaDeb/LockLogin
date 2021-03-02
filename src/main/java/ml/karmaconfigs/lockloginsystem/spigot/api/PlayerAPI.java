@@ -71,7 +71,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
                         if (config.TakeBack()) {
                             LastLocation lastLoc = new LastLocation(player);
-                            utils.Teleport(lastLoc.getLastLocation());
+                            utils.teleport(lastLoc.getLastLocation());
                         }
                         if (config.blindLogin()) {
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
@@ -81,12 +81,12 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(Message);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(Message);
+                            utils.send(messages.Prefix() + messages.gAuthAuthenticate());
                         } else {
                             utils.setLogStatus(true);
                             utils.setTempLog(false);
-                            utils.Message(Message);
+                            utils.send(Message);
                         }
 
                         utils.sendTitle("", "", 1, 2, 1);
@@ -97,7 +97,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
                         utils.setLogStatus(false);
                         utils.setTempLog(false);
-                        utils.Message(Message);
+                        utils.send(Message);
                     }
                 }
             }, (long) (20 * 1.5));
@@ -122,7 +122,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         if (!utils.isLogged()) {
                             if (config.TakeBack()) {
                                 LastLocation lastLoc = new LastLocation(player);
-                                utils.Teleport(lastLoc.getLastLocation());
+                                utils.teleport(lastLoc.getLastLocation());
                             }
                             if (config.blindLogin()) {
                                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
@@ -132,15 +132,15 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                             if (utils.has2FA()) {
                                 utils.setLogStatus(true);
                                 utils.setTempLog(true);
-                                utils.Message(message);
-                                utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                utils.send(message);
+                                utils.send(messages.Prefix() + messages.gAuthAuthenticate());
 
                                 result = AuthResult.SUCCESS_TEMP;
                                 event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
                             } else {
                                 utils.setLogStatus(true);
                                 utils.setTempLog(false);
-                                utils.Message(message);
+                                utils.send(message);
 
                                 result = AuthResult.SUCCESS;
                                 event.setAuthResult(EventAuthResult.SUCCESS);
@@ -155,7 +155,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         if (utils.isLogged()) {
                             utils.setLogStatus(false);
                             utils.setTempLog(false);
-                            utils.Message(message);
+                            utils.send(message);
                         }
                         result = AuthResult.SUCCESS;
                     }
@@ -192,7 +192,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
                             if (config.TakeBack()) {
                                 LastLocation lastLoc = new LastLocation(player);
-                                utils.Teleport(lastLoc.getLastLocation());
+                                utils.teleport(lastLoc.getLastLocation());
                             }
                             if (config.blindLogin()) {
                                 plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
@@ -255,7 +255,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
                     if (config.TakeBack()) {
                         LastLocation lastLoc = new LastLocation(player);
-                        utils.Teleport(lastLoc.getLastLocation());
+                        utils.teleport(lastLoc.getLastLocation());
                     }
                     if (config.blindRegister()) {
                         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaRegister()));
@@ -265,8 +265,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                     utils.setLogStatus(true);
                     utils.setTempLog(utils.has2FA());
                     utils.setPassword(password);
-                    utils.Message(messages.Prefix() + messages.Registered());
-                    utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+                    utils.send(messages.Prefix() + messages.Registered());
+                    utils.send("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
 
                     utils.sendTitle("", "", 1, 2, 1);
                 }
@@ -289,7 +289,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                     if (!utils.isRegistered()) {
                         if (config.TakeBack()) {
                             LastLocation lastLoc = new LastLocation(player);
-                            utils.Teleport(lastLoc.getLastLocation());
+                            utils.teleport(lastLoc.getLastLocation());
                         }
                         if (config.blindRegister()) {
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaRegister()));
@@ -299,8 +299,8 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         utils.setLogStatus(true);
                         utils.setTempLog(utils.has2FA());
                         utils.setPassword(password);
-                        utils.Message(messages.Prefix() + messages.Registered());
-                        utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+                        utils.send(messages.Prefix() + messages.Registered());
+                        utils.send("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
 
                         PlayerRegisterEvent event = new PlayerRegisterEvent(player);
                         plugin.getServer().getPluginManager().callEvent(event);
@@ -380,7 +380,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
                         if (config.TakeBack()) {
                             LastLocation lastLoc = new LastLocation(player);
-                            utils.Teleport(lastLoc.getLastLocation());
+                            utils.teleport(lastLoc.getLastLocation());
                         }
                         if (config.blindLogin()) {
                             plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> utils.removeBlindEffect(config.nauseaLogin()));
@@ -390,7 +390,7 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(messages.Prefix() + messages.gAuthAuthenticate());
                         } else {
                             utils.setLogStatus(true);
                             utils.setLogStatus(false);

@@ -97,7 +97,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                         if (password.equals(confirmation)) {
                             PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                            if (utils.checkPW()) {
+                            if (utils.validate()) {
                                 user.remove();
                                 user.setLogStatus(false);
                                 user.Message(messages.Prefix() + messages.AccountDeleted());

@@ -48,7 +48,7 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
             User user = new User(player);
 
             if (user.isRegistered()) {
-                user.Message(messages.Prefix() + messages.AlreadyRegistered());
+                user.send(messages.Prefix() + messages.AlreadyRegistered());
             } else {
                 if (!user.isLogged()) {
                     if (args.length == 2) {
@@ -64,11 +64,11 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
 
                                     user.setPassword(password);
                                     user.setLogStatus(true);
-                                    user.Message(messages.Prefix() + messages.Registered());
+                                    user.send(messages.Prefix() + messages.Registered());
 
                                     if (config.TakeBack()) {
                                         LastLocation lastLoc = new LastLocation(player);
-                                        user.Teleport(lastLoc.getLastLocation());
+                                        user.teleport(lastLoc.getLastLocation());
                                     }
 
                                     player.setAllowFlight(user.hasFly());
@@ -78,25 +78,25 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
                                         user.removeBlindEffect(config.nauseaRegister());
                                     }
                                 } else {
-                                    user.Message(messages.Prefix() + messages.PasswordMinChar());
+                                    user.send(messages.Prefix() + messages.PasswordMinChar());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PasswordInsecure());
+                                user.send(messages.Prefix() + messages.PasswordInsecure());
 
                                 ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
                                 json.setHoverText("&7Opens an url to a password-gen page");
                                 json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
-                                user.Message(json.getComponent());
+                                user.send(json.getComponent());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.RegisterError());
+                            user.send(messages.Prefix() + messages.RegisterError());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.AlreadyRegistered());
+                    user.send(messages.Prefix() + messages.AlreadyRegistered());
                 }
             }
         } else {

@@ -51,27 +51,27 @@ public final class ResetPinCommand implements CommandExecutor, LockLoginSpigot, 
                                 Integer.parseInt(args[0]);
 
                                 String pin = args[0];
-                                if (new PasswordUtils(pin, user.getPin()).checkPW()) {
+                                if (new PasswordUtils(pin, user.getPin()).validate()) {
                                     user.removePin();
 
-                                    user.Message(messages.Prefix() + messages.PinSet("none"));
+                                    user.send(messages.Prefix() + messages.PinSet("none"));
                                 } else {
-                                    user.Message(messages.Prefix() + messages.IncorrectPin());
+                                    user.send(messages.Prefix() + messages.IncorrectPin());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PinLength());
+                                user.send(messages.Prefix() + messages.PinLength());
                             }
                         } catch (NumberFormatException e) {
-                            user.Message(messages.Prefix() + messages.ResetPin());
+                            user.send(messages.Prefix() + messages.ResetPin());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.ResetPin());
+                        user.send(messages.Prefix() + messages.ResetPin());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.NoPin());
+                    user.send(messages.Prefix() + messages.NoPin());
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PinDisabled());
+                user.send(messages.Prefix() + messages.PinDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

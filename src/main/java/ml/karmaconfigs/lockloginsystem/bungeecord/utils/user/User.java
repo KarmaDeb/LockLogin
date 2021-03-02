@@ -303,7 +303,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
         } else {
             Utils sql = new Utils(player);
 
-            return sql.getUUID();
+            return Utils.fixUUID(sql.getUUID());
         }
     }
 

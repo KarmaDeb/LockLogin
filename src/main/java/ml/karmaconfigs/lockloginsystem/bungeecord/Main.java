@@ -27,7 +27,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.6.5", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
+@KarmaPlugin(plugin_name = "LockLogin", plugin_version = "1.0.6.6", plugin_update_url = "https://karmaconfigs.github.io/updates/LockLogin/latest.txt")
 public final class Main extends Plugin {
 
     @Override
@@ -47,23 +47,27 @@ public final class Main extends Plugin {
             File codecs = new File(libs_folder, "CommonsCodec.jar");
             File goauth = new File(libs_folder, "GoogleAuth.jar");
             File slf4j = new File(libs_folder, "slf4j.jar");
+            File argon2 = new File(libs_folder, "Argon2.jar");
 
             JarInjector hikari_injector = new JarInjector(hikari);
             JarInjector codecs_injector = new JarInjector(codecs);
             JarInjector goauth_injector = new JarInjector(goauth);
             JarInjector slf4j_injector = new JarInjector(slf4j);
+            JarInjector argon2_injector = new JarInjector(argon2);
 
-            if (!hikari_injector.isDownloaded() || !codecs_injector.isDownloaded() || !goauth_injector.isDownloaded() || !slf4j_injector.isDownloaded()) {
+            if (!hikari_injector.isDownloaded() || !codecs_injector.isDownloaded() || !goauth_injector.isDownloaded() || !slf4j_injector.isDownloaded() || !argon2_injector.isDownloaded()) {
                 hikari_injector.download(Dependency.hikari);
                 codecs_injector.download(Dependency.commons);
                 goauth_injector.download(Dependency.google);
                 slf4j_injector.download(Dependency.slf4j);
+                argon2_injector.download(Dependency.argon2);
             }
 
             hikari_injector.inject(this);
             codecs_injector.inject(this);
             goauth_injector.inject(this);
             slf4j_injector.inject(this);
+            argon2_injector.inject(this);
 
             PluginManagerBungee manager = new PluginManagerBungee();
             manager.enable();

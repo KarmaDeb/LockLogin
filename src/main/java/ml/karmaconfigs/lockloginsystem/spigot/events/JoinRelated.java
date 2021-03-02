@@ -51,7 +51,7 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
 
                 Spawn spawn = new Spawn();
 
-                user.Teleport(spawn.getSpawn());
+                user.teleport(spawn.getSpawn());
             }
         });
     }

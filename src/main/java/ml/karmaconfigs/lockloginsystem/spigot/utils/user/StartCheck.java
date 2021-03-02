@@ -53,7 +53,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                                         user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back), 0, 2, 0);
                                     }
                                 } else {
-                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.Kick(messages.RegisterOut()), 20);
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.RegisterOut()), 20);
                                     cancel();
                                 }
                                 back--;
@@ -83,7 +83,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                                         user.sendTitle(messages.LoginTitle(back), messages.LoginSubtitle(back), 0, 2, 0);
                                     }
                                 } else {
-                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.Kick(messages.LoginOut()), 20);
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.LoginOut()), 20);
                                     cancel();
                                 }
                                 back--;
@@ -114,10 +114,10 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
         User user = new User(player);
         switch (type) {
             case LOGIN:
-                user.Message(messages.Prefix() + messages.Login());
+                user.send(messages.Prefix() + messages.Login());
                 break;
             case REGISTER:
-                user.Message(messages.Prefix() + messages.Register());
+                user.send(messages.Prefix() + messages.Register());
                 break;
         }
     }

@@ -43,9 +43,7 @@ public final class Codification2 {
     @SuppressWarnings("all")
     public final String hash() {
         if (!isHashed)
-            return Hashing.sha256()
-                    .hashString(password.toString(), StandardCharsets.UTF_8)
-                    .toString();
+            return Hashing.sha256().hashString(password.toString(), StandardCharsets.UTF_8).toString();
         ;
         return password.toString();
     }

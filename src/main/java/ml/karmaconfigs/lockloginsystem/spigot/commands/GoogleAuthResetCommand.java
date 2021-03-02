@@ -44,7 +44,7 @@ public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginS
 
                     PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
 
-                    if (passwordUtils.checkPW()) {
+                    if (passwordUtils.validate()) {
                         try {
                             int code = Integer.parseInt(args[1]);
 
@@ -59,34 +59,34 @@ public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginS
                                 if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
-                                    user.Teleport(spawn.getSpawn());
+                                    user.teleport(spawn.getSpawn());
                                 }
 
-                                user.Message(messages.Prefix() + messages.ReseatedFA());
+                                user.send(messages.Prefix() + messages.ReseatedFA());
                                 user.setToken(newToken);
                                 user.setTempLog(true);
                                 user.set2FA(true);
-                                user.Message(messages.Prefix() + messages.GAuthInstructions());
+                                user.send(messages.Prefix() + messages.GAuthInstructions());
                                 ComponentMaker json = new ComponentMaker(messages.GAuthLink());
                                 String url = json.getURL(player, newToken);
                                 json.setHoverText("&bQR Code &c( USE THE LINK BELOW IF YOU CAN'T CLICK THIS )");
                                 json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-                                user.Message(json.getComponent());
-                                user.Message("&b" + url);
+                                user.send(json.getComponent());
+                                user.send("&b" + url);
                             } else {
-                                user.Message(messages.Prefix() + messages.ToggleFAError());
+                                user.send(messages.Prefix() + messages.ToggleFAError());
                             }
                         } catch (NumberFormatException ex) {
-                            user.Message(messages.Prefix() + messages.Reset2Fa());
+                            user.send(messages.Prefix() + messages.Reset2Fa());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.ToggleFAError());
+                        user.send(messages.Prefix() + messages.ToggleFAError());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.Reset2Fa());
+                    user.send(messages.Prefix() + messages.Reset2Fa());
                 }
             } else {
-                user.Message(messages.Prefix() + messages.GAuthDisabled());
+                user.send(messages.Prefix() + messages.GAuthDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

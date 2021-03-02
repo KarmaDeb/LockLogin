@@ -83,7 +83,7 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                             if (value) {
                                 if (config.TakeBack()) {
                                     LastLocation lastLoc = new LastLocation(player);
-                                    user.Teleport(lastLoc.getLastLocation());
+                                    user.teleport(lastLoc.getLastLocation());
                                 }
                             }
                         }

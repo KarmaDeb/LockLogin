@@ -50,22 +50,22 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                         if (user.isLogged()) {
                             if (user.has2FA()) {
                                 if (user.isTempLog()) {
-                                    user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                    user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                 } else {
-                                    user.Message(messages.Prefix() + messages.AlreadyFA());
+                                    user.send(messages.Prefix() + messages.AlreadyFA());
                                 }
                             } else {
                                 if (!user.isTempLog()) {
-                                    user.Message(messages.Prefix() + messages.Enable2FA());
+                                    user.send(messages.Prefix() + messages.Enable2FA());
                                 } else {
-                                    user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                    user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                 }
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.Login());
+                            user.send(messages.Prefix() + messages.Login());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.Prefix());
+                        user.send(messages.Prefix() + messages.Prefix());
                     }
                 } else {
                     if (args.length == 1) {
@@ -102,11 +102,11 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                             user.sendTitle("", "", 1, 2, 1);
                                             user.setTempLog(false);
 
-                                            user.Message(event.getAuthMessage());
+                                            user.send(event.getAuthMessage());
 
                                             if (config.TakeBack()) {
                                                 LastLocation lastLoc = new LastLocation(player);
-                                                user.Teleport(lastLoc.getLastLocation());
+                                                user.teleport(lastLoc.getLastLocation());
                                             }
 
                                             if (config.blindLogin())
@@ -115,25 +115,25 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                             player.setAllowFlight(user.hasFly());
                                         } else {
                                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
-                                            user.Message(event.getAuthMessage());
+                                            user.send(event.getAuthMessage());
                                         }
                                         break;
                                     case FAILED:
                                     case ERROR:
                                     case WAITING:
-                                        user.Message(event.getAuthMessage());
+                                        user.send(event.getAuthMessage());
                                         break;
                                 }
                             } else {
                                 if (!user.isLogged()) {
                                     if (user.isRegistered()) {
-                                        user.Message(messages.Prefix() + messages.Login());
+                                        user.send(messages.Prefix() + messages.Login());
                                     } else {
-                                        user.Message(messages.Prefix() + messages.Register());
+                                        user.send(messages.Prefix() + messages.Register());
                                     }
                                 } else {
                                     if (!user.isTempLog()) {
-                                        user.Message(messages.Prefix() + messages.AlreadyFA());
+                                        user.send(messages.Prefix() + messages.AlreadyFA());
                                     }
                                 }
                             }
@@ -144,7 +144,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                 PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                if (utils.checkPW()) {
+                                if (utils.validate()) {
                                     if (config.TakeBack()) {
                                         LastLocation lastLocation = new LastLocation(player);
                                         lastLocation.saveLocation();
@@ -153,32 +153,32 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                     if (config.enableSpawn()) {
                                         Spawn spawn = new Spawn();
 
-                                        user.Teleport(spawn.getSpawn());
+                                        user.teleport(spawn.getSpawn());
                                     }
 
                                     user.setToken(token);
                                     user.setTempLog(true);
                                     user.set2FA(true);
-                                    user.Message(messages.Prefix() + messages.GAuthInstructions());
+                                    user.send(messages.Prefix() + messages.GAuthInstructions());
                                     ComponentMaker json = new ComponentMaker(messages.GAuthLink());
                                     String url = json.getURL(player, token);
                                     json.setHoverText("&bQR Code &c( USE THE LINK BELOW IF YOU CAN'T CLICK THIS )");
                                     json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
-                                    user.Message(json.getComponent());
-                                    user.Message("&b" + url);
+                                    user.send(json.getComponent());
+                                    user.send("&b" + url);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.ToggleFAError());
+                                    user.send(messages.Prefix() + messages.ToggleFAError());
                                 }
                             } else {
                                 if (!user.isLogged()) {
                                     if (user.isRegistered()) {
-                                        user.Message(messages.Prefix() + messages.Login());
+                                        user.send(messages.Prefix() + messages.Login());
                                     } else {
-                                        user.Message(messages.Prefix() + messages.Register());
+                                        user.send(messages.Prefix() + messages.Register());
                                     }
                                 } else {
                                     if (user.isTempLog()) {
-                                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                        user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                     }
                                 }
                             }
@@ -193,63 +193,63 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                         PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
-                                        if (utils.checkPW()) {
+                                        if (utils.validate()) {
                                             if (user.validateCode(code)) {
                                                 user.set2FA(false);
-                                                user.Message(messages.Prefix() + messages.Disabled2FA());
+                                                user.send(messages.Prefix() + messages.Disabled2FA());
                                             } else {
-                                                user.Message(messages.Prefix() + messages.gAuthIncorrect());
+                                                user.send(messages.Prefix() + messages.gAuthIncorrect());
                                             }
                                         } else {
-                                            user.Message(messages.Prefix() + messages.ToggleFAError());
+                                            user.send(messages.Prefix() + messages.ToggleFAError());
                                         }
                                     } catch (NumberFormatException e) {
-                                        user.Message(messages.Prefix() + messages.gAuthIncorrect());
+                                        user.send(messages.Prefix() + messages.gAuthIncorrect());
                                         return false;
                                     }
                                 } else {
                                     if (!user.isLogged()) {
                                         if (user.isRegistered()) {
-                                            user.Message(messages.Prefix() + messages.Login());
+                                            user.send(messages.Prefix() + messages.Login());
                                         } else {
-                                            user.Message(messages.Prefix() + messages.Register());
+                                            user.send(messages.Prefix() + messages.Register());
                                         }
                                     } else {
                                         if (user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                            user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                         }
                                     }
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.Enable2FA());
+                                user.send(messages.Prefix() + messages.Enable2FA());
                             }
                         } else {
                             if (user.isRegistered()) {
                                 if (user.isLogged()) {
                                     if (user.has2FA()) {
                                         if (user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                            user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                         } else {
-                                            user.Message(messages.Prefix() + messages.AlreadyFA());
+                                            user.send(messages.Prefix() + messages.AlreadyFA());
                                         }
                                     } else {
                                         if (!user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.Enable2FA());
+                                            user.send(messages.Prefix() + messages.Enable2FA());
                                         } else {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                            user.send(messages.Prefix() + messages.gAuthAuthenticate());
                                         }
                                     }
                                 } else {
-                                    user.Message(messages.Prefix() + messages.Login());
+                                    user.send(messages.Prefix() + messages.Login());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.Prefix());
+                                user.send(messages.Prefix() + messages.Prefix());
                             }
                         }
                     }
                 }
             } else {
-                user.Message(messages.Prefix() + messages.GAuthDisabled());
+                user.send(messages.Prefix() + messages.GAuthDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

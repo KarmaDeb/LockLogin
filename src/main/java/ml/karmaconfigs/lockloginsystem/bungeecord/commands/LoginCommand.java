@@ -58,7 +58,7 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                         PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PASSWORD, EventAuthResult.WAITING, player, "");
 
                         boolean valid_password = false;
-                        if (utils.checkPW()) {
+                        if (utils.validate()) {
                             valid_password = true;
                             if (user.hasPin()) {
                                 event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
@@ -91,6 +91,10 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                 if (Passwords.isLegacySalt(user.getPassword())) {
                                     user.setPassword(password);
                                     user.Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                } else {
+                                    if (utils.needsRehash(config.passwordEncryption())) {
+                                        user.setPassword(password);
+                                    }
                                 }
                                 break;
                             case SUCCESS_TEMP:
@@ -101,6 +105,10 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                                     if (Passwords.isLegacySalt(user.getPassword())) {
                                         user.setPassword(password);
                                         user.Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                    } else {
+                                        if (utils.needsRehash(config.passwordEncryption())) {
+                                            user.setPassword(password);
+                                        }
                                     }
 
                                     user.setTempLog(true);

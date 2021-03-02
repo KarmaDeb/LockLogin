@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -171,6 +172,48 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final int maxRegister() {
         return configuration.getInt("Register.Max", 2);
+    }
+
+    public final CryptType passwordEncryption() {
+        String value = configuration.getString("Encryption.Passwords", "SHA512");
+        assert value != null;
+
+        switch (value.toLowerCase()) {
+            case "256":
+            case "sha256":
+                return CryptType.SHA256;
+            case "bcrypt":
+                return CryptType.BCrypt;
+            case "argon2i":
+                return CryptType.ARGON2I;
+            case "argon2id":
+                return CryptType.ARGON2ID;
+            case "512":
+            case "sha512":
+            default:
+                return CryptType.SHA512;
+        }
+    }
+
+    public final CryptType pinEncryption() {
+        String value = configuration.getString("Encryption.Pins", "SHA512");
+        assert value != null;
+
+        switch (value.toLowerCase()) {
+            case "256":
+            case "sha256":
+                return CryptType.SHA256;
+            case "bcrypt":
+                return CryptType.BCrypt;
+            case "argon2i":
+                return CryptType.ARGON2I;
+            case "argon2id":
+                return CryptType.ARGON2ID;
+            case "512":
+            case "sha512":
+            default:
+                return CryptType.SHA512;
+        }
     }
 
     public final boolean blindLogin() {

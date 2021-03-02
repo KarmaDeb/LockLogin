@@ -48,15 +48,15 @@ public final class LoginCommand implements CommandExecutor, LockLoginSpigot, Spi
 
                     user.authPlayer(password);
                 } else {
-                    user.Message(messages.Prefix() + messages.Login());
+                    user.send(messages.Prefix() + messages.Login());
                 }
             } else {
                 switch (String.valueOf(user.isRegistered())) {
                     case "true":
-                        user.Message(messages.Prefix() + messages.AlreadyLogged());
+                        user.send(messages.Prefix() + messages.AlreadyLogged());
                         break;
                     case "false":
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                         break;
                 }
             }

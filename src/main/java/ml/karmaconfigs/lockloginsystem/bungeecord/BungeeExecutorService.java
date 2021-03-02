@@ -2,6 +2,8 @@ package ml.karmaconfigs.lockloginsystem.bungeecord;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 
 public final class BungeeExecutorService {
 
@@ -23,5 +25,13 @@ public final class BungeeExecutorService {
 
     public final boolean isPremium() {
         return LockLoginBungee.plugin.getProxy().getConfig().isOnlineMode();
+    }
+
+    public final CryptType getPasswordType() {
+        return BungeeFiles.config.passwordEncryption();
+    }
+
+    public final CryptType getPinType() {
+        return BungeeFiles.config.pinEncryption();
     }
 }

@@ -40,11 +40,11 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                 switch (args[0].toLowerCase()) {
                     case "--version":
                         if (player.hasPermission("locklogin.readversion")) {
-                            user.Message("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginSpigot.version));
-                            user.Message("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
-                            user.Message("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
+                            user.send("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginSpigot.version));
+                            user.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
+                            user.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         } else {
-                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
+                            user.send(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
                         }
                         break;
                     case "--update":
@@ -55,7 +55,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                         if (config.getUpdateChannel().equals(VersionChannel.SNAPSHOT)) {
                                             noReleaseMessage(player, latest);
                                         } else {
-                                            user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                            user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                         }
                                         break;
                                     case RC:
@@ -65,7 +65,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                                 noReleaseMessage(player, latest);
                                                 break;
                                             default:
-                                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                                user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                         }
                                         break;
                                     case RELEASE:
@@ -79,14 +79,14 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                         }
                                         break;
                                     default:
-                                        user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                        user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                         break;
                                 }
                             } else {
-                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.checkupdate"));
+                            user.send(messages.Prefix() + messages.PermissionError("locklogin.checkupdate"));
                         }
                         break;
                     case "--forceupdate":
@@ -98,7 +98,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                             if (config.getUpdateChannel() == VersionChannel.SNAPSHOT) {
                                                 performDownload(player);
                                             } else {
-                                                user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                                user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                             }
                                             break;
                                         case RC:
@@ -108,7 +108,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                                     performDownload(player);
                                                     break;
                                                 default:
-                                                    user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                                    user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                                     break;
                                             }
                                             break;
@@ -123,25 +123,25 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                             }
                                             break;
                                         default:
-                                            user.Message("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
+                                            user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                                             break;
                                     }
                                 } else {
-                                    user.Message("&cLockLogin is already downloading an update");
+                                    user.send("&cLockLogin is already downloading an update");
                                 }
                             } else {
-                                user.Message("&cWoah! Are you sure is LockLogin outdated?");
+                                user.send("&cWoah! Are you sure is LockLogin outdated?");
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                            user.send(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
                         }
                         break;
                     default:
-                        user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                        user.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
                         break;
                 }
             } else {
-                user.Message(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                user.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
             }
         } else {
             if (args.length == 1) {
@@ -256,10 +256,10 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
         if (player != null) {
             User user = new User(player);
 
-            user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
-            user.Message("\n");
-            user.Message("&7To update, run /updateChecker --forceUpdate");
-            user.Message("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginSpigot.jar).replace("{1}", LockLoginSpigot.jar));
+            user.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
+            user.send("\n");
+            user.send("&7To update, run /updateChecker --forceUpdate");
+            user.send("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginSpigot.jar).replace("{1}", LockLoginSpigot.jar));
         } else {
             Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
             Console.send("\n");
@@ -272,14 +272,14 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
         if (player != null) {
             User user = new User(player);
 
-            user.Message("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
-            user.Message("\n");
-            user.Message("&7To update, run /updateChecker --forceUpdate");
-            user.Message("&7otherwise, there are other two ways to update it:");
-            user.Message("\n");
-            user.Message("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
-            user.Message("&e2 - &dRemoving current LockLogin plugin file and replace it with");
-            user.Message("      &dthe new version ( https://www.spigotmc.org/resources/gsa-locklogin.75156/ )");
+            user.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
+            user.send("\n");
+            user.send("&7To update, run /updateChecker --forceUpdate");
+            user.send("&7otherwise, there are other two ways to update it:");
+            user.send("\n");
+            user.send("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
+            user.send("&e2 - &dRemoving current LockLogin plugin file and replace it with");
+            user.send("      &dthe new version ( https://www.spigotmc.org/resources/gsa-locklogin.75156/ )");
         } else {
             Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
             Console.send("\n");
@@ -296,8 +296,8 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
         if (player != null) {
             User user = new User(player);
 
-            user.Message("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
-            user.Message("&aWe will notice you when it's downloaded");
+            user.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
+            user.send("&aWe will notice you when it's downloaded");
 
             if (!PluginManagerSpigot.manager.isReadyToUpdate()) {
                 LockLoginSpigot.plugin.getServer().getScheduler().runTaskAsynchronously(LockLoginSpigot.plugin, () -> {
@@ -322,11 +322,11 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                         }, 0, TimeUnit.SECONDS.toMillis(1));
 
                         if (downloader.isDownloading()) {
-                            user.Message("&cLockLogin is already downloading an update");
+                            user.send("&cLockLogin is already downloading an update");
                         } else {
                             downloader.download(() -> {
                                 if (player.isOnline()) {
-                                    user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                    user.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
                                     downloading = false;
                                     PluginManagerSpigot.manager.setReadyToUpdate(true);
                                 }
@@ -334,11 +334,11 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                         }
                     } catch (Throwable ex) {
                         LockLoginSpigot.logger.scheduleLog(Level.GRAVE, ex);
-                        user.Message("&cError while downloading latest LockLogin version, see console for more info");
+                        user.send("&cError while downloading latest LockLogin version, see console for more info");
                     }
                 });
             } else {
-                user.Message("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                user.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
             }
         } else {
             Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
@@ -353,7 +353,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             Console.send("&cLockLogin is already downloading an update");
                         } else {
                             downloader.download(() -> {
-                                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
                                 downloading = false;
                                 PluginManagerSpigot.manager.setReadyToUpdate(true);
                             });
@@ -364,7 +364,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                     }
                 });
             } else {
-                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /applyUpdates");
+                Console.send("&aLatest LockLogin version jar file has been downloaded, to apply updates simply run /locklogin applyUpdates");
             }
         }
     }

@@ -47,7 +47,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
 
                 PasswordUtils utils = new PasswordUtils(oldPass, user.getPassword());
 
-                if (utils.checkPW()) {
+                if (utils.validate()) {
                     if (!oldPass.equals(newPass)) {
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {
@@ -61,38 +61,38 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                                 if (config.enableSpawn()) {
                                     Spawn spawn = new Spawn();
 
-                                    user.Teleport(spawn.getSpawn());
+                                    user.teleport(spawn.getSpawn());
                                 }
 
                                 user.setLogStatus(false);
-                                user.Message(messages.Prefix() + messages.ChangeDone());
+                                user.send(messages.Prefix() + messages.ChangeDone());
                                 new StartCheck(player, CheckType.LOGIN);
                             } else {
-                                user.Message(messages.Prefix() + messages.PasswordMinChar());
+                                user.send(messages.Prefix() + messages.PasswordMinChar());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.PasswordInsecure());
+                            user.send(messages.Prefix() + messages.PasswordInsecure());
 
                             ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
                             json.setHoverText("&7Opens an url to a password-gen page");
                             json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
-                            user.Message(json.getComponent());
+                            user.send(json.getComponent());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.ChangeSame());
+                        user.send(messages.Prefix() + messages.ChangeSame());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.ChangeError());
+                    user.send(messages.Prefix() + messages.ChangeError());
                 }
             } else {
                 if (user.isLogged()) {
-                    user.Message(messages.Prefix() + messages.ChangePass());
+                    user.send(messages.Prefix() + messages.ChangePass());
                 } else {
                     if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                        user.send(messages.Prefix() + messages.Login());
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.Prefix() + messages.Register());
                     }
                 }
             }

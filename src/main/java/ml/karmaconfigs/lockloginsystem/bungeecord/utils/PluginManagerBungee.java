@@ -233,8 +233,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
                     int smtp_port = mailer.getInt("SMTP.Port", 587);
                     boolean use_tls = mailer.getBoolean("SMTP.TLS", true);
 
-                    String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("serverName", StringUtils.randomString(8))));
-                    String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("serverName", StringUtils.randomString(8))));
+                    String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
+                    String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
 
                     File new_config = new File(plugin.getDataFolder().getParentFile() + File.separator + "LockLoginMailer", "config.yml");
                     if (!new_config.exists()) {
@@ -544,6 +544,9 @@ public final class PluginManagerBungee implements LockLoginBungee {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -551,6 +554,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -598,6 +607,9 @@ public final class PluginManagerBungee implements LockLoginBungee {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -605,6 +617,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -651,6 +669,9 @@ public final class PluginManagerBungee implements LockLoginBungee {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginBungee.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -658,6 +679,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }

@@ -42,7 +42,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class User implements LockLoginSpigot, SpigotFiles {
 
     private final static HashMap<Player, Boolean> logStatus = new HashMap<>();
@@ -99,7 +98,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param text the message
      */
-    public final void Message(String text) {
+    public final void send(String text) {
         if (!text.replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
             player.sendMessage(StringUtils.toColor(text));
     }
@@ -109,7 +108,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param messages the messages
      */
-    public final void Message(List<String> messages) {
+    public final void send(List<String> messages) {
         if (!messages.isEmpty())
             for (String str : messages)
                 player.sendMessage(StringUtils.toColor(str));
@@ -120,7 +119,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param JSonMessage the json message
      */
-    public final void Message(TextComponent JSonMessage) {
+    public final void send(TextComponent JSonMessage) {
         if (!JSonMessage.getText().replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
             player.spigot().sendMessage(JSonMessage);
     }
@@ -130,10 +129,10 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param messages the messages
      */
-    public final void Message(HashSet<String> messages) {
+    public final void send(HashSet<String> messages) {
         if (!messages.isEmpty())
             for (String str : messages)
-                Message(str);
+                send(str);
     }
 
     /**
@@ -162,7 +161,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param location the location
      */
-    public final void Teleport(Location location) {
+    public final void teleport(Location location) {
         plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.teleport(location));
     }
 
@@ -171,10 +170,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      *
      * @param reason the kick reason
      */
-    public final void Kick(String reason) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> {
-            player.kickPlayer(StringUtils.toColor(reason));
-        });
+    public final void kick(String reason) {
+        player.kickPlayer(StringUtils.toColor(reason));
     }
 
     /**
@@ -228,7 +225,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
             PasswordUtils utils = new PasswordUtils(password, getPassword());
 
-            if (utils.checkPW()) {
+            if (utils.validate()) {
                 if (hasPin()) {
                     event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.Logged(player));
                 } else {
@@ -248,7 +245,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 switch (event.getAuthResult()) {
                     case SUCCESS:
                         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                            if (utils.checkPW()) {
+                            if (utils.validate()) {
                                 InetSocketAddress ip = player.getAddress();
 
                                 if (ip != null) {
@@ -259,11 +256,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 sendTitle("", "", 1, 2, 1);
                                 setLogStatus(true);
 
-                                Message(event.getAuthMessage());
+                                send(event.getAuthMessage());
 
                                 if (config.TakeBack()) {
                                     LastLocation lastLoc = new LastLocation(player);
-                                    Teleport(lastLoc.getLastLocation());
+                                    teleport(lastLoc.getLastLocation());
                                 }
 
                                 if (config.blindLogin())
@@ -271,7 +268,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                                 if (Passwords.isLegacySalt(getPassword())) {
                                     setPassword(password);
-                                    Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                    send(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                } else {
+                                    if (utils.needsRehash(config.passwordEncryption())) {
+                                        setPassword(password);
+                                    }
                                 }
 
                                 player.setAllowFlight(hasFly());
@@ -285,7 +286,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                             setLogStatus(true);
                             if (Passwords.isLegacySalt(getPassword())) {
                                 setPassword(password);
-                                Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                send(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                            } else {
+                                if (utils.needsRehash(config.passwordEncryption())) {
+                                    setPassword(password);
+                                }
                             }
 
                             if (hasPin()) {
@@ -295,13 +300,13 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 setTempLog(true);
                             } else {
                                 if (has2FA()) {
-                                    Message(event.getAuthMessage());
+                                    send(event.getAuthMessage());
 
                                     setTempLog(true);
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
 
-                                    Message(event.getAuthMessage());
+                                    send(event.getAuthMessage());
                                     InetSocketAddress ip = player.getAddress();
 
                                     if (ip != null) {
@@ -326,16 +331,16 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                                 }
                                             }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                            Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                                            kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
                                         } else {
                                             if (!hasTries()) {
                                                 delTries();
                                                 bf_prevention.fail();
-                                                plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
+                                                plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.LogError()));
                                                 return;
                                             }
                                             restTries();
-                                            Message(event.getAuthMessage());
+                                            send(event.getAuthMessage());
                                         }
                                     }
                                 }
@@ -368,16 +373,16 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                         }
                                     }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                    Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                                    kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
                                 } else {
                                     if (!hasTries()) {
                                         delTries();
                                         bf_prevention.fail();
-                                        plugin.getServer().getScheduler().runTask(plugin, () -> Kick("&eLockLogin\n\n" + messages.LogError()));
+                                        plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.LogError()));
                                         return;
                                     }
                                     restTries();
-                                    Message(event.getAuthMessage());
+                                    send(event.getAuthMessage());
                                 }
                             }
                         });
@@ -385,7 +390,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                         break;
                     case ERROR:
                     case WAITING:
-                        Message(event.getAuthMessage());
+                        send(event.getAuthMessage());
                         break;
                 }
             });
@@ -541,7 +546,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             new StartCheck(player, checkType);
             switch (checkType) {
                 case REGISTER:
-                    Message(messages.Prefix() + messages.Register());
+                    send(messages.Prefix() + messages.Register());
                     plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                         if (config.blindRegister()) {
                             saveCurrentEffects();
@@ -550,7 +555,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                     }, 5);
                     break;
                 case LOGIN:
-                    Message(messages.Prefix() + messages.Login());
+                    send(messages.Prefix() + messages.Login());
                     plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                         if (config.blindLogin()) {
                             saveCurrentEffects();
@@ -593,7 +598,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             } else {
                 Utils sql = new Utils(player);
 
-                return sql.getUUID();
+                return Utils.fixUUID(sql.getUUID());
             }
         }
         return plugin.getServer().getOfflinePlayer(player.getUniqueId()).getUniqueId();

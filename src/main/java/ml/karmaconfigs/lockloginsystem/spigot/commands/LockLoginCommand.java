@@ -61,7 +61,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
             User user = new User(player);
 
             if (args.length == 0) {
-                user.Message(messages.Prefix() + "&cSpecify an action &7( &e/locklogin migrate &7|| &e/locklogin applyUpdates &7)");
+                user.send(messages.Prefix() + "&cSpecify an action &7( &e/locklogin migrate &7|| &e/locklogin applyUpdates &7)");
             } else {
                 if (args[0] != null) {
                     if (args[0].equals("migrate")) {
@@ -69,75 +69,75 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             if (migrating_owner == null) {
                                 if (!config.isBungeeCord()) {
                                     if (args.length == 1) {
-                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                        user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                     } else {
                                         if (args.length == 2) {
                                             String method = args[1];
-                                            switch (method) {
-                                                case "MySQL":
+                                            switch (method.toLowerCase()) {
+                                                case "mysql":
                                                     migrateMySQL(player);
                                                     break;
                                                 case "authme":
-                                                    user.Message(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/authme folder)");
+                                                    user.send(messages.Prefix() + "&cPlease, specify database name and table name (must exist in plugins/authme folder)");
                                                     break;
                                                 default:
-                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                    user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                     break;
                                             }
                                         } else {
                                             if (args.length == 3) {
                                                 String method = args[1];
-                                                switch (method) {
-                                                    case "MySQL":
-                                                        user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                switch (method.toLowerCase()) {
+                                                    case "mysql":
+                                                        user.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
                                                     case "authme":
-                                                        user.Message(messages.Prefix() + "&cPlease, specify table name");
+                                                        user.send(messages.Prefix() + "&cPlease, specify table name");
                                                         break;
                                                     case "UserLogin":
-                                                        user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate UserLogin");
+                                                        user.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate UserLogin");
                                                         break;
                                                     default:
-                                                        user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                        user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                         break;
                                                 }
                                             } else {
                                                 if (args.length == 4) {
                                                     String method = args[1];
-                                                    switch (method) {
-                                                        case "MySQL":
-                                                            user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                    switch (method.toLowerCase()) {
+                                                        case "mysql":
+                                                            user.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                             break;
                                                         case "authme":
-                                                            user.Message(messages.Prefix() + "&cPlease specify the 'realname' column");
+                                                            user.send(messages.Prefix() + "&cPlease specify the 'realname' column");
                                                             break;
                                                         default:
-                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                            user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                             break;
                                                     }
                                                 } else {
                                                     if (args.length == 5) {
                                                         String method = args[1];
-                                                        switch (method) {
-                                                            case "MySQL":
-                                                                user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                        switch (method.toLowerCase()) {
+                                                            case "mysql":
+                                                                user.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                                 break;
                                                             case "authme":
-                                                                user.Message(messages.Prefix() + "&cPlease specify the 'password' column");
+                                                                user.send(messages.Prefix() + "&cPlease specify the 'password' column");
                                                                 break;
                                                             default:
-                                                                user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                                user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                                 break;
                                                         }
                                                     } else {
                                                         if (args.length == 6) {
                                                             String method = args[1];
-                                                            switch (method) {
-                                                                case "MySQL":
-                                                                    user.Message(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                            switch (method.toLowerCase()) {
+                                                                case "mysql":
+                                                                    user.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                                     break;
                                                                 case "authme":
-                                                                    user.Message(messages.Prefix() + "&aMigrating from authme sqlite");
+                                                                    user.send(messages.Prefix() + "&aMigrating from authme sqlite");
                                                                     BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
                                                                     message.send(true);
                                                                     if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
@@ -168,15 +168,15 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                                                             }
                                                                         }.runTaskTimer(plugin, 0, 20);
                                                                     } else {
-                                                                        user.Message(messages.Prefix() + "&cSome error occurred while migrating");
+                                                                        user.send(messages.Prefix() + "&cSome error occurred while migrating");
                                                                     }
                                                                     break;
                                                                 default:
-                                                                    user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                                    user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                                     break;
                                                             }
                                                         } else {
-                                                            user.Message(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                            user.send(messages.Prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
                                                         }
                                                     }
                                                 }
@@ -184,10 +184,10 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                         }
                                     }
                                 } else {
-                                    user.Message(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
+                                    user.send(messages.Prefix() + "&cNot allowed in BungeeCord mode!");
                                 }
                             } else {
-                                user.Message(messages.Prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
+                                user.send(messages.Prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
                             }
                         }
                     } else {
@@ -196,7 +196,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                 LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
                                 s_manager.applyUpdate(user);
                             } else {
-                                user.Message(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
+                                user.send(messages.Prefix() + messages.PermissionError(applyUpdatePermission.getName()));
                             }
                         } else {
                             if (args[0].equals("modules")) {
@@ -204,10 +204,10 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                     ModuleListInventory inv = new ModuleListInventory(player);
                                     inv.openPage(0);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.PermissionError(modulePermission.getName()));
+                                    user.send(messages.Prefix() + messages.PermissionError(modulePermission.getName()));
                                 }
                             } else {
-                                user.Message(messages.Prefix() + "&cUnknown sub-command, /locklogin [migrate|applyUpdates|modules]");
+                                user.send(messages.Prefix() + "&cUnknown sub-command, /locklogin [migrate|applyUpdates|modules]");
                             }
                         }
                     }
@@ -225,8 +225,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             } else {
                                 if (args.length == 2) {
                                     String method = args[1];
-                                    switch (method) {
-                                        case "MySQL":
+                                    switch (method.toLowerCase()) {
+                                        case "mysql":
                                             migrateMySQL(sender);
                                             break;
                                         case "authme":
@@ -239,8 +239,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                 } else {
                                     if (args.length == 3) {
                                         String method = args[1];
-                                        switch (method) {
-                                            case "MySQL":
+                                        switch (method.toLowerCase()) {
+                                            case "mysql":
                                                 Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                 break;
                                             case "authme":
@@ -253,8 +253,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                     } else {
                                         if (args.length == 4) {
                                             String method = args[1];
-                                            switch (method) {
-                                                case "MySQL":
+                                            switch (method.toLowerCase()) {
+                                                case "mysql":
                                                     Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                     break;
                                                 case "authme":
@@ -267,8 +267,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                         } else {
                                             if (args.length == 5) {
                                                 String method = args[1];
-                                                switch (method) {
-                                                    case "MySQL":
+                                                switch (method.toLowerCase()) {
+                                                    case "mysql":
                                                         Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                         break;
                                                     case "authme":
@@ -281,8 +281,8 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                                             } else {
                                                 if (args.length == 6) {
                                                     String method = args[1];
-                                                    switch (method) {
-                                                        case "MySQL":
+                                                    switch (method.toLowerCase()) {
+                                                        case "mysql":
                                                             Console.send(messages.Prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
                                                             break;
                                                         case "authme":
@@ -336,7 +336,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
             if (config.isMySQL()) {
                 Utils sql = new Utils();
 
-                user.Message(messages.Prefix() + messages.MigratingAll());
+                user.send(messages.Prefix() + messages.MigratingAll());
 
                 List<String> uuids = sql.getUUIDs();
                 max_migrations = uuids.size();
@@ -376,10 +376,10 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
                     migrate.start();
 
-                    passed_migration = passed_migration + 1;
+                    passed_migration++;
                 }
             } else {
-                user.Message(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                user.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
                 try {
                     MySQLData SQLData = new MySQLData();
 
@@ -395,7 +395,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
 
                     bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
-                    user.Message(messages.Prefix() + messages.MigratingAll());
+                    user.send(messages.Prefix() + messages.MigratingAll());
                     bucket.prepareTables();
 
                     Utils sql = new Utils();
@@ -438,11 +438,11 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                         AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
                         migrate.start();
 
-                        passed_migration = passed_migration + 1;
+                        passed_migration++;
                     }
                 } catch (Throwable ex) {
                     migrating_owner = null;
-                    user.Message(messages.Prefix() + messages.MigrationConnectionError());
+                    user.send(messages.Prefix() + messages.MigrationConnectionError());
                 }
             }
         });
@@ -470,7 +470,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
                     migrate.start();
 
-                    passed_migration = passed_migration + 1;
+                    passed_migration++;
                 }
                 migrating_owner = null;
 
@@ -529,7 +529,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     private boolean migrateAuthMe(CommandSender sender, String database, String table, String realnameColumn, String passwordColumn) {
         migrating_owner = sender;
 
-        File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "authme");
+        File authMe = new File(plugin.getDataFolder().getParentFile().getAbsolutePath(), "AuthMe");
         if (authMe.exists()) {
             File data = new File(authMe, database + ".db");
 

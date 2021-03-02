@@ -139,7 +139,7 @@ public final class OfflineUser implements LockLoginBungee, BungeeFiles {
         if (managerSQL == null)
             return UUID.fromString(manager.getString("UUID"));
         else
-            return managerSQL.getUUID();
+            return Utils.fixUUID(managerSQL.getUUID());
     }
 
     /**

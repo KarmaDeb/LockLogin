@@ -47,7 +47,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
 
                 PasswordUtils utils = new PasswordUtils(oldPass, user.getPassword());
 
-                if (utils.checkPW()) {
+                if (utils.validate()) {
                     if (!oldPass.equals(newPass)) {
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {

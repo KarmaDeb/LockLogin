@@ -117,7 +117,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                 PasswordUtils utils = new PasswordUtils(pin, user.getPin());
 
-                if (utils.checkPW()) {
+                if (utils.validate()) {
                     if (user.has2FA()) {
                         event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
                     } else {
@@ -131,13 +131,17 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
-                        if (utils.checkPW()) {
+                        if (utils.validate()) {
                             user.setTempLog(false);
-                            user.Message(event.getAuthMessage());
+                            user.send(event.getAuthMessage());
+
+                            if (utils.needsRehash(config.pinEncryption())) {
+                                user.setPin(pin);
+                            }
 
                             if (config.TakeBack()) {
                                 LastLocation lastLoc = new LastLocation(player);
-                                user.Teleport(lastLoc.getLastLocation());
+                                user.teleport(lastLoc.getLastLocation());
                             }
 
                             if (config.blindLogin())
@@ -152,13 +156,17 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                         }
                         break;
                     case SUCCESS_TEMP:
-                        if (utils.checkPW()) {
+                        if (utils.validate()) {
                             verified.add(player);
+
+                            if (utils.needsRehash(config.pinEncryption())) {
+                                user.setPin(pin);
+                            }
 
                             if (!user.has2FA()) {
                                 if (config.TakeBack()) {
                                     LastLocation lastLoc = new LastLocation(player);
-                                    user.Teleport(lastLoc.getLastLocation());
+                                    user.teleport(lastLoc.getLastLocation());
                                 }
 
                                 if (config.blindLogin())
@@ -170,13 +178,13 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force temp log (PIN AUTH) " + player.getName() + " using event API");
                         }
 
-                        user.Message(event.getAuthMessage());
+                        user.send(event.getAuthMessage());
                         break;
                     case FAILED:
                         break;
                     case ERROR:
                     case WAITING:
-                        user.Message(event.getAuthMessage());
+                        user.send(event.getAuthMessage());
                         break;
                 }
             } else {
@@ -187,7 +195,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                 input.put(player, "/-/-/-/");
             }
         } else {
-            user.Message(messages.Prefix() + messages.PinLength());
+            user.send(messages.Prefix() + messages.PinLength());
         }
     }
 

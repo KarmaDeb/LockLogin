@@ -42,12 +42,6 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
         this.player = player;
         this.uuid = player.getUniqueId().toString().replace("-", "");
 
-            /*File playerdata = new File(plugin.getDataFolder(), "playerdata");
-            File player_file = new File(playerdata, uuid + ".yml");
-
-            FileCopy copy = new FileCopy(plugin, "auto-generated/userTemplate.yml");
-            copy.copy(player_file);*/
-
         manager = new FileManager(uuid + ".yml", "playerdata");
         manager.setInternal("auto-generated/userTemplate.yml");
 
@@ -186,7 +180,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param newPassword the new player password
      */
     public final void setPassword(String newPassword) {
-        manager.set("Password", new PasswordUtils(newPassword).hashEncrypted());
+        manager.set("Password", new PasswordUtils(newPassword).hashToken(config.passwordEncryption()));
     }
 
     /**
@@ -204,7 +198,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param pin the pin
      */
     public final void setPin(Object pin) {
-        manager.set("Pin", new PasswordUtils(String.valueOf(pin)).hashEncrypted());
+        manager.set("Pin", new PasswordUtils(String.valueOf(pin)).hashToken(config.pinEncryption()));
     }
 
     /**
@@ -229,7 +223,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
      * @param token the token
      */
     public final void setToken(String token) {
-        manager.set("GAuth", new PasswordUtils(token).hashPassword());
+        manager.set("GAuth", new PasswordUtils(token).hash());
     }
 
     /**

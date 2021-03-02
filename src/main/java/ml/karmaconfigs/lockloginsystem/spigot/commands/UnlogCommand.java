@@ -50,12 +50,12 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                 if (config.enableSpawn()) {
                     Spawn spawn = new Spawn();
 
-                    user.Teleport(spawn.getSpawn());
+                    user.teleport(spawn.getSpawn());
                 }
 
                 user.setLogStatus(false);
                 new StartCheck(player, CheckType.LOGIN);
-                user.Message(messages.Prefix() + messages.UnLogged());
+                user.send(messages.Prefix() + messages.UnLogged());
             } else {
                 if (args.length == 1) {
                     Player target = plugin.getServer().getPlayer(args[0]);
@@ -74,31 +74,31 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                                     if (config.enableSpawn()) {
                                         Spawn spawn = new Spawn();
 
-                                        targetUser.Teleport(spawn.getSpawn());
+                                        targetUser.teleport(spawn.getSpawn());
                                     }
 
                                     targetUser.setLogStatus(false);
                                     new StartCheck(target, CheckType.LOGIN);
-                                    targetUser.Message(messages.Prefix() + messages.ForcedUnLog(player));
-                                    user.Message(messages.Prefix() + messages.ForcedUnLogAdmin(target));
+                                    targetUser.send(messages.Prefix() + messages.ForcedUnLog(player));
+                                    user.send(messages.Prefix() + messages.ForcedUnLogAdmin(target));
                                 } else {
-                                    user.Message(messages.Prefix() + messages.TargetAccessError(target));
+                                    user.send(messages.Prefix() + messages.TargetAccessError(target));
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
+                                user.send(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.UnLog());
+                            user.send(messages.Prefix() + messages.UnLog());
                         }
                     } else {
                         if (player.hasPermission(forceUnLog)) {
-                            user.Message(messages.Prefix() + messages.ConnectionError(args[0]));
+                            user.send(messages.Prefix() + messages.ConnectionError(args[0]));
                         } else {
-                            user.Message(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
+                            user.send(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
                         }
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.UnLog());
+                    user.send(messages.Prefix() + messages.UnLog());
                 }
             }
         } else {
@@ -117,12 +117,12 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                         if (config.enableSpawn()) {
                             Spawn spawn = new Spawn();
 
-                            targetUser.Teleport(spawn.getSpawn());
+                            targetUser.teleport(spawn.getSpawn());
                         }
 
                         targetUser.setLogStatus(false);
                         new StartCheck(target, CheckType.LOGIN);
-                        targetUser.Message(messages.Prefix() + messages.ForcedUnLog("SERVER"));
+                        targetUser.send(messages.Prefix() + messages.ForcedUnLog("SERVER"));
                         Console.send(messages.Prefix() + messages.ForcedUnLog(target));
                     } else {
                         Console.send(messages.Prefix() + messages.TargetAccessError(target));

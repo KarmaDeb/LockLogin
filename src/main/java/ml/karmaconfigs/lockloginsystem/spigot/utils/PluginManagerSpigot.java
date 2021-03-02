@@ -143,7 +143,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
     /**
      * Setup the plugin files
      */
-    private void setupFiles() {
+    public final void setupFiles() {
         File login_alert = new File(plugin.getDataFolder() + File.separator + "mailer", "login_alert.html");
         File password_recovery = new File(plugin.getDataFolder() + File.separator + "mailer", "password_recovery.html");
 
@@ -528,7 +528,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
                 if (new ConfigGetter().AccountsPerIp() != 0) {
                     if (data.getConnections() + 1 > new ConfigGetter().AccountsPerIp()) {
-                        user.Kick(new MessageGetter().MaxIp());
+                        user.kick(new MessageGetter().MaxIp());
                     } else {
                         data.addIP();
                     }
@@ -596,6 +596,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -603,6 +606,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -621,7 +630,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginSpigot.jar, LockLoginSpigot.jar);
@@ -649,6 +658,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -656,6 +668,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -674,7 +692,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginSpigot.jar, LockLoginSpigot.jar);
@@ -701,6 +719,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
 
         if (updatedLockLogin.exists()) {
+            VersionChannel dest_channel = FileInfo.getChannel(updatedLockLogin);
+            VersionChannel current_channel = FileInfo.getChannel(new File(jar));
+
             String dest_version = FileInfo.getJarVersion(updatedLockLogin);
             String curr_version = FileInfo.getJarVersion(new File(jar));
 
@@ -708,6 +729,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 try {
                     Files.delete(updatedLockLogin.toPath());
                 } catch (Throwable ignored) {
+                }
+            } else {
+                if (!dest_channel.equals(current_channel)) {
+                    try {
+                        Files.delete(updatedLockLogin.toPath());
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -726,7 +753,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");

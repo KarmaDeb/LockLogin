@@ -37,13 +37,13 @@ public class OfflineAPI implements SpigotFiles {
      *
      * @return the player UUID
      */
-    public final UUID getUUID() {
+    public final String getUUID() {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             return utils.fetchUUID(player);
         } else {
             OfflineUser user = new OfflineUser(player);
-            return user.getUUID();
+            return user.getUUID().toString();
         }
     }
 
@@ -55,7 +55,7 @@ public class OfflineAPI implements SpigotFiles {
     public final boolean has2FA() {
         if (config.isMySQL()) {
             Utils utils = new Utils();
-            UUID player_uuid = utils.fetchUUID(player);
+            String player_uuid = utils.fetchUUID(player);
             utils = new Utils(player_uuid);
 
             return utils.has2fa();
@@ -73,7 +73,7 @@ public class OfflineAPI implements SpigotFiles {
     public final boolean isRegistered() {
         if (config.isMySQL()) {
             Utils utils = new Utils();
-            UUID player_uuid = utils.fetchUUID(player);
+            String player_uuid = utils.fetchUUID(player);
             utils = new Utils(player_uuid);
 
             return utils.userExists() && utils.getPassword() != null && !utils.getPassword().isEmpty();
@@ -91,7 +91,7 @@ public class OfflineAPI implements SpigotFiles {
     public final String getToken() {
         if (config.isMySQL()) {
             Utils utils = new Utils();
-            UUID player_uuid = utils.fetchUUID(player);
+            String player_uuid = utils.fetchUUID(player);
             utils = new Utils(player_uuid);
 
             return utils.getToken();

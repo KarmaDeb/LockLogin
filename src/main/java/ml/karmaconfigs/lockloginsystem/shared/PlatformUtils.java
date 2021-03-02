@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.shared;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.BungeeExecutorService;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
 
 /**
@@ -81,5 +82,39 @@ public interface PlatformUtils {
             default:
                 return false;
         }
+    }
+
+    static CryptType getEncryption(final CryptTarget target) {
+        CurrentPlatform current = new CurrentPlatform();
+        switch (current.getRunning()) {
+            case SPIGOT:
+                SpigotExecutorService spigot = new SpigotExecutorService();
+
+                switch (target) {
+                    case PASSWORD:
+                        return spigot.getPasswordType();
+                    case PIN:
+                        return spigot.getPinType();
+                    default:
+                        return CryptType.UNKNOWN;
+                }
+            case BUNGEE:
+                BungeeExecutorService bungee = new BungeeExecutorService();
+
+                switch (target) {
+                    case PASSWORD:
+                        return bungee.getPasswordType();
+                    case PIN:
+                        return bungee.getPinType();
+                    default:
+                        return CryptType.UNKNOWN;
+                }
+            default:
+                return CryptType.UNKNOWN;
+        }
+    }
+
+    enum CryptTarget {
+        PASSWORD,PIN
     }
 }

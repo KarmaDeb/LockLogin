@@ -2,6 +2,8 @@ package ml.karmaconfigs.lockloginsystem.spigot;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 
 public final class SpigotExecutorService {
 
@@ -23,5 +25,13 @@ public final class SpigotExecutorService {
 
     public final boolean isPremium() {
         return LockLoginSpigot.plugin.getServer().getOnlineMode();
+    }
+
+    public final CryptType getPasswordType() {
+        return SpigotFiles.config.passwordEncryption();
+    }
+
+    public final CryptType getPinType() {
+        return SpigotFiles.config.pinEncryption();
     }
 }

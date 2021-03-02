@@ -39,7 +39,7 @@ public final class BungeeJoinEventHandler implements Listener, LockLoginSpigot, 
         if (config.enableSpawn()) {
             Spawn spawn = new Spawn();
 
-            user.Teleport(spawn.getSpawn());
+            user.teleport(spawn.getSpawn());
         }
 
         player.setAllowFlight(user.hasFly());

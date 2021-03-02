@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import net.md_5.bungee.api.plugin.Plugin;
 
@@ -137,6 +138,46 @@ public final class ConfigGetter {
 
     public final int maxRegister() {
         return configuration.getInt("Register.Max");
+    }
+
+    public final CryptType passwordEncryption() {
+        String value = configuration.getString("Encryption.Passwords");
+
+        switch (value.toLowerCase()) {
+            case "256":
+            case "sha256":
+                return CryptType.SHA256;
+            case "bcrypt":
+                return CryptType.BCrypt;
+            case "argon2i":
+                return CryptType.ARGON2I;
+            case "argon2id":
+                return CryptType.ARGON2ID;
+            case "512":
+            case "sha512":
+            default:
+                return CryptType.SHA512;
+        }
+    }
+
+    public final CryptType pinEncryption() {
+        String value = configuration.getString("Encryption.Pins");
+
+        switch (value.toLowerCase()) {
+            case "256":
+            case "sha256":
+                return CryptType.SHA256;
+            case "bcrypt":
+                return CryptType.BCrypt;
+            case "argon2i":
+                return CryptType.ARGON2I;
+            case "argon2id":
+                return CryptType.ARGON2ID;
+            case "512":
+            case "sha512":
+            default:
+                return CryptType.SHA512;
+        }
     }
 
     public final boolean blindLogin() {

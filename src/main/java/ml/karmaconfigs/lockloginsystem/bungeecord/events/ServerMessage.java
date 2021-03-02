@@ -54,7 +54,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                         PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PIN, EventAuthResult.WAITING, player, "");
 
                         boolean valid_code = false;
-                        if (utils.checkPW()) {
+                        if (utils.validate()) {
                             valid_code = true;
                             if (user.has2FA()) {
                                 event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
@@ -76,6 +76,10 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
 
                                     dataSender.sendAccountStatus(player);
                                     dataSender.blindEffect(player, false, config.nauseaLogin());
+
+                                    if (utils.needsRehash(config.pinEncryption())) {
+                                         user.setPin(input);
+                                    }
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                                     dataSender.openPinGUI(player);
@@ -86,6 +90,10 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 if (valid_code) {
                                     user.setTempLog(true);
                                     dataSender.closePinGUI(player);
+
+                                    if (utils.needsRehash(config.pinEncryption())) {
+                                        user.setPin(input);
+                                    }
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force temp log (PIN AUTH) " + player.getName() + " using event API");
                                     dataSender.openPinGUI(player);
