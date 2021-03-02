@@ -8,10 +8,13 @@
             <p>Download <a href="https://www.spigotmc.org/resources/gsa-locklogin.75156/" target="_blank">LockLogin</a> from spigot</p>
             <p>In your minecraft server, edit the file <code>/plugins/LockLogin/config.yml</code></p><br>
             <code>
+                Encryption: <br>
+                   ‍    ‍ Passwords: '{{config('hashing.driver')}}' <br>
+                <br>
+                <ins style="color: #808080; text-decoration: none;">( DO NOT ADD TIHS ) Your panel type:  <ins style="color: #32a8a8; text-decoration: none">{{config('azuriom.game')}}</ins></ins> <br>
                 Azuriom: <br>
                    ‍    ‍ Restrict: true ( Optional ) <br>
                    ‍    ‍ SemiPremium: true|false ( It depends if you make your panel mc-online )<br><br>
-                   ‍    ‍ #DO NOT ADD TIHS: Your panel type: {{config('azuriom.game')}} <br>
                 ... <br>
                 ... <br>
                 AccountSys: '{{config('database.default')}}' <br>
