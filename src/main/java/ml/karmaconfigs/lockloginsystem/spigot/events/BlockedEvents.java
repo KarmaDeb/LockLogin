@@ -150,7 +150,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     if (config.antiBot()) {
                         if (!botVerified.contains(e.getAddress())) {
                             e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
-                            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" + messages.AntiBot()));
+                            e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor(messages.AntiBot()));
                         }
                     }
 

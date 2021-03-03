@@ -47,7 +47,7 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
 
             if (config.enableSpawn()) {
                 if (player.isDead())
-                    player.spigot().respawn();
+                    plugin.getServer().getScheduler().runTask(plugin, player.spigot()::respawn);
 
                 Spawn spawn = new Spawn();
 

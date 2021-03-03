@@ -2,12 +2,17 @@ package ml.karmaconfigs.lockloginsystem.spigot.events;
 
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
+import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerKickEvent;
+
+import java.net.InetSocketAddress;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -23,12 +28,23 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-public final class PlayerKick implements Listener, SpigotFiles {
+public final class PlayerKick implements Listener, LockLoginSpigot, SpigotFiles {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onKick(PlayerKickEvent e) {
         if (!config.isBungeeCord()) {
+            //Handle leave event like player quit event
             Player player = e.getPlayer();
+            User user = new User(player);
+
+            if (config.TakeBack()) {
+                if (user.isLogged() && !user.isTempLog()) {
+                    LastLocation lastLoc = new LastLocation(player);
+                    lastLoc.saveLocation();
+                }
+            }
+
+            user.setFly(player.getAllowFlight());
 
             TempModule temp_module = new TempModule();
             ModuleLoader spigot_module_loader = new ModuleLoader(temp_module);
@@ -39,9 +55,29 @@ public final class PlayerKick implements Listener, SpigotFiles {
             } catch (Throwable ignored) {
             }
 
-            IpData data = new IpData(temp_module, player.getAddress().getAddress());
+            InetSocketAddress ip = player.getAddress();
+            if (ip != null) {
+                IpData data = new IpData(temp_module, ip.getAddress());
+                data.delIP();
+            }
 
-            data.delIP();
+            user.setLogStatus(false);
+
+            if (!user.isLogged()) {
+                if (user.isRegistered()) {
+                    if (config.blindLogin()) {
+                        user.removeBlindEffect(config.nauseaLogin());
+                    }
+                } else {
+                    if (config.blindRegister()) {
+                        user.removeBlindEffect(config.nauseaRegister());
+                    }
+                }
+            }
+
+            if (player.hasMetadata("LockLoginUser")) {
+                player.removeMetadata("LockLoginUser", plugin);
+            }
         }
     }
 }

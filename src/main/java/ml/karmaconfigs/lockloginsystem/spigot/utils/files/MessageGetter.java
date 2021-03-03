@@ -463,7 +463,7 @@ public final class MessageGetter implements LockLoginSpigot {
     public final String AntiBot() {
         ConfigGetter cfg = new ConfigGetter();
 
-        List<String> replaced = messages.getStringList("antiBot");
+        List<String> replaced = messages.getStringList("AntiBot");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
                     .replace("{config:serverName}", cfg.serverName())
