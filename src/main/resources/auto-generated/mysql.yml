@@ -39,6 +39,16 @@ MySQL:
   #(not recommended)
   IgnoreCertificates: false
 
+#Ignored columns from being removed
+#when MySQL is initialized.
+#
+# Why is LockLogin removing columns?
+# It's just to have a clean and ordered
+# MySQL table, if you want to completely
+# store all the columns, type "ALL"
+IgnoredColumns:
+  - "REALNAME"
+
 #MySQL connection options
 Connection:
   #Minimum amount of connections

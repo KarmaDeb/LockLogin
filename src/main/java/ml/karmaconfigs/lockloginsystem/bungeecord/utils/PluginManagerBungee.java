@@ -352,7 +352,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
-        bucket.prepareTables();
+        bucket.prepareTables(SQLData.ignoredColumns());
 
         Utils utils = new Utils();
         utils.checkTables();

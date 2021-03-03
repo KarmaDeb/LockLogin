@@ -379,7 +379,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
-            bucket.prepareTables();
+            bucket.prepareTables(SQLData.ignoredColumns());
 
             Utils utils = new Utils();
             utils.checkTables();

@@ -107,7 +107,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                             bucket.setOptions(data.getMaxConnections(), data.getMinConnections(), data.getTimeOut(), data.getLifeTime());
 
                             user.Message(messages.Prefix() + messages.MigratingAll());
-                            bucket.prepareTables();
+                            bucket.prepareTables(data.ignoredColumns());
 
                             Utils sql = new Utils();
                             sql.checkTables();
@@ -209,7 +209,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                         bucket.setOptions(data.getMaxConnections(), data.getMinConnections(), data.getTimeOut(), data.getLifeTime());
 
                         Console.send(messages.Prefix() + messages.MigratingAll());
-                        bucket.prepareTables();
+                        bucket.prepareTables(data.ignoredColumns());
 
                         Utils sql = new Utils();
                         sql.checkTables();

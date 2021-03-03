@@ -5,10 +5,9 @@ import com.zaxxer.hikari.HikariDataSource;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
-import java.sql.Connection;
-import java.sql.DatabaseMetaData;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -157,12 +156,33 @@ public final class Bucket {
     }
 
     /**
+     * Remove the specified column
+     *
+     * @param column the column name
+     */
+    static void removeColumn(final String column) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement("ALTER TABLE " + table + " DROP COLUMN " + column);
+            statement.executeUpdate();
+
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while removing column " + column, Level.INFO);
+        } finally {
+            close(connection, statement);
+        }
+    }
+
+    /**
      * Check if the specified column exists
      *
      * @param column the column
      * @return if the column exists
      */
-    private static boolean columnSet(String column) {
+    static boolean columnSet(String column) {
         Connection connection = null;
         try {
             connection = dataSource.getConnection();
@@ -221,7 +241,7 @@ public final class Bucket {
     /**
      * Initialize the MySQL tables
      */
-    public final void prepareTables() {
+    public final void prepareTables(final List<String> ignored) {
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -230,13 +250,7 @@ public final class Bucket {
 
             statement.executeUpdate();
 
-            if (columnSet("realname")) {
-                connection = dataSource.getConnection();
-                statement = connection.prepareStatement("ALTER TABLE " + table + " CHANGE realname PLAYER text");
-                statement.executeUpdate();
-            }
-
-            removeAndRenameTables();
+            removeAndRenameTables(ignored);
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {
@@ -248,7 +262,7 @@ public final class Bucket {
      * Remove unused tables and rename the used ones
      * to match with LockLogin database format
      */
-    private void removeAndRenameTables() {
+    private void removeAndRenameTables(final List<String> ignored) {
         boolean changes = false;
         Connection connection = null;
         PreparedStatement statement = null;
@@ -276,6 +290,84 @@ public final class Bucket {
         }
         if (!columnSet("PIN")) {
             changes = insertColumn("PIN", "text");
+        }
+
+        boolean doTableCheck = true;
+        List<String> lowerCaseIgnored = new ArrayList<>();
+        for (String str : ignored) {
+            if (str.equalsIgnoreCase("all")) {
+                doTableCheck = false;
+                lowerCaseIgnored.clear();
+                break;
+            } else {
+                lowerCaseIgnored.add(str.toLowerCase());
+            }
+        }
+
+        if (doTableCheck) {
+            try {
+                connection = dataSource.getConnection();
+                statement = connection.prepareStatement("SELECT * FROM " + table);
+
+                ResultSet rs = statement.executeQuery();
+                ResultSetMetaData rsMetaData = rs.getMetaData();
+                int columnCount = rsMetaData.getColumnCount();
+
+                for (int i = 1; i <= columnCount; i++) {
+                    String name = rsMetaData.getColumnName(i);
+
+                    if (lowerCaseIgnored.stream().noneMatch(name.toLowerCase()::contains)) {
+                        switch (name.toLowerCase()) {
+                            case "player":
+                            case "email":
+                            case "uuid":
+                            case "password":
+                            case "faon":
+                            case "gauth":
+                            case "fly":
+                            case "pin":
+                            case "id":
+                            case "name":
+                            case "email_verified_at":
+                            case "role_id":
+                            case "money":
+                            case "game_id":
+                            case "access_token":
+                            case "google_2fa_secret":
+                            case "last_login_at":
+                            case "is_banned":
+                            case "is_deleted":
+                            case "remember_token":
+                            case "created_at":
+                            case "updated_at":
+                            case "last_name":
+                                break;
+                            default:
+                                removeColumn(name);
+                                changes = true;
+                        }
+                    }
+                }
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while setting up tables and columns", Level.INFO);
+            } finally {
+                close(connection, statement);
+            }
+        }
+
+        //Check for LoginSecurity tables, to start auto-migration
+        if (columnSet("last_name")) {
+            try {
+                connection = dataSource.getConnection();
+                statement = connection.prepareStatement("UPDATE " + table + " SET PLAYER = last_name");
+
+                statement.executeUpdate();
+                removeColumn("last_name");
+            } catch (Throwable ex) {
+                PlatformUtils.log(ex, Level.GRAVE);
+                PlatformUtils.log("Error while trying to migrate from LoginSecurity sql", Level.INFO);
+            }
         }
 
         if (changes) {

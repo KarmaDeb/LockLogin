@@ -532,7 +532,7 @@ public final class Utils {
      */
     @Deprecated
     public final void saveUUID(String name) {
-        Connection connection = null;
+        /*Connection connection = null;
         PreparedStatement statement = null;
         try {
             connection = Bucket.getBucket().getConnection();
@@ -546,7 +546,68 @@ public final class Utils {
             PlatformUtils.log("Error while saving MySQL user uuid of " + uuid, Level.INFO);
         } finally {
             Bucket.close(connection, statement);
+        }*/
+    }
+
+    /**
+     * Migrate from AuthMe tables
+     *
+     * @param realname_column the real name player column
+     * @param password_column the password player column
+     */
+    public final boolean migrateAuthMe(final String realname_column, final String password_column) {
+        if (Bucket.columnSet(realname_column) && Bucket.columnSet(password_column)) {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("UPDATE " + table + " SET PLAYER = " + realname_column + ", PASSWORD = " + password_column);
+
+                statement.executeUpdate();
+
+                if (!realname_column.equalsIgnoreCase("PLAYER"))
+                    Bucket.removeColumn(realname_column);
+                if (!password_column.equalsIgnoreCase("PASSWORD"))
+                    Bucket.removeColumn(password_column);
+
+                checkTables();
+                return true;
+            } catch (Throwable ex) {
+                PlatformUtils.log(ex, Level.GRAVE);
+                PlatformUtils.log("Error while migrating MySQL authme accounts", Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
+            }
         }
+
+        return false;
+    }
+
+    /**
+     * Migrate from LoginSecurity tables
+     */
+    public final boolean migrateLoginSecurity() {
+        if (Bucket.columnSet("last_name")) {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("UPDATE " + table + " SET PLAYER = last_name");
+
+                statement.executeUpdate();
+
+                Bucket.removeColumn("last_name");
+                checkTables();
+                return true;
+            } catch (Throwable ex) {
+                PlatformUtils.log(ex, Level.GRAVE);
+                PlatformUtils.log("Error while migrating MySQL authme accounts", Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
+            }
+        }
+
+        return false;
     }
 
     /**

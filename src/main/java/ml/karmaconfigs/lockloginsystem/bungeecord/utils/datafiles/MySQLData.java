@@ -5,6 +5,8 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 
+import java.util.List;
+
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
@@ -96,6 +98,17 @@ public final class MySQLData implements LockLoginBungee {
      */
     public final boolean ignoreCertificates() {
         return manager.getBoolean("MySQL.IgnoreCertificates");
+    }
+
+    /**
+     * Get a list of string with the columns that should
+     * be ignored
+     *
+     * @return a list of the columns that will be ignored
+     * on column-deletion
+     */
+    public final List<String> ignoredColumns() {
+        return manager.getList("IgnoredColumns");
     }
 
     /**
