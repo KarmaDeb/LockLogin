@@ -90,7 +90,9 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
                                 if (manager.isSet("Password")) {
                                     if (!manager.isEmpty("Password")) {
-                                        new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                        AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                        migrate.start();
+
                                         Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
                                         manager.delete();
                                     }

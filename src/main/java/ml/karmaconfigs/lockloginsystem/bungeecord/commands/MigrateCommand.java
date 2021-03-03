@@ -78,7 +78,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                     ));
                                 }
                             }
-                        }, 0, TimeUnit.SECONDS.toMillis(0));
+                        }, 0, 1000);
                         user.Message(messages.Prefix() + messages.MigratingAll());
 
                         for (String id : ids) {
@@ -141,7 +141,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                         ));
                                     }
                                 }
-                            }, 0, TimeUnit.SECONDS.toMillis(0));
+                            }, 0, 1000);
                             user.Message(messages.Prefix() + messages.MigratingAll());
 
                             for (String id : ids) {
@@ -180,7 +180,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                 migrating_owner = null;
                             }
                         }
-                    }, 0, TimeUnit.SECONDS.toMillis(0));
+                    }, 0, TimeUnit.SECONDS.toMillis(1));
                     Console.send(messages.Prefix() + messages.MigratingAll());
 
                     for (String id : ids) {

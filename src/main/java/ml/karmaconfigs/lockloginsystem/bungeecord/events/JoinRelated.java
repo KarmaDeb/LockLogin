@@ -163,14 +163,18 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             manager.setInternal("auto-generated/userTemplate.yml");
 
             Utils sql = new Utils(player);
-            sql.createUser();
+            if (!sql.userExists())
+                sql.createUser();
 
             if (manager.getManaged().exists()) {
                 if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
                     if (manager.isSet("Password")) {
                         if (!manager.isEmpty("Password")) {
-                            new AccountMigrate(sql, Migrate.MySQL, Platform.BUNGEE);
+                            AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.BUNGEE);
+                            migrate.start();
+
                             Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                            manager.delete();
                         }
                     }
                 }

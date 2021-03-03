@@ -136,7 +136,7 @@ public final class Utils {
                     if (bungeeConfig.semiPremium()) {
                         this.uuid = player.getUniqueId().toString().replace("-", "");
                     } else {
-                        this.uuid = UUID.nameUUIDFromBytes(("OfflinePlayer: " + player.getName()).getBytes(StandardCharsets.UTF_8)).toString();
+                        this.uuid = UUID.nameUUIDFromBytes(("OfflinePlayer:" + player.getName()).getBytes(StandardCharsets.UTF_8)).toString();
                     }
                 }
             } else {
@@ -191,7 +191,7 @@ public final class Utils {
             statement.setString(1, uuid);
 
             ResultSet results = statement.executeQuery();
-            if (results.next())
+            if (!results.next())
                 if (!userExists()) {
                     PreparedStatement add = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
 
