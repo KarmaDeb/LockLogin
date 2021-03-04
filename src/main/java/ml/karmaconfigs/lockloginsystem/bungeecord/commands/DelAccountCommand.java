@@ -62,7 +62,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                                 User targetUser = new User(target);
 
                                 if (config.enableAuthLobby()) {
-                                    if (lobbyCheck.AuthIsWorking()) {
+                                    if (lobbyCheck.authWorking()) {
                                         targetUser.sendTo(lobbyCheck.getAuth());
                                     }
                                 }
@@ -123,7 +123,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                     User targetUser = new User(target);
 
                     if (config.enableAuthLobby()) {
-                        if (lobbyCheck.AuthIsWorking()) {
+                        if (lobbyCheck.authWorking()) {
                             targetUser.sendTo(lobbyCheck.getAuth());
                         }
                     }

@@ -22,29 +22,32 @@ public final class LobbyChecker implements LockLoginBungee {
 
     private final static ConfigGetter config = new ConfigGetter();
 
-    private static boolean MainWork = false;
-    private static boolean AuthWork = false;
-    private final String Main = config.getMainLobby();
-    private final String Auth = config.getAuthLobby();
-    private final String FBMain = config.getFallBackMain();
-    private final String FBAuth = config.getFallBackAuth();
-    private String MainName = "";
-    private String AuthName = "";
+    private static boolean mainWorking = false;
+    private static boolean authWorking = false;
+    private final String main = config.getMainLobby();
+    private final String auth = config.getAuthLobby();
+    private final String fbMain = config.getFallBackMain();
+    private final String fbAuth = config.getFallBackAuth();
+    private String mainName = "";
+    private String authName = "";
 
     /**
      * Check the servers
      */
-    public final void CheckServers() {
-        if (plugin.getProxy().getServerInfo(Main) != null) {
-            MainName = Main;
+    public final void checkServers() {
+        if (plugin.getProxy().getServerInfo(main) != null) {
+            mainName = main;
         } else {
-            MainName = FBMain;
+            mainName = fbMain;
         }
-        if (plugin.getProxy().getServerInfo(Auth) != null) {
-            AuthName = Auth;
+        if (plugin.getProxy().getServerInfo(auth) != null) {
+            authName = auth;
         } else {
-            AuthName = FBAuth;
+            authName = fbAuth;
         }
+
+        plugin.getProxy().getServers().get(authName).ping((result, error) -> authWorking = error == null);
+        plugin.getProxy().getServers().get(mainName).ping((result, error) -> mainWorking = error == null);
     }
 
     /**
@@ -53,9 +56,9 @@ public final class LobbyChecker implements LockLoginBungee {
      * @return the main server name
      */
     public final String getMain() {
-        CheckServers();
-        if (!MainName.equals(AuthName)) {
-            return MainName;
+        checkServers();
+        if (!mainName.equals(authName)) {
+            return mainName;
         } else {
             return "Lobby";
         }
@@ -67,11 +70,11 @@ public final class LobbyChecker implements LockLoginBungee {
      * @return the auth server name
      */
     public final String getAuth() {
-        CheckServers();
-        if (!MainName.equals(AuthName)) {
-            return AuthName;
+        checkServers();
+        if (!mainName.equals(authName)) {
+            return authName;
         } else {
-            return "getAuthLobby";
+            return "AuthLobby";
         }
     }
 
@@ -82,8 +85,8 @@ public final class LobbyChecker implements LockLoginBungee {
      *
      * @return if the main server is valid
      */
-    public final boolean MainOk() {
-        CheckServers();
+    public final boolean mainOk() {
+        checkServers();
         return plugin.getProxy().getServerInfo(getMain()) != null;
     }
 
@@ -94,8 +97,8 @@ public final class LobbyChecker implements LockLoginBungee {
      *
      * @return if the auth server is valid
      */
-    public final boolean AuthOk() {
-        CheckServers();
+    public final boolean authOk() {
+        checkServers();
         return plugin.getProxy().getServerInfo(getAuth()) != null;
     }
 
@@ -104,14 +107,11 @@ public final class LobbyChecker implements LockLoginBungee {
      *
      * @return if the main server is working
      */
-    public final boolean MainIsWorking() {
-        CheckServers();
-        if (MainOk()) {
+    public final boolean mainWorking() {
+        checkServers();
+        if (mainOk()) {
             if (getMain() != null) {
-                plugin.getProxy().getServers().get(getMain()).ping((result, error) -> {
-                    MainWork = error == null;
-                });
-                return MainWork;
+                return mainWorking;
             } else {
                 return false;
             }
@@ -125,14 +125,11 @@ public final class LobbyChecker implements LockLoginBungee {
      *
      * @return if the auth server is working
      */
-    public final boolean AuthIsWorking() {
-        CheckServers();
-        if (AuthOk()) {
+    public final boolean authWorking() {
+        checkServers();
+        if (authOk()) {
             if (getAuth() != null) {
-                plugin.getProxy().getServers().get(getAuth()).ping((result, error) -> {
-                    AuthWork = error == null;
-                });
-                return AuthWork;
+                return authWorking;
             } else {
                 return false;
             }

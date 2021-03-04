@@ -57,7 +57,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                                 new StartCheck(player, CheckType.LOGIN);
 
                                 if (config.enableAuthLobby()) {
-                                    if (lobbyCheck.AuthIsWorking()) {
+                                    if (lobbyCheck.authWorking()) {
                                         user.sendTo(lobbyCheck.getAuth());
                                     }
                                 }

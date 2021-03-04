@@ -31,6 +31,7 @@ import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
+import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.InventoryView;
@@ -271,6 +272,22 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         check = builder.toString();
 
         return !title.contains(check);
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public final void menuOpen(InventoryOpenEvent e) {
+        Player player = (Player) e.getPlayer();
+        User user = new User(player);
+
+        if (!config.isBungeeCord()) {
+            if (!user.isTempLog() && !user.hasPin()) {
+                e.setCancelled(true);
+            }
+        } else {
+            if (!BungeeListener.inventoryAccess.contains(player.getUniqueId())) {
+                e.setCancelled(true);
+            }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

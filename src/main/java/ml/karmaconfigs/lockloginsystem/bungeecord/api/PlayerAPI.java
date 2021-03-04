@@ -83,7 +83,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                             utils.setTempLog(false);
                             utils.Message(Message);
                             LobbyChecker checker = new LobbyChecker();
-                            if (checker.MainOk() && checker.MainIsWorking()) {
+                            if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
                             }
                             plugin.getProxy().getScheduler().schedule(plugin, () -> {
@@ -99,7 +99,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         utils.setTempLog(false);
                         utils.Message(Message);
                         LobbyChecker checker = new LobbyChecker();
-                        if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
                         }
                         plugin.getProxy().getScheduler().schedule(plugin, () -> {
@@ -140,7 +140,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                             utils.setTempLog(false);
                             utils.Message(message);
                             LobbyChecker checker = new LobbyChecker();
-                            if (checker.MainOk() && checker.MainIsWorking()) {
+                            if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
                             }
                             plugin.getProxy().getScheduler().schedule(plugin, () -> {
@@ -159,7 +159,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         utils.setTempLog(false);
                         utils.Message(message);
                         LobbyChecker checker = new LobbyChecker();
-                        if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
                         }
                         plugin.getProxy().getScheduler().schedule(plugin, () -> {
@@ -207,7 +207,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                             utils.setLogStatus(true);
                             utils.setTempLog(false);
                             LobbyChecker checker = new LobbyChecker();
-                            if (checker.MainOk() && checker.MainIsWorking()) {
+                            if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
                             }
 
@@ -224,7 +224,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         utils.setLogStatus(false);
                         utils.setTempLog(false);
                         LobbyChecker checker = new LobbyChecker();
-                        if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
                         }
                         dataSender.sendAccountStatus(player);
@@ -371,7 +371,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                             utils.setLogStatus(true);
                             utils.setLogStatus(false);
                             LobbyChecker checker = new LobbyChecker();
-                            if (checker.MainOk() && checker.MainIsWorking()) {
+                            if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
                             }
                             dataSender.sendAccountStatus(player);
@@ -384,7 +384,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         utils.setLogStatus(false);
                         utils.setTempLog(false);
                         LobbyChecker checker = new LobbyChecker();
-                        if (checker.AuthOk() && checker.AuthIsWorking()) {
+                        if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
                         }
                         dataSender.sendAccountStatus(player);

@@ -53,7 +53,7 @@ public final class GoogleAuthResetCommand extends Command implements LockLoginBu
 
                                         if (user.validateCode(code)) {
                                             if (config.enableAuthLobby()) {
-                                                if (lobbyCheck.AuthIsWorking()) {
+                                                if (lobbyCheck.authWorking()) {
                                                     user.sendTo(lobbyCheck.getAuth());
                                                 }
                                             }

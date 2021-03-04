@@ -184,13 +184,39 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 sql.setName(player.getName());
         }
 
-        if (config.enableMainLobby()) {
-            if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
-                if (e.getReason().equals(ServerConnectEvent.Reason.COMMAND)) {
-                    if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
-                        e.setTarget(lobbyCheck.generateServerInfo(lobbyCheck.getMain()));
-                        e.setCancelled(true);
-                        user.Message(messages.Prefix() + messages.AlreadyLogged());
+        if (user.isLogged()) {
+            if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
+                if (lobbyCheck.mainOk() && lobbyCheck.mainWorking()) {
+                    switch (e.getReason()) {
+                        case UNKNOWN:
+                        case PLUGIN:
+                        case PLUGIN_MESSAGE:
+                        case COMMAND:
+                            e.setCancelled(true);
+                            user.Message(messages.Prefix() + messages.AlreadyLogged());
+                            break;
+                    }
+                }
+            }
+        } else {
+            if (!e.getTarget().getName().equals(lobbyCheck.getAuth())) {
+                if (lobbyCheck.authOk() && lobbyCheck.authWorking()) {
+                    switch (e.getReason()) {
+                        case UNKNOWN:
+                        case PLUGIN:
+                        case PLUGIN_MESSAGE:
+                        case COMMAND:
+                            e.setCancelled(true);
+                            if (user.isRegistered())
+                                if (user.isTempLog())
+                                    if (user.has2FA())
+                                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                else
+                                    user.Message(messages.Prefix() + messages.Login());
+                            else
+                                user.Message(messages.Prefix() + messages.Register());
+
+                            break;
                     }
                 }
             }

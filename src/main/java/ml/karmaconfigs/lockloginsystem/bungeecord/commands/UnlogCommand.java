@@ -60,7 +60,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                                     user.Message(messages.Prefix() + messages.ForcedUnLogAdmin(target));
 
                                     if (config.enableAuthLobby()) {
-                                        if (lobbyCheck.AuthIsWorking()) {
+                                        if (lobbyCheck.authWorking()) {
                                             targetUser.sendTo(lobbyCheck.getAuth());
                                         }
                                     }
@@ -99,7 +99,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                         Console.send(messages.Prefix() + messages.ForcedUnLog(target));
 
                         if (config.enableAuthLobby()) {
-                            if (lobbyCheck.AuthIsWorking()) {
+                            if (lobbyCheck.authWorking()) {
                                 targetUser.sendTo(lobbyCheck.getAuth());
                             }
                         }

@@ -146,10 +146,10 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * Send the player to the specified
      * server name
      *
-     * @param Server the server name
+     * @param server the server name
      */
-    public final void sendTo(String Server) {
-        player.connect(plugin.getProxy().getServerInfo(Server));
+    public final void sendTo(String server) {
+        player.connect(lobbyCheck.generateServerInfo(server));
     }
 
     /**
@@ -245,27 +245,20 @@ public final class User implements LockLoginBungee, BungeeFiles {
             if (current_server.isConnected() && player.isConnected()) {
                 ServerInfo current_info = current_server.getInfo();
                 boolean sent = false;
-                if (!isLogged() || isTempLog()) {
-                    if (config.enableAuthLobby()) {
-                        if (lobbyCheck.AuthOk() && lobbyCheck.AuthIsWorking()) {
+                if (!isLogged() || isTempLog())
+                    if (config.enableAuthLobby())
+                        if (lobbyCheck.authOk() && lobbyCheck.authWorking())
                             if (!current_info.getName().equals(lobbyCheck.getAuth())) {
                                 sendTo(lobbyCheck.getAuth());
                                 sent = true;
-                            }
-                        }
-                    }
-                } else {
-                    sent = current_info.getName().equals(lobbyCheck.getMain());
-                }
+                            } else
+                                sent = current_info.getName().equals(lobbyCheck.getMain());
 
                 if (!sent)
-                    if (config.enableMainLobby()) {
-                        if (lobbyCheck.MainOk() && lobbyCheck.MainIsWorking()) {
-                            if (!current_info.getName().equals(lobbyCheck.getMain())) {
+                    if (config.enableMainLobby())
+                        if (lobbyCheck.mainOk() && lobbyCheck.mainWorking())
+                            if (!current_info.getName().equals(lobbyCheck.getMain()))
                                 sendTo(lobbyCheck.getMain());
-                            }
-                        }
-                    }
             }
         }
     }
