@@ -41,26 +41,6 @@ Register:
   TimeOut: 60
   Max: 2
 
-#Encryption configuration
-# Available types:
-# "SHA512"
-# "SHA256"
-# "BCrypt"
-# "Argon2i"
-# "Argon2id"
-Encryption:
-  Passwords: "SHA512"
-  Pin: "SHA512"
-
-#Azuriom integration options
-# Restrict -> Restrict new accounts to
-#             azuriom registered accounts
-#
-# SemiPremium -> Try to use online player UUID
-Azuriom:
-  Restrict: false
-  SemiPremium: false
-
 #Login options
 # Blind -> Applies a blind potion
 #          effect when the player
@@ -81,6 +61,39 @@ Login:
   Nausea: true
   TimeOut: 30
   MaxTries: 5
+
+#Captcha options
+# Available options:
+#   COMPLEX - Requires to do /captcha <captcha> before
+#             or register
+#   SIMPLE - Requires to put the captcha during login
+#            and register
+# TimeOut: Set to 0 to disable
+# Length: Captcha code length, max is 8, min is 4
+Captcha:
+  Mode: "COMPLEX"
+  TimeOut: 0
+  Length: 6
+
+#Encryption configuration
+# Available types:
+# "SHA512"
+# "SHA256"
+# "BCrypt"
+# "Argon2i"
+# "Argon2id"
+Encryption:
+  Passwords: "SHA512"
+  Pin: "SHA512"
+
+#Azuriom integration options
+# Restrict -> Restrict new accounts to
+#             azuriom registered accounts
+#
+# SemiPremium -> Try to use online player UUID
+Azuriom:
+  Restrict: false
+  SemiPremium: false
 
 #BurteForce options
 # Tries -> The maximum amount of tries

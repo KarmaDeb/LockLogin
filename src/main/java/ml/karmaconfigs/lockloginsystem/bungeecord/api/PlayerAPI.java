@@ -73,15 +73,15 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(Message);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(Message);
+                            utils.send(messages.prefix() + messages.gAuthenticate());
                             plugin.getProxy().getScheduler().schedule(plugin, () -> {
                                 dataSender.sendAccountStatus(player);
                             }, (long) 1.5, TimeUnit.SECONDS);
                         } else {
                             utils.setLogStatus(true);
                             utils.setTempLog(false);
-                            utils.Message(Message);
+                            utils.send(Message);
                             LobbyChecker checker = new LobbyChecker();
                             if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
@@ -97,7 +97,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
 
                         utils.setLogStatus(false);
                         utils.setTempLog(false);
-                        utils.Message(Message);
+                        utils.send(Message);
                         LobbyChecker checker = new LobbyChecker();
                         if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
@@ -130,15 +130,15 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(message);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(message);
+                            utils.send(messages.prefix() + messages.gAuthenticate());
                             dataSender.sendAccountStatus(player);
                             result = AuthResult.SUCCESS_TEMP;
-                            event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.gAuthAuthenticate());
+                            event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.prefix() + messages.gAuthenticate());
                         } else {
                             utils.setLogStatus(true);
                             utils.setTempLog(false);
-                            utils.Message(message);
+                            utils.send(message);
                             LobbyChecker checker = new LobbyChecker();
                             if (checker.mainOk() && checker.mainWorking()) {
                                 utils.sendTo(checker.getMain());
@@ -157,7 +157,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                     if (utils.isLogged()) {
                         utils.setLogStatus(false);
                         utils.setTempLog(false);
-                        utils.Message(message);
+                        utils.send(message);
                         LobbyChecker checker = new LobbyChecker();
                         if (checker.authOk() && checker.authWorking()) {
                             utils.sendTo(checker.getAuth());
@@ -199,10 +199,10 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(messages.prefix() + messages.gAuthenticate());
                             dataSender.sendAccountStatus(player);
                             result = AuthResult.SUCCESS_TEMP;
-                            event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.gAuthAuthenticate());
+                            event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.prefix() + messages.gAuthenticate());
                         } else {
                             utils.setLogStatus(true);
                             utils.setTempLog(false);
@@ -261,8 +261,8 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                     utils.setLogStatus(true);
                     utils.setTempLog(utils.has2FA());
                     utils.setPassword(password);
-                    utils.Message(messages.Prefix() + messages.Registered());
-                    utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+                    utils.send(messages.prefix() + messages.registered());
+                    utils.send("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
                     plugin.getProxy().getScheduler().schedule(plugin, () -> dataSender.sendAccountStatus(player), (long) 1.5, TimeUnit.SECONDS);
                 }
             }, (long) 1.5, TimeUnit.SECONDS);
@@ -285,8 +285,8 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         utils.setLogStatus(true);
                         utils.setTempLog(utils.has2FA());
                         utils.setPassword(password);
-                        utils.Message(messages.Prefix() + messages.Registered());
-                        utils.Message("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
+                        utils.send(messages.prefix() + messages.registered());
+                        utils.send("&aSERVER &7>> &cYour password is &3" + password + " &cdon't share it with anyone");
                         plugin.getProxy().getScheduler().schedule(plugin, () -> dataSender.sendAccountStatus(player), (long) 1.5, TimeUnit.SECONDS);
 
                         PlayerRegisterEvent event = new PlayerRegisterEvent(player);
@@ -365,7 +365,7 @@ public class PlayerAPI implements LockLoginBungee, BungeeFiles {
                         if (utils.has2FA()) {
                             utils.setLogStatus(true);
                             utils.setTempLog(true);
-                            utils.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                            utils.send(messages.prefix() + messages.gAuthenticate());
                             dataSender.sendAccountStatus(player);
                         } else {
                             utils.setLogStatus(true);

@@ -10,6 +10,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
@@ -26,10 +27,12 @@ import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
+import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.net.InetAddress;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -62,13 +65,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             if (config.checkNames()) {
                 if (Checker.notValid(e.getConnection().getName())) {
                     e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.IllegalName(Checker.getIllegalChars(e.getConnection().getName())))));
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(Checker.getIllegalChars(e.getConnection().getName())))));
                 }
             }
 
             if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
                 e.setCancelled(true);
-                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.AlreadyPlaying())));
+                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.alreadyPlaying())));
             }
 
             if (!e.isCancelled()) {
@@ -87,7 +90,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
                     if (data.getConnections() > config.accountsPerIP()) {
                         e.setCancelled(true);
-                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxIp())));
+                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxIP())));
                     } else {
                         plugin.getProxy().getScheduler().schedule(plugin, () -> {
                             if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
@@ -122,12 +125,12 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                                             User user = new User(online);
 
                                             if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(e.getConnection().getUniqueId()))
-                                                user.Message(messages.Prefix() + messages.altsFound(e.getConnection().getName(), storager.getAltsAmount(e.getConnection().getUniqueId())));
+                                                user.send(messages.prefix() + messages.altsFound(e.getConnection().getName(), storager.getAltsAmount(e.getConnection().getUniqueId())));
                                         }
                                     }
                                 } else {
                                     e.setCancelled(true);
-                                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.MaxRegisters())));
+                                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxRegisters())));
                                 }
                             } catch (Throwable ex) {
                                 ex.printStackTrace();
@@ -147,12 +150,10 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
         User user = new User(player);
 
-        if (config.isYaml()) {
-            user.setupFile();
-        } else {
+        if (config.isMySQL()) {
             if (!user.isRegistered()) {
                 if (config.registerRestricted()) {
-                    user.Kick(messages.onlyAzuriom());
+                    user.kick(messages.onlyAzuriom());
 
                     return;
                 }
@@ -162,26 +163,26 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             FileManager manager = new FileManager(UUID + ".yml", "playerdata");
             manager.setInternal("auto-generated/userTemplate.yml");
 
-            Utils sql = new Utils(player);
-            if (!sql.userExists())
-                sql.createUser();
-
             if (manager.getManaged().exists()) {
+                Utils sql = new Utils(player);
+                if (!sql.userExists())
+                    sql.createUser();
+
                 if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
                     if (manager.isSet("Password")) {
                         if (!manager.isEmpty("Password")) {
                             AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.BUNGEE);
                             migrate.start();
 
-                            Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                            Console.send(plugin, messages.migrating(player.getUniqueId().toString()), Level.INFO);
                             manager.delete();
                         }
                     }
                 }
-            }
 
-            if (sql.getName() == null || sql.getName().isEmpty())
-                sql.setName(player.getName());
+                if (sql.getName() == null || sql.getName().isEmpty())
+                    sql.setName(player.getName());
+            }
         }
 
         if (user.isLogged()) {
@@ -193,7 +194,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         case PLUGIN_MESSAGE:
                         case COMMAND:
                             e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.AlreadyLogged());
+                            user.send(messages.prefix() + messages.alreadyLogged());
                             break;
                     }
                 }
@@ -210,11 +211,11 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                             if (user.isRegistered())
                                 if (user.isTempLog())
                                     if (user.has2FA())
-                                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                                        user.send(messages.prefix() + messages.gAuthenticate());
                                 else
-                                    user.Message(messages.Prefix() + messages.Login());
+                                    user.send(messages.prefix() + messages.login(user.getCaptcha()));
                             else
-                                user.Message(messages.Prefix() + messages.Register());
+                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
 
                             break;
                     }
@@ -236,14 +237,38 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                     user.checkServer();
                     if (config.clearChat()) {
                         for (int i = 0; i < 150; i++) {
-                            user.Message(" ");
+                            user.send(" ");
                         }
                     }
 
-                    if (user.isRegistered())
-                        new StartCheck(player, CheckType.LOGIN);
-                    else
-                        new StartCheck(player, CheckType.REGISTER);
+                    if (config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                        if (user.isRegistered())
+                            new StartCheck(player, CheckType.LOGIN);
+                        else
+                            new StartCheck(player, CheckType.REGISTER);
+                    } else {
+                        Timer timer = new Timer();
+                        timer.schedule(new TimerTask() {
+                            int back = config.getCaptchaTimeOut();
+                            @Override
+                            public void run() {
+                                if (user.hasCaptcha()) {
+                                    if (back == 0) {
+                                        cancel();
+
+                                        user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
+                                    } else {
+                                        if (back % 5 == 0 || back % 10 == 0)
+                                            user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                    }
+                                } else {
+                                    cancel();
+                                }
+
+                                back--;
+                            }
+                        }, 0, 1000);
+                    }
                 }, 1, TimeUnit.SECONDS);
             }
 

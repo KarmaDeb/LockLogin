@@ -7,6 +7,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import net.md_5.bungee.api.CommandSender;
@@ -42,12 +43,16 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
 
             if (args.length == 0) {
                 if (user.isLogged()) {
-                    user.Message(messages.Prefix() + messages.DelAccount());
+                    user.send(messages.prefix() + messages.delAccount());
                 } else {
-                    if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                        if (user.isRegistered()) {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                     }
                 }
             } else {
@@ -69,25 +74,25 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
 
                                 targetUser.remove();
                                 targetUser.setLogStatus(false);
-                                targetUser.Message(messages.Prefix() + messages.ForcedDelAccount(player));
-                                user.Message(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
+                                targetUser.send(messages.prefix() + messages.forcedDelAccount(player));
+                                user.send(messages.prefix() + messages.forcedDelAccAdmin(target));
                                 new StartCheck(target, CheckType.REGISTER);
                                 dataSender.sendAccountStatus(target);
                             } else {
-                                user.Message(messages.Prefix() + messages.DelAccount());
+                                user.send(messages.prefix() + messages.delAccount());
                             }
                         } else {
-                            OfflineUser targetUser = new OfflineUser(tar);
+                            OfflineUser targetUser = new OfflineUser("", tar, true);
 
                             if (targetUser.exists()) {
                                 targetUser.delete();
-                                user.Message(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
+                                user.send(messages.prefix() + messages.forcedDelAccAdmin(tar));
                             } else {
-                                user.Message(messages.Prefix() + messages.NeverPlayed(tar));
+                                user.send(messages.prefix() + messages.unknownPlayer(tar));
                             }
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.PermissionError(forceDel));
+                        user.send(messages.prefix() + messages.permission(forceDel));
                     }
                 } else {
                     if (args.length == 2) {
@@ -100,17 +105,17 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                             if (utils.validate()) {
                                 user.remove();
                                 user.setLogStatus(false);
-                                user.Message(messages.Prefix() + messages.AccountDeleted());
+                                user.send(messages.prefix() + messages.accountDeleted());
                                 new StartCheck(player, CheckType.REGISTER);
                                 dataSender.sendAccountStatus(player);
                             } else {
-                                user.Message(messages.Prefix() + messages.DelAccountError());
+                                user.send(messages.prefix() + messages.delAccError());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.DelAccountMatch());
+                            user.send(messages.prefix() + messages.delAccMatch());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.DelAccount());
+                        user.send(messages.prefix() + messages.delAccount());
                     }
                 }
             }
@@ -130,18 +135,18 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
 
                     targetUser.remove();
                     targetUser.setLogStatus(false);
-                    targetUser.Message(messages.Prefix() + messages.ForcedDelAccount("SERVER"));
-                    Console.send(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
+                    targetUser.send(messages.prefix() + messages.forcedDelAccount("SERVER"));
+                    Console.send(messages.prefix() + messages.forcedDelAccAdmin(target));
                     new StartCheck(target, CheckType.REGISTER);
                     dataSender.sendAccountStatus(target);
                 } else {
-                    OfflineUser targetUser = new OfflineUser(tar);
+                    OfflineUser targetUser = new OfflineUser("", tar, true);
 
                     if (targetUser.exists()) {
                         targetUser.delete();
-                        Console.send(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
+                        Console.send(messages.prefix() + messages.forcedDelAccAdmin(tar));
                     } else {
-                        Console.send(messages.Prefix() + messages.NeverPlayed(tar));
+                        Console.send(messages.prefix() + messages.unknownPlayer(tar));
                     }
                 }
             } else {

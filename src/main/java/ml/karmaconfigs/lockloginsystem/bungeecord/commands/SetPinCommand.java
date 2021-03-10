@@ -42,24 +42,24 @@ public final class SetPinCommand extends Command implements LockLoginBungee, Bun
                             if (args[0].length() == 4) {
                                 user.setPin(args[0]);
 
-                                user.Message(messages.Prefix() + messages.PinSet(args[0]));
+                                user.send(messages.prefix() + messages.pinSet(args[0]));
                                 user.setTempLog(true);
 
                                 dataSender.openPinGUI(player);
                             } else {
-                                user.Message(messages.Prefix() + messages.PinLength());
+                                user.send(messages.prefix() + messages.pinLength());
                             }
                         } catch (NumberFormatException e) {
-                            user.Message(messages.Prefix() + messages.PinUsage());
+                            user.send(messages.prefix() + messages.pinUsage());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.PinUsage());
+                        user.send(messages.prefix() + messages.pinUsage());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.AlreadyPin());
+                    user.send(messages.prefix() + messages.alreadyPin());
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PinDisabled());
+                user.send(messages.prefix() + messages.pinDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

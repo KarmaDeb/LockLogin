@@ -62,31 +62,31 @@ public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginS
                                     user.teleport(spawn.getSpawn());
                                 }
 
-                                user.send(messages.Prefix() + messages.ReseatedFA());
+                                user.send(messages.prefix() + messages.reseted2FA());
                                 user.setToken(newToken);
                                 user.setTempLog(true);
                                 user.set2FA(true);
-                                user.send(messages.Prefix() + messages.GAuthInstructions());
-                                ComponentMaker json = new ComponentMaker(messages.GAuthLink());
+                                user.send(messages.prefix() + messages.gAuthInstructions());
+                                ComponentMaker json = new ComponentMaker(messages.gAuthLink());
                                 String url = json.getURL(player, newToken);
                                 json.setHoverText("&bQR Code &c( USE THE LINK BELOW IF YOU CAN'T CLICK THIS )");
                                 json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, url));
                                 user.send(json.getComponent());
                                 user.send("&b" + url);
                             } else {
-                                user.send(messages.Prefix() + messages.ToggleFAError());
+                                user.send(messages.prefix() + messages.toggle2FAError());
                             }
                         } catch (NumberFormatException ex) {
-                            user.send(messages.Prefix() + messages.Reset2Fa());
+                            user.send(messages.prefix() + messages.reset2FA());
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.ToggleFAError());
+                        user.send(messages.prefix() + messages.toggle2FAError());
                     }
                 } else {
-                    user.send(messages.Prefix() + messages.Reset2Fa());
+                    user.send(messages.prefix() + messages.reset2FA());
                 }
             } else {
-                user.send(messages.Prefix() + messages.GAuthDisabled());
+                user.send(messages.prefix() + messages.gAuthDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

@@ -6,8 +6,13 @@ import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
+import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -19,10 +24,8 @@ import org.jetbrains.annotations.Nullable;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -37,12 +40,12 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class User implements LockLoginBungee, BungeeFiles {
 
-    private final static HashMap<ProxiedPlayer, Boolean> logStatus = new HashMap<>();
-    private final static HashMap<ProxiedPlayer, Integer> playerTries = new HashMap<>();
-    private final static HashSet<ProxiedPlayer> tempLog = new HashSet<>();
+    private final static HashMap<UUID, Boolean> logStatus = new HashMap<>();
+    private final static HashMap<UUID, Integer> playerTries = new HashMap<>();
+    private final static HashMap<UUID, Integer> playerCaptcha = new HashMap<>();
+    private final static HashSet<UUID> tempLog = new HashSet<>();
 
     private final ProxiedPlayer player;
 
@@ -84,13 +87,26 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Generate a captcha for the player
+     */
+    public final void genCaptcha() {
+        int captcha = StringUtils.randomNumber(config.getCaptchaLength());
+        playerCaptcha.put(player.getUniqueId(), captcha);
+
+        send(messages.prefix() + messages.captcha(captcha));
+    }
+
+    /**
      * Send a message to the player
      *
      * @param text the message
      */
-    public final void Message(String text) {
-        if (!text.replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
-            player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(text)));
+    public final void send(String text) {
+        if (!text.replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty())
+            if (!text.contains("\n"))
+                player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(text)));
+            else
+                send(Arrays.asList(text.split("\n")));
     }
 
     /**
@@ -98,10 +114,10 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param texts the messages
      */
-    public final void Message(List<String> texts) {
+    public final void send(List<String> texts) {
         if (!texts.isEmpty())
             for (String str : texts)
-                Message(str);
+                send(str);
     }
 
     /**
@@ -109,8 +125,8 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param JSonMessage the json message
      */
-    public final void Message(TextComponent JSonMessage) {
-        if (!JSonMessage.getText().replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+    public final void send(TextComponent JSonMessage) {
+        if (!JSonMessage.getText().replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty())
             player.sendMessage(JSonMessage);
     }
 
@@ -119,10 +135,10 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param messages the messages
      */
-    public final void Message(HashSet<String> messages) {
+    public final void send(HashSet<String> messages) {
         if (!messages.isEmpty())
             for (String str : messages)
-                Message(str);
+                send(str);
     }
 
     /**
@@ -142,6 +158,119 @@ public final class User implements LockLoginBungee, BungeeFiles {
         title.send(player);
     }
 
+    public final void authPlayer(final String password) {
+        plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+            PasswordUtils utils = new PasswordUtils(password, getPassword());
+
+            BFSystem bf_prevention = new BFSystem(player.getPendingConnection().getVirtualHost().getAddress());
+
+            PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PASSWORD, EventAuthResult.WAITING, player, "");
+
+            boolean valid_password = false;
+            if (utils.validate()) {
+                valid_password = true;
+                if (hasPin()) {
+                    event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
+                } else {
+                    if (has2FA()) {
+                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.gAuthInstructions());
+                    } else {
+                        event.setAuthResult(EventAuthResult.SUCCESS, messages.prefix() + messages.logged(player));
+                    }
+                }
+            } else {
+                event.setAuthResult(EventAuthResult.FAILED, messages.prefix() + messages.logError());
+            }
+
+            plugin.getProxy().getPluginManager().callEvent(event);
+
+            switch (event.getAuthResult()) {
+                case SUCCESS:
+                    send(event.getAuthMessage());
+                    if (valid_password) {
+                        bf_prevention.success();
+                        setLogStatus(true);
+                        checkServer();
+
+                        dataSender.sendAccountStatus(player);
+                    } else {
+                        logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
+                    }
+
+                    if (Passwords.isLegacySalt(getPassword())) {
+                        setPassword(password);
+                        send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
+                    } else {
+                        if (utils.needsRehash(config.passwordEncryption())) {
+                            setPassword(password);
+                        }
+                    }
+                    break;
+                case SUCCESS_TEMP:
+                    if (valid_password) {
+                        bf_prevention.success();
+                        setLogStatus(true);
+
+                        if (Passwords.isLegacySalt(getPassword())) {
+                            setPassword(password);
+                            send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
+                        } else {
+                            if (utils.needsRehash(config.passwordEncryption())) {
+                                setPassword(password);
+                            }
+                        }
+
+                        setTempLog(true);
+                        if (!hasPin()) {
+                            send(event.getAuthMessage());
+                        } else {
+                            dataSender.openPinGUI(player);
+                        }
+                    } else {
+                        logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
+                        send(event.getAuthMessage());
+                    }
+                    break;
+                case FAILED:
+                    if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
+                        bf_prevention.block();
+                        bf_prevention.updateTime(config.bfBlockTime());
+
+                        Timer unban = new Timer();
+                        unban.schedule(new TimerTask() {
+                            final BFSystem saved_system = bf_prevention;
+                            int back = config.bfBlockTime();
+
+                            @Override
+                            public void run() {
+                                if (back == 0) {
+                                    saved_system.unlock();
+                                    cancel();
+                                }
+                                saved_system.updateTime(back);
+                                back--;
+                            }
+                        }, 0, TimeUnit.SECONDS.toMillis(1));
+
+                        kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                    }
+                    if (hasTries()) {
+                        restTries();
+                        send(event.getAuthMessage());
+                    } else {
+                        bf_prevention.fail();
+                        delTries();
+                        kick("&eLockLogin\n\n" + messages.logError());
+                    }
+                    break;
+                case ERROR:
+                case WAITING:
+                    send(event.getAuthMessage());
+                    break;
+            }
+        });
+    }
+
     /**
      * Send the player to the specified
      * server name
@@ -149,7 +278,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param server the server name
      */
     public final void sendTo(String server) {
-        player.connect(lobbyCheck.generateServerInfo(server));
+        plugin.getProxy().getScheduler().schedule(plugin, () -> player.connect(lobbyCheck.generateServerInfo(server)), 0, TimeUnit.SECONDS);
     }
 
     /**
@@ -157,8 +286,8 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param reason the kick reason
      */
-    public final void Kick(String reason) {
-        player.disconnect(TextComponent.fromLegacyText(StringUtils.toColor(reason)));
+    public final void kick(String reason) {
+        plugin.getProxy().getScheduler().schedule(plugin, () -> player.disconnect(TextComponent.fromLegacyText(StringUtils.toColor(reason))), 0, TimeUnit.SECONDS);
     }
 
     /**
@@ -167,14 +296,14 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param value true/false
      */
     public final void setLogStatus(boolean value) {
-        logStatus.put(player, value);
+        logStatus.put(player.getUniqueId(), value);
     }
 
     /**
      * Rest a trie for the player
      */
     public final void restTries() {
-        playerTries.put(player, getTriesLeft() - 1);
+        playerTries.put(player.getUniqueId(), getTriesLeft() - 1);
     }
 
     /**
@@ -182,7 +311,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * left
      */
     public final void delTries() {
-        playerTries.remove(player);
+        playerTries.remove(player.getUniqueId());
     }
 
     /**
@@ -298,6 +427,17 @@ public final class User implements LockLoginBungee, BungeeFiles {
 
             return Utils.fixUUID(sql.getUUID());
         }
+    }
+
+    public final boolean checkCaptcha(final int code) {
+        if (playerCaptcha.containsKey(player.getUniqueId()))
+            return code == playerCaptcha.remove(player.getUniqueId());
+
+        return false;
+    }
+
+    public final boolean hasCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), -1) > 0;
     }
 
     /**
@@ -506,7 +646,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @return if the player is logged
      */
     public final boolean isLogged() {
-        return logStatus.getOrDefault(player, false).equals(true);
+        return logStatus.getOrDefault(player.getUniqueId(), false).equals(true);
     }
 
     /**
@@ -515,10 +655,10 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @return if the player has login tries left
      */
     public final boolean hasTries() {
-        if (playerTries.containsKey(player)) {
-            return playerTries.get(player) != 0;
+        if (playerTries.containsKey(player.getUniqueId())) {
+            return playerTries.get(player.getUniqueId()) != 0;
         } else {
-            playerTries.put(player, config.loginMaxTries());
+            playerTries.put(player.getUniqueId(), config.loginMaxTries());
             return true;
         }
     }
@@ -531,7 +671,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * For example, if he has 2Fa or pin
      */
     public final boolean isTempLog() {
-        return tempLog.contains(player);
+        return tempLog.contains(player.getUniqueId());
     }
 
     /**
@@ -542,9 +682,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final void setTempLog(boolean value) {
         if (value) {
-            tempLog.add(player);
+            tempLog.add(player.getUniqueId());
         } else {
-            tempLog.remove(player);
+            tempLog.remove(player.getUniqueId());
         }
     }
 
@@ -567,7 +707,11 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * of the player
      */
     public final int getTriesLeft() {
-        return playerTries.getOrDefault(player, config.loginMaxTries());
+        return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
+    }
+
+    public final int getCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), -1);
     }
 
     public interface external {

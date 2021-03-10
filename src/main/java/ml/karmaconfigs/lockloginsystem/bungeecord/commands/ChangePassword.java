@@ -6,6 +6,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -53,7 +54,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                             if (newPass.length() >= 4) {
                                 user.setPassword(newPass);
                                 user.setLogStatus(false);
-                                user.Message(messages.Prefix() + messages.ChangeDone());
+                                user.send(messages.prefix() + messages.changeDone());
                                 new StartCheck(player, CheckType.LOGIN);
 
                                 if (config.enableAuthLobby()) {
@@ -63,40 +64,39 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                                 }
                                 dataSender.sendAccountStatus(player);
                             } else {
-                                user.Message(messages.Prefix() + messages.PasswordMinChar());
+                                user.send(messages.prefix() + messages.passwordMinChar());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.PasswordInsecure());
+                            user.send(messages.prefix() + messages.passwordInsecure());
 
-                            ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
+                            ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
                             json.setHoverText("&7Opens an url to a password-gen page");
                             json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
-                            user.Message(json.getComponent());
+                            user.send(json.getComponent());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.ChangeSame());
+                        user.send(messages.prefix() + messages.changeSame());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.ChangeError());
+                    user.send(messages.prefix() + messages.changeError());
                 }
             } else {
                 if (user.isLogged()) {
-                    user.Message(messages.Prefix() + messages.ChangePass());
+                    user.send(messages.prefix() + messages.changePass());
                 } else {
-                    if (user.isRegistered()) {
-                        user.Message(messages.Prefix() + messages.Login());
+                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                        if (user.isRegistered()) {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                     }
                 }
             }
         } else {
-            /*if (args.length == 2) {
-                Coming soon...
-            } else {
-                Console.send(plugin, "Correct usage: change <player> <password>", Level.WARNING);
-            }*/
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
     }

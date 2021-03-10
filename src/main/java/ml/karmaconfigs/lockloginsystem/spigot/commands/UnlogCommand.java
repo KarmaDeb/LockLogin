@@ -55,7 +55,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
 
                 user.setLogStatus(false);
                 new StartCheck(player, CheckType.LOGIN);
-                user.send(messages.Prefix() + messages.UnLogged());
+                user.send(messages.prefix() + messages.unLogged());
             } else {
                 if (args.length == 1) {
                     Player target = plugin.getServer().getPlayer(args[0]);
@@ -79,26 +79,26 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
 
                                     targetUser.setLogStatus(false);
                                     new StartCheck(target, CheckType.LOGIN);
-                                    targetUser.send(messages.Prefix() + messages.ForcedUnLog(player));
-                                    user.send(messages.Prefix() + messages.ForcedUnLogAdmin(target));
+                                    targetUser.send(messages.prefix() + messages.forcedUnLog(player));
+                                    user.send(messages.prefix() + messages.forcedUnLogAdmin(target));
                                 } else {
-                                    user.send(messages.Prefix() + messages.TargetAccessError(target));
+                                    user.send(messages.prefix() + messages.targetAccessError(target));
                                 }
                             } else {
-                                user.send(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
+                                user.send(messages.prefix() + messages.permission(forceUnLog.getName()));
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.UnLog());
+                            user.send(messages.prefix() + messages.unLogin());
                         }
                     } else {
                         if (player.hasPermission(forceUnLog)) {
-                            user.send(messages.Prefix() + messages.ConnectionError(args[0]));
+                            user.send(messages.prefix() + messages.connectionError(args[0]));
                         } else {
-                            user.send(messages.Prefix() + messages.PermissionError(forceUnLog.getName()));
+                            user.send(messages.prefix() + messages.permission(forceUnLog.getName()));
                         }
                     }
                 } else {
-                    user.send(messages.Prefix() + messages.UnLog());
+                    user.send(messages.prefix() + messages.unLogin());
                 }
             }
         } else {
@@ -122,13 +122,13 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
 
                         targetUser.setLogStatus(false);
                         new StartCheck(target, CheckType.LOGIN);
-                        targetUser.send(messages.Prefix() + messages.ForcedUnLog("SERVER"));
-                        Console.send(messages.Prefix() + messages.ForcedUnLog(target));
+                        targetUser.send(messages.prefix() + messages.forcedUnLog("SERVER"));
+                        Console.send(messages.prefix() + messages.forcedUnLog(target));
                     } else {
-                        Console.send(messages.Prefix() + messages.TargetAccessError(target));
+                        Console.send(messages.prefix() + messages.targetAccessError(target));
                     }
                 } else {
-                    Console.send(messages.Prefix() + messages.ConnectionError(args[0]));
+                    Console.send(messages.prefix() + messages.connectionError(args[0]));
                 }
             } else {
                 Console.send(plugin, "Correct usage: unlog <player>", Level.WARNING);

@@ -5,6 +5,7 @@ import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
@@ -230,6 +231,32 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final int loginMaxTries() {
         return configuration.getInt("Login.MaxTries", 5);
+    }
+
+    public final CaptchaType getCaptchaType() {
+        String val = configuration.getString("Captcha.Mode", "COMPLEX");
+        assert val != null;
+
+        switch (val) {
+            case "SIMPLE":
+                return CaptchaType.SIMPLE;
+            case "COMPLEX":
+            default:
+                return CaptchaType.COMPLEX;
+        }
+    }
+
+    public final int getCaptchaTimeOut() {
+        return configuration.getInt("Captcha.TimeOut");
+    }
+
+    public final int getCaptchaLength() {
+        int val = configuration.getInt("Captcha.Length");
+
+        if (val >= 4 && val <= 8)
+            return val;
+        else
+            return 6;
     }
 
     public final int bfMaxTries() {

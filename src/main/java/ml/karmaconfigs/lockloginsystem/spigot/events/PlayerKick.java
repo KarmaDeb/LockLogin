@@ -63,17 +63,7 @@ public final class PlayerKick implements Listener, LockLoginSpigot, SpigotFiles 
 
             user.setLogStatus(false);
 
-            if (!user.isLogged()) {
-                if (user.isRegistered()) {
-                    if (config.blindLogin()) {
-                        user.removeBlindEffect(config.nauseaLogin());
-                    }
-                } else {
-                    if (config.blindRegister()) {
-                        user.removeBlindEffect(config.nauseaRegister());
-                    }
-                }
-            }
+            user.removeBlindEffect();
 
             if (player.hasMetadata("LockLoginUser")) {
                 player.removeMetadata("LockLoginUser", plugin);

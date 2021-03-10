@@ -50,10 +50,10 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                                         user.sendTitle("", "", 0, 5, 0);
                                         cancel();
                                     } else {
-                                        user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back), 0, 2, 0);
+                                        user.sendTitle(messages.registerTitle(back), messages.registerSubtitle(back), 0, 2, 0);
                                     }
                                 } else {
-                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.RegisterOut()), 20);
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.registerTimeOut()), 20);
                                     cancel();
                                 }
                                 back--;
@@ -80,18 +80,15 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                                         user.sendTitle("", "", 0, 5, 0);
                                         cancel();
                                     } else {
-                                        user.sendTitle(messages.LoginTitle(back), messages.LoginSubtitle(back), 0, 2, 0);
+                                        user.sendTitle(messages.loginTitle(back), messages.loginSubtitle(back), 0, 2, 0);
                                     }
                                 } else {
-                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.LoginOut()), 20);
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.kick(messages.loginTimeOut()), 20);
                                     cancel();
                                 }
                                 back--;
                             } else {
-                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> {
-                                    if (config.blindLogin())
-                                        user.removeBlindEffect(config.nauseaLogin());
-                                });
+                                plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, user::removeBlindEffect);
 
                                 cancel();
                             }
@@ -114,10 +111,10 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
         User user = new User(player);
         switch (type) {
             case LOGIN:
-                user.send(messages.Prefix() + messages.Login());
+                user.send(messages.prefix() + messages.login(user.getCaptcha()));
                 break;
             case REGISTER:
-                user.send(messages.Prefix() + messages.Register());
+                user.send(messages.prefix() + messages.register(user.getCaptcha()));
                 break;
         }
     }

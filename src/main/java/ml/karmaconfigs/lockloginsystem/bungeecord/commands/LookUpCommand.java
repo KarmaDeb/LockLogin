@@ -43,7 +43,7 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
 
             if (player.hasPermission(checkPlayerInfo)) {
                 if (args.length == 0) {
-                    user.Message(messages.Prefix() + messages.LookUpUsage());
+                    user.send(messages.prefix() + messages.lookupUsage());
                 } else {
                     if (args[0] != null) {
                         if (args.length == 1) {
@@ -58,7 +58,7 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
                             } catch (Throwable ignored) {
                             }
 
-                            OfflineUser off_user = new OfflineUser(target);
+                            OfflineUser off_user = new OfflineUser("", target, true);
                             if (off_user.exists()) {
                                 HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, player, off_user.getUUID());
 
@@ -66,21 +66,21 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
                                     dataSender.openLookupGUI(player, detected);
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.NeverPlayed(target));
+                                user.send(messages.prefix() + messages.unknownPlayer(target));
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.LookUpUsage());
+                            user.send(messages.prefix() + messages.lookupUsage());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.LookUpUsage());
+                        user.send(messages.prefix() + messages.lookupUsage());
                     }
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError(checkPlayerInfo));
+                user.send(messages.prefix() + messages.permission(checkPlayerInfo));
             }
         } else {
             if (args.length == 0) {
-                Console.send(messages.Prefix() + messages.LookUpUsage());
+                Console.send(messages.prefix() + messages.lookupUsage());
             } else {
                 if (args[0] != null) {
                     if (args.length == 1) {
@@ -95,7 +95,7 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
                         } catch (Throwable ignored) {
                         }
 
-                        OfflineUser off_user = new OfflineUser(target);
+                        OfflineUser off_user = new OfflineUser("", target, true);
                         if (off_user.exists()) {
                             HashSet<OfflineUser> detected = IPStorager.manager.getAlts(temp_module, null, off_user.getUUID());
 
@@ -108,13 +108,13 @@ public final class LookUpCommand extends Command implements LockLoginBungee, Bun
                                 }
                             }
                         } else {
-                            Console.send(messages.Prefix() + messages.NeverPlayed(target));
+                            Console.send(messages.prefix() + messages.unknownPlayer(target));
                         }
                     } else {
-                        Console.send(messages.Prefix() + messages.LookUpUsage());
+                        Console.send(messages.prefix() + messages.lookupUsage());
                     }
                 } else {
-                    Console.send(messages.Prefix() + messages.LookUpUsage());
+                    Console.send(messages.prefix() + messages.lookupUsage());
                 }
             }
         }

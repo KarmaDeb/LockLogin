@@ -33,7 +33,7 @@ public class PlayerRegisterEvent extends Event implements SpigotFiles {
      */
     public PlayerRegisterEvent(Player player) {
         this.player = player;
-        registerMessage = messages.Registered();
+        registerMessage = messages.registered();
     }
 
     public static HandlerList getHandlerList() {

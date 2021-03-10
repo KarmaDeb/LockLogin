@@ -14,6 +14,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.events.*;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.MySQLData;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager.LockLoginBungeeManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
@@ -115,17 +116,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
         FileCopy config = new FileCopy(plugin, "configs/config.yml");
         config.copy(config_file);
 
-        Configuration configuration = null;
-        try {
-            configuration = YamlConfiguration.getProvider(YamlConfiguration.class).load(config_file);
-        } catch (Throwable ignored) {
-        }
+        FileManager cfgManager = new FileManager("config.yml");
+        cfgManager.setInternal("configs/config.yml");
 
-        if (configuration != null) {
-            String random = StringUtils.randomString(5);
-            if (configuration.getString("serverName", "").isEmpty()) {
-                configuration.set("serverName", random);
-            }
+        if (cfgManager.getString("ServerName").replaceAll("\\s", "").isEmpty()) {
+            cfgManager.set("ServerName", StringUtils.randomString(8));
+            cfgManager.save();
         }
 
         ConfigGetter cfg = new ConfigGetter();
@@ -180,27 +176,31 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
         }
 
-        if (!msg_file.exists()) {
-            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+        if (msg_file.exists()) {
+            FileManager msgManager = new FileManager(msg_file.getName(), "lang");
+            msgManager.setInternal("messages/" + msg_file.getName());
 
-            if (creator.copy(msg_file)) {
-                logger.scheduleLog(Level.INFO, "Created lang file " + msg_file.getName());
+            if (!msgManager.getString("Login").contains("{captcha}") || !msgManager.getString("Register").contains("{captcha}")) {
+                msgManager.unset("Login");
+                msgManager.unset("Register");
+
+                msgManager.save();
             }
+        }
+
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName());
+        if (msg.copy(msg_file)) {
+            logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
         }
 
         if (cfg.accountSysValid()) {
             if (cfg.isMySQL()) {
                 setupMySQL();
             }
-        } else {
-            if (configuration != null) {
-                configuration.set("AccountSys", "File");
-            }
         }
 
         try {
             File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-
             FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
 
             allowedCMDs.copy(allowed_file);
@@ -233,8 +233,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
                     int smtp_port = mailer.getInt("SMTP.Port", 587);
                     boolean use_tls = mailer.getBoolean("SMTP.TLS", true);
 
-                    String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
-                    String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(configuration.getString("ServerName", StringUtils.randomString(8))));
+                    String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(cfgManager.getString("ServerName")));
+                    String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(cfgManager.getString("ServerName")));
 
                     File new_config = new File(plugin.getDataFolder().getParentFile() + File.separator + "LockLoginMailer", "config.yml");
                     if (!new_config.exists()) {
@@ -293,17 +293,11 @@ public final class PluginManagerBungee implements LockLoginBungee {
                         manager.loadPlugin(destJar);
                     }
                 }
+
+                Files.delete(mail.toPath());
             }
         } catch (Throwable ex) {
             ex.printStackTrace();
-        }
-
-        try {
-            YamlConfiguration.getProvider(YamlConfiguration.class).save(configuration, config_file);
-            config.copy(config_file);
-        } catch (Throwable e) {
-            logger.scheduleLog(Level.GRAVE, e);
-            logger.scheduleLog(Level.INFO, "Error while saving config file");
         }
     }
 
@@ -311,6 +305,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
      * Register the plugin commands
      */
     private void registerCommands() {
+        plugin.getProxy().getPluginManager().registerCommand(plugin, new CaptchaCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new RegisterCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new LoginCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new UnlogCommand());
@@ -470,7 +465,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                     data.fetch(Platform.BUNGEE);
 
                     if (data.getConnections() + 1 > config.accountsPerIP()) {
-                        user.Kick("&eLockLogin\n\n" + messages.MaxIp());
+                        user.kick("&eLockLogin\n\n" + messages.maxIP());
                     }
                 }
             } catch (Throwable e) {
@@ -482,7 +477,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
             user.checkServer();
             if (config.clearChat()) {
                 for (int i = 0; i < 150; i++) {
-                    user.Message(" ");
+                    user.send(" ");
                 }
             }
 
@@ -525,7 +520,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
             MessageGetter messages = new MessageGetter();
 
-            user.Message(messages.Prefix() + "&cPlugin update, your account have been un-auth to avoid errors, wait to 5 seconds before trying to logging again...");
+            user.send(messages.prefix() + "&cPlugin update, your account have been un-auth to avoid errors, wait to 5 seconds before trying to logging again...");
             BungeeSender dataSender = new BungeeSender();
             dataSender.sendAccountStatus(player);
         }

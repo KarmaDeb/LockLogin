@@ -37,6 +37,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
 public final class BungeeListener implements PluginMessageListener, LockLoginSpigot, SpigotFiles {
 
     public static Set<UUID> inventoryAccess = new HashSet<>();
+    public static Set<UUID> completeLogin = new HashSet<>();
 
     /**
      * When a plugin message is received
@@ -81,10 +82,13 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                             }.runTaskTimer(plugin, 0, 20);
 
                             if (value) {
+                                completeLogin.add(player.getUniqueId());
                                 if (config.TakeBack()) {
                                     LastLocation lastLoc = new LastLocation(player);
                                     user.teleport(lastLoc.getLastLocation());
                                 }
+                            } else {
+                                completeLogin.remove(player.getUniqueId());
                             }
                         }
                         break;
@@ -136,7 +140,7 @@ public final class BungeeListener implements PluginMessageListener, LockLoginSpi
                                 user.saveCurrentEffects();
                                 user.applyBlindEffect(nausea);
                             } else {
-                                user.removeBlindEffect(nausea);
+                                user.removeBlindEffect();
                             }
                         }
                         break;

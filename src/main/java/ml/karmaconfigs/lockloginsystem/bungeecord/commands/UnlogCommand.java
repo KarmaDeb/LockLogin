@@ -41,7 +41,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
             if (args.length == 0) {
                 user.setLogStatus(false);
                 new StartCheck(player, CheckType.LOGIN);
-                user.Message(messages.Prefix() + messages.UnLogged());
+                user.send(messages.prefix() + messages.unLogged());
 
                 dataSender.sendAccountStatus(player);
             } else {
@@ -56,8 +56,8 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                                 if (targetUser.isLogged() && !targetUser.isTempLog()) {
                                     targetUser.setLogStatus(false);
                                     new StartCheck(target, CheckType.LOGIN);
-                                    targetUser.Message(messages.Prefix() + messages.ForcedUnLog(player));
-                                    user.Message(messages.Prefix() + messages.ForcedUnLogAdmin(target));
+                                    targetUser.send(messages.prefix() + messages.forcedUnLogin(player));
+                                    user.send(messages.prefix() + messages.forcedUnLogAdmin(target));
 
                                     if (config.enableAuthLobby()) {
                                         if (lobbyCheck.authWorking()) {
@@ -67,23 +67,23 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
 
                                     dataSender.sendAccountStatus(target);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.TargetAccessError(target));
+                                    user.send(messages.prefix() + messages.targetAccessError(target));
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PermissionError(forceUnLog));
+                                user.send(messages.prefix() + messages.permission(forceUnLog));
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.UnLog());
+                            user.send(messages.prefix() + messages.unLog());
                         }
                     } else {
                         if (player.hasPermission(forceUnLog)) {
-                            user.Message(messages.Prefix() + messages.ConnectionError(args[0]));
+                            user.send(messages.prefix() + messages.connectionError(args[0]));
                         } else {
-                            user.Message(messages.Prefix() + messages.PermissionError(forceUnLog));
+                            user.send(messages.prefix() + messages.permission(forceUnLog));
                         }
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.UnLog());
+                    user.send(messages.prefix() + messages.unLog());
                 }
             }
         } else {
@@ -95,8 +95,8 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
                         targetUser.setLogStatus(false);
                         new StartCheck(target, CheckType.LOGIN);
-                        targetUser.Message(messages.Prefix() + messages.ForcedUnLog(config.serverName()));
-                        Console.send(messages.Prefix() + messages.ForcedUnLog(target));
+                        targetUser.send(messages.prefix() + messages.forcedUnLogin(config.serverName()));
+                        Console.send(messages.prefix() + messages.forcedUnLogin(target));
 
                         if (config.enableAuthLobby()) {
                             if (lobbyCheck.authWorking()) {
@@ -106,10 +106,10 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
 
                         dataSender.sendAccountStatus(target);
                     } else {
-                        Console.send(messages.Prefix() + messages.TargetAccessError(target));
+                        Console.send(messages.prefix() + messages.targetAccessError(target));
                     }
                 } else {
-                    Console.send(messages.Prefix() + messages.ConnectionError(args[0]));
+                    Console.send(messages.prefix() + messages.connectionError(args[0]));
                 }
             } else {
                 Console.send(plugin, "Correct usage: unlog <player>", Level.WARNING);

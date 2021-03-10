@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -65,34 +66,38 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                                 }
 
                                 user.setLogStatus(false);
-                                user.send(messages.Prefix() + messages.ChangeDone());
+                                user.send(messages.prefix() + messages.changeDone());
                                 new StartCheck(player, CheckType.LOGIN);
                             } else {
-                                user.send(messages.Prefix() + messages.PasswordMinChar());
+                                user.send(messages.prefix() + messages.passwordMinChar());
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.PasswordInsecure());
+                            user.send(messages.prefix() + messages.passwordInsecure());
 
-                            ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
+                            ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
                             json.setHoverText("&7Opens an url to a password-gen page");
                             json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
                             user.send(json.getComponent());
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.ChangeSame());
+                        user.send(messages.prefix() + messages.changeSame());
                     }
                 } else {
-                    user.send(messages.Prefix() + messages.ChangeError());
+                    user.send(messages.prefix() + messages.changeError());
                 }
             } else {
                 if (user.isLogged()) {
-                    user.send(messages.Prefix() + messages.ChangePass());
+                    user.send(messages.prefix() + messages.changePass());
                 } else {
-                    if (user.isRegistered()) {
-                        user.send(messages.Prefix() + messages.Login());
+                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                        if (user.isRegistered()) {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     } else {
-                        user.send(messages.Prefix() + messages.Register());
+                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                     }
                 }
             }

@@ -58,7 +58,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                             public void run() {
                                 if (passed_migration == max_migrations) {
                                     timer.cancel();
-                                    migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.Prefix() + messages.Migrated())));
+                                    migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.migrated())));
                                     migrating_owner = null;
                                 }
 
@@ -79,10 +79,10 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                 }
                             }
                         }, 0, 1000);
-                        user.Message(messages.Prefix() + messages.MigratingAll());
+                        user.send(messages.prefix() + messages.migratingAll());
 
                         for (String id : ids) {
-                            Utils sqlUUID = new Utils(id);
+                            Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
                             AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUNGEE);
                             migrate.start();
@@ -91,7 +91,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                         }
                     } else {
                         try {
-                            user.Message(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                            user.send(messages.prefix() + "&bTrying to establish a connection with MySQL");
                             MySQLData data = new MySQLData();
 
                             Bucket bucket = new Bucket(
@@ -106,7 +106,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
 
                             bucket.setOptions(data.getMaxConnections(), data.getMinConnections(), data.getTimeOut(), data.getLifeTime());
 
-                            user.Message(messages.Prefix() + messages.MigratingAll());
+                            user.send(messages.prefix() + messages.migratingAll());
                             bucket.prepareTables(data.ignoredColumns());
 
                             Utils sql = new Utils();
@@ -121,7 +121,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                 public void run() {
                                     if (passed_migration == max_migrations) {
                                         timer.cancel();
-                                        migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.Prefix() + messages.Migrated())));
+                                        migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.migrated())));
                                         migrating_owner = null;
                                     }
 
@@ -142,10 +142,10 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                     }
                                 }
                             }, 0, 1000);
-                            user.Message(messages.Prefix() + messages.MigratingAll());
+                            user.send(messages.prefix() + messages.migratingAll());
 
                             for (String id : ids) {
-                                Utils sqlUUID = new Utils(id);
+                                Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
                                 AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUNGEE);
                                 migrate.start();
@@ -153,14 +153,14 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                                 passed_migration = passed_migration + 1;
                             }
                         } catch (Throwable ex) {
-                            user.Message(messages.Prefix() + messages.MigrationConnectionError());
+                            user.send(messages.prefix() + messages.migrationConnectionError());
                         }
                     }
                 } else {
-                    user.Message(messages.Prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
+                    user.send(messages.prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError("locklogin.migrate"));
+                user.send(messages.prefix() + messages.permission("locklogin.migrate"));
             }
         } else {
             if (migrating_owner == null) {
@@ -176,15 +176,15 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                         public void run() {
                             if (passed_migration == max_migrations) {
                                 timer.cancel();
-                                migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.Prefix() + messages.Migrated())));
+                                migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.migrated())));
                                 migrating_owner = null;
                             }
                         }
                     }, 0, TimeUnit.SECONDS.toMillis(1));
-                    Console.send(messages.Prefix() + messages.MigratingAll());
+                    Console.send(messages.prefix() + messages.migratingAll());
 
                     for (String id : ids) {
-                        Utils sqlUUID = new Utils(id);
+                        Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
                         AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUNGEE);
                         migrate.start();
@@ -193,7 +193,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                     }
                 } else {
                     try {
-                        Console.send(messages.Prefix() + "&bTrying to establish a connection with MySQL");
+                        Console.send(messages.prefix() + "&bTrying to establish a connection with MySQL");
                         MySQLData data = new MySQLData();
 
                         Bucket bucket = new Bucket(
@@ -208,7 +208,7 @@ public final class MigrateCommand extends Command implements BungeeFiles {
 
                         bucket.setOptions(data.getMaxConnections(), data.getMinConnections(), data.getTimeOut(), data.getLifeTime());
 
-                        Console.send(messages.Prefix() + messages.MigratingAll());
+                        Console.send(messages.prefix() + messages.migratingAll());
                         bucket.prepareTables(data.ignoredColumns());
 
                         Utils sql = new Utils();
@@ -223,15 +223,15 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                             public void run() {
                                 if (passed_migration == max_migrations) {
                                     timer.cancel();
-                                    migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.Prefix() + messages.Migrated())));
+                                    migrating_owner.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.migrated())));
                                     migrating_owner = null;
                                 }
                             }
                         }, 0, TimeUnit.SECONDS.toMillis(0));
-                        Console.send(messages.Prefix() + messages.MigratingAll());
+                        Console.send(messages.prefix() + messages.migratingAll());
 
                         for (String id : ids) {
-                            Utils sqlUUID = new Utils(id);
+                            Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
                             AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUNGEE);
                             migrate.start();
@@ -239,11 +239,11 @@ public final class MigrateCommand extends Command implements BungeeFiles {
                             passed_migration = passed_migration + 1;
                         }
                     } catch (Throwable ex) {
-                        Console.send(messages.Prefix() + messages.MigrationConnectionError());
+                        Console.send(messages.prefix() + messages.migrationConnectionError());
                     }
                 }
             } else {
-                Console.send(messages.Prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
+                Console.send(messages.prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
             }
         }
     }

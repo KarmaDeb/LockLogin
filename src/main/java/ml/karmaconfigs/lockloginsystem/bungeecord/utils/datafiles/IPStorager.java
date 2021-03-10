@@ -8,9 +8,7 @@ import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -75,7 +73,7 @@ public final class IPStorager implements LockLoginBungee {
 
                         List<String> uuids = new_data.readFullFile();
 
-                        OfflineUser user = new OfflineUser(name);
+                        OfflineUser user = new OfflineUser("", name, true);
                         if (user.exists()) {
                             UUID uuid = user.getUUID();
 
@@ -278,7 +276,7 @@ public final class IPStorager implements LockLoginBungee {
 
                         for (String id : uuids) {
                             if (!added_uuids.contains(id)) {
-                                user = new OfflineUser(UUID.fromString(id));
+                                user = new OfflineUser(id, "", false);
 
                                 users.add(user);
                                 added_uuids.add(id);

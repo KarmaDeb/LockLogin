@@ -48,7 +48,7 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
             User user = new User(player);
 
             if (user.isRegistered()) {
-                user.send(messages.Prefix() + messages.AlreadyRegistered());
+                user.send(messages.prefix() + messages.alreadyRegistered());
             } else {
                 if (!user.isLogged()) {
                     if (args.length == 2) {
@@ -64,7 +64,7 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
 
                                     user.setPassword(password);
                                     user.setLogStatus(true);
-                                    user.send(messages.Prefix() + messages.Registered());
+                                    user.send(messages.prefix() + messages.registered());
 
                                     if (config.TakeBack()) {
                                         LastLocation lastLoc = new LastLocation(player);
@@ -74,29 +74,46 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
                                     player.setAllowFlight(user.hasFly());
 
                                     plugin.getServer().getPluginManager().callEvent(event);
-                                    if (config.blindRegister()) {
-                                        user.removeBlindEffect(config.nauseaRegister());
-                                    }
+                                    user.removeBlindEffect();
                                 } else {
-                                    user.send(messages.Prefix() + messages.PasswordMinChar());
+                                    user.send(messages.prefix() + messages.passwordMinChar());
                                 }
                             } else {
-                                user.send(messages.Prefix() + messages.PasswordInsecure());
+                                user.send(messages.prefix() + messages.passwordInsecure());
 
-                                ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
+                                ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
                                 json.setHoverText("&7Opens an url to a password-gen page");
                                 json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
                                 user.send(json.getComponent());
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.RegisterError());
+                            user.send(messages.prefix() + messages.registerError());
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.Register());
+                        if (args.length == 3) {
+                            if (user.hasCaptcha()) {
+                                try {
+                                    int code = Integer.parseInt(args[2]);
+
+                                    if (user.checkCaptcha(code)) {
+                                        user.send(messages.prefix() + messages.captchaValidated());
+                                        player.performCommand("register " + args[0] + " " + args[1]);
+                                    } else {
+                                        user.send(messages.prefix() + messages.invalidCaptcha());
+                                    }
+                                } catch (Throwable ex) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha());
+                                }
+                            } else {
+                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     }
                 } else {
-                    user.send(messages.Prefix() + messages.AlreadyRegistered());
+                    user.send(messages.prefix() + messages.alreadyRegistered());
                 }
             }
         } else {

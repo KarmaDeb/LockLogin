@@ -51,13 +51,15 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
                                     if (!user.isRegistered()) {
                                         dataSender.sendAccountStatus(p);
-                                        user.sendTitle(messages.RegisterTitle(back), messages.RegisterSubtitle(back));
+
+                                        if (!messages.registerTitle(back).isEmpty() || !messages.registerSubtitle(back).isEmpty())
+                                            user.sendTitle(messages.registerTitle(back), messages.registerSubtitle(back));
                                     } else {
                                         user.sendTitle("", "");
                                         task.cancel();
                                     }
                                 } else {
-                                    user.Kick("&eLockLogin\n\n" + messages.RegisterOut());
+                                    user.kick("&eLockLogin\n\n" + messages.registerTimeOut());
                                     task.cancel();
                                 }
                             } else {
@@ -84,13 +86,15 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
                                     if (!user.isLogged()) {
                                         dataSender.sendAccountStatus(p);
-                                        user.sendTitle(messages.LoginTitle(back), messages.LoginSubtitle(back));
+
+                                        if (!messages.loginTitle(back).isEmpty() || !messages.loginSubtitle(back).isEmpty())
+                                            user.sendTitle(messages.loginTitle(back), messages.loginSubtitle(back));
                                     } else {
                                         user.sendTitle("", "");
                                         task.cancel();
                                     }
                                 } else {
-                                    user.Kick("&eLockLogin\n\n" + messages.LoginOut());
+                                    user.kick("&eLockLogin\n\n" + messages.loginTimeOut());
                                     task.cancel();
                                 }
                                 back--;
@@ -119,10 +123,10 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
         User user = new User(player);
         switch (type) {
             case LOGIN:
-                user.Message(messages.Prefix() + messages.Login());
+                user.send(messages.prefix() + messages.login(user.getCaptcha()));
                 break;
             case REGISTER:
-                user.Message(messages.Prefix() + messages.Register());
+                user.send(messages.prefix() + messages.register(user.getCaptcha()));
                 break;
         }
     }

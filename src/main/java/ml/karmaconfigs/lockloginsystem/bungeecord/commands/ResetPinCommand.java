@@ -47,24 +47,24 @@ public final class ResetPinCommand extends Command implements LockLoginBungee, B
                                 if (new PasswordUtils(pin, user.getPin()).validate()) {
                                     user.removePin();
 
-                                    user.Message(messages.Prefix() + messages.PinSet("none"));
+                                    user.send(messages.prefix() + messages.pinSet("none"));
                                 } else {
-                                    user.Message(messages.Prefix() + messages.IncorrectPin());
+                                    user.send(messages.prefix() + messages.incorrectPin());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PinLength());
+                                user.send(messages.prefix() + messages.pinLength());
                             }
                         } catch (NumberFormatException e) {
-                            user.Message(messages.Prefix() + messages.ResetPin());
+                            user.send(messages.prefix() + messages.resetPin());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.ResetPin());
+                        user.send(messages.prefix() + messages.resetPin());
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.NoPin());
+                    user.send(messages.prefix() + messages.noPin());
                 }
             } else {
-                user.Message(messages.Prefix() + messages.PinDisabled());
+                user.send(messages.prefix() + messages.pinDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

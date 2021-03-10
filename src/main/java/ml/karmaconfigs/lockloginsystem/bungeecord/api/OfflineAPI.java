@@ -9,8 +9,6 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class OfflineAPI implements BungeeFiles {
 
     private final Module module;
@@ -42,7 +40,7 @@ public class OfflineAPI implements BungeeFiles {
             Utils utils = new Utils();
             return utils.fetchUUID(player);
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.getUUID().toString();
         }
     }
@@ -56,11 +54,12 @@ public class OfflineAPI implements BungeeFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+
+            utils = new Utils(player_uuid, player);
 
             return utils.has2fa();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.has2FA();
         }
     }
@@ -74,11 +73,11 @@ public class OfflineAPI implements BungeeFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+            utils = new Utils(player_uuid, player);
 
             return utils.userExists() && utils.getPassword() != null && !utils.getPassword().isEmpty();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.has2FA();
         }
     }
@@ -92,11 +91,11 @@ public class OfflineAPI implements BungeeFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+            utils = new Utils(player_uuid, player);
 
             return utils.getToken();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.getToken();
         }
     }
@@ -107,12 +106,11 @@ public class OfflineAPI implements BungeeFiles {
      * @return the online version of PlayerAPI
      */
     @Nullable
-    public final PlayerAPI getAPI() {
+    public final PlayerAPI getOnline() {
         ProxiedPlayer player_instance = LockLoginBungee.plugin.getProxy().getPlayer(getUUID());
 
-        if (player_instance != null) {
+        if (player_instance != null)
             return new PlayerAPI(module, player_instance);
-        }
 
         return null;
     }

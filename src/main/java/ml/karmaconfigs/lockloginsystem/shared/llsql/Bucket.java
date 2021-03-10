@@ -140,19 +140,21 @@ public final class Bucket {
     private static boolean insertColumn(String column, String type) {
         Connection connection = null;
         PreparedStatement statement = null;
+        boolean status = false;
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD " + column + " " + type);
             statement.executeUpdate();
 
-            return true;
+            status = true;
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while inserting column " + column, Level.INFO);
         } finally {
             close(connection, statement);
         }
-        return false;
+
+        return status;
     }
 
     /**
@@ -167,7 +169,6 @@ public final class Bucket {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("ALTER TABLE " + table + " DROP COLUMN " + column);
             statement.executeUpdate();
-
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while removing column " + column, Level.INFO);
@@ -184,17 +185,37 @@ public final class Bucket {
      */
     static boolean columnSet(String column) {
         Connection connection = null;
+        boolean value = false;
         try {
             connection = dataSource.getConnection();
             DatabaseMetaData md = connection.getMetaData();
             ResultSet rs = md.getColumns(null, null, table, column);
-            return rs.next();
+            value = rs.next();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while checking for column existence " + column, Level.INFO);
-            return false;
         } finally {
             close(connection, null);
+        }
+
+        return value;
+    }
+
+    static void setValueIfNotSet(final String targetColumn, final String whereColumn, final String targetValue, final String whereValue) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = Bucket.getBucket().getConnection();
+            statement = connection.prepareStatement("UPDATE " + table + " SET " + targetColumn + "=? WHERE " + whereColumn + "=?");
+
+            statement.setString(1, targetValue);
+            statement.setString(2, whereValue);
+            statement.executeUpdate();
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while updating " + targetColumn + " to " + targetValue + " where " + whereValue + " equals " + whereValue, Level.INFO);
+        } finally {
+            Bucket.close(connection, statement);
         }
     }
 
@@ -228,7 +249,7 @@ public final class Bucket {
         config.setPassword(password);
         config.setMinimumIdle(min);
         config.setMaximumPoolSize(max);
-        config.setMaxLifetime(lifetime * 1000L);
+        config.setIdleTimeout(lifetime * 1000L);
         config.setConnectionTimeout(timeout * 1000L);
         config.setConnectionTestQuery("SELECT 1");
         config.addDataSourceProperty("autoReconnect", true);
@@ -249,7 +270,6 @@ public final class Bucket {
             statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (PLAYER text, EMAIL text, UUID text, PASSWORD text, FAON boolean, GAUTH text, FLY boolean, PIN text)");
 
             statement.executeUpdate();
-
             removeAndRenameTables(ignored);
         } catch (Throwable e) {
             e.printStackTrace();

@@ -119,12 +119,12 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                 if (utils.validate()) {
                     if (user.has2FA()) {
-                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
+                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.gAuthInstructions());
                     } else {
-                        event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
+                        event.setAuthResult(EventAuthResult.SUCCESS, messages.prefix() + messages.logged(player));
                     }
                 } else {
-                    event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.IncorrectPin());
+                    event.setAuthResult(EventAuthResult.FAILED, messages.prefix() + messages.incorrectPin());
                 }
 
                 plugin.getServer().getPluginManager().callEvent(event);
@@ -144,8 +144,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                                 user.teleport(lastLoc.getLastLocation());
                             }
 
-                            if (config.blindLogin())
-                                user.removeBlindEffect(config.nauseaLogin());
+                            user.removeBlindEffect();
 
                             verified.add(player);
                             input.put(player, "/-/-/-/");
@@ -169,8 +168,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                                     user.teleport(lastLoc.getLastLocation());
                                 }
 
-                                if (config.blindLogin())
-                                    user.removeBlindEffect(config.nauseaLogin());
+                                user.removeBlindEffect();
 
                                 user.setTempLog(false);
                             }
@@ -195,7 +193,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                 input.put(player, "/-/-/-/");
             }
         } else {
-            user.send(messages.Prefix() + messages.PinLength());
+            user.send(messages.prefix() + messages.pinLength());
         }
     }
 

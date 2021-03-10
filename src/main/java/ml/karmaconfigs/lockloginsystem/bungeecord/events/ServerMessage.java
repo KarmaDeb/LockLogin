@@ -57,9 +57,9 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                         if (utils.validate()) {
                             valid_code = true;
                             if (user.has2FA()) {
-                                event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
+                                event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.gAuthInstructions());
                             } else {
-                                event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
+                                event.setAuthResult(EventAuthResult.SUCCESS, messages.prefix() + messages.logged(player));
                             }
                         } else {
                             event.setAuthResult(EventAuthResult.FAILED);
@@ -69,7 +69,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
 
                         switch (event.getAuthResult()) {
                             case SUCCESS:
-                                user.Message(event.getAuthMessage());
+                                user.send(event.getAuthMessage());
                                 if (valid_code) {
                                     user.setLogStatus(true);
                                     user.checkServer();
@@ -86,7 +86,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 }
                                 break;
                             case SUCCESS_TEMP:
-                                user.Message(event.getAuthMessage());
+                                user.send(event.getAuthMessage());
                                 if (valid_code) {
                                     user.setTempLog(true);
                                     dataSender.closePinGUI(player);
@@ -103,7 +103,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                 break;
                             case ERROR:
                             case WAITING:
-                                user.Message(event.getAuthMessage());
+                                user.send(event.getAuthMessage());
                                 break;
                         }
                     }

@@ -37,10 +37,10 @@ public final class ModuleListCommand extends Command implements BungeeFiles, Loc
             if (player.hasPermission("locklogin.modules")) {
                 dataSender.openModulesGUI(player);
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError("locklogin.modules"));
+                user.send(messages.prefix() + messages.permission("locklogin.modules"));
             }
         } else {
-            Console.send(messages.Prefix() + "&cNot done yet!");
+            Console.send(messages.prefix() + "&cNot done yet!");
         }
     }
 }

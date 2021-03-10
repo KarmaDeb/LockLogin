@@ -51,10 +51,10 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
 
                     sendData(player, tar);
                 } else {
-                    user.send(messages.Prefix() + messages.PlayerInfoUsage());
+                    user.send(messages.prefix() + messages.playerInfoUsage());
                 }
             } else {
-                user.send(messages.Prefix() + messages.PermissionError(checkPlayerInfo.getName()));
+                user.send(messages.prefix() + messages.permission(checkPlayerInfo.getName()));
             }
         } else {
             if (args.length == 1) {
@@ -62,7 +62,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
 
                 sendData(tar);
             } else {
-                Console.send(messages.Prefix() + messages.PlayerInfoUsage());
+                Console.send(messages.prefix() + messages.playerInfoUsage());
             }
         }
         return false;
@@ -117,48 +117,25 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
             user.send("&eGamemode&7: &f" + mode);
             user.send("&eServer&7: &f" + target.getServer().getName());
         } else {
-            if (config.isYaml()) {
-                OfflineUser targetUser = new OfflineUser(tName);
+            OfflineUser targetUser = new OfflineUser("", tName, true);
 
-                if (targetUser.exists()) {
-                    user.send("&eIP&7: &cDISCONNECTED");
-                    user.send("&eStatus&7: &cNot logged");
-                    user.send("&e2FA&7: " + String.valueOf(targetUser.has2FA()).replace("true", "&aYes")
-                            .replace("false", "&cNo"));
-                    if (targetUser.has2FA()) {
-                        if (targetUser.getToken().isEmpty()) {
-                            user.send("&eToken&7: &cNO GOOGLE TOKEN FOUND");
-                        } else {
-                            user.send("&eToken&7: &aTarget google token found");
-                        }
+            if (targetUser.exists()) {
+                user.send("&eIP&7: &cDISCONNECTED");
+                user.send("&eStatus&7: &cNot logged");
+                user.send("&e2FA&7: " + String.valueOf(targetUser.has2FA()).replace("true", "&aYes")
+                        .replace("false", "&cNo"));
+                if (targetUser.has2FA()) {
+                    if (targetUser.getToken().isEmpty()) {
+                        user.send("&eToken&7: &cNO GOOGLE TOKEN FOUND");
+                    } else {
+                        user.send("&eToken&7: &aTarget google token found");
                     }
-                    user.send("&eFly&7: &f" + targetUser.hasFly());
-                    user.send("&eGamemode&7: &cDISCONNECTED");
-                    user.send("&eServer&7: &cDISCONNECTED");
-                } else {
-                    user.send(messages.Prefix() + messages.NeverPlayed(tName));
                 }
+                user.send("&eFly&7: &f" + targetUser.hasFly());
+                user.send("&eGamemode&7: &cDISCONNECTED");
+                user.send("&eServer&7: &cDISCONNECTED");
             } else {
-                Utils utils = new Utils(getUUId(tName));
-
-                if (utils.userExists()) {
-                    user.send("&eIP&7: &cDISCONNECTED");
-                    user.send("&eStatus&7: &cNot logged");
-                    user.send("&e2FA&7: " + String.valueOf(utils.has2fa()).replace("true", "&aYes")
-                            .replace("false", "&cNo"));
-                    if (utils.has2fa()) {
-                        if (utils.getToken() != null && !utils.getToken().isEmpty()) {
-                            user.send("&eToken&7: &aTarget token found");
-                        } else {
-                            user.send("&eToken&7: &cNO TOKEN FOUND");
-                        }
-                    }
-                    user.send("&eFly&7: &f" + utils.hasFly());
-                    user.send("&eGamemode&7: &cDISCONNECTED");
-                    user.send("&eServer&7: &cDISCONNECTED");
-                } else {
-                    user.send(messages.Prefix() + messages.NeverPlayed(tName));
-                }
+                user.send(messages.prefix() + messages.unknownPlayer(tName));
             }
         }
     }
@@ -210,48 +187,25 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
             Console.send("&eGamemode&7: &f" + mode);
             Console.send("&eServer&7: &f" + target.getServer().getName());
         } else {
-            if (config.isYaml()) {
-                OfflineUser targetUser = new OfflineUser(tName);
+            OfflineUser targetUser = new OfflineUser("", tName, true);
 
-                if (targetUser.exists()) {
-                    Console.send("&eIP&7: &cDISCONNECTED");
-                    Console.send("&eStatus&7: &cNot logged");
-                    Console.send("&e2FA&7: " + String.valueOf(targetUser.has2FA()).replace("true", "&aYes")
-                            .replace("false", "&cNo"));
-                    if (targetUser.has2FA()) {
-                        if (targetUser.getToken().isEmpty()) {
-                            Console.send("&eToken&7: &cNO GOOGLE TOKEN FOUND");
-                        } else {
-                            Console.send("&eToken&7: &aTarget google token found");
-                        }
+            if (targetUser.exists()) {
+                Console.send("&eIP&7: &cDISCONNECTED");
+                Console.send("&eStatus&7: &cNot logged");
+                Console.send("&e2FA&7: " + String.valueOf(targetUser.has2FA()).replace("true", "&aYes")
+                        .replace("false", "&cNo"));
+                if (targetUser.has2FA()) {
+                    if (targetUser.getToken().isEmpty()) {
+                        Console.send("&eToken&7: &cNO GOOGLE TOKEN FOUND");
+                    } else {
+                        Console.send("&eToken&7: &aTarget google token found");
                     }
-                    Console.send("&eFly&7: &f" + targetUser.hasFly());
-                    Console.send("&eGamemode&7: &cDISCONNECTED");
-                    Console.send("&eServer&7: &cDISCONNECTED");
-                } else {
-                    Console.send(messages.Prefix() + messages.NeverPlayed(tName));
                 }
+                Console.send("&eFly&7: &f" + targetUser.hasFly());
+                Console.send("&eGamemode&7: &cDISCONNECTED");
+                Console.send("&eServer&7: &cDISCONNECTED");
             } else {
-                Utils utils = new Utils(getUUId(tName));
-
-                if (utils.userExists()) {
-                    Console.send("&eIP&7: &cDISCONNECTED");
-                    Console.send("&eStatus&7: &cNot logged");
-                    Console.send("&e2FA&7: " + String.valueOf(utils.has2fa()).replace("true", "&aYes")
-                            .replace("false", "&cNo"));
-                    if (utils.has2fa()) {
-                        if (utils.getToken() != null && !utils.getToken().isEmpty()) {
-                            Console.send("&eToken&7: &aTarget token found");
-                        } else {
-                            Console.send("&eToken&7: &cNO TOKEN FOUND");
-                        }
-                    }
-                    Console.send("&eFly&7: &f" + utils.hasFly());
-                    Console.send("&eGamemode&7: &cDISCONNECTED");
-                    Console.send("&eServer&7: &cDISCONNECTED");
-                } else {
-                    Console.send(messages.Prefix() + messages.NeverPlayed(tName));
-                }
+                Console.send(messages.prefix() + messages.unknownPlayer(tName));
             }
         }
     }

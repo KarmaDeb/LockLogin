@@ -44,7 +44,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             user.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
                             user.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         } else {
-                            user.send(messages.Prefix() + messages.PermissionError("locklogin.readversion"));
+                            user.send(messages.prefix() + messages.permission("locklogin.readversion"));
                         }
                         break;
                     case "--update":
@@ -86,7 +86,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                 user.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.PermissionError("locklogin.checkupdate"));
+                            user.send(messages.prefix() + messages.permission("locklogin.checkupdate"));
                         }
                         break;
                     case "--forceupdate":
@@ -133,15 +133,15 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                                 user.send("&cWoah! Are you sure is LockLogin outdated?");
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.PermissionError("locklogin.forceupdate"));
+                            user.send(messages.prefix() + messages.permission("locklogin.forceupdate"));
                         }
                         break;
                     default:
-                        user.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                        user.send(messages.prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
                         break;
                 }
             } else {
-                user.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                user.send(messages.prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
             }
         } else {
             if (args.length == 1) {
@@ -241,11 +241,11 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                         }
                         break;
                     default:
-                        Console.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                        Console.send(messages.prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
                         break;
                 }
             } else {
-                Console.send(messages.Prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
+                Console.send(messages.prefix() + "&cPlease specify a command arg &7( &e--version&f, &e--update &7)");
             }
         }
 

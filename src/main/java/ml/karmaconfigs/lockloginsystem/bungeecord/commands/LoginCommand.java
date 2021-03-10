@@ -7,6 +7,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -46,124 +47,40 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
             User user = new User(player);
 
             if (!user.isRegistered()) {
-                user.Message(messages.Prefix() + messages.Register());
+                user.send(messages.prefix() + messages.register(user.getCaptcha()));
             } else {
                 if (!user.isLogged()) {
                     if (args.length == 1) {
-                        String password = args[0];
-                        PasswordUtils utils = new PasswordUtils(password, user.getPassword());
+                        if (!user.hasCaptcha()) {
+                            String password = args[0];
 
-                        BFSystem bf_prevention = new BFSystem(player.getPendingConnection().getVirtualHost().getAddress());
-
-                        PlayerAuthEvent event = new PlayerAuthEvent(AuthType.PASSWORD, EventAuthResult.WAITING, player, "");
-
-                        boolean valid_password = false;
-                        if (utils.validate()) {
-                            valid_password = true;
-                            if (user.hasPin()) {
-                                event.setAuthResult(EventAuthResult.SUCCESS_TEMP);
-                            } else {
-                                if (user.has2FA()) {
-                                    event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
-                                } else {
-                                    event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
-                                }
-                            }
+                            user.authPlayer(password);
                         } else {
-                            event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.LogError());
-                        }
-
-                        plugin.getProxy().getPluginManager().callEvent(event);
-
-                        switch (event.getAuthResult()) {
-                            case SUCCESS:
-                                user.Message(event.getAuthMessage());
-                                if (valid_password) {
-                                    bf_prevention.success();
-                                    user.setLogStatus(true);
-                                    user.checkServer();
-
-                                    dataSender.sendAccountStatus(player);
-                                } else {
-                                    logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
-                                }
-
-                                if (Passwords.isLegacySalt(user.getPassword())) {
-                                    user.setPassword(password);
-                                    user.Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
-                                } else {
-                                    if (utils.needsRehash(config.passwordEncryption())) {
-                                        user.setPassword(password);
-                                    }
-                                }
-                                break;
-                            case SUCCESS_TEMP:
-                                if (valid_password) {
-                                    bf_prevention.success();
-                                    user.setLogStatus(true);
-
-                                    if (Passwords.isLegacySalt(user.getPassword())) {
-                                        user.setPassword(password);
-                                        user.Message(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
-                                    } else {
-                                        if (utils.needsRehash(config.passwordEncryption())) {
-                                            user.setPassword(password);
-                                        }
-                                    }
-
-                                    user.setTempLog(true);
-                                    if (!user.hasPin()) {
-                                        user.Message(event.getAuthMessage());
-                                    } else {
-                                        dataSender.openPinGUI(player);
-                                    }
-                                } else {
-                                    logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
-                                    user.Message(event.getAuthMessage());
-                                }
-                                break;
-                            case FAILED:
-                                if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
-                                    bf_prevention.block();
-                                    bf_prevention.updateTime(config.bfBlockTime());
-
-                                    Timer unban = new Timer();
-                                    unban.schedule(new TimerTask() {
-                                        final BFSystem saved_system = bf_prevention;
-                                        int back = config.bfBlockTime();
-
-                                        @Override
-                                        public void run() {
-                                            if (back == 0) {
-                                                saved_system.unlock();
-                                                cancel();
-                                            }
-                                            saved_system.updateTime(back);
-                                            back--;
-                                        }
-                                    }, 0, TimeUnit.SECONDS.toMillis(1));
-
-                                    user.Kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
-                                }
-                                if (user.hasTries()) {
-                                    user.restTries();
-                                    user.Message(event.getAuthMessage());
-                                } else {
-                                    bf_prevention.fail();
-                                    user.delTries();
-                                    user.Kick("&eLockLogin\n\n" + messages.LogError());
-                                }
-                                break;
-                            case ERROR:
-                            case WAITING:
-                                user.Message(event.getAuthMessage());
-                                break;
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.Login());
+                        if (args.length == 2) {
+                            if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
+                                try {
+                                    int captcha = Integer.parseInt(args[1]);
+                                    if (user.checkCaptcha(captcha)) {
+                                        user.send(messages.prefix() + messages.captchaValidated());
+                                        user.authPlayer(args[0]);
+                                    } else {
+                                        user.send(messages.prefix() + messages.invalidCaptcha());
+                                    }
+                                } catch (Throwable ex) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha());
+                                }
+                            } else {
+                                user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        }
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.AlreadyLogged());
+                    user.send(messages.prefix() + messages.alreadyLogged());
                 }
             }
         } else {

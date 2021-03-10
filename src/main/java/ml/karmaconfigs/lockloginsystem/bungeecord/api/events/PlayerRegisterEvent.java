@@ -30,7 +30,7 @@ public class PlayerRegisterEvent extends Event implements BungeeFiles {
      */
     public PlayerRegisterEvent(ProxiedPlayer player) {
         this.player = player;
-        registerMessage = messages.Registered();
+        registerMessage = messages.registered();
     }
 
     /**

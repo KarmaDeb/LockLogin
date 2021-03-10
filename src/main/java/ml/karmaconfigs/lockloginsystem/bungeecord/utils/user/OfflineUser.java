@@ -25,31 +25,28 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginBungee, BungeeFiles {
 
-    private final Object finder;
+    private final String uuid;
+    private final String name;
     private FileManager manager = null;
     private Utils managerSQL = null;
 
     /**
-     * Initialize the offline player
-     * management
+     * Initialize the offline player management
      *
-     * @param name the player name
+     * @param uuid the player
+     * @param name the player uuid
      */
-    public OfflineUser(String name) {
-        this.finder = name;
-        checkFiles();
-    }
-
-    public OfflineUser(UUID uuid) {
-        this.finder = uuid;
-        checkFiles();
+    public OfflineUser(String uuid, String name, final boolean byName) {
+        this.uuid = uuid;
+        this.name = name;
+        checkFiles(byName);
     }
 
     /**
      * Check the files to search for specified player
      * file
      */
-    private void checkFiles() {
+    private void checkFiles(boolean byName) {
         if (config.isYaml()) {
             File folder = new File(plugin.getDataFolder() + "/playerdata");
 
@@ -62,19 +59,17 @@ public final class OfflineUser implements LockLoginBungee, BungeeFiles {
                             break;
 
                         String file_name = file.getName();
-                        if (finder instanceof UUID) {
-                            UUID uuid = (UUID) finder;
 
-                            String supposed_file = uuid.toString().replace("-", "") + ".yml";
+                        if (!byName) {
+                            String supposed_file = uuid.replace("-", "") + ".yml";
 
                             if (file_name.equals(supposed_file))
                                 manager = new FileManager(file_name, "playerdata");
                         } else {
-                            String name = String.valueOf(finder);
+                            FileManager temManager = new FileManager(file_name, "playerdata");
 
-                            FileManager current = new FileManager(file_name, "playerdata");
-                            if (current.getString("Player").equals(name))
-                                manager = current;
+                            if (temManager.getString("Player").equals(name))
+                                manager = temManager;
                         }
                     }
                 }
@@ -87,23 +82,12 @@ public final class OfflineUser implements LockLoginBungee, BungeeFiles {
                 if (managerSQL != null)
                     break;
 
-                Utils idUtils = new Utils(id);
-
-                if (finder instanceof UUID) {
-                    String finderId = finder.toString();
-                    if (id.equals(finderId)) {
+                Utils idUtils = new Utils(id, name);
+                if (idUtils.getName() != null && idUtils.getName().equals(name))
+                    managerSQL = idUtils;
+                else
+                    if (id.equals(uuid))
                         managerSQL = idUtils;
-                    } else {
-                        if (id.equals(finderId.replace("-", "")))
-                            managerSQL = idUtils;
-                    }
-                } else {
-                    String name = idUtils.getName();
-
-                    if (name != null)
-                        if (name.equals(String.valueOf(finder)))
-                            managerSQL = idUtils;
-                }
             }
         }
     }

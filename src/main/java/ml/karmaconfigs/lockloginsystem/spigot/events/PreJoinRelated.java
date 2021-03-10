@@ -47,11 +47,11 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                                 if (storager.hasAltAccounts(player.getUniqueId())) {
                                     for (Player online : plugin.getServer().getOnlinePlayers()) {
                                         if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(player.getUniqueId()))
-                                            user.send(messages.Prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId())));
+                                            user.send(messages.prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId())));
                                     }
                                 }
                             } else {
-                                user.kick("&eLockLogin\n\n" + messages.MaxRegisters());
+                                user.kick("&eLockLogin\n\n" + messages.maxRegisters());
                             }
                         } catch (Throwable ignored) {
                         }
@@ -62,7 +62,7 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                         data.fetch(Platform.SPIGOT);
 
                         if (data.getConnections() > config.AccountsPerIp()) {
-                            user.kick("&eLockLogin\n\n" + messages.MaxIp());
+                            user.kick("&eLockLogin\n\n" + messages.maxIp());
                         } else {
                             if (!player.isBanned()) {
                                 data.addIP();
@@ -78,33 +78,33 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                             }
                         }
 
-                        Utils sql = new Utils(player.getUniqueId());
-                        sql.createUser();
-
                         String UUID = player.getUniqueId().toString().replace("-", "");
-
                         FileManager manager = new FileManager(UUID + ".yml", "playerdata");
+                        Utils sql = new Utils(player.getUniqueId(), plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+
                         manager.setInternal("auto-generated/userTemplate.yml");
 
                         if (manager.getManaged().exists()) {
+                            if (!sql.userExists())
+                                sql.createUser();
+
+                            if (sql.getName() == null || sql.getName().isEmpty())
+                                sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
                                 if (manager.isSet("Password")) {
                                     if (!manager.isEmpty("Password")) {
                                         AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
                                         migrate.start();
 
-                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);
                                         manager.delete();
                                     }
                                 }
                             }
                         }
-
-                        if (sql.getName() == null || sql.getName().isEmpty())
-                            sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
-                    } else {
-                        user.setupFile();
                     }
+                    //user.setupFile()
                 });
             }
         }

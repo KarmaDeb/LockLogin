@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
@@ -45,12 +46,16 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
 
             if (args.length == 0) {
                 if (user.isLogged()) {
-                    user.send(messages.Prefix() + messages.DelAccount());
+                    user.send(messages.prefix() + messages.deleteAccount());
                 } else {
-                    if (user.isRegistered()) {
-                        user.send(messages.Prefix() + messages.Login());
+                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                        if (user.isRegistered()) {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     } else {
-                        user.send(messages.Prefix() + messages.Register());
+                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                     }
                 }
             } else {
@@ -78,24 +83,24 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                 targetUser.remove();
                                 targetUser.setLogStatus(false);
                                 targetUser.setTempLog(false);
-                                targetUser.send(messages.Prefix() + messages.ForcedDelAccount(player));
-                                user.send(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
+                                targetUser.send(messages.prefix() + messages.forceDelAccount(player));
+                                user.send(messages.prefix() + messages.forceDelAccountAdmin(target));
                                 new StartCheck(target, CheckType.REGISTER);
                             } else {
-                                user.send(messages.Prefix() + messages.DelAccount());
+                                user.send(messages.prefix() + messages.deleteAccount());
                             }
                         } else {
-                            OfflineUser targetUser = new OfflineUser(tar);
+                            OfflineUser targetUser = new OfflineUser("", tar, true);
 
                             if (targetUser.exists()) {
                                 targetUser.delete();
-                                user.send(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
+                                user.send(messages.prefix() + messages.forceDelAccountAdmin(tar));
                             } else {
-                                user.send(messages.Prefix() + messages.NeverPlayed(tar));
+                                user.send(messages.prefix() + messages.unknownPlayer(tar));
                             }
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.PermissionError(forceDel.getName()));
+                        user.send(messages.prefix() + messages.permission(forceDel.getName()));
                     }
                 } else {
                     if (args.length == 2) {
@@ -119,16 +124,16 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
 
                                 user.remove();
                                 user.setLogStatus(false);
-                                user.send(messages.Prefix() + messages.AccountDeleted());
+                                user.send(messages.prefix() + messages.accountDeleted());
                                 new StartCheck(player, CheckType.REGISTER);
                             } else {
-                                user.send(messages.Prefix() + messages.DelAccountError());
+                                user.send(messages.prefix() + messages.deleteAccError());
                             }
                         } else {
-                            user.send(messages.Prefix() + messages.DelAccountMatch());
+                            user.send(messages.prefix() + messages.deleteAccMatch());
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.DelAccount());
+                        user.send(messages.prefix() + messages.deleteAccount());
                     }
                 }
             }
@@ -153,17 +158,17 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
 
                     targetUser.remove();
                     targetUser.setLogStatus(false);
-                    targetUser.send(messages.Prefix() + messages.ForcedDelAccount("SERVER"));
-                    Console.send(messages.Prefix() + messages.ForcedDelAccountAdmin(target));
+                    targetUser.send(messages.prefix() + messages.forceDelAccount("SERVER"));
+                    Console.send(messages.prefix() + messages.forceDelAccountAdmin(target));
                     new StartCheck(target, CheckType.REGISTER);
                 } else {
-                    OfflineUser targetUser = new OfflineUser(tar);
+                    OfflineUser targetUser = new OfflineUser("", tar, true);
 
                     if (targetUser.exists()) {
                         targetUser.delete();
-                        Console.send(messages.Prefix() + messages.ForcedDelAccountAdmin(tar));
+                        Console.send(messages.prefix() + messages.forceDelAccountAdmin(tar));
                     } else {
-                        Console.send(messages.Prefix() + messages.NeverPlayed(tar));
+                        Console.send(messages.prefix() + messages.unknownPlayer(tar));
                     }
                 }
             } else {

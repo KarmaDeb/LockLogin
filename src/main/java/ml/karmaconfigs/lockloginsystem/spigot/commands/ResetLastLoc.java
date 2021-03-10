@@ -41,21 +41,21 @@ public final class ResetLastLoc implements CommandExecutor, LockLoginSpigot, Spi
 
             if (player.hasPermission(resetLastLoc)) {
                 if (args.length == 0) {
-                    user.send(messages.Prefix() + messages.RestLastLocUsage());
+                    user.send(messages.prefix() + messages.resetLastLocUsage());
                 } else {
                     if (args[0].equalsIgnoreCase("all") || args[0].equalsIgnoreCase("@me")) {
                         if (args[0].equalsIgnoreCase("all")) {
                             FileManager manager = new FileManager("locations.yml", "userdata");
                             manager.delete();
 
-                            user.send(messages.Prefix() + messages.LocationsReset());
+                            user.send(messages.prefix() + messages.locationsReseted());
                         }
                         if (args[0].equalsIgnoreCase("@me")) {
                             LastLocation lastLocation = new LastLocation(player);
 
                             lastLocation.removeLocation();
 
-                            user.send(messages.Prefix() + messages.LocationReset(player));
+                            user.send(messages.prefix() + messages.locationReseted(player));
                         } else {
                             String target = args[0];
 
@@ -68,35 +68,35 @@ public final class ResetLastLoc implements CommandExecutor, LockLoginSpigot, Spi
                                 if (plugin.getServer().getPlayer(target) != null) {
                                     Player tar = plugin.getServer().getPlayer(target);
 
-                                    user.send(messages.Prefix() + messages.LocationReset(tar));
+                                    user.send(messages.prefix() + messages.locationReseted(tar));
                                 } else {
-                                    user.send(messages.Prefix() + messages.LocationReset(target));
+                                    user.send(messages.prefix() + messages.locationReseted(target));
                                 }
                             } else {
                                 if (plugin.getServer().getPlayer(target) != null) {
                                     Player tar = plugin.getServer().getPlayer(target);
 
-                                    user.send(messages.Prefix() + messages.NoLastLocation(tar));
+                                    user.send(messages.prefix() + messages.noLastLocation(tar));
                                 } else {
-                                    user.send(messages.Prefix() + messages.NoLastLocation(target));
+                                    user.send(messages.prefix() + messages.noLastLocation(target));
                                 }
                             }
                         }
                     }
                 }
             } else {
-                user.send(messages.Prefix() + messages.PermissionError(resetLastLoc.getName()));
+                user.send(messages.prefix() + messages.permission(resetLastLoc.getName()));
             }
         } else {
             if (args.length == 0) {
-                Console.send(messages.Prefix() + messages.RestLastLocUsage());
+                Console.send(messages.prefix() + messages.resetLastLocUsage());
             } else {
                 if (args[0].equalsIgnoreCase("all") || args[0].equalsIgnoreCase("@me")) {
                     if (args[0].equalsIgnoreCase("all")) {
                         FileManager manager = new FileManager("locations.yml", "userdata");
                         manager.delete();
 
-                        Console.send(messages.Prefix() + messages.LocationsReset());
+                        Console.send(messages.prefix() + messages.locationsReseted());
                     }
                     if (args[0].equalsIgnoreCase("@me")) {
                         Console.send(plugin, "Console server doesn't have last location!", Level.GRAVE);
@@ -112,17 +112,17 @@ public final class ResetLastLoc implements CommandExecutor, LockLoginSpigot, Spi
                             if (plugin.getServer().getPlayer(target) != null) {
                                 Player tar = plugin.getServer().getPlayer(target);
 
-                                Console.send(messages.Prefix() + messages.LocationReset(tar));
+                                Console.send(messages.prefix() + messages.locationReseted(tar));
                             } else {
-                                Console.send(messages.Prefix() + messages.LocationReset(target));
+                                Console.send(messages.prefix() + messages.locationReseted(target));
                             }
                         } else {
                             if (plugin.getServer().getPlayer(target) != null) {
                                 Player tar = plugin.getServer().getPlayer(target);
 
-                                Console.send(messages.Prefix() + messages.NoLastLocation(tar));
+                                Console.send(messages.prefix() + messages.noLastLocation(tar));
                             } else {
-                                Console.send(messages.Prefix() + messages.NoLastLocation(target));
+                                Console.send(messages.prefix() + messages.noLastLocation(target));
                             }
                         }
                     }

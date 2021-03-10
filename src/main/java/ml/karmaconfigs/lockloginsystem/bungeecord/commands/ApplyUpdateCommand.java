@@ -37,7 +37,7 @@ public final class ApplyUpdateCommand extends Command implements BungeeFiles {
                 LockLoginBungeeManager b_manager = new LockLoginBungeeManager();
                 b_manager.applyUpdate(user);
             } else {
-                user.Message(messages.Prefix() + messages.PermissionError("locklogin.applyupdates"));
+                user.send(messages.prefix() + messages.permission("locklogin.applyupdates"));
             }
         } else {
             LockLoginBungeeManager b_manager = new LockLoginBungeeManager();

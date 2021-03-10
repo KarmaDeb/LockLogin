@@ -6,6 +6,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerRegisterEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import net.md_5.bungee.api.CommandSender;
@@ -40,7 +41,7 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
             User user = new User(player);
 
             if (user.isRegistered()) {
-                user.Message(messages.Prefix() + messages.AlreadyRegistered());
+                user.send(messages.prefix() + messages.alreadyRegister());
             } else {
                 if (!user.isLogged()) {
                     if (args.length == 2) {
@@ -52,7 +53,7 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
                                 if (password.length() >= 4) {
                                     user.setPassword(password);
                                     user.setLogStatus(true);
-                                    user.Message(messages.Prefix() + messages.Registered());
+                                    user.send(messages.prefix() + messages.registered());
                                     user.checkServer();
 
                                     dataSender.sendAccountStatus(player);
@@ -61,25 +62,44 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
 
                                     plugin.getProxy().getPluginManager().callEvent(registerEvent);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.PasswordMinChar());
+                                    user.send(messages.prefix() + messages.passwordMinChar());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.PasswordInsecure());
+                                user.send(messages.prefix() + messages.passwordInsecure());
 
-                                ComponentMaker json = new ComponentMaker(messages.Prefix() + " &bClick here to generate a secure password");
+                                ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
                                 json.setHoverText("&7Opens an url to a password-gen page");
                                 json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
 
-                                user.Message(json.getComponent());
+                                user.send(json.getComponent());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.RegisterError());
+                            user.send(messages.prefix() + messages.registerError());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.Register());
+                        if (args.length == 3) {
+                            if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
+                                try {
+                                    int captcha = Integer.parseInt(args[2]);
+
+                                    if (user.checkCaptcha(captcha)) {
+                                        user.send(messages.prefix() + messages.captchaValidated());
+                                        player.chat("/register " + args[0] + " " + args[1]);
+                                    } else {
+                                        user.send(messages.prefix() + messages.invalidCaptcha());
+                                    }
+                                } catch (Throwable ex) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha());
+                                }
+                            } else {
+                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.AlreadyRegistered());
+                    user.send(messages.prefix() + messages.alreadyRegister());
                 }
             }
         } else {

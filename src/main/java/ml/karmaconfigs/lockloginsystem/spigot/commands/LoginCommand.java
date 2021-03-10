@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
@@ -44,19 +45,41 @@ public final class LoginCommand implements CommandExecutor, LockLoginSpigot, Spi
 
             if (user.isRegistered() && !user.isLogged()) {
                 if (args.length == 1) {
-                    String password = args[0];
+                    if (!user.hasCaptcha()) {
+                        String password = args[0];
 
-                    user.authPlayer(password);
+                        user.authPlayer(password);
+                    } else {
+                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                    }
                 } else {
-                    user.send(messages.Prefix() + messages.Login());
+                    if (args.length == 2) {
+                        if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
+                            try {
+                                int captcha = Integer.parseInt(args[1]);
+                                if (user.checkCaptcha(captcha)) {
+                                    user.send(messages.prefix() + messages.captchaValidated());
+                                    user.authPlayer(args[0]);
+                                } else {
+                                    user.send(messages.prefix() + messages.invalidCaptcha());
+                                }
+                            } catch (Throwable ex) {
+                                user.send(messages.prefix() + messages.invalidCaptcha());
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                        }
+                    } else {
+                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                    }
                 }
             } else {
                 switch (String.valueOf(user.isRegistered())) {
                     case "true":
-                        user.send(messages.Prefix() + messages.AlreadyLogged());
+                        user.send(messages.prefix() + messages.alreadyLogged());
                         break;
                     case "false":
-                        user.send(messages.Prefix() + messages.Register());
+                        user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         break;
                 }
             }

@@ -12,6 +12,7 @@ import net.md_5.bungee.config.YamlConfiguration;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -94,179 +95,217 @@ public final class MessageGetter implements LockLoginBungee {
             loaded = manager.reload();
     }
 
-    public final String Prefix() {
+    public final String prefix() {
         return messages.getString("Prefix");
     }
 
-    public final String AlreadyPlaying() {
+    public final String alreadyPlaying() {
         return messages.getString("AlreadyPlaying");
     }
 
-    public final String Login() {
-        return messages.getString("Login");
+    public final String captcha(final int code) {
+        return Objects.requireNonNull(messages.getString("Captcha")).replace("{captcha}", String.valueOf(code));
     }
 
-    public final String Logged(ProxiedPlayer player) {
+    public final String typeCaptcha(final int code) {
+        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", String.valueOf(code));
+    }
+
+    public final String captchaTimeOut() {
+        return messages.getString("CaptchaTimeOut");
+    }
+
+    public final String specifyCaptcha() {
+        return messages.getString("SpecifyCaptcha");
+    }
+
+    public final String captchaValidated() {
+        return messages.getString("CaptchaValidated");
+    }
+
+    public final String invalidCaptcha() {
+        return messages.getString("InvalidCaptcha");
+    }
+
+    public final String invalidCaptcha(final String arguments) {
+        return Objects.requireNonNull(messages.getString("InvalidCaptchaArguments")).replace("{arguments}", arguments);
+    }
+
+    public final String alreadyCaptcha() {
+        return messages.getString("AlreadyCaptcha");
+    }
+
+    public final String login(final int captcha) {
+        if (captcha > 0)
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", String.valueOf(captcha));
+        else
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
+    }
+
+    public final String logged(ProxiedPlayer player) {
         return messages.getString("Logged").replace("{player}", player.getName());
     }
 
-    public final String AlreadyLogged() {
+    public final String alreadyLogged() {
         return messages.getString("AlreadyLogged");
     }
 
-    public final String LogError() {
+    public final String logError() {
         return messages.getString("LogError");
     }
 
-    public final String Register() {
-        return messages.getString("Register");
+    public final String register(final int captcha) {
+        if (captcha > 0)
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", String.valueOf(captcha));
+        else
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "");
     }
 
-    public final String Registered() {
+    public final String registered() {
         return messages.getString("Registered");
     }
 
-    public final String AlreadyRegistered() {
+    public final String alreadyRegister() {
         return messages.getString("AlreadyRegistered");
     }
 
-    public final String RegisterError() {
+    public final String registerError() {
         return messages.getString("RegisterError");
     }
 
-    public final String PasswordInsecure() {
+    public final String passwordInsecure() {
         return messages.getString("PasswordInsecure");
     }
 
-    public final String PasswordMinChar() {
+    public final String passwordMinChar() {
         return messages.getString("PasswordMinChar");
     }
 
-    public final String ChangePass() {
+    public final String changePass() {
         return messages.getString("ChangePass");
     }
 
-    public final String ChangeError() {
+    public final String changeError() {
         return messages.getString("ChangeError");
     }
 
-    public final String ChangeSame() {
+    public final String changeSame() {
         return messages.getString("ChangeSame");
     }
 
-    public final String ChangeDone() {
+    public final String changeDone() {
         return messages.getString("ChangeDone");
     }
 
-    public final String Reset2Fa() {
+    public final String reset2FA() {
         return messages.getString("Reset2Fa");
     }
 
-    public final String ReseatedFA() {
+    public final String reseted2FA() {
         return messages.getString("ReseatedFA");
     }
 
-    public final String Enable2FA() {
+    public final String enable2FA() {
         return messages.getString("Enable2FA");
     }
 
-    public final String ToggleFAError() {
+    public final String toggle2FAError() {
         return messages.getString("ToggleFAError");
     }
 
-    public final String Disabled2FA() {
+    public final String disabled2FA() {
         return messages.getString("Disabled2FA");
     }
 
-    public final String GAuthDisabled() {
+    public final String gAuthDisabled() {
         return messages.getString("2FADisabled");
     }
 
-    public final String LoginOut() {
+    public final String loginTimeOut() {
         return messages.getString("LoginOut");
     }
 
-    public final String RegisterOut() {
+    public final String registerTimeOut() {
         return messages.getString("RegisterOut");
     }
 
-    public final String MaxIp() {
+    public final String maxIP() {
         return messages.getString("MaxIp");
     }
 
-    public final String LoginTitle(int TimeLeft) {
+    public final String loginTitle(int TimeLeft) {
         return messages.getString("LoginTitle").replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String LoginSubtitle(int TimeLeft) {
+    public final String loginSubtitle(int TimeLeft) {
         return messages.getString("LoginSubtitle").replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String RegisterTitle(int TimeLeft) {
+    public final String registerTitle(int TimeLeft) {
         return messages.getString("RegisterTitle").replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String RegisterSubtitle(int TimeLeft) {
+    public final String registerSubtitle(int TimeLeft) {
         return messages.getString("RegisterSubtitle").replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String UnLog() {
+    public final String unLog() {
         return messages.getString("UnLog");
     }
 
-    public final String UnLogged() {
+    public final String unLogged() {
         return messages.getString("UnLogged");
     }
 
-    public final String DelAccount() {
+    public final String delAccount() {
         return messages.getString("DelAccount");
     }
 
-    public final String DelAccountError() {
+    public final String delAccError() {
         return messages.getString("DelAccountError");
     }
 
-    public final String DelAccountMatch() {
+    public final String delAccMatch() {
         return messages.getString("DelAccountMatch");
     }
 
-    public final String AccountDeleted() {
+    public final String accountDeleted() {
         return messages.getString("AccountDeleted").replace("{newline}", "\n");
     }
 
-    public final String ForcedUnLog(ProxiedPlayer admin) {
+    public final String forcedUnLogin(ProxiedPlayer admin) {
         return messages.getString("ForcedUnLog").replace("{player}", admin.getDisplayName());
     }
 
-    public final String ForcedUnLog(String admin) {
+    public final String forcedUnLogin(String admin) {
         return messages.getString("ForcedUnLog").replace("{player}", admin);
     }
 
-    public final String ForcedUnLogAdmin(ProxiedPlayer target) {
+    public final String forcedUnLogAdmin(ProxiedPlayer target) {
         return messages.getString("ForcedUnLogAdmin").replace("{player}", target.getDisplayName());
     }
 
-    public final String ForcedDelAccount(ProxiedPlayer admin) {
+    public final String forcedDelAccount(ProxiedPlayer admin) {
         return messages.getString("ForcedDelAccount").replace("{newline}", "\n").replace("{player}", admin.getDisplayName());
     }
 
-    public final String ForcedDelAccount(String admin) {
+    public final String forcedDelAccount(String admin) {
         return messages.getString("ForcedDelAccount").replace("{newline}", "\n").replace("{player}", admin);
     }
 
-    public final String ForcedDelAccountAdmin(ProxiedPlayer target) {
+    public final String forcedDelAccAdmin(ProxiedPlayer target) {
         return messages.getString("ForcedDelAccountAdmin").replace("{player}", target.getDisplayName());
     }
 
-    public final String ForcedDelAccountAdmin(String target) {
+    public final String forcedDelAccAdmin(String target) {
         return messages.getString("ForcedDelAccountAdmin").replace("{player}", target);
     }
 
-    public final String GAuthLink() {
+    public final String gAuthLink() {
         return messages.getString("2FaLink");
     }
 
-    public final String GAuthInstructions() {
+    public final String gAuthInstructions() {
         List<String> msg = messages.getStringList("2FaInstructions");
         List<String> replace = new ArrayList<>();
 
@@ -288,7 +327,7 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace-two}", "]");
     }
 
-    public final String gAuthAuthenticate() {
+    public final String gAuthenticate() {
         return messages.getString("2FaAuthenticate");
     }
 
@@ -300,43 +339,43 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("2FaCorrect");
     }
 
-    public final String AlreadyFA() {
+    public final String already2FA() {
         return messages.getString("2FaAlready");
     }
 
-    public final String PermissionError(String permission) {
+    public final String permission(String permission) {
         return messages.getString("PermissionError").replace("{permission}", permission);
     }
 
-    public final String ConnectionError(String player) {
+    public final String connectionError(String player) {
         return messages.getString("ConnectionError").replace("{player}", player);
     }
 
-    public final String NeverPlayed(String player) {
+    public final String unknownPlayer(String player) {
         return messages.getString("NeverPlayed").replace("{player}", player);
     }
 
-    public final String TargetAccessError(ProxiedPlayer player) {
+    public final String targetAccessError(ProxiedPlayer player) {
         return messages.getString("TargetAccessError").replace("{player}", player.getName());
     }
 
-    public final String Migrating(String UUID) {
+    public final String migrating(String UUID) {
         return messages.getString("Migrating").replace("{uuid}", UUID);
     }
 
-    public final String MigratingAll() {
+    public final String migratingAll() {
         return messages.getString("MigratingAll");
     }
 
-    public final String Migrated() {
+    public final String migrated() {
         return messages.getString("Migrated");
     }
 
-    public final String MigrationConnectionError() {
+    public final String migrationConnectionError() {
         return messages.getString("MigrationConnectionError");
     }
 
-    public final String PlayerInfoUsage() {
+    public final String playerInfoUsage() {
         return messages.getString("PlayerInfoUsage");
     }
 
@@ -344,7 +383,7 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("AltFound").replace("{player}", name).replace("{alts}", String.valueOf(amount));
     }
 
-    public final String MaxRegisters() {
+    public final String maxRegisters() {
         List<String> replaced = messages.getStringList("MaxRegisters");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
@@ -362,11 +401,11 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace_comma}", ",");
     }
 
-    public final String LookUpUsage() {
+    public final String lookupUsage() {
         return messages.getString("LookUpUsage");
     }
 
-    public final String IllegalName(String characters) {
+    public final String illegalName(String characters) {
         List<String> msg = messages.getStringList("IllegalName");
         List<String> replace = new ArrayList<>();
 
@@ -390,35 +429,35 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace_comma_gray}", "&7,");
     }
 
-    public final String PinSet(Object pin) {
+    public final String pinSet(Object pin) {
         return messages.getString("PinSet").replace("{pin}", pin.toString());
     }
 
-    public final String AlreadyPin() {
+    public final String alreadyPin() {
         return messages.getString("AlreadyPin");
     }
 
-    public final String NoPin() {
+    public final String noPin() {
         return messages.getString("NoPin");
     }
 
-    public final String PinUsage() {
+    public final String pinUsage() {
         return messages.getString("SetPin");
     }
 
-    public final String ResetPin() {
+    public final String resetPin() {
         return messages.getString("ResetPin");
     }
 
-    public final String PinDisabled() {
+    public final String pinDisabled() {
         return messages.getString("PinDisabled");
     }
 
-    public final String PinLength() {
+    public final String pinLength() {
         return messages.getString("PinLength");
     }
 
-    public final String IncorrectPin() {
+    public final String incorrectPin() {
         return messages.getString("IncorrectPin");
     }
 

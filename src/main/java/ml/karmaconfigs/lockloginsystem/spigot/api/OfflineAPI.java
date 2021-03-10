@@ -9,8 +9,6 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.OfflineUser;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.UUID;
-
 public class OfflineAPI implements SpigotFiles {
 
     private final Module module;
@@ -42,7 +40,7 @@ public class OfflineAPI implements SpigotFiles {
             Utils utils = new Utils();
             return utils.fetchUUID(player);
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.getUUID().toString();
         }
     }
@@ -56,11 +54,11 @@ public class OfflineAPI implements SpigotFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+            utils = new Utils(player_uuid, player);
 
             return utils.has2fa();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.has2FA();
         }
     }
@@ -74,11 +72,11 @@ public class OfflineAPI implements SpigotFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+            utils = new Utils(player_uuid, player);
 
             return utils.userExists() && utils.getPassword() != null && !utils.getPassword().isEmpty();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.has2FA();
         }
     }
@@ -92,11 +90,11 @@ public class OfflineAPI implements SpigotFiles {
         if (config.isMySQL()) {
             Utils utils = new Utils();
             String player_uuid = utils.fetchUUID(player);
-            utils = new Utils(player_uuid);
+            utils = new Utils(player_uuid, player);
 
             return utils.getToken();
         } else {
-            OfflineUser user = new OfflineUser(player);
+            OfflineUser user = new OfflineUser("", player, true);
             return user.getToken();
         }
     }

@@ -1,5 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
@@ -10,6 +11,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -32,19 +34,40 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
         User user = new User(player);
 
         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-            if (!player.hasMetadata("LockLoginUser")) {
+            if (!player.hasMetadata("LockLoginUser"))
                 player.setMetadata("LockLoginUser", new FixedMetadataValue(plugin, player.getUniqueId()));
-            }
 
-            if (config.ClearChat()) {
-                for (int i = 0; i < 150; i++) {
+            if (config.ClearChat())
+                for (int i = 0; i < 150; i++)
                     player.sendMessage(" ");
-                }
-            }
 
             user.setLogStatus(false);
-            user.checkStatus();
 
+            user.genCaptcha();
+            if (config.getCaptchaType().equals(CaptchaType.COMPLEX)) {
+                if (config.getCaptchaTimeOut() > 0)
+                    new BukkitRunnable() {
+                        int back = config.getCaptchaTimeOut();
+                        @Override
+                        public void run() {
+                            if (back == 0) {
+                                cancel();
+                                user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
+                            } else {
+                                if (back % 5 == 0 || back % 10 == 0)
+                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                            }
+                            if (!user.hasCaptcha())
+                                cancel();
+
+                            back--;
+                        }
+                    }.runTaskTimer(plugin, 0, 20);
+            } else {
+                user.checkStatus();
+            }
+
+            
             if (config.enableSpawn()) {
                 if (player.isDead())
                     plugin.getServer().getScheduler().runTask(plugin, player.spigot()::respawn);

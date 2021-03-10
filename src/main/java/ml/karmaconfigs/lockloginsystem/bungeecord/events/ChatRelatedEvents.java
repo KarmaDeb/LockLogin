@@ -5,6 +5,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.BungeeSender;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -81,48 +82,57 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
         String cmd = getCommand(e.getMessage());
 
         if (e.getMessage().startsWith("/")) {
-            if (!user.isLogged()) {
-                if (!user.isRegistered()) {
-                    if (!cmd.equals("register") && !cmd.equals("reg")) {
-                        e.setCancelled(true);
-                        user.Message(messages.Prefix() + messages.Register());
+            if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                if (!user.isLogged()) {
+                    if (!user.isRegistered()) {
+                        if (!cmd.equals("register") && !cmd.equals("reg")) {
+                            e.setCancelled(true);
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                        }
+                    } else {
+                        if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
+                            if (!cmd.equals("login") && !cmd.equals("l")) {
+                                e.setCancelled(true);
+                                user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                            }
+                        }
                     }
                 } else {
-                    if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
-                        if (!cmd.equals("login") && !cmd.equals("l")) {
-                            e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.Login());
+                    if (user.isTempLog()) {
+                        if (user.hasPin()) {
+                            dataSender.openPinGUI(player);
+                        }
+                        if (user.has2FA()) {
+                            if (!cmd.equals("2fa")) {
+                                e.setCancelled(true);
+                                user.send(messages.prefix() + messages.gAuthenticate());
+                            }
                         }
                     }
                 }
             } else {
-                if (user.isTempLog()) {
-                    if (user.hasPin()) {
-                        dataSender.openPinGUI(player);
-                    }
-                    if (user.has2FA()) {
-                        if (!cmd.equals("2fa")) {
-                            e.setCancelled(true);
-                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                        }
-                    }
-                }
+                if (!cmd.equals("captcha"))
+                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
             }
         } else {
-            if (!user.isLogged()) {
-                e.setCancelled(true);
-                if (!user.isRegistered()) {
-                    user.Message(messages.Prefix() + messages.Register());
-                } else {
-                    user.Message(messages.Prefix() + messages.Login());
-                }
-            } else {
-                if (user.isTempLog()) {
+            if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                if (!user.isLogged()) {
                     e.setCancelled(true);
-                    if (user.has2FA()) {
-                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                    if (!user.isRegistered()) {
+                        user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                    } else {
+                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                    }
+                } else {
+                    if (user.isTempLog()) {
+                        e.setCancelled(true);
+                        if (user.has2FA()) {
+                            user.send(messages.prefix() + messages.gAuthenticate());
+                        }
                     }
                 }
+            } else {
+                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
             }
         }
     }

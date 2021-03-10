@@ -75,7 +75,6 @@ public final class MessageGetter implements LockLoginSpigot {
         }
 
         if (!msg_file.exists()) {
-            System.out.println(msg_file.getName());
             FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
 
             if (creator.copy(msg_file)) {
@@ -97,183 +96,221 @@ public final class MessageGetter implements LockLoginSpigot {
             loaded = manager.reload();
     }
 
-    public final String Prefix() {
+    public final String prefix() {
         return messages.getString("Prefix");
     }
 
-    public final String NotVerified(Player target) {
+    public final String notVerified(Player target) {
         return Objects.requireNonNull(messages.getString("PlayerNotVerified")).replace("{player}", target.getName());
     }
 
-    public final String AlreadyPlaying() {
+    public final String alreadyPlaying() {
         return messages.getString("AlreadyPlaying");
     }
 
-    public final String Login() {
-        return messages.getString("Login");
+    public final String captcha(final int code) {
+        return Objects.requireNonNull(messages.getString("Captcha")).replace("{captcha}", String.valueOf(code));
     }
 
-    public final String Logged(Player player) {
+    public final String typeCaptcha(final int code) {
+        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", String.valueOf(code));
+    }
+
+    public final String captchaTimeOut() {
+        return messages.getString("CaptchaTimeOut");
+    }
+
+    public final String specifyCaptcha() {
+        return messages.getString("SpecifyCaptcha");
+    }
+
+    public final String captchaValidated() {
+        return messages.getString("CaptchaValidated");
+    }
+
+    public final String invalidCaptcha() {
+        return messages.getString("InvalidCaptcha");
+    }
+
+    public final String invalidCaptcha(final String arguments) {
+        return Objects.requireNonNull(messages.getString("InvalidCaptchaArguments")).replace("{arguments}", arguments);
+    }
+
+    public final String alreadyCaptcha() {
+        return messages.getString("AlreadyCaptcha");
+    }
+
+    public final String login(final int captcha) {
+        if (captcha > 0)
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", String.valueOf(captcha));
+        else
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
+    }
+
+    public final String logged(Player player) {
         return Objects.requireNonNull(messages.getString("Logged")).replace("{player}", player.getName());
     }
 
-    public final String AlreadyLogged() {
+    public final String alreadyLogged() {
         return messages.getString("AlreadyLogged");
     }
 
-    public final String LogError() {
+    public final String logError() {
         return messages.getString("LogError");
     }
 
-    public final String Register() {
-        return messages.getString("Register");
+    public final String register(final int captcha) {
+        if (captcha > 0)
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", String.valueOf(captcha));
+        else
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "");
     }
 
-    public final String Registered() {
+    public final String registered() {
         return messages.getString("Registered");
     }
 
-    public final String AlreadyRegistered() {
+    public final String alreadyRegistered() {
         return messages.getString("AlreadyRegistered");
     }
 
-    public final String RegisterError() {
+    public final String registerError() {
         return messages.getString("RegisterError");
     }
 
-    public final String PasswordInsecure() {
+    public final String passwordInsecure() {
         return messages.getString("PasswordInsecure");
     }
 
-    public final String PasswordMinChar() {
+    public final String passwordMinChar() {
         return messages.getString("PasswordMinChar");
     }
 
-    public final String ChangePass() {
+    public final String changePass() {
         return messages.getString("ChangePass");
     }
 
-    public final String ChangeError() {
+    public final String changeError() {
         return messages.getString("ChangeError");
     }
 
-    public final String ChangeSame() {
+    public final String changeSame() {
         return messages.getString("ChangeSame");
     }
 
-    public final String ChangeDone() {
+    public final String changeDone() {
         return messages.getString("ChangeDone");
     }
 
-    public final String Reset2Fa() {
+    public final String reset2FA() {
         return messages.getString("Reset2Fa");
     }
 
-    public final String ReseatedFA() {
+    public final String reseted2FA() {
         return messages.getString("ReseatedFA");
     }
 
-    public final String Enable2FA() {
+    public final String enable2FA() {
         return messages.getString("Enable2FA");
     }
 
-    public final String ToggleFAError() {
+    public final String toggle2FAError() {
         return messages.getString("ToggleFAError");
     }
 
-    public final String Disabled2FA() {
+    public final String disabled2FA() {
         return messages.getString("Disabled2FA");
     }
 
-    public final String GAuthDisabled() {
+    public final String gAuthDisabled() {
         return messages.getString("2FADisabled");
     }
 
-    public final String LoginOut() {
+    public final String loginTimeOut() {
         return messages.getString("LoginOut");
     }
 
-    public final String RegisterOut() {
+    public final String registerTimeOut() {
         return messages.getString("RegisterOut");
     }
 
-    public final String MaxIp() {
+    public final String maxIp() {
         return messages.getString("MaxIp");
     }
 
-    public final String LoginTitle(int TimeLeft) {
+    public final String loginTitle(int TimeLeft) {
         return Objects.requireNonNull(messages.getString("LoginTitle")).replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String LoginSubtitle(int TimeLeft) {
+    public final String loginSubtitle(int TimeLeft) {
         return Objects.requireNonNull(messages.getString("LoginSubtitle")).replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String RegisterTitle(int TimeLeft) {
+    public final String registerTitle(int TimeLeft) {
         return Objects.requireNonNull(messages.getString("RegisterTitle")).replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String RegisterSubtitle(int TimeLeft) {
+    public final String registerSubtitle(int TimeLeft) {
         return Objects.requireNonNull(messages.getString("RegisterSubtitle")).replace("{time}", String.valueOf(TimeLeft));
     }
 
-    public final String UnLog() {
+    public final String unLogin() {
         return messages.getString("UnLog");
     }
 
-    public final String UnLogged() {
+    public final String unLogged() {
         return messages.getString("UnLogged");
     }
 
-    public final String DelAccount() {
+    public final String deleteAccount() {
         return messages.getString("DelAccount");
     }
 
-    public final String DelAccountError() {
+    public final String deleteAccError() {
         return messages.getString("DelAccountError");
     }
 
-    public final String DelAccountMatch() {
+    public final String deleteAccMatch() {
         return messages.getString("DelAccountMatch");
     }
 
-    public final String AccountDeleted() {
+    public final String accountDeleted() {
         return Objects.requireNonNull(messages.getString("AccountDeleted")).replace("{newline}", "\n");
     }
 
-    public final String ForcedUnLog(Player admin) {
+    public final String forcedUnLog(Player admin) {
         return Objects.requireNonNull(messages.getString("ForcedUnLog")).replace("{player}", admin.getDisplayName());
     }
 
-    public final String ForcedUnLog(String admin) {
+    public final String forcedUnLog(String admin) {
         return Objects.requireNonNull(messages.getString("ForcedUnLog")).replace("{player}", admin);
     }
 
-    public final String ForcedUnLogAdmin(Player target) {
+    public final String forcedUnLogAdmin(Player target) {
         return Objects.requireNonNull(messages.getString("ForcedUnLogAdmin")).replace("{player}", target.getDisplayName());
     }
 
-    public final String ForcedDelAccount(Player admin) {
+    public final String forceDelAccount(Player admin) {
         return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{newline}", "\n").replace("{player}", admin.getDisplayName());
     }
 
-    public final String ForcedDelAccount(String admin) {
+    public final String forceDelAccount(String admin) {
         return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{newline}", "\n").replace("{player}", admin);
     }
 
-    public final String ForcedDelAccountAdmin(Player target) {
+    public final String forceDelAccountAdmin(Player target) {
         return Objects.requireNonNull(messages.getString("ForcedDelAccountAdmin")).replace("{player}", target.getDisplayName());
     }
 
-    public final String ForcedDelAccountAdmin(String target) {
+    public final String forceDelAccountAdmin(String target) {
         return Objects.requireNonNull(messages.getString("ForcedDelAccountAdmin")).replace("{player}", target);
     }
 
-    public final String GAuthLink() {
+    public final String gAuthLink() {
         return messages.getString("2FaLink");
     }
 
-    public final String GAuthInstructions() {
+    public final String gAuthInstructions() {
         List<String> msg = messages.getStringList("2FaInstructions");
         List<String> replace = new ArrayList<>();
 
@@ -307,75 +344,75 @@ public final class MessageGetter implements LockLoginSpigot {
         return messages.getString("2FaCorrect");
     }
 
-    public final String AlreadyFA() {
+    public final String already2FA() {
         return messages.getString("2FaAlready");
     }
 
-    public final String PermissionError(String permission) {
+    public final String permission(String permission) {
         return Objects.requireNonNull(messages.getString("PermissionError")).replace("{permission}", permission);
     }
 
-    public final String ConnectionError(String player) {
+    public final String connectionError(String player) {
         return Objects.requireNonNull(messages.getString("ConnectionError")).replace("{player}", player);
     }
 
-    public final String NeverPlayed(String player) {
+    public final String unknownPlayer(String player) {
         return Objects.requireNonNull(messages.getString("NeverPlayed")).replace("{player}", player);
     }
 
-    public final String TargetAccessError(Player player) {
+    public final String targetAccessError(Player player) {
         return Objects.requireNonNull(messages.getString("TargetAccessError")).replace("{player}", player.getName());
     }
 
-    public final String SpawnSet() {
+    public final String spawnSet() {
         return messages.getString("SpawnSet");
     }
 
-    public final String SpawnDisabled() {
+    public final String spawnDisabled() {
         return messages.getString("SpawnDisabled");
     }
 
-    public final String Migrating(String UUID) {
+    public final String migratingAccount(String UUID) {
         return Objects.requireNonNull(messages.getString("Migrating")).replace("{uuid}", UUID);
     }
 
-    public final String MigratingAll() {
+    public final String migratingAll() {
         return messages.getString("MigratingAll");
     }
 
-    public final String Migrated() {
+    public final String migrated() {
         return messages.getString("Migrated");
     }
 
-    public final String MigrationConnectionError() {
+    public final String migrationError() {
         return messages.getString("MigrationConnectionError");
     }
 
-    public final String LocationsReset() {
+    public final String locationsReseted() {
         return messages.getString("LocationsReset");
     }
 
-    public final String LocationReset(Player player) {
+    public final String locationReseted(Player player) {
         return Objects.requireNonNull(messages.getString("LocationReset")).replace("{player}", player.getName());
     }
 
-    public final String LocationReset(String player) {
+    public final String locationReseted(String player) {
         return Objects.requireNonNull(messages.getString("LocationReset")).replace("{player}", player);
     }
 
-    public final String NoLastLocation(Player player) {
+    public final String noLastLocation(Player player) {
         return Objects.requireNonNull(messages.getString("NoLastLocation")).replace("{player}", player.getName());
     }
 
-    public final String NoLastLocation(String player) {
+    public final String noLastLocation(String player) {
         return Objects.requireNonNull(messages.getString("NoLastLocation")).replace("{player}", player);
     }
 
-    public final String RestLastLocUsage() {
+    public final String resetLastLocUsage() {
         return messages.getString("RestLastLocUsage");
     }
 
-    public final String PlayerInfoUsage() {
+    public final String playerInfoUsage() {
         return messages.getString("PlayerInfoUsage");
     }
 
@@ -383,7 +420,7 @@ public final class MessageGetter implements LockLoginSpigot {
         return Objects.requireNonNull(messages.getString("AltFound")).replace("{player}", name).replace("{alts}", String.valueOf(amount));
     }
 
-    public final String MaxRegisters() {
+    public final String maxRegisters() {
         List<String> replaced = messages.getStringList("MaxRegisters");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
@@ -401,11 +438,11 @@ public final class MessageGetter implements LockLoginSpigot {
                 .replace("{replace_comma}", ",");
     }
 
-    public final String LookUpUsage() {
+    public final String lookupUsage() {
         return messages.getString("LookUpUsage");
     }
 
-    public final String IllegalName(String characters) {
+    public final String illegalName(String characters) {
         List<String> msg = messages.getStringList("IllegalName");
         List<String> replace = new ArrayList<>();
 
@@ -428,39 +465,39 @@ public final class MessageGetter implements LockLoginSpigot {
                 .replace("{replace-two}", "]");
     }
 
-    public final String PinSet(Object pin) {
+    public final String pinSet(Object pin) {
         return Objects.requireNonNull(messages.getString("PinSet")).replace("{pin}", pin.toString());
     }
 
-    public final String AlreadyPin() {
+    public final String alreadyPin() {
         return messages.getString("AlreadyPin");
     }
 
-    public final String NoPin() {
+    public final String noPin() {
         return messages.getString("NoPin");
     }
 
-    public final String PinUsage() {
+    public final String pinUsage() {
         return messages.getString("SetPin");
     }
 
-    public final String ResetPin() {
+    public final String resetPin() {
         return messages.getString("ResetPin");
     }
 
-    public final String PinDisabled() {
+    public final String pinDisabled() {
         return messages.getString("PinDisabled");
     }
 
-    public final String PinLength() {
+    public final String pinLength() {
         return messages.getString("PinLength");
     }
 
-    public final String IncorrectPin() {
+    public final String incorrectPin() {
         return messages.getString("IncorrectPin");
     }
 
-    public final String AntiBot() {
+    public final String antiBot() {
         ConfigGetter cfg = new ConfigGetter();
 
         List<String> replaced = messages.getStringList("AntiBot");
@@ -483,15 +520,22 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String ipBlocked(final long time) {
-        String format = "sec(s)";
-        int final_time = (int) time;
-        if (TimeUnit.SECONDS.toMinutes(time) >= 1 && TimeUnit.SECONDS.toMinutes(time) <= 59) {
-            format = "min(s)";
-            final_time = (int) TimeUnit.SECONDS.toMinutes(time);
+        long seconds = TimeUnit.SECONDS.toSeconds(time);
+        long minutes = TimeUnit.SECONDS.toMinutes(time);
+        long hours = TimeUnit.SECONDS.toHours(time);
+
+        String format;
+        long final_time;
+        if (seconds <= 59) {
+            format = "sec(s)";
+            final_time = seconds;
         } else {
-            if (TimeUnit.SECONDS.toHours(time) >= 1) {
-                format = "hour(s)";
-                final_time = (int) TimeUnit.SECONDS.toHours(time);
+            if (minutes <= 59) {
+                format = "min(s) and " + Math.abs((minutes * 60) - seconds) + " sec(s)";
+                final_time = minutes;
+            } else {
+                format = "hour(s) " + Math.abs((hours * 60) - minutes) + " min(s)";
+                final_time = hours;
             }
         }
 

@@ -7,6 +7,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -43,26 +44,30 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
             if (config.enable2FA()) {
                 if (args.length == 0) {
-                    if (user.isRegistered()) {
-                        if (user.isLogged()) {
-                            if (user.has2FA()) {
-                                if (user.isTempLog()) {
-                                    user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                } else {
-                                    user.Message(messages.Prefix() + messages.AlreadyFA());
-                                }
+                    if (user.isLogged()) {
+                        if (user.has2FA()) {
+                            if (user.isTempLog()) {
+                                user.send(messages.prefix() + messages.gAuthenticate());
                             } else {
-                                if (!user.isTempLog()) {
-                                    user.Message(messages.Prefix() + messages.Enable2FA());
-                                } else {
-                                    user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                }
+                                user.send(messages.prefix() + messages.already2FA());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.Login());
+                            if (!user.isTempLog()) {
+                                user.send(messages.prefix() + messages.enable2FA());
+                            } else {
+                                user.send(messages.prefix() + messages.gAuthenticate());
+                            }
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.Prefix());
+                        if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                            if (user.isRegistered()) {
+                                user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                            } else {
+                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        }
                     }
                 } else {
                     if (args.length == 1) {
@@ -75,12 +80,12 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                     int code = Integer.parseInt(args[0]);
                                     if (user.validateCode(code)) {
                                         valid_code = true;
-                                        event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.gAuthCorrect());
+                                        event.setAuthResult(EventAuthResult.SUCCESS, messages.prefix() + messages.gAuthCorrect());
                                     } else {
-                                        event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.gAuthIncorrect());
+                                        event.setAuthResult(EventAuthResult.FAILED, messages.prefix() + messages.gAuthIncorrect());
                                     }
                                 } catch (Throwable ex) {
-                                    event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.gAuthIncorrect());
+                                    event.setAuthResult(EventAuthResult.FAILED, messages.prefix() + messages.gAuthIncorrect());
                                 }
 
                                 plugin.getProxy().getPluginManager().callEvent(event);
@@ -88,7 +93,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                 switch (event.getAuthResult()) {
                                     case SUCCESS:
                                     case SUCCESS_TEMP:
-                                        user.Message(event.getAuthMessage());
+                                        user.send(event.getAuthMessage());
                                         if (valid_code) {
                                             user.setLogStatus(true);
                                             user.setTempLog(false);
@@ -103,20 +108,24 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                     case FAILED:
                                     case ERROR:
                                     case WAITING:
-                                        user.Message(event.getAuthMessage());
+                                        user.send(event.getAuthMessage());
                                         break;
                                 }
                             } else {
-                                if (!user.isLogged()) {
-                                    if (user.isRegistered()) {
-                                        user.Message(messages.Prefix() + messages.Login());
+                                if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                                    if (!user.isLogged()) {
+                                        if (user.isRegistered()) {
+                                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                                        } else {
+                                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                                        }
                                     } else {
-                                        user.Message(messages.Prefix() + messages.Register());
+                                        if (!user.isTempLog()) {
+                                            user.send(messages.prefix() + messages.already2FA());
+                                        }
                                     }
                                 } else {
-                                    if (!user.isTempLog()) {
-                                        user.Message(messages.Prefix() + messages.AlreadyFA());
-                                    }
+                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                                 }
                             }
                         } else {
@@ -132,27 +141,31 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                     user.setToken(token);
                                     user.setTempLog(true);
                                     user.set2FA(true);
-                                    user.Message(messages.Prefix() + messages.GAuthInstructions());
-                                    ComponentMaker json = new ComponentMaker(messages.GAuthLink());
+                                    user.send(messages.prefix() + messages.gAuthInstructions());
+                                    ComponentMaker json = new ComponentMaker(messages.gAuthLink());
                                     json.setHoverText("&aQR Code");
                                     json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, json.getURL(player, token)));
-                                    user.Message(json.getComponent());
+                                    user.send(json.getComponent());
 
                                     dataSender.sendAccountStatus(player);
                                 } else {
-                                    user.Message(messages.Prefix() + messages.ToggleFAError());
+                                    user.send(messages.prefix() + messages.toggle2FAError());
                                 }
                             } else {
-                                if (!user.isLogged()) {
-                                    if (user.isRegistered()) {
-                                        user.Message(messages.Prefix() + messages.Login());
+                                if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                                    if (!user.isLogged()) {
+                                        if (user.isRegistered()) {
+                                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                                        } else {
+                                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                                        }
                                     } else {
-                                        user.Message(messages.Prefix() + messages.Register());
+                                        if (user.isTempLog()) {
+                                            user.send(messages.prefix() + messages.gAuthenticate());
+                                        }
                                     }
                                 } else {
-                                    if (user.isTempLog()) {
-                                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                    }
+                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                                 }
                             }
                         }
@@ -169,59 +182,67 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                         if (utils.validate()) {
                                             if (user.validateCode(code)) {
                                                 user.set2FA(false);
-                                                user.Message(messages.Prefix() + messages.Disabled2FA());
+                                                user.send(messages.prefix() + messages.disabled2FA());
                                             } else {
-                                                user.Message(messages.Prefix() + messages.gAuthIncorrect());
+                                                user.send(messages.prefix() + messages.gAuthIncorrect());
                                             }
                                         } else {
-                                            user.Message(messages.Prefix() + messages.ToggleFAError());
+                                            user.send(messages.prefix() + messages.toggle2FAError());
                                         }
                                     } catch (NumberFormatException e) {
-                                        user.Message(messages.Prefix() + messages.gAuthIncorrect());
+                                        user.send(messages.prefix() + messages.gAuthIncorrect());
                                     }
                                 } else {
-                                    if (!user.isLogged()) {
-                                        if (user.isRegistered()) {
-                                            user.Message(messages.Prefix() + messages.Login());
+                                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                                        if (!user.isLogged()) {
+                                            if (user.isRegistered()) {
+                                                user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                                            } else {
+                                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                                            }
                                         } else {
-                                            user.Message(messages.Prefix() + messages.Register());
+                                            if (user.isTempLog()) {
+                                                user.send(messages.prefix() + messages.gAuthenticate());
+                                            }
                                         }
                                     } else {
-                                        if (user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                        }
+                                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
                                     }
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.Enable2FA());
+                                user.send(messages.prefix() + messages.enable2FA());
                             }
                         } else {
-                            if (user.isRegistered()) {
-                                if (user.isLogged()) {
-                                    if (user.has2FA()) {
-                                        if (user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                        } else {
-                                            user.Message(messages.Prefix() + messages.AlreadyFA());
-                                        }
+                            if (user.isLogged()) {
+                                if (user.has2FA()) {
+                                    if (user.isTempLog()) {
+                                        user.send(messages.prefix() + messages.gAuthenticate());
                                     } else {
-                                        if (!user.isTempLog()) {
-                                            user.Message(messages.Prefix() + messages.Enable2FA());
-                                        } else {
-                                            user.Message(messages.Prefix() + messages.gAuthAuthenticate());
-                                        }
+                                        user.send(messages.prefix() + messages.already2FA());
                                     }
                                 } else {
-                                    user.Message(messages.Prefix() + messages.Login());
+                                    if (!user.isTempLog()) {
+                                        user.send(messages.prefix() + messages.enable2FA());
+                                    } else {
+                                        user.send(messages.prefix() + messages.gAuthenticate());
+                                    }
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.Prefix());
+                                if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                                    if (user.isRegistered()) {
+                                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                                    } else {
+                                        user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                                    }
+                                } else {
+                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                }
                             }
                         }
                     }
                 }
             } else {
-                user.Message(messages.Prefix() + messages.GAuthDisabled());
+                user.send(messages.prefix() + messages.gAuthDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

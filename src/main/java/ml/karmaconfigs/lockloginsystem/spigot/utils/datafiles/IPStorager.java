@@ -83,7 +83,7 @@ public final class IPStorager implements LockLoginSpigot, SpigotFiles {
 
                         List<String> uuids = new_data.readFullFile();
 
-                        OfflineUser user = new OfflineUser(name);
+                        OfflineUser user = new OfflineUser("", name, true);
                         if (user.exists()) {
                             UUID uuid = user.getUUID();
 
@@ -305,7 +305,7 @@ public final class IPStorager implements LockLoginSpigot, SpigotFiles {
 
                         for (String id : uuids) {
                             if (!added_uuids.contains(id)) {
-                                user = new OfflineUser(UUID.fromString(id));
+                                user = new OfflineUser(id, "", false);
 
                                 users.add(user);
                                 added_uuids.add(id);

@@ -44,10 +44,11 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 public final class User implements LockLoginSpigot, SpigotFiles {
 
-    private final static HashMap<Player, Boolean> logStatus = new HashMap<>();
-    private final static HashMap<Player, Boolean> tempLog = new HashMap<>();
-    private final static HashMap<Player, Integer> playerTries = new HashMap<>();
-    private final static HashMap<Player, Collection<PotionEffect>> playerEffects = new HashMap<>();
+    private final static HashMap<UUID, Boolean> logStatus = new HashMap<>();
+    private final static HashMap<UUID, Boolean> tempLog = new HashMap<>();
+    private final static HashMap<UUID, Integer> playerTries = new HashMap<>();
+    private final static HashMap<UUID, Integer> playerCaptcha = new HashMap<>();
+    private final static HashMap<UUID, Collection<PotionEffect>> playerEffects = new HashMap<>();
 
     private final Player player;
 
@@ -94,13 +95,27 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Generate a captcha for the player
+     */
+    public final void genCaptcha() {
+        int captcha = StringUtils.randomNumber(config.getCaptchaLength());
+        playerCaptcha.put(player.getUniqueId(), captcha);
+
+        send(messages.prefix() + messages.captcha(captcha));
+    }
+
+    /**
      * Send a message to the player
      *
      * @param text the message
      */
     public final void send(String text) {
-        if (!text.replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
-            player.sendMessage(StringUtils.toColor(text));
+        if (!text.replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty()) {
+            if (!text.contains("\n"))
+                player.sendMessage(StringUtils.toColor(text));
+            else
+                send(Arrays.asList(text.split("\n")));
+        }
     }
 
     /**
@@ -120,7 +135,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param JSonMessage the json message
      */
     public final void send(TextComponent JSonMessage) {
-        if (!JSonMessage.getText().replace(messages.Prefix(), "").replaceAll("\\s", "").isEmpty())
+        if (!JSonMessage.getText().replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty())
             player.spigot().sendMessage(JSonMessage);
     }
 
@@ -162,7 +177,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param location the location
      */
     public final void teleport(Location location) {
-        plugin.getServer().getScheduler().scheduleSyncDelayedTask(plugin, () -> player.teleport(location));
+        plugin.getServer().getScheduler().runTask(plugin, () -> player.teleport(location));
     }
 
     /**
@@ -171,7 +186,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param reason the kick reason
      */
     public final void kick(String reason) {
-        player.kickPlayer(StringUtils.toColor(reason));
+        plugin.getServer().getScheduler().runTask(plugin, () -> player.kickPlayer(StringUtils.toColor(reason)));
     }
 
     /**
@@ -227,16 +242,16 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
             if (utils.validate()) {
                 if (hasPin()) {
-                    event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.Prefix() + messages.Logged(player));
+                    event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.prefix() + messages.logged(player));
                 } else {
                     if (has2FA()) {
-                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.GAuthInstructions());
+                        event.setAuthResult(EventAuthResult.SUCCESS_TEMP, messages.gAuthInstructions());
                     } else {
-                        event.setAuthResult(EventAuthResult.SUCCESS, messages.Prefix() + messages.Logged(player));
+                        event.setAuthResult(EventAuthResult.SUCCESS, messages.prefix() + messages.logged(player));
                     }
                 }
             } else {
-                event.setAuthResult(EventAuthResult.FAILED, messages.Prefix() + messages.LogError());
+                event.setAuthResult(EventAuthResult.FAILED, messages.prefix() + messages.logError());
             }
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
@@ -258,24 +273,24 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                                 send(event.getAuthMessage());
 
-                                if (config.TakeBack()) {
-                                    LastLocation lastLoc = new LastLocation(player);
-                                    teleport(lastLoc.getLastLocation());
-                                }
-
-                                if (config.blindLogin())
-                                    removeBlindEffect(config.nauseaLogin());
+                                plugin.getServer().getScheduler().runTask(plugin, () -> {
+                                    if (config.TakeBack()) {
+                                        LastLocation lastLoc = new LastLocation(player);
+                                        teleport(lastLoc.getLastLocation());
+                                    }
+                                });
+                                removeBlindEffect();
 
                                 if (Passwords.isLegacySalt(getPassword())) {
                                     setPassword(password);
-                                    send(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                    send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
                                 } else {
                                     if (utils.needsRehash(config.passwordEncryption())) {
                                         setPassword(password);
                                     }
                                 }
 
-                                player.setAllowFlight(hasFly());
+                                plugin.getServer().getScheduler().runTask(plugin, () -> player.setAllowFlight(hasFly()));
                             } else {
                                 logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                             }
@@ -286,7 +301,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                             setLogStatus(true);
                             if (Passwords.isLegacySalt(getPassword())) {
                                 setPassword(password);
-                                send(messages.Prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
                             } else {
                                 if (utils.needsRehash(config.passwordEncryption())) {
                                     setPassword(password);
@@ -336,7 +351,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                             if (!hasTries()) {
                                                 delTries();
                                                 bf_prevention.fail();
-                                                plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.LogError()));
+                                                plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.logError()));
                                                 return;
                                             }
                                             restTries();
@@ -378,7 +393,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                     if (!hasTries()) {
                                         delTries();
                                         bf_prevention.fail();
-                                        plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.LogError()));
+                                        plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.logError()));
                                         return;
                                     }
                                     restTries();
@@ -401,7 +416,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Rest a trie for the player
      */
     public final void restTries() {
-        playerTries.put(player, getTriesLeft() - 1);
+        playerTries.put(player.getUniqueId(), getTriesLeft() - 1);
     }
 
     /**
@@ -409,7 +424,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * left
      */
     public final void delTries() {
-        playerTries.remove(player);
+        playerTries.remove(player.getUniqueId());
     }
 
     /**
@@ -495,7 +510,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Save the player current effects
      */
     public final void saveCurrentEffects() {
-        playerEffects.putIfAbsent(player, player.getActivePotionEffects());
+        playerEffects.putIfAbsent(player.getUniqueId(), player.getActivePotionEffects());
     }
 
     /**
@@ -516,18 +531,14 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
     /**
      * Remove the user blind effects
-     *
-     * @param nausea remove nausea effect?
      */
-    public final void removeBlindEffect(boolean nausea) {
-        removeEffect(PotionEffectType.BLINDNESS);
-        removeEffect(PotionEffectType.NIGHT_VISION);
-        if (nausea) {
+    public final void removeBlindEffect() {
+        if (playerEffects.containsKey(player.getUniqueId())) {
+            removeEffect(PotionEffectType.BLINDNESS);
+            removeEffect(PotionEffectType.NIGHT_VISION);
             removeEffect(PotionEffectType.CONFUSION);
-        }
-        if (playerEffects.containsKey(player)) {
-            sendEffects(playerEffects.get(player));
-            playerEffects.remove(player);
+
+            sendEffects(playerEffects.remove(player.getUniqueId()));
         }
     }
 
@@ -546,7 +557,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             new StartCheck(player, checkType);
             switch (checkType) {
                 case REGISTER:
-                    send(messages.Prefix() + messages.Register());
+                    send(messages.prefix() + messages.register(getCaptcha()));
                     plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                         if (config.blindRegister()) {
                             saveCurrentEffects();
@@ -555,7 +566,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                     }, 5);
                     break;
                 case LOGIN:
-                    send(messages.Prefix() + messages.Login());
+                    send(messages.prefix() + messages.login(getCaptcha()));
                     plugin.getServer().getScheduler().runTaskLater(plugin, () -> {
                         if (config.blindLogin()) {
                             saveCurrentEffects();
@@ -602,6 +613,17 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             }
         }
         return plugin.getServer().getOfflinePlayer(player.getUniqueId()).getUniqueId();
+    }
+
+    public final boolean checkCaptcha(final int code) {
+        if (playerCaptcha.containsKey(player.getUniqueId()))
+            return code == playerCaptcha.remove(player.getUniqueId());
+
+        return false;
+    }
+
+    public final boolean hasCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), -1) > 0;
     }
 
     /**
@@ -701,7 +723,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @return if the player is logged
      */
     public final boolean isLogged() {
-        return logStatus.getOrDefault(player, false).equals(true);
+        return logStatus.getOrDefault(player.getUniqueId(), false).equals(true);
     }
 
     /**
@@ -711,7 +733,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @return if the player is logged
      */
     public final boolean getLogStatus() {
-        return logStatus.getOrDefault(player, false);
+        return logStatus.getOrDefault(player.getUniqueId(), false);
     }
 
     /**
@@ -720,7 +742,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param value true/false
      */
     public final void setLogStatus(boolean value) {
-        logStatus.put(player, value);
+        logStatus.put(player.getUniqueId(), value);
     }
 
     /**
@@ -730,10 +752,10 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean hasTries() {
         if (!config.isBungeeCord()) {
-            if (playerTries.containsKey(player)) {
-                return playerTries.get(player) != 0;
+            if (playerTries.containsKey(player.getUniqueId())) {
+                return playerTries.get(player.getUniqueId()) != 0;
             } else {
-                playerTries.put(player, config.loginMaxTries());
+                playerTries.put(player.getUniqueId(), config.loginMaxTries());
                 return true;
             }
         }
@@ -748,7 +770,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * For example, if he has 2Fa or pin
      */
     public final boolean isTempLog() {
-        return tempLog.getOrDefault(player, false);
+        return tempLog.getOrDefault(player.getUniqueId(), false);
     }
 
     /**
@@ -758,7 +780,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param value true/false
      */
     public final void setTempLog(boolean value) {
-        tempLog.put(player, value);
+        tempLog.put(player.getUniqueId(), value);
     }
 
     /**
@@ -917,7 +939,16 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * of the player
      */
     public final int getTriesLeft() {
-        return playerTries.getOrDefault(player, config.loginMaxTries());
+        return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
+    }
+
+    /**
+     * Get the player captcha
+     *
+     * @return the player captcha
+     */
+    public final int getCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), -1);
     }
 }
 

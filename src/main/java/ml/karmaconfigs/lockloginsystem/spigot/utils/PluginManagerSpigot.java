@@ -24,6 +24,7 @@ import ml.karmaconfigs.lockloginsystem.spigot.events.*;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.MySQLData;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.inventory.PinInventory;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.user.StartCheck;
@@ -144,43 +145,16 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * Setup the plugin files
      */
     public final void setupFiles() {
-        File login_alert = new File(plugin.getDataFolder() + File.separator + "mailer", "login_alert.html");
-        File password_recovery = new File(plugin.getDataFolder() + File.separator + "mailer", "password_recovery.html");
-
-        if (!login_alert.exists()) {
-            if (!login_alert.getParentFile().exists() && login_alert.getParentFile().mkdirs())
-                Console.send(plugin, "Created html templates folder for emails", Level.INFO);
-
-            InputStream stream = plugin.getResource("auto-generated/login_alert.html");
-            if (stream != null)
-                try {
-                    Files.copy(stream, login_alert.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (Throwable ignored) {
-                }
-        }
-
-        if (!password_recovery.exists()) {
-            if (!password_recovery.getParentFile().exists() && password_recovery.getParentFile().mkdirs())
-                Console.send(plugin, "Created html templates folder for emails", Level.INFO);
-
-            InputStream stream = plugin.getResource("auto-generated/password_recovery.html");
-            if (stream != null)
-                try {
-                    Files.copy(stream, password_recovery.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                } catch (Throwable ignored) {
-                }
-        }
-
         File config_file = new File(plugin.getDataFolder(), "config.yml");
         FileCopy config = new FileCopy(plugin, "configs/config_spigot.yml");
         config.copy(config_file);
 
-        YamlConfiguration cfg_yml = YamlConfiguration.loadConfiguration(config_file);
+        FileManager cfgManager = new FileManager("config.yml");
+        cfgManager.setInternal("configs/config_spigot.yml");
 
-        String random = StringUtils.randomString(5);
-
-        if (cfg_yml.getString("serverName", "").isEmpty()) {
-            cfg_yml.set("serverName", random);
+        if (cfgManager.getString("ServerName").replaceAll("\\s", "").isEmpty()) {
+            cfgManager.set("ServerName", StringUtils.randomString(8));
+            cfgManager.save();
         }
 
         ConfigGetter cfg = new ConfigGetter();
@@ -229,12 +203,9 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        if (!msg_file.exists()) {
-            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
-
-            if (creator.copy(msg_file)) {
-                logger.scheduleLog(Level.INFO, "Created lang file " + msg_file.getName());
-            }
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName());
+        if (msg.copy(msg_file)) {
+            logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
         }
 
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
@@ -246,8 +217,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             if (cfg.isMySQL()) {
                 setupMySQL();
             }
-        } else {
-            cfg_yml.set("AccountSys", "File");
         }
 
         File spawn_file = new File(plugin.getDataFolder(), "spawn.yml");
@@ -284,8 +253,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                         int smtp_port = mailer.getInt("SMTP.Port", 587);
                         boolean use_tls = mailer.getBoolean("SMTP.TLS", true);
 
-                        String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("serverName", StringUtils.randomString(8))));
-                        String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(cfg_yml.getString("serverName", StringUtils.randomString(8))));
+                        String recovery_subject = Objects.requireNonNull(mailer.getString("Subjects.PasswordRecovery", "[{server}] Recover your account {player}")).replace("{server}", Objects.requireNonNull(cfgManager.getString("ServerName")));
+                        String confirm_subject = Objects.requireNonNull(mailer.getString("Subjects.LoginLog", "[{server}] New login in your account: {player}")).replace("{server}", Objects.requireNonNull(cfgManager.getString("ServerName")));
 
                         File new_config = new File(plugin.getDataFolder().getParentFile() + File.separator + "LockLoginMailer", "config.yml");
                         if (!new_config.exists()) {
@@ -344,18 +313,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                             plugin.getServer().getPluginManager().loadPlugin(destJar);
                         }
                     }
+
+                    Files.delete(mail.toPath());
                 }
             } catch (Throwable ex) {
                 ex.printStackTrace();
             }
-        }
-
-        try {
-            cfg_yml.save(config_file);
-            config.copy(config_file);
-        } catch (Throwable e) {
-            logger.scheduleLog(Level.GRAVE, e);
-            logger.scheduleLog(Level.INFO, "Error while saving config file");
         }
     }
 
@@ -381,8 +344,10 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
             bucket.prepareTables(SQLData.ignoredColumns());
 
-            Utils utils = new Utils();
-            utils.checkTables();
+            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
+                Utils utils = new Utils();
+                utils.checkTables();
+            });
         }
     }
 
@@ -391,6 +356,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      */
     private void registerCommands() {
         if (!new ConfigGetter().isBungeeCord()) {
+            plugin.getCommand("captcha").setExecutor(new CaptchaCommand());
             plugin.getCommand("register").setExecutor(new RegisterCommand());
             plugin.getCommand("login").setExecutor(new LoginCommand());
             plugin.getCommand("unlog").setExecutor(new UnlogCommand());
@@ -528,7 +494,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
                 if (new ConfigGetter().AccountsPerIp() != 0) {
                     if (data.getConnections() + 1 > new ConfigGetter().AccountsPerIp()) {
-                        user.kick(new MessageGetter().MaxIp());
+                        user.kick(new MessageGetter().maxIp());
                     } else {
                         data.addIP();
                     }
@@ -554,17 +520,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 player.removeMetadata("LockLoginUser", plugin);
             }
 
-            if (!user.isLogged()) {
-                if (user.isRegistered()) {
-                    if (config.blindLogin()) {
-                        user.removeBlindEffect(config.nauseaLogin());
-                    }
-                } else {
-                    if (config.blindRegister()) {
-                        user.removeBlindEffect(config.nauseaRegister());
-                    }
-                }
-            }
+            user.removeBlindEffect();
         }
     }
 

@@ -5,6 +5,7 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import net.md_5.bungee.api.CommandSender;
@@ -38,62 +39,66 @@ public final class GoogleAuthResetCommand extends Command implements LockLoginBu
             ProxiedPlayer player = (ProxiedPlayer) sender;
             User user = new User(player);
 
-            if (user.isRegistered()) {
-                if (user.isLogged()) {
-                    if (!user.isTempLog()) {
-                        if (config.enable2FA()) {
-                            if (args.length == 2) {
-                                String password = args[0];
+            if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                if (user.isRegistered()) {
+                    if (user.isLogged()) {
+                        if (!user.isTempLog()) {
+                            if (config.enable2FA()) {
+                                if (args.length == 2) {
+                                    String password = args[0];
 
-                                PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
+                                    PasswordUtils passwordUtils = new PasswordUtils(password, user.getPassword());
 
-                                if (passwordUtils.validate()) {
-                                    try {
-                                        int code = Integer.parseInt(args[1]);
+                                    if (passwordUtils.validate()) {
+                                        try {
+                                            int code = Integer.parseInt(args[1]);
 
-                                        if (user.validateCode(code)) {
-                                            if (config.enableAuthLobby()) {
-                                                if (lobbyCheck.authWorking()) {
-                                                    user.sendTo(lobbyCheck.getAuth());
+                                            if (user.validateCode(code)) {
+                                                if (config.enableAuthLobby()) {
+                                                    if (lobbyCheck.authWorking()) {
+                                                        user.sendTo(lobbyCheck.getAuth());
+                                                    }
                                                 }
+
+                                                String newToken = user.genNewToken();
+
+                                                user.send(messages.prefix() + messages.reseted2FA());
+                                                user.setToken(newToken);
+                                                user.setTempLog(true);
+                                                user.set2FA(true);
+                                                user.send(messages.prefix() + messages.gAuthInstructions());
+                                                ComponentMaker json = new ComponentMaker(messages.gAuthLink());
+                                                json.setHoverText("&aQR Code");
+                                                json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, json.getURL(player, newToken)));
+                                                user.send(json.getComponent());
+
+                                                dataSender.sendAccountStatus(player);
+                                            } else {
+                                                user.send(messages.prefix() + messages.toggle2FAError());
                                             }
-
-                                            String newToken = user.genNewToken();
-
-                                            user.Message(messages.Prefix() + messages.ReseatedFA());
-                                            user.setToken(newToken);
-                                            user.setTempLog(true);
-                                            user.set2FA(true);
-                                            user.Message(messages.Prefix() + messages.GAuthInstructions());
-                                            ComponentMaker json = new ComponentMaker(messages.GAuthLink());
-                                            json.setHoverText("&aQR Code");
-                                            json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, json.getURL(player, newToken)));
-                                            user.Message(json.getComponent());
-
-                                            dataSender.sendAccountStatus(player);
-                                        } else {
-                                            user.Message(messages.Prefix() + messages.ToggleFAError());
+                                        } catch (NumberFormatException ex) {
+                                            user.send(messages.prefix() + messages.reset2FA());
                                         }
-                                    } catch (NumberFormatException ex) {
-                                        user.Message(messages.Prefix() + messages.Reset2Fa());
+                                    } else {
+                                        user.send(messages.prefix() + messages.toggle2FAError());
                                     }
                                 } else {
-                                    user.Message(messages.Prefix() + messages.ToggleFAError());
+                                    user.send(messages.prefix() + messages.reset2FA());
                                 }
                             } else {
-                                user.Message(messages.Prefix() + messages.Reset2Fa());
+                                user.send(messages.prefix() + messages.gAuthDisabled());
                             }
                         } else {
-                            user.Message(messages.Prefix() + messages.GAuthDisabled());
+                            user.send(messages.prefix() + messages.gAuthenticate());
                         }
                     } else {
-                        user.Message(messages.Prefix() + messages.gAuthAuthenticate());
+                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
                     }
                 } else {
-                    user.Message(messages.Prefix() + messages.Login());
+                    user.send(messages.prefix() + messages.register(user.getCaptcha()));
                 }
             } else {
-                user.Message(messages.Prefix() + messages.Register());
+                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

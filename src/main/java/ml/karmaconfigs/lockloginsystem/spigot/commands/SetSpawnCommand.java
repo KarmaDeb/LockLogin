@@ -53,12 +53,12 @@ public final class SetSpawnCommand implements CommandExecutor, LockLoginSpigot, 
                     Spawn spawn = new Spawn();
 
                     spawn.setSpawn(player.getLocation());
-                    user.send(messages.Prefix() + messages.SpawnSet());
+                    user.send(messages.prefix() + messages.spawnSet());
                 } else {
-                    user.send(messages.Prefix() + messages.SpawnDisabled());
+                    user.send(messages.prefix() + messages.spawnDisabled());
                 }
             } else {
-                user.send(messages.Prefix() + messages.PermissionError(setspawn.getName()));
+                user.send(messages.prefix() + messages.permission(setspawn.getName()));
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

@@ -282,7 +282,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
                 boolean unloaded = false;
 
                 if (updatedLockLogin.exists()) {
-                    user.Message("&eUpdating LockLogin, checking new LockLogin.jar info...");
+                    user.send("&eUpdating LockLogin, checking new LockLogin.jar info...");
                     String newVersion = getJarVersion(updatedLockLogin);
                     String thisVersion = getJarVersion(lockLogin);
 
@@ -305,36 +305,36 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
                                     }
 
                                     logger.scheduleLog(Level.INFO, "LockLogin updated");
-                                    user.Message("&aLockLogin updated successfully");
+                                    user.send("&aLockLogin updated successfully");
                                     utils.setReadyToUpdate(false);
                                 }
                             } else {
                                 loadPlugin(lockLogin);
-                                user.Message("&cLockLogin update failed");
+                                user.send("&cLockLogin update failed");
                                 return;
                             }
                         } else {
                             if (utils.isReadyToUpdate()) {
-                                user.Message("&cUpdated cancelled due the plugins/update/" + jar + " LockLogin instance version is lower than the actual");
+                                user.send("&cUpdated cancelled due the plugins/update/" + jar + " LockLogin instance version is lower than the actual");
                                 if (updatedLockLogin.delete()) {
-                                    user.Message("&aOld LockLogin instance removed");
+                                    user.send("&aOld LockLogin instance removed");
                                 }
                             } else {
-                                user.Message("&cUpdate cancelled due LockLogin update is still downloading");
+                                user.send("&cUpdate cancelled due LockLogin update is still downloading");
                             }
                         }
                     } else {
-                        user.Message("&cNew LockLogin instance plugin.yml is not valid, download the latest version manually from &ehttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
+                        user.send("&cNew LockLogin instance plugin.yml is not valid, download the latest version manually from &ehttps://www.spigotmc.org/resources/gsa-locklogin.75156/");
                         if (updatedLockLogin.delete()) {
-                            user.Message("&aCorrupt LockLogin instance removed");
+                            user.send("&aCorrupt LockLogin instance removed");
                         }
                     }
                 } else {
-                    user.Message(BungeeFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    user.send(BungeeFiles.messages.prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
                     if (ConfigGetter.manager.reload())
-                        user.Message(BungeeFiles.messages.Prefix() + "&aConfig file reloaded!");
+                        user.send(BungeeFiles.messages.prefix() + "&aConfig file reloaded!");
                     if (MessageGetter.manager.reload())
-                        user.Message(BungeeFiles.messages.Prefix() + "&aMessages file reloaded!");
+                        user.send(BungeeFiles.messages.prefix() + "&aMessages file reloaded!");
                 }
 
                 if (unloaded) {
@@ -349,7 +349,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);
                 logger.scheduleLog(Level.INFO, "Error while updating LockLogin");
-                user.Message("&cError while updating LockLogin");
+                user.send("&cError while updating LockLogin");
             }
         } else {
             try {
@@ -404,11 +404,11 @@ public final class LockLoginBungeeManager implements LockLoginBungee {
                         }
                     }
                 } else {
-                    Console.send(BungeeFiles.messages.Prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
+                    Console.send(BungeeFiles.messages.prefix() + "&aLockLogin couldn't be updated, but it will try to reload config and files");
                     if (ConfigGetter.manager.reload())
-                        Console.send(BungeeFiles.messages.Prefix() + "&aConfig file reloaded!");
+                        Console.send(BungeeFiles.messages.prefix() + "&aConfig file reloaded!");
                     if (MessageGetter.manager.reload())
-                        Console.send(BungeeFiles.messages.Prefix() + "&aMessages file reloaded");
+                        Console.send(BungeeFiles.messages.prefix() + "&aMessages file reloaded");
                 }
 
                 if (unloaded) {

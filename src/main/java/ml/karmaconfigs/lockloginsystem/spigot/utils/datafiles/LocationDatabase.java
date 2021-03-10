@@ -58,7 +58,7 @@ public final class LocationDatabase implements LockLoginSpigot {
      * @param player the player
      */
     public LocationDatabase(String player) {
-        OfflineUser user = new OfflineUser(player);
+        OfflineUser user = new OfflineUser("", player, true);
 
         if (user.exists()) {
             this.player = null;

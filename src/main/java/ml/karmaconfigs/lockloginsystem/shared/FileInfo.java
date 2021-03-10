@@ -25,9 +25,9 @@ public interface FileInfo {
                 return values.getOrDefault("project_version", "1.0.0").toString();
             }
 
-            return "";
+            return "-1";
         } catch (Throwable ex) {
-            return "";
+            return "-1";
         }
     }
 

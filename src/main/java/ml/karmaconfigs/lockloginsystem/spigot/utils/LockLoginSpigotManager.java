@@ -237,13 +237,13 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
         boolean update;
         if (user != null) {
             if (updatedLockLogin.exists()) {
-                user.send(messages.Prefix() + "&7Checking update target LockLogin version");
+                user.send(messages.prefix() + "&7Checking update target LockLogin version");
 
                 if (new_version > cur_version) {
                     update = true;
                 } else {
                     update = ignoredUpdateVersion(updatedLockLogin);
-                    user.send(messages.Prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    user.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -273,10 +273,10 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         public void run() {
                             try {
                                 Files.move(updatedLockLogin.toPath(), lockLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                user.send(messages.Prefix() + "&aMoved new locklogin instance to current LockLogin instance");
+                                user.send(messages.prefix() + "&aMoved new locklogin instance to current LockLogin instance");
                             } catch (Throwable ex) {
                                 ex.printStackTrace();
-                                user.send(messages.Prefix() + "&cLockLogin update failed");
+                                user.send(messages.prefix() + "&cLockLogin update failed");
                             }
                         }
                     }, 3000);
@@ -287,26 +287,26 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         @Override
                         public void run() {
                             if (second <= 5)
-                                user.send(messages.Prefix() + "&7LockLogin load in " + second + " seconds");
+                                user.send(messages.prefix() + "&7LockLogin load in " + second + " seconds");
 
                             if (second <= 0) {
                                 File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
 
                                 load(new_locklogin);
-                                user.send(messages.Prefix() + "&7Update process finished");
+                                user.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
                             }
                             second--;
                         }
                     }, 0, 1000);
                 } else {
-                    user.send(messages.Prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
+                    user.send(messages.prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
                 }
             } else {
                 if (ConfigGetter.manager.reload())
-                    user.send(messages.Prefix() + "&aConfiguration file reloaded");
+                    user.send(messages.prefix() + "&aConfiguration file reloaded");
                 if (MessageGetter.manager.reload())
-                    user.send(messages.Prefix() + "&aMessages file reloaded");
+                    user.send(messages.prefix() + "&aMessages file reloaded");
 
                 PluginManagerSpigot manager = new PluginManagerSpigot();
                 manager.setupFiles();
@@ -322,7 +322,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                             }
                         }
 
-                        Utils sql = new Utils(player.getUniqueId());
+                        Utils sql = new Utils(player.getUniqueId(), plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                         sql.createUser();
 
                         String UUID = player.getUniqueId().toString().replace("-", "");
@@ -337,7 +337,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                                         AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
                                         migrate.start();
 
-                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);
                                         fm.delete();
                                     }
                                 }
@@ -350,7 +350,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                 } else {
                     Utils utils = new Utils();
                     for (String id : utils.getUUIDs()) {
-                        utils = new Utils(id);
+                        utils = new Utils(id, utils.fetchName(id));
 
                         AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
                         migrate.start();
@@ -361,13 +361,13 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
             }
         } else {
             if (updatedLockLogin.exists()) {
-                Console.send(messages.Prefix() + "&7Checking update target LockLogin version");
+                Console.send(messages.prefix() + "&7Checking update target LockLogin version");
 
                 if (new_version > cur_version) {
                     update = true;
                 } else {
                     update = ignoredUpdateVersion(updatedLockLogin);
-                    Console.send(messages.Prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    Console.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -397,10 +397,10 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         public void run() {
                             try {
                                 Files.move(updatedLockLogin.toPath(), lockLogin.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                Console.send(messages.Prefix() + "&aMoved new locklogin instance to current LockLogin instance");
+                                Console.send(messages.prefix() + "&aMoved new locklogin instance to current LockLogin instance");
                             } catch (Throwable ex) {
                                 ex.printStackTrace();
-                                Console.send(messages.Prefix() + "&cLockLogin update failed");
+                                Console.send(messages.prefix() + "&cLockLogin update failed");
                             }
                         }
                     }, 3000);
@@ -411,26 +411,26 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         @Override
                         public void run() {
                             if (second <= 5)
-                                Console.send(messages.Prefix() + "&7LockLogin load in " + second + " seconds");
+                                Console.send(messages.prefix() + "&7LockLogin load in " + second + " seconds");
 
                             if (second <= 0) {
                                 File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
 
                                 load(new_locklogin);
-                                Console.send(messages.Prefix() + "&7Update process finished");
+                                Console.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
                             }
                             second--;
                         }
                     }, 0, 1000);
                 } else {
-                    Console.send(messages.Prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
+                    Console.send(messages.prefix() + "&cOld LockLogin instance removed ( didn't update because current version is older than the new )");
                 }
             } else {
                 if (ConfigGetter.manager.reload())
-                    Console.send(messages.Prefix() + "&aConfiguration file reloaded");
+                    Console.send(messages.prefix() + "&aConfiguration file reloaded");
                 if (MessageGetter.manager.reload())
-                    Console.send(messages.Prefix() + "&aMessages file reloaded");
+                    Console.send(messages.prefix() + "&aMessages file reloaded");
 
                 PluginManagerSpigot manager = new PluginManagerSpigot();
                 manager.setupFiles();
@@ -446,7 +446,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                             }
                         }
 
-                        Utils sql = new Utils(player.getUniqueId());
+                        Utils sql = new Utils(player.getUniqueId(), plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                         sql.createUser();
 
                         String UUID = player.getUniqueId().toString().replace("-", "");
@@ -461,7 +461,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                                         AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
                                         migrate.start();
 
-                                        Console.send(plugin, messages.Migrating(player.getUniqueId().toString()), Level.INFO);
+                                        Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);
                                         fm.delete();
                                     }
                                 }
@@ -474,7 +474,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                 } else {
                     Utils utils = new Utils();
                     for (String id : utils.getUUIDs()) {
-                        utils = new Utils(id);
+                        utils = new Utils(id, utils.fetchName(id));
 
                         AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
                         migrate.start();

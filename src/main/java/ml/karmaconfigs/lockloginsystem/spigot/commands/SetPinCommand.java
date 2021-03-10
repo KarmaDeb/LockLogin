@@ -50,25 +50,25 @@ public final class SetPinCommand implements CommandExecutor, LockLoginSpigot, Sp
                             if (args[0].length() == 4) {
                                 user.setPin(args[0]);
 
-                                user.send(messages.Prefix() + messages.PinSet(args[0]));
+                                user.send(messages.prefix() + messages.pinSet(args[0]));
                                 user.setTempLog(true);
 
                                 PinInventory inventory = new PinInventory(player);
                                 inventory.open();
                             } else {
-                                user.send(messages.Prefix() + messages.PinLength());
+                                user.send(messages.prefix() + messages.pinLength());
                             }
                         } catch (NumberFormatException e) {
-                            user.send(messages.Prefix() + messages.PinUsage());
+                            user.send(messages.prefix() + messages.pinUsage());
                         }
                     } else {
-                        user.send(messages.Prefix() + messages.PinUsage());
+                        user.send(messages.prefix() + messages.pinUsage());
                     }
                 } else {
-                    user.send(messages.Prefix() + messages.AlreadyPin());
+                    user.send(messages.prefix() + messages.alreadyPin());
                 }
             } else {
-                user.send(messages.Prefix() + messages.PinDisabled());
+                user.send(messages.prefix() + messages.pinDisabled());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

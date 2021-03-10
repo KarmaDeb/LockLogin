@@ -46,8 +46,11 @@ public final class LobbyChecker implements LockLoginBungee {
             authName = fbAuth;
         }
 
-        plugin.getProxy().getServers().get(authName).ping((result, error) -> authWorking = error == null);
-        plugin.getProxy().getServers().get(mainName).ping((result, error) -> mainWorking = error == null);
+        if (generateServerInfo(authName) != null)
+            plugin.getProxy().getServers().get(authName).ping((result, error) -> authWorking = error == null);
+
+        if (generateServerInfo(mainName) != null)
+            plugin.getProxy().getServers().get(mainName).ping((result, error) -> mainWorking = error == null);
     }
 
     /**
