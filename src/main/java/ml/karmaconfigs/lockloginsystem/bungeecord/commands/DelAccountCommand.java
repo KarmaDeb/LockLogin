@@ -52,7 +52,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
             } else {
@@ -73,7 +73,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                                 }
 
                                 targetUser.remove();
-                                targetUser.setLogStatus(false);
+                                targetUser.setLogged(false);
                                 targetUser.send(messages.prefix() + messages.forcedDelAccount(player));
                                 user.send(messages.prefix() + messages.forcedDelAccAdmin(target));
                                 new StartCheck(target, CheckType.REGISTER);
@@ -104,7 +104,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
 
                             if (utils.validate()) {
                                 user.remove();
-                                user.setLogStatus(false);
+                                user.setLogged(false);
                                 user.send(messages.prefix() + messages.accountDeleted());
                                 new StartCheck(player, CheckType.REGISTER);
                                 dataSender.sendAccountStatus(player);
@@ -134,7 +134,7 @@ public final class DelAccountCommand extends Command implements LockLoginBungee,
                     }
 
                     targetUser.remove();
-                    targetUser.setLogStatus(false);
+                    targetUser.setLogged(false);
                     targetUser.send(messages.prefix() + messages.forcedDelAccount("SERVER"));
                     Console.send(messages.prefix() + messages.forcedDelAccAdmin(target));
                     new StartCheck(target, CheckType.REGISTER);

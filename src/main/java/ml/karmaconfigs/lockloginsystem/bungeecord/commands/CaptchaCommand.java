@@ -1,12 +1,13 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
-import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
-import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
+import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -29,13 +30,11 @@ public final class CaptchaCommand extends Command implements LockLoginBungee, Bu
                     if (args.length == 0) {
                         user.send(messages.prefix() + messages.specifyCaptcha());
                     } else {
-                        Integer captcha = null;
-                        try {
-                            captcha = Integer.parseInt(args[0]);
-                        } catch (Throwable ignored) {
-                        }
+                        String captcha = args[0];
 
-                        if (captcha != null) {
+                        if (StringUtils.containsLetters(captcha) && !config.letters()) {
+                            user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[0])));
+                        } else {
                             if (user.checkCaptcha(captcha)) {
                                 user.send(messages.prefix() + messages.captchaValidated());
                                 if (config.isYaml())
@@ -47,8 +46,6 @@ public final class CaptchaCommand extends Command implements LockLoginBungee, Bu
                                     new StartCheck(player, CheckType.REGISTER);
                             } else
                                 user.send(messages.prefix() + messages.invalidCaptcha());
-                        } else {
-                            user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[0])));
                         }
                     }
                 } else {

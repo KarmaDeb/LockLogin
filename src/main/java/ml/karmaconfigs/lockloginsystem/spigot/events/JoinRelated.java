@@ -37,26 +37,27 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
             if (!player.hasMetadata("LockLoginUser"))
                 player.setMetadata("LockLoginUser", new FixedMetadataValue(plugin, player.getUniqueId()));
 
-            if (config.ClearChat())
+            if (config.clearChat())
                 for (int i = 0; i < 150; i++)
                     player.sendMessage(" ");
 
-            user.setLogStatus(false);
+            user.setLogged(false);
 
             user.genCaptcha();
             if (config.getCaptchaType().equals(CaptchaType.COMPLEX)) {
                 if (config.getCaptchaTimeOut() > 0)
                     new BukkitRunnable() {
                         int back = config.getCaptchaTimeOut();
+
                         @Override
                         public void run() {
-                            if (back == 0) {
+                            if (back == 0 || !player.isOnline()) {
                                 cancel();
-                                user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
-                            } else {
-                                if (back % 5 == 0 || back % 10 == 0)
-                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+
+                                if (player.isOnline())
+                                    user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
                             }
+
                             if (!user.hasCaptcha())
                                 cancel();
 
@@ -67,7 +68,6 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
                 user.checkStatus();
             }
 
-            
             if (config.enableSpawn()) {
                 if (player.isDead())
                     plugin.getServer().getScheduler().runTask(plugin, player.spigot()::respawn);

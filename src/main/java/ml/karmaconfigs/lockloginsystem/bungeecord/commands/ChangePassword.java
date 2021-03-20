@@ -53,7 +53,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                         if (Passwords.isSecure(newPass, player)) {
                             if (newPass.length() >= 4) {
                                 user.setPassword(newPass);
-                                user.setLogStatus(false);
+                                user.setLogged(false);
                                 user.send(messages.prefix() + messages.changeDone());
                                 new StartCheck(player, CheckType.LOGIN);
 
@@ -92,7 +92,7 @@ public final class ChangePassword extends Command implements LockLoginBungee, Bu
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
             }

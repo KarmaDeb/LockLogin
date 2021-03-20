@@ -485,4 +485,133 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
             }
         }
     }
+
+    /**
+     * Reload the plugin
+     * <p>
+     * Private GSA code
+     * <p>
+     * The use of this code
+     * without GSA team authorization
+     * will be a violation of
+     * terms of use determined
+     * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     *
+     * @param user the issuer
+     */
+    public final void reload(@Nullable final User user) {
+        if (user != null) {
+            if (ConfigGetter.manager.reload())
+                user.send(messages.prefix() + "&aConfiguration file reloaded");
+            if (MessageGetter.manager.reload())
+                user.send(messages.prefix() + "&aMessages file reloaded");
+
+            PluginManagerSpigot manager = new PluginManagerSpigot();
+            manager.setupFiles();
+
+            if (config.isMySQL()) {
+                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    User logged_user = new User(player);
+
+                    if (!logged_user.isRegistered()) {
+                        if (config.registerRestricted()) {
+                            logged_user.kick("&eLockLogin\n\n" + messages.onlyAzuriom());
+                            return;
+                        }
+                    }
+
+                    Utils sql = new Utils(player.getUniqueId(), plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                    sql.createUser();
+
+                    String UUID = player.getUniqueId().toString().replace("-", "");
+
+                    FileManager fm = new FileManager(UUID + ".yml", "playerdata");
+                    fm.setInternal("auto-generated/userTemplate.yml");
+
+                    if (fm.getManaged().exists()) {
+                        if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                            if (fm.isSet("Password")) {
+                                if (!fm.isEmpty("Password")) {
+                                    AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                    migrate.start();
+
+                                    Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);
+                                    fm.delete();
+                                }
+                            }
+                        }
+                    }
+
+                    if (sql.getName() == null || sql.getName().isEmpty())
+                        sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                }
+            } else {
+                Utils utils = new Utils();
+                for (String id : utils.getUUIDs()) {
+                    utils = new Utils(id, utils.fetchName(id));
+
+                    AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                    migrate.start();
+                }
+
+                Bucket.terminateMySQL();
+            }
+        } else {
+            if (ConfigGetter.manager.reload())
+                Console.send(messages.prefix() + "&aConfiguration file reloaded");
+            if (MessageGetter.manager.reload())
+                Console.send(messages.prefix() + "&aMessages file reloaded");
+
+            PluginManagerSpigot manager = new PluginManagerSpigot();
+            manager.setupFiles();
+
+            if (config.isMySQL()) {
+                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                    User logged_user = new User(player);
+
+                    if (!logged_user.isRegistered()) {
+                        if (config.registerRestricted()) {
+                            logged_user.kick("&eLockLogin\n\n" + messages.onlyAzuriom());
+                            return;
+                        }
+                    }
+
+                    Utils sql = new Utils(player.getUniqueId(), plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                    sql.createUser();
+
+                    String UUID = player.getUniqueId().toString().replace("-", "");
+
+                    FileManager fm = new FileManager(UUID + ".yml", "playerdata");
+                    fm.setInternal("auto-generated/userTemplate.yml");
+
+                    if (fm.getManaged().exists()) {
+                        if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
+                            if (fm.isSet("Password")) {
+                                if (!fm.isEmpty("Password")) {
+                                    AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                    migrate.start();
+
+                                    Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);
+                                    fm.delete();
+                                }
+                            }
+                        }
+                    }
+
+                    if (sql.getName() == null || sql.getName().isEmpty())
+                        sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+                }
+            } else {
+                Utils utils = new Utils();
+                for (String id : utils.getUUIDs()) {
+                    utils = new Utils(id, utils.fetchName(id));
+
+                    AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                    migrate.start();
+                }
+
+                Bucket.terminateMySQL();
+            }
+        }
+    }
 }

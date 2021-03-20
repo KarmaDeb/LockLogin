@@ -55,18 +55,40 @@ Login:
   TimeOut: 30
   MaxTries: 5
 
+#Login/Register messages in chat
+#interval, minimum is 5, maximum is
+#the specified in Login/Register section
+#( TimeOut time )
+MessagesInterval:
+  Register: 5
+  Login: 5
+
 #Captcha options
 # Available options:
 #   COMPLEX - Requires to do /captcha <captcha> before
-#             or register
+#             login or register
 #   SIMPLE - Requires to put the captcha during login
 #            and register
+#   DISABLED - Completely disables this feature
+#              ( Not recommended, use it at your own risk )
 # TimeOut: Set to 0 to disable
-# Length: Captcha code length, max is 8, min is 4
+#
+# Difficulty: Captcha difficulty settings
+#   Length: Captcha code length ( min is 8, max is 16 )
+#   Letters: Include letters in the captcha
+#   Strikethrough: Strikethrough captcha settings
+#     Enabled: Enable strikethrough feature
+#     Random: Randomize the characters with strikethrough
+#             effect
 Captcha:
-  Mode: "COMPLEX"
+  Mode: "SIMPLE"
   TimeOut: 0
-  Length: 6
+  Difficulty:
+    Length: 8
+    Letters: true
+    Strikethrough:
+      Enabled: true
+      Random: true
 
 #Encryption configuration
 # Available types:

@@ -35,10 +35,11 @@ public final class PlayerKick implements Listener {
         } catch (Throwable ignored) {
         }
 
-        IpData data = new IpData(temp_module, User.external.getIp(e.getPlayer().getSocketAddress()));
+        User user = new User(e.getPlayer());
 
-        if (!e.isCancelled()) {
-            data.delIP();
-        }
+        IpData data = new IpData(temp_module, user.getIp());
+        data.delIP();
+
+        user.setLogged(false);
     }
 }

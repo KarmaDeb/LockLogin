@@ -9,11 +9,13 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
+import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.Title;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.config.ServerInfo;
@@ -42,10 +44,13 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 public final class User implements LockLoginBungee, BungeeFiles {
 
-    private final static HashMap<UUID, Boolean> logStatus = new HashMap<>();
-    private final static HashMap<UUID, Integer> playerTries = new HashMap<>();
-    private final static HashMap<UUID, Integer> playerCaptcha = new HashMap<>();
+    private final static HashSet<UUID> logged = new HashSet<>();
     private final static HashSet<UUID> tempLog = new HashSet<>();
+
+    private final static HashSet<UUID> captchaLogged = new HashSet<>();
+
+    private final static HashMap<UUID, Integer> playerTries = new HashMap<>();
+    private final static HashMap<UUID, String> playerCaptcha = new HashMap<>();
 
     private final ProxiedPlayer player;
 
@@ -90,10 +95,22 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * Generate a captcha for the player
      */
     public final void genCaptcha() {
-        int captcha = StringUtils.randomNumber(config.getCaptchaLength());
-        playerCaptcha.put(player.getUniqueId(), captcha);
+        if (!captchaLogged.contains(player.getUniqueId())) {
+            String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
 
-        send(messages.prefix() + messages.captcha(captcha));
+            playerCaptcha.put(player.getUniqueId(), captcha);
+
+            Timer timer = new Timer();
+            timer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    if (!player.isConnected() || !captchaLogged.contains(player.getUniqueId()))
+                        cancel();
+                    else
+                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.captcha(captcha))));
+                }
+            }, 0, 1000);
+        }
     }
 
     /**
@@ -189,7 +206,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
                     send(event.getAuthMessage());
                     if (valid_password) {
                         bf_prevention.success();
-                        setLogStatus(true);
+                        setLogged(true);
                         checkServer();
 
                         dataSender.sendAccountStatus(player);
@@ -209,7 +226,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
                 case SUCCESS_TEMP:
                     if (valid_password) {
                         bf_prevention.success();
-                        setLogStatus(true);
+                        setLogged(true);
 
                         if (Passwords.isLegacySalt(getPassword())) {
                             setPassword(password);
@@ -295,8 +312,25 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param value true/false
      */
-    public final void setLogStatus(boolean value) {
-        logStatus.put(player.getUniqueId(), value);
+    public final void setLogged(boolean value) {
+        if (value)
+            logged.add(player.getUniqueId());
+        else
+            logged.remove(player.getUniqueId());
+    }
+
+    /**
+     * Set if the player is in temp-login
+     * status
+     *
+     * @param value true/false
+     */
+    public final void setTempLog(boolean value) {
+        if (value) {
+            tempLog.add(player.getUniqueId());
+        } else {
+            tempLog.remove(player.getUniqueId());
+        }
     }
 
     /**
@@ -429,15 +463,31 @@ public final class User implements LockLoginBungee, BungeeFiles {
         }
     }
 
-    public final boolean checkCaptcha(final int code) {
+    /**
+     * Check if the player captcha is correct
+     *
+     * @param code the captcha code
+     * @return if the player captcha is correct
+     */
+    public final boolean checkCaptcha(final String code) {
         if (playerCaptcha.containsKey(player.getUniqueId()))
-            return code == playerCaptcha.remove(player.getUniqueId());
+            if (code.equals(playerCaptcha.remove(player.getUniqueId())))
+                return captchaLogged.add(player.getUniqueId());
 
         return false;
     }
 
+    /**
+     * Check if the player has a pending
+     * captcha
+     *
+     * @return if the player has pending captcha
+     */
     public final boolean hasCaptcha() {
-        return playerCaptcha.getOrDefault(player.getUniqueId(), -1) > 0;
+        if (config.getCaptchaType().equals(CaptchaType.DISABLED))
+            return false;
+        else
+            return !captchaLogged.contains(player.getUniqueId());
     }
 
     /**
@@ -641,12 +691,21 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Get the player captcha
+     *
+     * @return the player captcha
+     */
+    public final String getCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), "");
+    }
+
+    /**
      * Check if the player is logged
      *
      * @return if the player is logged
      */
     public final boolean isLogged() {
-        return logStatus.getOrDefault(player.getUniqueId(), false).equals(true);
+        return logged.contains(player.getUniqueId());
     }
 
     /**
@@ -675,20 +734,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Set if the player is in temp-login
-     * status
-     *
-     * @param value true/false
-     */
-    public final void setTempLog(boolean value) {
-        if (value) {
-            tempLog.add(player.getUniqueId());
-        } else {
-            tempLog.remove(player.getUniqueId());
-        }
-    }
-
-    /**
      * Check if the code is ok
      *
      * @param code the code
@@ -708,10 +753,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
-    }
-
-    public final int getCaptcha() {
-        return playerCaptcha.getOrDefault(player.getUniqueId(), -1);
     }
 
     public interface external {

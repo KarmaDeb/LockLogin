@@ -66,7 +66,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                             if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
                                 user.send(messages.prefix() + messages.login(user.getCaptcha()));
                             } else {
-                                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                user.send(messages.prefix() + messages.typeCaptcha());
                             }
                         }
                     } else {
@@ -109,9 +109,10 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                             user.send(event.getAuthMessage());
 
-                                            if (config.TakeBack()) {
+                                            if (config.takeBack()) {
                                                 LastLocation lastLoc = new LastLocation(player);
-                                                user.teleport(lastLoc.getLastLocation());
+                                                if (lastLoc.hasLastLocation())
+                                                    user.teleport(lastLoc.getLastLocation());
                                             }
 
                                             user.removeBlindEffect();
@@ -137,7 +138,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                                         }
                                     } else {
-                                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                        user.send(messages.prefix() + messages.typeCaptcha());
                                     }
                                 } else {
                                     if (!user.isTempLog()) {
@@ -153,7 +154,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                 PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
                                 if (utils.validate()) {
-                                    if (config.TakeBack()) {
+                                    if (config.takeBack()) {
                                         LastLocation lastLocation = new LastLocation(player);
                                         lastLocation.saveLocation();
                                     }
@@ -186,7 +187,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                                         }
                                     } else {
-                                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                        user.send(messages.prefix() + messages.typeCaptcha());
                                     }
                                 } else {
                                     if (user.isTempLog()) {
@@ -228,7 +229,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                                 user.send(messages.prefix() + messages.register(user.getCaptcha()));
                                             }
                                         } else {
-                                            user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                            user.send(messages.prefix() + messages.typeCaptcha());
                                         }
                                     } else {
                                         if (user.isTempLog()) {
@@ -263,7 +264,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                     user.send(messages.prefix() + messages.register(user.getCaptcha()));
                                 }
                             } else {
-                                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                user.send(messages.prefix() + messages.typeCaptcha());
                             }
                         }
                     }

@@ -98,7 +98,7 @@ public final class GoogleAuthResetCommand extends Command implements LockLoginBu
                     user.send(messages.prefix() + messages.register(user.getCaptcha()));
                 }
             } else {
-                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                user.send(messages.prefix() + messages.typeCaptcha());
             }
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);

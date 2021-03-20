@@ -1,8 +1,10 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.utils;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -28,6 +30,10 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 
 public final class BungeeSender implements LockLoginBungee, BungeeFiles {
+
+    private static final String random_key = StringUtils.randomString(16, StringUtils.StringGen.NUMBERS_AND_LETTERS, StringUtils.StringType.ALL_UPPER);
+
+    private static String msg_cache = "";
 
     /**
      * Send the player login info
@@ -62,7 +68,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 DataOutputStream message = new DataOutputStream(b);
 
                 try {
-                    message.writeUTF("LoginData");
+                    message.writeUTF("LoginData;" + random_key);
                     message.writeUTF(player.getUniqueId().toString() + " " + status);
                     blindEffect(player, blind, nausea);
 
@@ -95,7 +101,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
             DataOutputStream message = new DataOutputStream(b);
 
             try {
-                message.writeUTF("VerifyUUID");
+                message.writeUTF("VerifyUUID;" + random_key);
                 message.writeUTF(id.toString());
 
                 try {
@@ -126,7 +132,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 DataOutputStream message = new DataOutputStream(b);
 
                 try {
-                    message.writeUTF("OpenPin");
+                    message.writeUTF("OpenPin;" + random_key);
                     message.writeUTF(player.getUniqueId().toString());
 
                     try {
@@ -158,7 +164,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 DataOutputStream message = new DataOutputStream(b);
 
                 try {
-                    message.writeUTF("ClosePin");
+                    message.writeUTF("ClosePin;" + random_key);
                     message.writeUTF(player.getUniqueId().toString());
 
                     try {
@@ -195,7 +201,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                     uuids_builder.append(";").append(user.getUUID());
 
                 try {
-                    message.writeUTF("LookupGUI");
+                    message.writeUTF("LookupGUI;" + random_key);
                     message.writeUTF(player.getUniqueId() + uuids_builder.toString());
 
                     try {
@@ -230,7 +236,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 String serialized = serializer.serialize();
 
                 try {
-                    message.writeUTF("ModulesInfoData");
+                    message.writeUTF("ModulesInfoData;" + random_key);
                     message.writeUTF(serialized);
 
                     try {
@@ -265,7 +271,7 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 DataOutputStream message = new DataOutputStream(b);
 
                 try {
-                    message.writeUTF("EffectManager");
+                    message.writeUTF("EffectManager;" + random_key);
                     message.writeUTF(player.getUniqueId().toString() + "_" + apply + "_" + nausea);
 
                     try {
@@ -280,5 +286,50 @@ public final class BungeeSender implements LockLoginBungee, BungeeFiles {
                 }
             }
         }
+    }
+
+    /**
+     * Send bungeecord messages to the player server to update
+     * them
+     *
+     * @param player the player
+     */
+    public final void sendBungeeCordMessages(final ProxiedPlayer player) {
+        if (plugin.getProxy().getPlayers().isEmpty())
+            return;
+
+        if (msg_cache.isEmpty())
+            msg_cache = StringUtils.readFrom(MessageGetter.manager.getAsFile());
+
+        if (!msg_cache.isEmpty()) {
+            if (player != null) {
+                if (player.getServer() != null) {
+                    ByteArrayOutputStream b = new ByteArrayOutputStream();
+                    DataOutputStream message = new DataOutputStream(b);
+
+                    try {
+                        message.writeUTF("Messages;" + random_key);
+                        message.writeUTF(msg_cache);
+
+                        try {
+                            player.getServer().getInfo().sendData("ll:info", b.toByteArray());
+                        } catch (Throwable e) {
+                            logger.scheduleLog(Level.GRAVE, e);
+                            logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                        }
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "Error while sending a plugin message from BungeeCord");
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Update bungeecord msg cache
+     */
+    public final void updateMsgCache() {
+        msg_cache = StringUtils.readFrom(MessageGetter.manager.getAsFile());
     }
 }

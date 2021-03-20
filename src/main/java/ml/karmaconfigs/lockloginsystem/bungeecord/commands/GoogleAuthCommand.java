@@ -66,7 +66,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                 user.send(messages.prefix() + messages.register(user.getCaptcha()));
                             }
                         } else {
-                            user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                            user.send(messages.prefix() + messages.typeCaptcha());
                         }
                     }
                 } else {
@@ -95,7 +95,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                     case SUCCESS_TEMP:
                                         user.send(event.getAuthMessage());
                                         if (valid_code) {
-                                            user.setLogStatus(true);
+                                            user.setLogged(true);
                                             user.setTempLog(false);
                                             user.checkServer();
 
@@ -125,7 +125,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                         }
                                     }
                                 } else {
-                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                    user.send(messages.prefix() + messages.typeCaptcha());
                                 }
                             }
                         } else {
@@ -165,7 +165,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                         }
                                     }
                                 } else {
-                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                    user.send(messages.prefix() + messages.typeCaptcha());
                                 }
                             }
                         }
@@ -206,7 +206,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                             }
                                         }
                                     } else {
-                                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                        user.send(messages.prefix() + messages.typeCaptcha());
                                     }
                                 }
                             } else {
@@ -235,7 +235,7 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
                                         user.send(messages.prefix() + messages.register(user.getCaptcha()));
                                     }
                                 } else {
-                                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                                    user.send(messages.prefix() + messages.typeCaptcha());
                                 }
                             }
                         }

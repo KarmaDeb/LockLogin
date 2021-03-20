@@ -39,5 +39,7 @@ public final class PlayerLeave implements Listener {
 
         IpData data = new IpData(temp_module, user.getIp());
         data.delIP();
+
+        user.setLogged(false);
     }
 }

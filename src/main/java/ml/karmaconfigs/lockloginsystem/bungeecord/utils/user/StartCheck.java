@@ -37,7 +37,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
      * @param type the check type
      */
     public StartCheck(ProxiedPlayer p, CheckType type) {
-        StartSendingMessage(p, type);
+        startSendingMessage(p, type);
         switch (type) {
             case REGISTER:
                 back = config.registerTimeOut();
@@ -46,7 +46,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                         if (p.isConnected()) {
                             dataSender.sendUUID(p.getUniqueId(), p.getServer());
                             User user = new User(p);
-                            if (!user.isLogged()) {
+                            if (!user.isRegistered()) {
                                 if (back != 0) {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
                                     if (!user.isRegistered()) {
@@ -81,7 +81,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                         if (p.isConnected()) {
                             dataSender.sendUUID(p.getUniqueId(), p.getServer());
                             User user = new User(p);
-                            if (user.isRegistered()) {
+                            if (!user.isLogged()) {
                                 if (back != 0) {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
                                     if (!user.isLogged()) {
@@ -137,7 +137,9 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
      * @param player the player
      * @param type   the message type
      */
-    private void StartSendingMessage(ProxiedPlayer player, CheckType type) {
+    private void startSendingMessage(ProxiedPlayer player, CheckType type) {
+        int interval = (new User(player).isLogged() ? config.loginInterval() : config.registerInterval());
+
         msTask = plugin.getProxy().getScheduler().schedule(plugin, () -> {
             User user = new User(player);
             if (!user.isLogged()) {
@@ -149,6 +151,6 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
             } else {
                 msTask.cancel();
             }
-        }, 0, 5, TimeUnit.SECONDS);
+        }, 0, interval, TimeUnit.SECONDS);
     }
 }

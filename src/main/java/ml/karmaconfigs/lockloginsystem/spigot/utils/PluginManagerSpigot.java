@@ -1,7 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils;
 
 import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
@@ -12,6 +11,7 @@ import ml.karmaconfigs.lockloginsystem.shared.ConsoleFilter;
 import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.SpigotMetrics;
@@ -43,6 +43,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 
 /*
@@ -91,8 +92,10 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         if (!new ConfigGetter().isBungeeCord()) {
             if (new ConfigGetter().checkUpdates()) {
                 startVersionChecker();
+                Console.send(plugin, "LockLogin will search for updates and latest version will be downloaded automatically", Level.INFO);
             } else {
                 doVersionCheck();
+                Console.send(plugin, "YOU DISABLED LOCKLOGIN UPDATE CHECKER, WE HIGHLY RECOMMEND YOU TO ENABLE THIS. LOCKLOGIN WON'T UPDATE HIMSELF, JUST NOTIFY YOU ABOUT NEW UPDATES", Level.WARNING);
             }
             startAlertChecker();
             setupPlayers();
@@ -117,8 +120,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
             }.runTaskTimer(plugin, 0, 20);
         }
-
-        Console.send(plugin, "LockLogin will search for updates and will be updated automatically when no players are in server", Level.INFO);
     }
 
     /**
@@ -152,10 +153,14 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         FileManager cfgManager = new FileManager("config.yml");
         cfgManager.setInternal("configs/config_spigot.yml");
 
-        if (cfgManager.getString("ServerName").replaceAll("\\s", "").isEmpty()) {
-            cfgManager.set("ServerName", StringUtils.randomString(8));
-            cfgManager.save();
-        }
+        File passwords_yml = new File(plugin.getDataFolder(), "passwords.yml");
+        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml");
+        passwords.copy(passwords_yml);
+
+        FileManager passwordsManager = new FileManager("passwords.yml");
+        List<String> customPasswords = passwordsManager.getList("Insecure");
+        InsecurePasswords insecure = new InsecurePasswords();
+        insecure.addExtraPass(customPasswords);
 
         ConfigGetter cfg = new ConfigGetter();
         File msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
@@ -189,8 +194,13 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
                 old_msg = new File(plugin.getDataFolder(), "messages_cz.yml");
                 break;
+            case RUSSIAN:
+                msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                //That's not even needed, but for just to make it stetically correct with other languages, i'll leave it like that
+                old_msg = new File(plugin.getDataFolder(), "messages_ru.yml");
+                break;
             case UNKNOWN:
-                Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
+                Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]&7, &eru_RU&b[Russian]", Level.WARNING);
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
                 old_msg = new File(plugin.getDataFolder(), "messages_en.yml");
                 break;
@@ -492,8 +502,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
                 IpData data = new IpData(temp_module, player.getAddress().getAddress());
 
-                if (new ConfigGetter().AccountsPerIp() != 0) {
-                    if (data.getConnections() + 1 > new ConfigGetter().AccountsPerIp()) {
+                if (new ConfigGetter().accountsPerIp() != 0) {
+                    if (data.getConnections() + 1 > new ConfigGetter().accountsPerIp()) {
                         user.kick(new MessageGetter().maxIp());
                     } else {
                         data.addIP();
@@ -531,7 +541,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         SpigotMetrics metrics = new SpigotMetrics(plugin, 6513);
 
         metrics.addCustomChart(new SpigotMetrics.SimplePie("used_locale", () -> new ConfigGetter().getLang().friendlyName()));
-        metrics.addCustomChart(new SpigotMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().ClearChat())
+        metrics.addCustomChart(new SpigotMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().clearChat())
                 .replace("true", "Clear chat")
                 .replace("false", "Don't clear chat")));
         metrics.addCustomChart(new SpigotMetrics.SimplePie("file_system", () -> new ConfigGetter().accountSys()

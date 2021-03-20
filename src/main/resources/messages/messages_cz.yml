@@ -99,12 +99,12 @@ IpBlocked:
   - "&cneobvyklý provoz na vaší IP a byl zablokován"
   - "&f{time} {time_format}"
 AntiBot:
-  - "&f{serverName}"
+  - "&f{ServerName}"
   - ""
   - "&cProsím přidej tento server do svého seznamu serverů"
   - "&cPokud ho již máš, znovu načti seznam serverů"
 OnlyAzuriom:
-  - "&f{serverName}"
+  - "&f{ServerName}"
   - ""
   - "&cZaregistrujte si prosím svůj účet z:"
   - "&ehttps://myazuriomwebsite.com/user/register"

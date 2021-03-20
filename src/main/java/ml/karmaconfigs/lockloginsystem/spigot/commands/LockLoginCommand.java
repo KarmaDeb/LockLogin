@@ -51,6 +51,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
     private static CommandSender migrating_owner = null;
     private static int passed_migration = 0;
     private static int max_migrations = 0;
+
     private final Permission migratePermission = new Permission("locklogin.migrate", PermissionDefault.FALSE);
     private final Permission applyUpdatePermission = new Permission("locklogin.update", PermissionDefault.FALSE);
     private final Permission modulePermission = new Permission("locklogin.modules", PermissionDefault.FALSE);
@@ -62,338 +63,330 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
             User user = new User(player);
 
             if (args.length == 0) {
-                user.send(messages.prefix() + "&cSpecify an action &7( &e/locklogin migrate &7|| &e/locklogin applyUpdates &7)");
+                user.send(messages.prefix() + "&cAvailable sub commands: &7migrate&e, &7applyUpdates&e, &7reload&e, &emodules");
             } else {
-                if (args[0] != null) {
-                    if (args[0].equals("migrate")) {
+                switch (args[0].toLowerCase()) {
+                    case "migrate":
                         if (player.hasPermission(migratePermission)) {
                             if (migrating_owner == null) {
-                                if (!config.isBungeeCord()) {
-                                    if (args.length == 1) {
-                                        user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                    } else {
-                                        if (args.length == 2) {
-                                            String method = args[1];
-                                            switch (method.toLowerCase()) {
+                                if (args.length == 1)
+                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                                else {
+                                    String sub_arg = args[1];
+                                    switch (args.length) {
+                                        case 2:
+                                            switch (sub_arg.toLowerCase()) {
                                                 case "mysql":
                                                     migrateMySQL(player);
                                                     break;
-                                                case "loginsecurity":
-                                                case "ls":
-                                                    user.send(messages.prefix() + "&cPlease specify table name");
-                                                    break;
                                                 case "authme":
-                                                    user.send(messages.prefix() + "&cPlease, specify database name and table name (must exist in plugins/authme folder)");
+                                                    user.send(messages.prefix() + "&cCorrect usage: /locklogin migrate AuthMe <database file name> <table name> <real name column> <password column>");
+                                                    break;
+                                                case "loginsecurity":
+                                                    user.send(messages.prefix() + "&cCorrect usage: /locklogin migrate loginsecurity <table name>");
                                                     break;
                                                 default:
-                                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
                                                     break;
                                             }
-                                        } else {
-                                            if (args.length == 3) {
-                                                String method = args[1];
-                                                switch (method.toLowerCase()) {
-                                                    case "mysql":
-                                                        user.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                        break;
-                                                    case "loginsecurity":
-                                                    case "ls":
-                                                        user.send(messages.prefix() + "&aMigrating from LoginSecurity");
-                                                        BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
-                                                        message.send(true);
-                                                        if (migrateLoginSecurity(sender, args[2])) {
-                                                            new BukkitRunnable() {
-                                                                @Override
-                                                                public void run() {
-                                                                    if (passed_migration == max_migrations) {
-                                                                        cancel();
-                                                                        migrating_owner.sendMessage(StringUtils.toColor(messages.prefix() + messages.migrated()));
-                                                                        message.setMessage("&8Migrating progress: &aComplete");
-                                                                        message.stop();
-                                                                        migrating_owner = null;
-                                                                    }
+                                            break;
+                                        case 3:
+                                        case 4:
+                                        case 5:
+                                            switch (sub_arg.toLowerCase()) {
+                                                case "mysql":
+                                                    migrateMySQL(player);
+                                                    break;
+                                                case "authme":
+                                                    user.send(messages.prefix() + "&cCorrect usage: /locklogin migrate AuthMe <database file name> <table name> <real name column> <password column>");
+                                                    break;
+                                                case "loginsecurity":
+                                                    String table = args[2];
 
-                                                                    if (migrating_owner != null) {
-                                                                        double division = (double) passed_migration / max_migrations;
-                                                                        long iPart = (long) division;
-                                                                        double fPart = division - iPart;
+                                                    user.send(messages.prefix() + "&aMigrating from LoginSecurity");
 
-                                                                        String colour = "&c";
-                                                                        if (fPart >= 37.5)
-                                                                            colour = "&e";
-                                                                        if (fPart >= 75)
-                                                                            colour = "&a";
+                                                    BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
+                                                    message.send(true);
 
-                                                                        message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
-                                                                    }
+                                                    if (migrateLoginSecurity(sender, table)) {
+                                                        new BukkitRunnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (passed_migration == max_migrations) {
+                                                                    cancel();
+                                                                    migrating_owner.sendMessage(StringUtils.toColor(messages.prefix() + messages.migrated()));
+                                                                    message.setMessage("&8Migrating progress: &aComplete");
+                                                                    message.stop();
+                                                                    migrating_owner = null;
                                                                 }
-                                                            }.runTaskTimer(plugin, 0, 20);
-                                                        } else {
-                                                            user.send(messages.prefix() + "&cSome error occurred while migrating");
-                                                        }
-                                                        break;
-                                                    case "authme":
-                                                        user.send(messages.prefix() + "&cPlease, specify table name");
-                                                        break;
-                                                    default:
-                                                        user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                        break;
-                                                }
-                                            } else {
-                                                if (args.length == 4) {
-                                                    String method = args[1];
-                                                    switch (method.toLowerCase()) {
-                                                        case "mysql":
-                                                            user.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                            break;
-                                                        case "loginsecurity":
-                                                        case "ls":
-                                                            user.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                            break;
-                                                        case "authme":
-                                                            user.send(messages.prefix() + "&cPlease specify the 'realname' column");
-                                                            break;
-                                                        default:
-                                                            user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                            break;
-                                                    }
-                                                } else {
-                                                    if (args.length == 5) {
-                                                        String method = args[1];
-                                                        switch (method.toLowerCase()) {
-                                                            case "mysql":
-                                                                user.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                                break;
-                                                            case "loginsecurity":
-                                                            case "ls":
-                                                                user.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                                break;
-                                                            case "authme":
-                                                                user.send(messages.prefix() + "&cPlease specify the 'password' column");
-                                                                break;
-                                                            default:
-                                                                user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                                break;
-                                                        }
-                                                    } else {
-                                                        if (args.length == 6) {
-                                                            String method = args[1];
-                                                            switch (method.toLowerCase()) {
-                                                                case "mysql":
-                                                                    user.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                                    break;
-                                                                case "loginsecurity":
-                                                                case "ls":
-                                                                    user.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                                    break;
-                                                                case "authme":
-                                                                    user.send(messages.prefix() + "&aMigrating from authme");
-                                                                    BarMessage message = new BarMessage(player, "&eMigrating progress:&c Starting");
-                                                                    message.send(true);
-                                                                    if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
-                                                                        new BukkitRunnable() {
-                                                                            @Override
-                                                                            public void run() {
-                                                                                if (passed_migration == max_migrations) {
-                                                                                    cancel();
-                                                                                    migrating_owner.sendMessage(StringUtils.toColor(messages.prefix() + messages.migrated()));
-                                                                                    message.setMessage("&8Migrating progress: &aComplete");
-                                                                                    message.stop();
-                                                                                    migrating_owner = null;
-                                                                                }
 
-                                                                                if (migrating_owner != null) {
-                                                                                    double division = (double) passed_migration / max_migrations;
-                                                                                    long iPart = (long) division;
-                                                                                    double fPart = division - iPart;
+                                                                if (migrating_owner != null) {
+                                                                    double division = (double) passed_migration / max_migrations;
+                                                                    long iPart = (long) division;
+                                                                    double fPart = division - iPart;
 
-                                                                                    String colour = "&c";
-                                                                                    if (fPart >= 37.5)
-                                                                                        colour = "&e";
-                                                                                    if (fPart >= 75)
-                                                                                        colour = "&a";
+                                                                    String colour = "&c";
+                                                                    if (fPart >= 37.5)
+                                                                        colour = "&e";
+                                                                    if (fPart >= 75)
+                                                                        colour = "&a";
 
-                                                                                    message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
-                                                                                }
-                                                                            }
-                                                                        }.runTaskTimer(plugin, 0, 20);
-                                                                    } else {
-                                                                        user.send(messages.prefix() + "&cSome error occurred while migrating");
-                                                                        migrating_owner = null;
-                                                                    }
-                                                                    break;
-                                                                default:
-                                                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                                    break;
+                                                                    message.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                                                                }
                                                             }
-                                                        } else {
-                                                            user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                        }
+                                                        }.runTaskTimer(plugin, 0, 20);
+                                                    } else {
+                                                        user.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                        migrating_owner = null;
                                                     }
-                                                }
+                                                    break;
+                                                default:
+                                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                                                    break;
                                             }
-                                        }
+                                            break;
+                                        case 6:
+                                        default:
+                                            switch (sub_arg.toLowerCase()) {
+                                                case "mysql":
+                                                    migrateMySQL(player);
+                                                    break;
+                                                case "authme":
+                                                    String database_file = args[2];
+                                                    String table_name = args[3];
+                                                    String real_name = args[4];
+                                                    String passwords = args[5];
+
+                                                    user.send(messages.prefix() + "&aMigrating from authme");
+
+                                                    BarMessage authmeMessage = new BarMessage(player, "&eMigrating progress:&c Starting");
+                                                    authmeMessage.send(true);
+
+                                                    if (migrateAuthMe(sender, database_file, table_name, real_name, passwords)) {
+                                                        new BukkitRunnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (passed_migration == max_migrations) {
+                                                                    cancel();
+                                                                    migrating_owner.sendMessage(StringUtils.toColor(messages.prefix() + messages.migrated()));
+                                                                    authmeMessage.setMessage("&8Migrating progress: &aComplete");
+                                                                    authmeMessage.stop();
+                                                                    migrating_owner = null;
+                                                                }
+
+                                                                if (migrating_owner != null) {
+                                                                    double division = (double) passed_migration / max_migrations;
+                                                                    long iPart = (long) division;
+                                                                    double fPart = division - iPart;
+
+                                                                    String colour = "&c";
+                                                                    if (fPart >= 37.5)
+                                                                        colour = "&e";
+                                                                    if (fPart >= 75)
+                                                                        colour = "&a";
+
+                                                                    authmeMessage.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                                                                }
+                                                            }
+                                                        }.runTaskTimer(plugin, 0, 20);
+                                                    } else {
+                                                        user.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                        migrating_owner = null;
+                                                    }
+                                                    break;
+                                                case "loginsecurity":
+                                                    String table = args[2];
+
+                                                    user.send(messages.prefix() + "&aMigrating from LoginSecurity");
+
+                                                    BarMessage lsMessage = new BarMessage(player, "&eMigrating progress:&c Starting");
+                                                    lsMessage.send(true);
+
+                                                    if (migrateLoginSecurity(sender, table)) {
+                                                        new BukkitRunnable() {
+                                                            @Override
+                                                            public void run() {
+                                                                if (passed_migration == max_migrations) {
+                                                                    cancel();
+                                                                    migrating_owner.sendMessage(StringUtils.toColor(messages.prefix() + messages.migrated()));
+                                                                    lsMessage.setMessage("&8Migrating progress: &aComplete");
+                                                                    lsMessage.stop();
+                                                                    migrating_owner = null;
+                                                                }
+
+                                                                if (migrating_owner != null) {
+                                                                    double division = (double) passed_migration / max_migrations;
+                                                                    long iPart = (long) division;
+                                                                    double fPart = division - iPart;
+
+                                                                    String colour = "&c";
+                                                                    if (fPart >= 37.5)
+                                                                        colour = "&e";
+                                                                    if (fPart >= 75)
+                                                                        colour = "&a";
+
+                                                                    lsMessage.setMessage("&8Migrating progress:" + colour + " " + fPart + "%");
+                                                                }
+                                                            }
+                                                        }.runTaskTimer(plugin, 0, 20);
+                                                    } else {
+                                                        user.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                        migrating_owner = null;
+                                                    }
+                                                    break;
+                                                default:
+                                                    user.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                                                    break;
+                                            }
+                                            break;
                                     }
-                                } else {
-                                    user.send(messages.prefix() + "&cNot allowed in BungeeCord mode!");
                                 }
                             } else {
-                                user.send(messages.prefix() + "&cMigration already in progress by: " + migrating_owner.getName());
-                            }
-                        }
-                    } else {
-                        if (args[0].equals("applyUpdates")) {
-                            if (player.hasPermission(applyUpdatePermission)) {
-                                LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
-                                s_manager.applyUpdate(user);
-                            } else {
-                                user.send(messages.prefix() + messages.permission(applyUpdatePermission.getName()));
+                                user.send(messages.prefix() + "&cMigration already in progress by " + migrating_owner.getName());
                             }
                         } else {
-                            if (args[0].equals("modules")) {
-                                if (player.hasPermission(modulePermission)) {
-                                    ModuleListInventory inv = new ModuleListInventory(player);
-                                    inv.openPage(0);
-                                } else {
-                                    user.send(messages.prefix() + messages.permission(modulePermission.getName()));
-                                }
-                            } else {
-                                user.send(messages.prefix() + "&cUnknown sub-command, /locklogin [migrate|applyUpdates|modules]");
-                            }
+                            user.send(messages.prefix() + messages.permission(migratePermission.getName()));
                         }
-                    }
+                        break;
+                    case "applyUpdates":
+                        if (player.hasPermission(applyUpdatePermission)) {
+                            LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
+                            s_manager.applyUpdate(user);
+                        } else {
+                            user.send(messages.prefix() + messages.permission(applyUpdatePermission.getName()));
+                        }
+                        break;
+                    case "reload":
+                        if (player.hasPermission(applyUpdatePermission)) {
+                            LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
+                            s_manager.reload(user);
+                        } else {
+                            user.send(messages.prefix() + messages.permission(applyUpdatePermission.getName()));
+                        }
+                        break;
+                    case "modules":
+                        if (player.hasPermission(modulePermission)) {
+                            ModuleListInventory inv = new ModuleListInventory(player);
+                            inv.openPage(0);
+                        } else {
+                            user.send(messages.prefix() + messages.permission(modulePermission.getName()));
+                        }
+                        break;
+                    default:
+                        user.send(messages.prefix() + "&cAvailable sub commands: &7migrate&e, &7applyUpdates&e, &7reload&e, &emodules");
+                        break;
                 }
             }
         } else {
             if (args.length == 0) {
-                Console.send(messages.prefix() + "&cSpecify an action &7( &e/locklogin migrate &7|| &e/locklogin applyUpdates &7)");
+                Console.send(messages.prefix() + "&cAvailable sub commands: &7migrate&e, &7applyUpdates&e, &7reload");
             } else {
-                if (args[0].equals("migrate")) {
-                    if (migrating_owner == null) {
-                        if (!config.isBungeeCord()) {
-                            if (args.length == 1) {
-                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                            } else {
-                                if (args.length == 2) {
-                                    String method = args[1];
-                                    switch (method.toLowerCase()) {
-                                        case "mysql":
-                                            migrateMySQL(sender);
-                                            break;
-                                        case "loginsecurty":
-                                        case "ls":
-                                            Console.send(messages.prefix() + "&cPlease specify table name");
-                                            break;
-                                        case "authme":
-                                            Console.send(messages.prefix() + "&cPlease, specify database name, table name, realname and password column name (must exist in plugins/authme folder)");
-                                            break;
-                                        default:
-                                            Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                            break;
-                                    }
-                                } else {
-                                    if (args.length == 3) {
-                                        String method = args[1];
-                                        switch (method.toLowerCase()) {
+                switch (args[0].toLowerCase()) {
+                    case "migrate":
+                        if (migrating_owner == null) {
+                            if (args.length == 1)
+                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                            else {
+                                String sub_arg = args[1];
+                                switch (args.length) {
+                                    case 2:
+                                        switch (sub_arg.toLowerCase()) {
                                             case "mysql":
-                                                Console.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
+                                                migrateMySQL(sender);
+                                                break;
+                                            case "authme":
+                                                Console.send(messages.prefix() + "&cCorrect usage: /locklogin migrate AuthMe <database file name> <table name> <real name column> <password column>");
                                                 break;
                                             case "loginsecurity":
-                                            case "ls":
-                                                if (migrateLoginSecurity(sender, args[2])) {
+                                                Console.send(messages.prefix() + "&cCorrect usage: /locklogin migrate loginsecurity <table name>");
+                                                break;
+                                            default:
+                                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                                                break;
+                                        }
+                                        break;
+                                    case 3:
+                                    case 4:
+                                    case 5:
+                                        switch (sub_arg.toLowerCase()) {
+                                            case "mysql":
+                                                migrateMySQL(sender);
+                                                break;
+                                            case "authme":
+                                                Console.send(messages.prefix() + "&cCorrect usage: /locklogin migrate AuthMe <database file name> <table name> <real name column> <password column>");
+                                                break;
+                                            case "loginsecurity":
+                                                String table = args[2];
+
+                                                if (migrateLoginSecurity(sender, table)) {
                                                     Console.send(messages.prefix() + messages.migrated());
                                                 } else {
                                                     Console.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                    migrating_owner = null;
                                                 }
-                                            case "authme":
-                                                Console.send(messages.prefix() + "&cPlease, specify table name");
                                                 break;
                                             default:
-                                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
                                                 break;
                                         }
-                                    } else {
-                                        if (args.length == 4) {
-                                            String method = args[1];
-                                            switch (method.toLowerCase()) {
-                                                case "mysql":
-                                                    Console.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                    break;
-                                                case "loginsecurity":
-                                                case "ls":
-                                                    Console.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                    break;
-                                                case "authme":
-                                                    Console.send(messages.prefix() + "&cPlease specify the 'realname' column");
-                                                    break;
-                                                default:
-                                                    Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                    break;
-                                            }
-                                        } else {
-                                            if (args.length == 5) {
-                                                String method = args[1];
-                                                switch (method.toLowerCase()) {
-                                                    case "mysql":
-                                                        Console.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                        break;
-                                                    case "loginsecurity":
-                                                    case "ls":
-                                                        Console.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                        break;
-                                                    case "authme":
-                                                        Console.send(messages.prefix() + "&cPlease specify the 'password' column");
-                                                        break;
-                                                    default:
-                                                        Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                        break;
-                                                }
-                                            } else {
-                                                if (args.length == 6) {
-                                                    String method = args[1];
-                                                    switch (method.toLowerCase()) {
-                                                        case "mysql":
-                                                            Console.send(messages.prefix() + "&cToo many args, please, use /locklogin migrate MySQL");
-                                                            break;
-                                                        case "loginsecurity":
-                                                        case "ls":
-                                                            Console.send(messages.prefix() + "&cToo many args, please use /locklogin migrate " + method + " <table>");
-                                                            break;
-                                                        case "authme":
-                                                            Console.send(messages.prefix() + "&aMigrating from authme sqlite");
-                                                            if (migrateAuthMe(sender, args[2], args[3], args[4], args[5])) {
-                                                                Console.send(messages.prefix() + messages.migrated());
-                                                            } else {
-                                                                Console.send(messages.prefix() + "&cSome error occurred while migrating");
-                                                                migrating_owner = null;
-                                                            }
-                                                            break;
-                                                        default:
-                                                            Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
-                                                            break;
-                                                    }
+                                        break;
+                                    case 6:
+                                    default:
+                                        switch (sub_arg.toLowerCase()) {
+                                            case "mysql":
+                                                migrateMySQL(sender);
+                                                break;
+                                            case "authme":
+                                                String database_file = args[2];
+                                                String table_name = args[3];
+                                                String real_name = args[4];
+                                                String passwords = args[5];
+
+                                                Console.send(messages.prefix() + "&aMigrating from authme sqlite");
+
+                                                if (migrateAuthMe(sender, database_file, table_name, real_name, passwords)) {
+                                                    Console.send(messages.prefix() + messages.migrated());
                                                 } else {
-                                                    Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, authme>");
+                                                    Console.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                    migrating_owner = null;
                                                 }
-                                            }
+                                                break;
+                                            case "loginsecurity":
+                                                String table = args[2];
+
+                                                if (migrateLoginSecurity(sender, table)) {
+                                                    Console.send(messages.prefix() + messages.migrated());
+                                                } else {
+                                                    Console.send(messages.prefix() + "&cSome error occurred while migrating");
+                                                    migrating_owner = null;
+                                                }
+                                                break;
+                                            default:
+                                                Console.send(messages.prefix() + "&cPlease specify the migration: &7/locklogin migrate <MySQL, AuthMe, LoginSecurity>");
+                                                break;
                                         }
-                                    }
+                                        break;
                                 }
                             }
                         } else {
-                            Console.send(messages.prefix() + "&cNot allowed in BungeeCord mode!");
+                            Console.send(messages.prefix() + "&cMigration already in progress by " + migrating_owner.getName());
                         }
-                    } else {
-                        Console.send(messages.prefix() + "&cMigration already in progress by: &7" + migrating_owner.getName());
-                    }
-                } else {
-                    if (args[0].equals("applyUpdates")) {
+                        break;
+                    case "applyUpdates":
                         LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
                         s_manager.applyUpdate(null);
-                    }
+                        break;
+                    case "reload":
+                        LockLoginSpigotManager r_manager = new LockLoginSpigotManager();
+                        r_manager.reload(null);
+                        break;
+                    default:
+                        Console.send(messages.prefix() + "&cAvailable sub commands: &7migrate&e, &7applyUpdates&e, &7reload");
+                        break;
                 }
             }
         }
+
         return false;
     }
 

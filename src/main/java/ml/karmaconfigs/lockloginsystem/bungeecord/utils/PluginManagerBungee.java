@@ -4,7 +4,6 @@ import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
@@ -24,6 +23,7 @@ import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.BungeeMetrics;
@@ -41,6 +41,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -85,8 +86,10 @@ public final class PluginManagerBungee implements LockLoginBungee {
         if (new ConfigGetter().checkUpdates()) {
             doVersionCheck();
             startVersionChecker();
+            Console.send(plugin, "LockLogin will search for updates and latest version will be downloaded automatically", Level.INFO);
         } else {
             doVersionCheck();
+            Console.send(plugin, "YOU DISABLED LOCKLOGIN UPDATE CHECKER, WE HIGHLY RECOMMEND YOU TO ENABLE THIS. LOCKLOGIN WON'T UPDATE HIMSELF, JUST NOTIFY YOU ABOUT NEW UPDATES", Level.WARNING);
         }
         startAlertChecker();
         registerMetrics();
@@ -111,7 +114,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
     /**
      * Setup the plugin files
      */
-    private void setupFiles() {
+    public final void setupFiles() {
         File config_file = new File(plugin.getDataFolder(), "config.yml");
         FileCopy config = new FileCopy(plugin, "configs/config.yml");
         config.copy(config_file);
@@ -119,10 +122,14 @@ public final class PluginManagerBungee implements LockLoginBungee {
         FileManager cfgManager = new FileManager("config.yml");
         cfgManager.setInternal("configs/config.yml");
 
-        if (cfgManager.getString("ServerName").replaceAll("\\s", "").isEmpty()) {
-            cfgManager.set("ServerName", StringUtils.randomString(8));
-            cfgManager.save();
-        }
+        File passwords_yml = new File(plugin.getDataFolder(), "passwords.yml");
+        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml");
+        passwords.copy(passwords_yml);
+
+        FileManager passwordsManager = new FileManager("passwords.yml");
+        List<String> customPasswords = passwordsManager.getList("Insecure");
+        InsecurePasswords insecure = new InsecurePasswords();
+        insecure.addExtraPass(customPasswords);
 
         ConfigGetter cfg = new ConfigGetter();
         if (cfg.getMainLobby().equals(cfg.getAuthLobby()) || cfg.getMainLobby().equals(cfg.getFallBackAuth())) {
@@ -161,6 +168,10 @@ public final class PluginManagerBungee implements LockLoginBungee {
             case CZECH:
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
                 old_msg = new File(plugin.getDataFolder(), "messages_cz.yml");
+                break;
+            case RUSSIAN:
+                msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                old_msg = new File(plugin.getDataFolder(), "messages_ru.yml");
                 break;
             case UNKNOWN:
                 Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
@@ -315,12 +326,10 @@ public final class PluginManagerBungee implements LockLoginBungee {
         plugin.getProxy().getPluginManager().registerCommand(plugin, new DelAccountCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new CheckPlayerCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new LookUpCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new ApplyUpdateCommand());
+        plugin.getProxy().getPluginManager().registerCommand(plugin, new LockLoginCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new SetPinCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new ResetPinCommand());
         plugin.getProxy().getPluginManager().registerCommand(plugin, new CheckUpdateCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new MigrateCommand());
-        plugin.getProxy().getPluginManager().registerCommand(plugin, new ModuleListCommand());
     }
 
     /**
@@ -449,7 +458,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
             User user = new User(player);
-            user.setLogStatus(false);
+            user.setLogged(false);
 
             ConfigGetter config = new ConfigGetter();
             MessageGetter messages = new MessageGetter();
@@ -516,7 +525,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
 
             User user = new User(player);
-            user.setLogStatus(false);
+            user.setLogged(false);
 
             MessageGetter messages = new MessageGetter();
 

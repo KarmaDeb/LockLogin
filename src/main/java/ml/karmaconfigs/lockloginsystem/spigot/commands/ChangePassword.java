@@ -54,7 +54,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                             if (newPass.length() >= 4) {
                                 user.setPassword(newPass);
 
-                                if (config.TakeBack()) {
+                                if (config.takeBack()) {
                                     LastLocation lastLocation = new LastLocation(player);
                                     lastLocation.saveLocation();
                                 }
@@ -65,7 +65,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                                     user.teleport(spawn.getSpawn());
                                 }
 
-                                user.setLogStatus(false);
+                                user.setLogged(false);
                                 user.send(messages.prefix() + messages.changeDone());
                                 new StartCheck(player, CheckType.LOGIN);
                             } else {
@@ -97,7 +97,7 @@ public final class ChangePassword implements CommandExecutor, LockLoginSpigot, S
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
             }

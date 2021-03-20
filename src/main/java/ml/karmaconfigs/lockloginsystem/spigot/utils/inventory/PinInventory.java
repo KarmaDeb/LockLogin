@@ -139,9 +139,10 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                                 user.setPin(pin);
                             }
 
-                            if (config.TakeBack()) {
+                            if (config.takeBack()) {
                                 LastLocation lastLoc = new LastLocation(player);
-                                user.teleport(lastLoc.getLastLocation());
+                                if (lastLoc.hasLastLocation())
+                                    user.teleport(lastLoc.getLastLocation());
                             }
 
                             user.removeBlindEffect();
@@ -163,7 +164,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                             }
 
                             if (!user.has2FA()) {
-                                if (config.TakeBack()) {
+                                if (config.takeBack()) {
                                     LastLocation lastLoc = new LastLocation(player);
                                     user.teleport(lastLoc.getLastLocation());
                                 }

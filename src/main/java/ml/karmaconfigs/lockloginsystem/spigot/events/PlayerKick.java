@@ -37,7 +37,7 @@ public final class PlayerKick implements Listener, LockLoginSpigot, SpigotFiles 
             Player player = e.getPlayer();
             User user = new User(player);
 
-            if (config.TakeBack()) {
+            if (config.takeBack()) {
                 if (user.isLogged() && !user.isTempLog()) {
                     LastLocation lastLoc = new LastLocation(player);
                     lastLoc.saveLocation();
@@ -61,7 +61,7 @@ public final class PlayerKick implements Listener, LockLoginSpigot, SpigotFiles 
                 data.delIP();
             }
 
-            user.setLogStatus(false);
+            user.setLogged(false);
 
             user.removeBlindEffect();
 

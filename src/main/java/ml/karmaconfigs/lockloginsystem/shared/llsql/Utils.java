@@ -177,6 +177,8 @@ public final class Utils {
 
             ResultSet results = statement.executeQuery();
             exists = results.next();
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while checking MySQL user existence for " + uuid, Level.INFO);
@@ -209,6 +211,7 @@ public final class Utils {
                 statement.setBoolean(6, false);
                 statement.setString(7, "");
                 statement.setBoolean(8, false);
+
                 statement.executeUpdate();
             } catch (Throwable e) {
                 PlatformUtils.log(e, Level.GRAVE);
@@ -263,6 +266,7 @@ public final class Utils {
 
             statement.setString(1, getName());
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -288,6 +292,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 value = results.getString("EMAIL");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user from " + uuid, Level.INFO);
@@ -314,6 +320,7 @@ public final class Utils {
                 statement.setString(1, "");
             }
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -361,6 +368,7 @@ public final class Utils {
                 statement.setString(1, "");
             }
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -393,6 +401,7 @@ public final class Utils {
                 statement.setString(1, pin.toString());
             }
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -418,6 +427,7 @@ public final class Utils {
 
             statement.setString(1, "");
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -444,6 +454,7 @@ public final class Utils {
 
             statement.setBoolean(1, Value);
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -475,6 +486,7 @@ public final class Utils {
                 statement.setString(1, Token);
             }
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -501,6 +513,7 @@ public final class Utils {
 
             statement.setBoolean(1, Value);
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -531,6 +544,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 name = results.getString("PLAYER");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user from " + uuid, Level.INFO);
@@ -558,6 +573,7 @@ public final class Utils {
 
             statement.setString(1, name);
             statement.setString(2, uuid);
+
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
@@ -592,6 +608,8 @@ public final class Utils {
 
                 checkTables();
                 migrated = true;
+
+                statement.executeUpdate();
             } catch (Throwable ex) {
                 PlatformUtils.log(ex, Level.GRAVE);
                 PlatformUtils.log("Error while migrating MySQL authme accounts", Level.INFO);
@@ -619,8 +637,11 @@ public final class Utils {
                 statement.executeUpdate();
 
                 Bucket.removeColumn("last_name");
+
                 checkTables();
                 migrated = true;
+
+                statement.executeUpdate();
             } catch (Throwable ex) {
                 PlatformUtils.log(ex, Level.GRAVE);
                 PlatformUtils.log("Error while migrating MySQL authme accounts", Level.INFO);
@@ -653,6 +674,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 value = results.getString("UUID");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL stored UUID of " + uuid, Level.INFO);
@@ -682,6 +705,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 value = results.getString("UUID");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL stored UUID of " + player, Level.INFO);
@@ -711,6 +736,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 value = results.getString("PLAYER");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user of " + uuid, Level.INFO);
@@ -742,6 +769,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 password = results.getString("PASSWORD");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user password of " + uuid, Level.INFO);
@@ -773,6 +802,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 pin = results.getString("PIN");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user pin of " + uuid, Level.INFO);
@@ -805,6 +836,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 status = results.getInt("FAON") == 1;
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user google auth status of " + uuid, Level.INFO);
@@ -836,6 +869,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 value = results.getString("GAUTH");
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user google auth token of " + uuid, Level.INFO);
@@ -867,6 +902,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             if (results.next())
                 status = results.getInt("FLY") == 1;
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL user fly status of " + uuid, Level.INFO);
@@ -895,6 +932,8 @@ public final class Utils {
             ResultSet results = statement.executeQuery();
             while (results.next())
                 UUIDs.add(results.getString("UUID"));
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while getting MySQL stored UUIDs", Level.INFO);
@@ -903,30 +942,6 @@ public final class Utils {
         }
 
         return UUIDs;
-    }
-
-    public final boolean usesAzuriom() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-
-        boolean azuriom = false;
-
-        try {
-            connection = Bucket.getBucket().getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE AZURIOM=?");
-
-            statement.setInt(1, 1);
-
-            ResultSet results = statement.executeQuery();
-            azuriom = results.next();
-        } catch (Throwable ex) {
-            PlatformUtils.log(ex, Level.GRAVE);
-            PlatformUtils.log("Error while asking MySQL azuriom status", Level.INFO);
-        } finally {
-            Bucket.close(connection, statement);
-        }
-
-        return azuriom;
     }
 
     /**
@@ -945,17 +960,13 @@ public final class Utils {
                 String name = results.getString("PLAYER");
                 String id = results.getString("UUID");
 
-                if (id == null || id.isEmpty()) {
+                if (id == null || id.isEmpty())
                     id = getUUID(name).toString().replace("-", "");
-                    Bucket.setValueIfNotSet("UUID", "PLAYER", id, name);
-                }
 
                 statement = connection.prepareStatement("UPDATE " + table + " SET UUID=? WHERE PLAYER=?");
 
                 statement.setString(1, id);
                 statement.setString(2, name);
-
-                statement.executeUpdate();
 
                 Utils utils = new Utils(id, name);
                 utils.setPassword(utils.getPassword(), true);
@@ -965,6 +976,8 @@ public final class Utils {
 
                 PlatformUtils.log("Fixed MySQL user table of " + id, Level.INFO);
             }
+
+            statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
             PlatformUtils.log("Error while checking MySQL tables", Level.INFO);

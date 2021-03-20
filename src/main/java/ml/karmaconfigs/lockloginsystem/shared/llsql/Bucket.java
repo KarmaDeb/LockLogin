@@ -213,7 +213,7 @@ public final class Bucket {
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while updating " + targetColumn + " to " + targetValue + " where " + whereValue + " equals " + whereValue, Level.INFO);
+            PlatformUtils.log("Error while updating " + targetColumn + " to " + targetValue + " where " + whereColumn + " equals " + whereValue, Level.INFO);
         } finally {
             Bucket.close(connection, statement);
         }
@@ -252,9 +252,9 @@ public final class Bucket {
         config.setIdleTimeout(lifetime * 1000L);
         config.setConnectionTimeout(timeout * 1000L);
         config.setConnectionTestQuery("SELECT 1");
-        config.addDataSourceProperty("autoReconnect", true);
         config.addDataSourceProperty("useSSL", useSSL);
         config.addDataSourceProperty("verifyServerCertificate", ignoreCertificate);
+        config.setLeakDetectionThreshold(60 * 1000);
 
         dataSource = new HikariDataSource(config);
     }

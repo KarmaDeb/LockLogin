@@ -4,12 +4,14 @@ import ml.karmaconfigs.api.bungee.Logger;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -72,7 +74,19 @@ public final class ConfigGetter {
     }
 
     public final String serverName() {
-        return configuration.getString("ServerName");
+        String name = configuration.getString("ServerName");
+        if (name == null)
+            name = "";
+
+        if (name.isEmpty()) {
+            name = StringUtils.randomString(8, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER);
+            configuration.set("ServerName", name);
+            configuration.save();
+
+            ConfigGetter.manager.reload();
+        }
+
+        return name;
     }
 
     public final Lang getLang() {
@@ -197,13 +211,44 @@ public final class ConfigGetter {
         return configuration.getInt("Login.MaxTries");
     }
 
+    public final int registerInterval() {
+        int value = configuration.getInt("MessagesInterval.Register");
+
+        if (value < 5 || value > registerTimeOut()) {
+            value = 5;
+            configuration.set("MessagesInterval.Register", value);
+            configuration.save();
+
+            ConfigGetter.manager.reload();
+        }
+
+        return value;
+    }
+
+    public final int loginInterval() {
+        int value = configuration.getInt("MessagesInterval.Login");
+
+        if (value < 5 || value > loginTimeOut()) {
+            value = 5;
+            configuration.set("MessagesInterval.Login", value);
+            configuration.save();
+
+            ConfigGetter.manager.reload();
+        }
+
+        return value;
+    }
+
     public final CaptchaType getCaptchaType() {
         String val = configuration.getString("Captcha.Mode");
+        assert val != null;
 
-        switch (val) {
-            case "SIMPLE":
+        switch (val.toLowerCase()) {
+            case "simple":
                 return CaptchaType.SIMPLE;
-            case "COMPLEX":
+            case "disabled":
+                return CaptchaType.DISABLED;
+            case "complex":
             default:
                 return CaptchaType.COMPLEX;
         }
@@ -214,12 +259,24 @@ public final class ConfigGetter {
     }
 
     public final int getCaptchaLength() {
-        int val = configuration.getInt("Captcha.Length");
+        int val = configuration.getInt("Captcha.Difficulty.Length");
 
         if (val >= 4 && val <= 8)
             return val;
         else
             return 6;
+    }
+
+    public final boolean letters() {
+        return configuration.getBoolean("Captcha.Difficulty.Letters");
+    }
+
+    public final boolean strikethrough() {
+        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Enabled");
+    }
+
+    public final boolean randomStrikethrough() {
+        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Random");
     }
 
     public final int bfMaxTries() {

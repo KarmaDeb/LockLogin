@@ -112,7 +112,7 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                 }
             } else {
                 if (!cmd.equals("captcha"))
-                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                    user.send(messages.prefix() + messages.typeCaptcha());
             }
         } else {
             if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
@@ -132,7 +132,7 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                     }
                 }
             } else {
-                user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                user.send(messages.prefix() + messages.typeCaptcha());
             }
         }
     }

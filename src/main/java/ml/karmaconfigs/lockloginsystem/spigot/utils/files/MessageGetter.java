@@ -5,6 +5,7 @@ import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -13,6 +14,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -67,6 +69,10 @@ public final class MessageGetter implements LockLoginSpigot {
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
                 messages = YamlConfiguration.loadConfiguration(msg_file);
                 break;
+            case RUSSIAN:
+                msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                messages = YamlConfiguration.loadConfiguration(msg_file);
+                break;
             case UNKNOWN:
                 Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
@@ -108,12 +114,39 @@ public final class MessageGetter implements LockLoginSpigot {
         return messages.getString("AlreadyPlaying");
     }
 
-    public final String captcha(final int code) {
-        return Objects.requireNonNull(messages.getString("Captcha")).replace("{captcha}", String.valueOf(code));
+    public final String captcha(String code) {
+        String msg = messages.getString("Captcha");
+        assert msg != null;
+
+        ConfigGetter cfg = new ConfigGetter();
+
+        if (cfg.strikethrough()) {
+            if (cfg.randomStrikethrough()) {
+                String last_color = "&" + ChatColor.getLastColors(msg);
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 0; i < code.length(); i++) {
+                    int random = new Random().nextInt(100);
+
+                    if (random > 50) {
+                        builder.append("&m").append(code.charAt(i)).append("&r");
+                    } else {
+                        builder.append(last_color).append(code.charAt(i)).append("&r");
+                    }
+                }
+
+                code = builder.toString();
+            } else {
+                code = "&m" + code;
+            }
+        }
+
+        return msg.replace("{captcha}", code);
     }
 
-    public final String typeCaptcha(final int code) {
-        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", String.valueOf(code));
+    public final String typeCaptcha() {
+        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", "<captcha>");
     }
 
     public final String captchaTimeOut() {
@@ -140,9 +173,9 @@ public final class MessageGetter implements LockLoginSpigot {
         return messages.getString("AlreadyCaptcha");
     }
 
-    public final String login(final int captcha) {
-        if (captcha > 0)
-            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", String.valueOf(captcha));
+    public final String login(final String captcha) {
+        if (captcha != null && !captcha.isEmpty())
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
         else
             return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
     }
@@ -159,9 +192,9 @@ public final class MessageGetter implements LockLoginSpigot {
         return messages.getString("LogError");
     }
 
-    public final String register(final int captcha) {
-        if (captcha > 0)
-            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", String.valueOf(captcha));
+    public final String register(final String captcha) {
+        if (captcha != null && !captcha.isEmpty())
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "<captcha>");
         else
             return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "");
     }
@@ -275,7 +308,7 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String accountDeleted() {
-        return Objects.requireNonNull(messages.getString("AccountDeleted")).replace("{newline}", "\n");
+        return Objects.requireNonNull(messages.getString("AccountDeleted"));
     }
 
     public final String forcedUnLog(Player admin) {
@@ -291,11 +324,11 @@ public final class MessageGetter implements LockLoginSpigot {
     }
 
     public final String forceDelAccount(Player admin) {
-        return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{newline}", "\n").replace("{player}", admin.getDisplayName());
+        return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{player}", admin.getDisplayName());
     }
 
     public final String forceDelAccount(String admin) {
-        return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{newline}", "\n").replace("{player}", admin);
+        return Objects.requireNonNull(messages.getString("ForcedDelAccount")).replace("{player}", admin);
     }
 
     public final String forceDelAccountAdmin(Player target) {
@@ -503,8 +536,8 @@ public final class MessageGetter implements LockLoginSpigot {
         List<String> replaced = messages.getStringList("AntiBot");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
-                    .replace("{config:serverName}", cfg.serverName())
-                    .replace("{serverName}", cfg.serverName())
+                    .replace("{config:ServerName}", cfg.serverName())
+                    .replace("{ServerName}", cfg.serverName())
                     .replace("[", "{replace_open}")
                     .replace("]", "{replace_close}")
                     .replace(",", "{replace_comma}") + "&r");
@@ -569,8 +602,8 @@ public final class MessageGetter implements LockLoginSpigot {
         List<String> replaced = messages.getStringList("OnlyAzuriom");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
-                    .replace("{config:serverName}", cfg.serverName())
-                    .replace("{serverName}", cfg.serverName())
+                    .replace("{config:ServerName}", cfg.serverName())
+                    .replace("{ServerName}", cfg.serverName())
                     .replace("[", "{replace_open}")
                     .replace("]", "{replace_close}")
                     .replace(",", "{replace_comma}") + "&r");
@@ -589,77 +622,96 @@ public final class MessageGetter implements LockLoginSpigot {
 
         static boolean reload() {
             ConfigGetter cfg = new ConfigGetter();
-            switch (cfg.getLang()) {
-                case ENGLISH:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case SPANISH:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_es.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case SIMPLIFIED_CHINESE:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_zh.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case ITALIAN:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_it.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case POLISH:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_pl.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case FRENCH:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_fr.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case CZECH:
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-                case UNKNOWN:
-                    Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
-                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
-                    messages = YamlConfiguration.loadConfiguration(msg_file);
-                    break;
-            }
 
-            if (!msg_file.exists()) {
-                FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+            if (!cfg.isBungeeCord()) {
+                switch (cfg.getLang()) {
+                    case ENGLISH:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case SPANISH:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_es.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case SIMPLIFIED_CHINESE:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_zh.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case ITALIAN:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_it.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case POLISH:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_pl.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case FRENCH:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_fr.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case CZECH:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case RUSSIAN:
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                    case UNKNOWN:
+                        Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
+                        msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
+                        messages = YamlConfiguration.loadConfiguration(msg_file);
+                        break;
+                }
 
-                if (creator.copy(msg_file)) {
-                    try {
-                        InputStream stream = plugin.getResource("messages/" + msg_file.getName());
-                        if (stream != null) {
-                            YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                if (!msg_file.exists()) {
+                    FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
 
-                            if (reloader.reloadAndCopy())
-                                messages.loadFromString(reloader.getYamlString());
+                    if (creator.copy(msg_file)) {
+                        try {
+                            InputStream stream = plugin.getResource("messages/" + msg_file.getName());
+                            if (stream != null) {
+                                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+
+                                if (reloader.reloadAndCopy())
+                                    messages.loadFromString(reloader.getYamlString());
+                            }
+                        } catch (Throwable e) {
+                            logger.scheduleLog(Level.GRAVE, e);
+                            logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
                         }
-                    } catch (Throwable e) {
-                        logger.scheduleLog(Level.GRAVE, e);
-                        logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
                     }
                 }
-            }
 
-            try {
-                messages.save(msg_file);
-                InputStream stream = plugin.getResource("messages/" + msg_file.getName());
-                if (stream != null) {
-                    YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
-                    if (reloader.reloadAndCopy()) {
-                        messages.loadFromString(reloader.getYamlString());
-                        return true;
+                try {
+                    messages.save(msg_file);
+                    InputStream stream = plugin.getResource("messages/" + msg_file.getName());
+                    if (stream != null) {
+                        YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                        if (reloader.reloadAndCopy()) {
+                            messages.loadFromString(reloader.getYamlString());
+                            return true;
+                        }
                     }
+                } catch (Throwable e) {
+                    logger.scheduleLog(Level.GRAVE, e);
+                    logger.scheduleLog(Level.INFO, "Error while reloading config file");
                 }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while reloading config file");
             }
 
             return false;
+        }
+
+        static void loadBungee(final String yaml) {
+            ConfigGetter cfg = new ConfigGetter();
+
+            if (cfg.isBungeeCord()) {
+                try {
+                    messages.loadFromString(yaml);
+                } catch (Throwable ex) {
+                    ex.printStackTrace();
+                }
+            }
         }
     }
 }

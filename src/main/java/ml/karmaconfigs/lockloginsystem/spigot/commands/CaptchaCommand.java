@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
@@ -25,13 +26,11 @@ public final class CaptchaCommand implements CommandExecutor, LockLoginSpigot, S
                     if (args.length == 0) {
                         user.send(messages.prefix() + messages.specifyCaptcha());
                     } else {
-                        Integer captcha = null;
-                        try {
-                            captcha = Integer.parseInt(args[0]);
-                        } catch (Throwable ignored) {
-                        }
+                        String captcha = args[0];
 
-                        if (captcha != null) {
+                        if (StringUtils.containsLetters(captcha) && !config.letters()) {
+                            user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[0])));
+                        } else {
                             if (user.checkCaptcha(captcha)) {
                                 user.send(messages.prefix() + messages.captchaValidated());
                                 if (config.isYaml())
@@ -40,8 +39,6 @@ public final class CaptchaCommand implements CommandExecutor, LockLoginSpigot, S
                                 user.checkStatus();
                             } else
                                 user.send(messages.prefix() + messages.invalidCaptcha());
-                        } else {
-                            user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[0])));
                         }
                     }
                 } else {

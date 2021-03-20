@@ -51,7 +51,7 @@ public final class GoogleAuthResetCommand implements CommandExecutor, LockLoginS
                             if (user.validateCode(code)) {
                                 String newToken = user.genNewToken();
 
-                                if (config.TakeBack()) {
+                                if (config.takeBack()) {
                                     LastLocation lastLocation = new LastLocation(player);
                                     lastLocation.saveLocation();
                                 }

@@ -1,5 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsecurity;
 
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.entity.Player;
 

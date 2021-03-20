@@ -39,7 +39,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
             User user = new User(player);
 
             if (args.length == 0) {
-                user.setLogStatus(false);
+                user.setLogged(false);
                 new StartCheck(player, CheckType.LOGIN);
                 user.send(messages.prefix() + messages.unLogged());
 
@@ -54,7 +54,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                                 User targetUser = new User(target);
 
                                 if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                                    targetUser.setLogStatus(false);
+                                    targetUser.setLogged(false);
                                     new StartCheck(target, CheckType.LOGIN);
                                     targetUser.send(messages.prefix() + messages.forcedUnLogin(player));
                                     user.send(messages.prefix() + messages.forcedUnLogAdmin(target));
@@ -93,7 +93,7 @@ public final class UnlogCommand extends Command implements LockLoginBungee, Bung
                     User targetUser = new User(target);
 
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                        targetUser.setLogStatus(false);
+                        targetUser.setLogged(false);
                         new StartCheck(target, CheckType.LOGIN);
                         targetUser.send(messages.prefix() + messages.forcedUnLogin(config.serverName()));
                         Console.send(messages.prefix() + messages.forcedUnLogin(target));

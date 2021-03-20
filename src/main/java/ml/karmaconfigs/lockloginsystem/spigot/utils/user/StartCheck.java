@@ -32,7 +32,7 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
      * @param type   the check type
      */
     public StartCheck(Player player, CheckType type) {
-        StartSendingMessage(player, type);
+        startSendingMessage(player, type);
 
         Timer timer = new Timer();
         switch (type) {
@@ -125,7 +125,9 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
      * @param player the player
      * @param type   the message type
      */
-    private void StartSendingMessage(Player player, CheckType type) {
+    private void startSendingMessage(Player player, CheckType type) {
+        long interval = (new User(player).isLogged() ? config.loginInterval() : config.registerInterval());
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -137,6 +139,6 @@ public final class StartCheck implements LockLoginSpigot, SpigotFiles {
                     cancel();
                 }
             }
-        }.runTaskTimerAsynchronously(plugin, 0, 20 * 5);
+        }.runTaskTimerAsynchronously(plugin, 0, 20 * interval);
     }
 }

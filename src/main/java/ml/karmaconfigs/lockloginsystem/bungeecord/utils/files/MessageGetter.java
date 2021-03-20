@@ -4,6 +4,7 @@ import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
@@ -13,6 +14,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -60,6 +62,9 @@ public final class MessageGetter implements LockLoginBungee {
             case CZECH:
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
                 break;
+            case RUSSIAN:
+                msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                break;
             case UNKNOWN:
                 Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
                 msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
@@ -103,12 +108,39 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("AlreadyPlaying");
     }
 
-    public final String captcha(final int code) {
-        return Objects.requireNonNull(messages.getString("Captcha")).replace("{captcha}", String.valueOf(code));
+    public final String captcha(String code) {
+        String msg = messages.getString("Captcha");
+        assert msg != null;
+
+        ConfigGetter cfg = new ConfigGetter();
+
+        if (cfg.strikethrough()) {
+            if (cfg.randomStrikethrough()) {
+                String last_color = "&" + StringUtils.getLastColor(msg);
+
+                StringBuilder builder = new StringBuilder();
+
+                for (int i = 0; i < code.length(); i++) {
+                    int random = new Random().nextInt(100);
+
+                    if (random > 50) {
+                        builder.append("&m").append(code.charAt(i)).append("&r");
+                    } else {
+                        builder.append(last_color).append(code.charAt(i)).append("&r");
+                    }
+                }
+
+                code = builder.toString();
+            } else {
+                code = "&m" + code;
+            }
+        }
+
+        return msg.replace("{captcha}", code);
     }
 
-    public final String typeCaptcha(final int code) {
-        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", String.valueOf(code));
+    public final String typeCaptcha() {
+        return Objects.requireNonNull(messages.getString("TypeCaptcha")).replace("{captcha}", "<captcha>");
     }
 
     public final String captchaTimeOut() {
@@ -135,15 +167,15 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("AlreadyCaptcha");
     }
 
-    public final String login(final int captcha) {
-        if (captcha > 0)
-            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", String.valueOf(captcha));
+    public final String login(final String captcha) {
+        if (captcha != null && !captcha.isEmpty())
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
         else
             return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
     }
 
     public final String logged(ProxiedPlayer player) {
-        return messages.getString("Logged").replace("{player}", player.getName());
+        return Objects.requireNonNull(messages.getString("Logged")).replace("{player}", player.getName());
     }
 
     public final String alreadyLogged() {
@@ -154,9 +186,9 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("LogError");
     }
 
-    public final String register(final int captcha) {
-        if (captcha > 0)
-            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", String.valueOf(captcha));
+    public final String register(final String captcha) {
+        if (captcha != null && !captcha.isEmpty())
+            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "<captcha>");
         else
             return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "");
     }
@@ -270,7 +302,7 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String accountDeleted() {
-        return messages.getString("AccountDeleted").replace("{newline}", "\n");
+        return messages.getString("AccountDeleted");
     }
 
     public final String forcedUnLogin(ProxiedPlayer admin) {
@@ -286,11 +318,11 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String forcedDelAccount(ProxiedPlayer admin) {
-        return messages.getString("ForcedDelAccount").replace("{newline}", "\n").replace("{player}", admin.getDisplayName());
+        return messages.getString("ForcedDelAccount").replace("{player}", admin.getDisplayName());
     }
 
     public final String forcedDelAccount(String admin) {
-        return messages.getString("ForcedDelAccount").replace("{newline}", "\n").replace("{player}", admin);
+        return messages.getString("ForcedDelAccount").replace("{player}", admin);
     }
 
     public final String forcedDelAccAdmin(ProxiedPlayer target) {
@@ -371,7 +403,7 @@ public final class MessageGetter implements LockLoginBungee {
         return messages.getString("Migrated");
     }
 
-    public final String migrationConnectionError() {
+    public final String migrationError() {
         return messages.getString("MigrationConnectionError");
     }
 
@@ -498,8 +530,8 @@ public final class MessageGetter implements LockLoginBungee {
         List<String> replaced = messages.getStringList("OnlyAzuriom");
         for (int i = 0; i < replaced.size(); i++) {
             replaced.set(i, replaced.get(i)
-                    .replace("{config:serverName}", cfg.serverName())
-                    .replace("{serverName}", cfg.serverName())
+                    .replace("{config:ServerName}", cfg.serverName())
+                    .replace("{ServerName}", cfg.serverName())
                     .replace("[", "{replace_open}")
                     .replace("]", "{replace_close}")
                     .replace(",", "{replace_comma}") + "&r");
@@ -540,6 +572,9 @@ public final class MessageGetter implements LockLoginBungee {
                 case CZECH:
                     msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
                     break;
+                case RUSSIAN:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                    break;
                 case UNKNOWN:
                     Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
                     msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
@@ -565,6 +600,44 @@ public final class MessageGetter implements LockLoginBungee {
             }
 
             return false;
+        }
+
+        static File getAsFile() {
+            ConfigGetter cfg = new ConfigGetter();
+            File msg_file;
+            switch (cfg.getLang()) {
+                case ENGLISH:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
+                    break;
+                case SPANISH:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_es.yml");
+                    break;
+                case SIMPLIFIED_CHINESE:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_zh.yml");
+                    break;
+                case ITALIAN:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_it.yml");
+                    break;
+                case POLISH:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_pl.yml");
+                    break;
+                case FRENCH:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_fr.yml");
+                    break;
+                case CZECH:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_cz.yml");
+                    break;
+                case RUSSIAN:
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_ru.yml");
+                    break;
+                case UNKNOWN:
+                default:
+                    Console.send(plugin, "&cERROR UNKNOWN LANG, valid languages are: &een_EN&b[English]&7, &ees_ES&b[Spanish]&7, &ezh_CN&b[Simplified_Chinese]&7, &eit_IT&b[Italian]&7, &epl_PL&b[Polish]&7, &efr_FR&b[French]&7, &ecz_CS&b[Czech]", Level.WARNING);
+                    msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
+                    break;
+            }
+
+            return msg_file;
         }
     }
 }

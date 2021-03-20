@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
@@ -55,16 +56,17 @@ public final class LoginCommand implements CommandExecutor, LockLoginSpigot, Spi
                 } else {
                     if (args.length == 2) {
                         if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
-                            try {
-                                int captcha = Integer.parseInt(args[1]);
+                            String captcha = args[1];
+
+                            if (StringUtils.containsLetters(captcha) && !config.letters()) {
+                                user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[1])));
+                            } else {
                                 if (user.checkCaptcha(captcha)) {
                                     user.send(messages.prefix() + messages.captchaValidated());
                                     user.authPlayer(args[0]);
                                 } else {
                                     user.send(messages.prefix() + messages.invalidCaptcha());
                                 }
-                            } catch (Throwable ex) {
-                                user.send(messages.prefix() + messages.invalidCaptcha());
                             }
                         } else {
                             user.send(messages.prefix() + messages.login(user.getCaptcha()));
@@ -88,5 +90,17 @@ public final class LoginCommand implements CommandExecutor, LockLoginSpigot, Spi
         }
 
         return false;
+    }
+
+    private String getInvalidChars(final String str) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < str.length(); i++) {
+            char character = str.charAt(i);
+            if (!Character.isDigit(character))
+                builder.append("'").append(character).append("'").append((i != str.length() - 1 ? ", " : ""));
+        }
+
+        return builder.toString();
     }
 }

@@ -84,6 +84,7 @@ public final class ConfigGetter implements LockLoginSpigot {
                         logger.scheduleLog(Level.INFO, "Error while creating artificial spigot.yml for bungeecord support");
                     }
                 }
+
                 return sp.getBoolean("settings.bungeecord");
             } catch (IOException e) {
                 logger.scheduleLog(Level.GRAVE, e);
@@ -148,7 +149,23 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final String serverName() {
-        return configuration.getString("ServerName", StringUtils.randomString(8));
+        String name = configuration.getString("ServerName", "");
+        assert name != null;
+
+        if (name.isEmpty()) {
+            name = StringUtils.randomString(8, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER);
+            configuration.set("ServerName", name);
+
+            try {
+                configuration.save(config);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+
+            manager.reload();
+        }
+
+        return name;
     }
 
     public final boolean registerRestricted() {
@@ -233,14 +250,54 @@ public final class ConfigGetter implements LockLoginSpigot {
         return configuration.getInt("Login.MaxTries", 5);
     }
 
+    public final int registerInterval() {
+        int value = configuration.getInt("MessagesInterval.Register", 5);
+
+        if (value < 5 || value > registerTimeOut()) {
+            value = 5;
+            configuration.set("MessagesInterval.Register", value);
+
+            try {
+                configuration.save(config);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+
+            manager.reload();
+        }
+
+        return value;
+    }
+
+    public final int loginInterval() {
+        int value = configuration.getInt("MessagesInterval.Login", 5);
+
+        if (value < 5 || value > loginTimeOut()) {
+            value = 5;
+            configuration.set("MessagesInterval.Login", value);
+
+            try {
+                configuration.save(config);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+
+            manager.reload();
+        }
+
+        return value;
+    }
+
     public final CaptchaType getCaptchaType() {
-        String val = configuration.getString("Captcha.Mode", "COMPLEX");
+        String val = configuration.getString("Captcha.Mode", "SIMPLE");
         assert val != null;
 
-        switch (val) {
-            case "SIMPLE":
+        switch (val.toLowerCase()) {
+            case "simple":
                 return CaptchaType.SIMPLE;
-            case "COMPLEX":
+            case "disabled":
+                return CaptchaType.DISABLED;
+            case "complex":
             default:
                 return CaptchaType.COMPLEX;
         }
@@ -251,12 +308,24 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final int getCaptchaLength() {
-        int val = configuration.getInt("Captcha.Length");
+        int val = configuration.getInt("Captcha.Difficulty.Length");
 
         if (val >= 4 && val <= 8)
             return val;
         else
             return 6;
+    }
+
+    public final boolean letters() {
+        return configuration.getBoolean("Captcha.Difficulty.Letters", true);
+    }
+
+    public final boolean strikethrough() {
+        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Enabled", true);
+    }
+
+    public final boolean randomStrikethrough() {
+        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Random", true);
     }
 
     public final int bfMaxTries() {
@@ -322,19 +391,19 @@ public final class ConfigGetter implements LockLoginSpigot {
         return configuration.getBoolean("Spawn.Manage", false);
     }
 
-    public final boolean TakeBack() {
+    public final boolean takeBack() {
         return configuration.getBoolean("Spawn.TakeBack", false);
     }
 
-    public final boolean ClearChat() {
+    public final boolean clearChat() {
         return configuration.getBoolean("ClearChat", false);
     }
 
-    public final int AccountsPerIp() {
+    public final int accountsPerIp() {
         return configuration.getInt("AccountsPerIp", 2);
     }
 
-    public final boolean CheckNames() {
+    public final boolean checkNames() {
         return configuration.getBoolean("CheckNames", false);
     }
 
@@ -345,18 +414,22 @@ public final class ConfigGetter implements LockLoginSpigot {
     public interface manager {
 
         static boolean reload() {
-            try {
-                InputStream stream = plugin.getResource("configs/config_spigot.yml");
-                if (stream != null) {
-                    YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
-                    if (reloader.reloadAndCopy()) {
-                        configuration.loadFromString(reloader.getYamlString());
-                        return true;
+            ConfigGetter cfg = new ConfigGetter();
+
+            if (!cfg.isBungeeCord()) {
+                try {
+                    InputStream stream = plugin.getResource("configs/config_spigot.yml");
+                    if (stream != null) {
+                        YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
+                        if (reloader.reloadAndCopy()) {
+                            configuration.loadFromString(reloader.getYamlString());
+                            return true;
+                        }
                     }
+                } catch (Throwable e) {
+                    logger.scheduleLog(Level.GRAVE, e);
+                    logger.scheduleLog(Level.INFO, "Error while reloading config file");
                 }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
-                logger.scheduleLog(Level.INFO, "Error while reloading config file");
             }
 
             return false;

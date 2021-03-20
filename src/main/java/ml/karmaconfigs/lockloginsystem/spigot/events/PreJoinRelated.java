@@ -57,11 +57,11 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                         }
                     }
 
-                    if (config.AccountsPerIp() != 0) {
+                    if (config.accountsPerIp() != 0) {
                         IpData data = new IpData(temp_module, e.getAddress());
                         data.fetch(Platform.SPIGOT);
 
-                        if (data.getConnections() > config.AccountsPerIp()) {
+                        if (data.getConnections() > config.accountsPerIp()) {
                             user.kick("&eLockLogin\n\n" + messages.maxIp());
                         } else {
                             if (!player.isBanned()) {

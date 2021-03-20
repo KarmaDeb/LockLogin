@@ -20,19 +20,19 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Migrate;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
-import net.md_5.bungee.api.connection.Connection;
+import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.LoginEvent;
 import net.md_5.bungee.api.event.PostLoginEvent;
 import net.md_5.bungee.api.event.ServerConnectEvent;
 import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
-import net.md_5.bungee.api.scheduler.ScheduledTask;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
 import java.net.InetAddress;
-import java.util.*;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /*
@@ -53,9 +53,9 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onPreJoin(LoginEvent e) {
-        Connection connection = e.getConnection();
+        PendingConnection connection = e.getConnection();
 
-        BFSystem bf_prevention = new BFSystem(e.getConnection().getVirtualHost().getAddress());
+        BFSystem bf_prevention = new BFSystem(connection.getVirtualHost().getAddress());
         if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
@@ -63,13 +63,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
             if (config.checkNames()) {
-                if (Checker.notValid(e.getConnection().getName())) {
+                if (Checker.notValid(connection.getName())) {
                     e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(Checker.getIllegalChars(e.getConnection().getName())))));
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(Checker.getIllegalChars(connection.getName())))));
                 }
             }
 
-            if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
+            if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
                 e.setCancelled(true);
                 e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.alreadyPlaying())));
             }
@@ -93,8 +93,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                         e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxIP())));
                     } else {
                         plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                            if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()) != null) {
-                                if (plugin.getProxy().getPlayer(e.getConnection().getUniqueId()).isConnected()) {
+                            if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
+                                if (plugin.getProxy().getPlayer(connection.getUniqueId()).isConnected()) {
                                     data.addIP();
                                 }
                             }
@@ -117,15 +117,15 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
                         if (config.maxRegister() > 0) {
                             try {
-                                if (storager.canJoin(e.getConnection().getUniqueId(), config.maxRegister())) {
-                                    storager.save(e.getConnection().getUniqueId());
+                                if (storager.canJoin(connection.getUniqueId(), config.maxRegister())) {
+                                    storager.save(connection.getUniqueId());
 
-                                    if (storager.hasAltAccounts(e.getConnection().getUniqueId())) {
+                                    if (storager.hasAltAccounts(connection.getUniqueId())) {
                                         for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
                                             User user = new User(online);
 
-                                            if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(e.getConnection().getUniqueId()))
-                                                user.send(messages.prefix() + messages.altsFound(e.getConnection().getName(), storager.getAltsAmount(e.getConnection().getUniqueId())));
+                                            if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(connection.getUniqueId()))
+                                                user.send(messages.prefix() + messages.altsFound(connection.getName(), storager.getAltsAmount(connection.getUniqueId())));
                                         }
                                     }
                                 } else {
@@ -147,7 +147,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onJoin(ServerConnectEvent e) {
         ProxiedPlayer player = e.getPlayer();
-
         User user = new User(player);
 
         if (config.isMySQL()) {
@@ -183,6 +182,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 if (sql.getName() == null || sql.getName().isEmpty())
                     sql.setName(player.getName());
             }
+        } else {
+            user.setupFile();
         }
 
         if (user.isLogged()) {
@@ -233,23 +234,26 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             User user = new User(player);
 
             if (!user.isLogged()) {
-                plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                    user.checkServer();
-                    if (config.clearChat()) {
-                        for (int i = 0; i < 150; i++) {
-                            user.send(" ");
-                        }
-                    }
+                user.genCaptcha();
 
-                    if (config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
-                        if (user.isRegistered())
-                            new StartCheck(player, CheckType.LOGIN);
-                        else
-                            new StartCheck(player, CheckType.REGISTER);
-                    } else {
+                user.checkServer();
+                if (config.clearChat()) {
+                    for (int i = 0; i < 150; i++) {
+                        user.send(" ");
+                    }
+                }
+
+                if (config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                    if (user.isRegistered())
+                        new StartCheck(player, CheckType.LOGIN);
+                    else
+                        new StartCheck(player, CheckType.REGISTER);
+                } else {
+                    if (config.getCaptchaTimeOut() > 0) {
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
                             int back = config.getCaptchaTimeOut();
+
                             @Override
                             public void run() {
                                 if (user.hasCaptcha()) {
@@ -257,9 +261,13 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                                         cancel();
 
                                         user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
-                                    } else {
-                                        if (back % 5 == 0 || back % 10 == 0)
-                                            user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+
+                                        if (!user.isRegistered()) {
+                                            FileManager manager = new FileManager(player.getUniqueId().toString().replace("-", "") + ".yml", "playerdata");
+                                            manager.delete();
+
+                                            user.remove();
+                                        }
                                     }
                                 } else {
                                     cancel();
@@ -269,7 +277,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                             }
                         }, 0, 1000);
                     }
-                }, 1, TimeUnit.SECONDS);
+                }
             }
 
             plugin.getProxy().getScheduler().schedule(plugin, () -> {

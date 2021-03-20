@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerRegisterEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
@@ -52,7 +53,7 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
                             if (Passwords.isSecure(password, player)) {
                                 if (password.length() >= 4) {
                                     user.setPassword(password);
-                                    user.setLogStatus(true);
+                                    user.setLogged(true);
                                     user.send(messages.prefix() + messages.registered());
                                     user.checkServer();
 
@@ -79,17 +80,17 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
                     } else {
                         if (args.length == 3) {
                             if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
-                                try {
-                                    int captcha = Integer.parseInt(args[2]);
+                                String captcha = args[2];
 
+                                if (StringUtils.containsLetters(captcha) && !config.letters()) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[2])));
+                                } else {
                                     if (user.checkCaptcha(captcha)) {
                                         user.send(messages.prefix() + messages.captchaValidated());
                                         player.chat("/register " + args[0] + " " + args[1]);
                                     } else {
                                         user.send(messages.prefix() + messages.invalidCaptcha());
                                     }
-                                } catch (Throwable ex) {
-                                    user.send(messages.prefix() + messages.invalidCaptcha());
                                 }
                             } else {
                                 user.send(messages.prefix() + messages.register(user.getCaptcha()));
@@ -105,5 +106,17 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
+    }
+
+    private String getInvalidChars(final String str) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < str.length(); i++) {
+            char character = str.charAt(i);
+            if (!Character.isDigit(character))
+                builder.append("'").append(character).append("'").append((i != str.length() - 1 ? ", " : ""));
+        }
+
+        return builder.toString();
     }
 }

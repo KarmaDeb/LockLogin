@@ -71,7 +71,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                             case SUCCESS:
                                 user.send(event.getAuthMessage());
                                 if (valid_code) {
-                                    user.setLogStatus(true);
+                                    user.setLogged(true);
                                     user.checkServer();
 
                                     dataSender.sendAccountStatus(player);

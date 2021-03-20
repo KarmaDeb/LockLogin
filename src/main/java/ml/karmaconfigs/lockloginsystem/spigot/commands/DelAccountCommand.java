@@ -55,7 +55,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
             } else {
@@ -69,7 +69,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                             if (!target.equals(player)) {
                                 User targetUser = new User(target);
 
-                                if (config.TakeBack()) {
+                                if (config.takeBack()) {
                                     LastLocation lastLocation = new LastLocation(target);
                                     lastLocation.saveLocation();
                                 }
@@ -81,7 +81,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                 }
 
                                 targetUser.remove();
-                                targetUser.setLogStatus(false);
+                                targetUser.setLogged(false);
                                 targetUser.setTempLog(false);
                                 targetUser.send(messages.prefix() + messages.forceDelAccount(player));
                                 user.send(messages.prefix() + messages.forceDelAccountAdmin(target));
@@ -111,7 +111,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                             PasswordUtils utils = new PasswordUtils(password, user.getPassword());
 
                             if (utils.validate()) {
-                                if (config.TakeBack()) {
+                                if (config.takeBack()) {
                                     LastLocation lastLocation = new LastLocation(player);
                                     lastLocation.saveLocation();
                                 }
@@ -123,7 +123,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                                 }
 
                                 user.remove();
-                                user.setLogStatus(false);
+                                user.setLogged(false);
                                 user.send(messages.prefix() + messages.accountDeleted());
                                 new StartCheck(player, CheckType.REGISTER);
                             } else {
@@ -145,7 +145,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                     Player target = plugin.getServer().getPlayer(tar);
                     User targetUser = new User(target);
 
-                    if (config.TakeBack()) {
+                    if (config.takeBack()) {
                         LastLocation lastLocation = new LastLocation(target);
                         lastLocation.saveLocation();
                     }
@@ -157,7 +157,7 @@ public final class DelAccountCommand implements CommandExecutor, LockLoginSpigot
                     }
 
                     targetUser.remove();
-                    targetUser.setLogStatus(false);
+                    targetUser.setLogged(false);
                     targetUser.send(messages.prefix() + messages.forceDelAccount("SERVER"));
                     Console.send(messages.prefix() + messages.forceDelAccountAdmin(target));
                     new StartCheck(target, CheckType.REGISTER);

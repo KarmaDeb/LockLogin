@@ -6,8 +6,10 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.KarmaFile;
+import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.api.spigot.reflections.TitleMessage;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
+import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
@@ -24,6 +26,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.net.InetSocketAddress;
 import java.util.*;
@@ -44,10 +47,14 @@ GNU LESSER GENERAL PUBLIC LICENSE
  */
 public final class User implements LockLoginSpigot, SpigotFiles {
 
-    private final static HashMap<UUID, Boolean> logStatus = new HashMap<>();
-    private final static HashMap<UUID, Boolean> tempLog = new HashMap<>();
+    private final static HashSet<UUID> logged = new HashSet<>();
+    private final static HashSet<UUID> tempLog = new HashSet<>();
+
+    private final static HashSet<UUID> captchaLogged = new HashSet<>();
+
     private final static HashMap<UUID, Integer> playerTries = new HashMap<>();
-    private final static HashMap<UUID, Integer> playerCaptcha = new HashMap<>();
+    private final static HashMap<UUID, String> playerCaptcha = new HashMap<>();
+
     private final static HashMap<UUID, Collection<PotionEffect>> playerEffects = new HashMap<>();
 
     private final Player player;
@@ -98,10 +105,26 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Generate a captcha for the player
      */
     public final void genCaptcha() {
-        int captcha = StringUtils.randomNumber(config.getCaptchaLength());
-        playerCaptcha.put(player.getUniqueId(), captcha);
+        if (!captchaLogged.contains(player.getUniqueId())) {
+            String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
+            playerCaptcha.put(player.getUniqueId(), captcha);
 
-        send(messages.prefix() + messages.captcha(captcha));
+            BarMessage bar = new BarMessage(player, messages.prefix() + messages.captcha(captcha));
+            bar.send(true);
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    try {
+                        if (!player.isOnline() || !captchaLogged.contains(player.getUniqueId())) {
+                            bar.setMessage("");
+                            bar.stop();
+                            cancel();
+                        }
+                    } catch (Throwable ignored) {}
+                }
+            }.runTaskTimerAsynchronously(plugin, 0, 20);
+        }
     }
 
     /**
@@ -269,14 +292,15 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 }
 
                                 sendTitle("", "", 1, 2, 1);
-                                setLogStatus(true);
+                                setLogged(true);
 
                                 send(event.getAuthMessage());
 
                                 plugin.getServer().getScheduler().runTask(plugin, () -> {
-                                    if (config.TakeBack()) {
+                                    if (config.takeBack()) {
                                         LastLocation lastLoc = new LastLocation(player);
-                                        teleport(lastLoc.getLastLocation());
+                                        if (lastLoc.hasLastLocation())
+                                            teleport(lastLoc.getLastLocation());
                                     }
                                 });
                                 removeBlindEffect();
@@ -298,7 +322,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                         break;
                     case SUCCESS_TEMP:
                         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                            setLogStatus(true);
+                            setLogged(true);
                             if (Passwords.isLegacySalt(getPassword())) {
                                 setPassword(password);
                                 send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
@@ -519,27 +543,30 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param nausea apply nausea effect?
      */
     public final void applyBlindEffect(boolean nausea) {
+        int time = config.registerTimeOut() * 20;
+        if (isRegistered())
+            time = config.loginTimeOut() * 20;
+
         removeEffect(PotionEffectType.BLINDNESS);
         removeEffect(PotionEffectType.NIGHT_VISION);
         if (nausea) {
             removeEffect(PotionEffectType.CONFUSION);
-            sendEffect(PotionEffectType.CONFUSION, 10000, 100, true, false);
+            sendEffect(PotionEffectType.CONFUSION, time, 100, true, false);
         }
-        sendEffect(PotionEffectType.BLINDNESS, 10000, 100, true, false);
-        sendEffect(PotionEffectType.NIGHT_VISION, 10000, 100, true, false);
+        sendEffect(PotionEffectType.BLINDNESS, time, 100, true, false);
+        sendEffect(PotionEffectType.NIGHT_VISION, time, 100, true, false);
     }
 
     /**
      * Remove the user blind effects
      */
     public final void removeBlindEffect() {
-        if (playerEffects.containsKey(player.getUniqueId())) {
-            removeEffect(PotionEffectType.BLINDNESS);
-            removeEffect(PotionEffectType.NIGHT_VISION);
-            removeEffect(PotionEffectType.CONFUSION);
+        removeEffect(PotionEffectType.BLINDNESS);
+        removeEffect(PotionEffectType.NIGHT_VISION);
+        removeEffect(PotionEffectType.CONFUSION);
 
+        if (playerEffects.containsKey(player.getUniqueId()))
             sendEffects(playerEffects.remove(player.getUniqueId()));
-        }
     }
 
     /**
@@ -594,6 +621,65 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set the player session status
+     *
+     * @param value true/false
+     */
+    public final void setLogged(boolean value) {
+        if (value)
+            logged.add(player.getUniqueId());
+        else
+            logged.remove(player.getUniqueId());
+    }
+
+    /**
+     * Set if the player is in temp-login
+     * status
+     *
+     * @param value true/false
+     */
+    public final void setTempLog(boolean value) {
+        if (value)
+            tempLog.add(player.getUniqueId());
+        else
+            tempLog.remove(player.getUniqueId());
+    }
+
+    /**
+     * Set the player password
+     *
+     * @param password the password
+     */
+    public final void setPassword(String password) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPassword(password);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPassword(password, false);
+        }
+    }
+
+    /**
+     * Set the player pin
+     *
+     * @param pin the pin
+     */
+    public final void setPin(Object pin) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPin(pin);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPin(pin, false);
+        }
+    }
+
+    /**
      * Get the player UUID
      * <code>No longer used</code>
      *
@@ -615,15 +701,32 @@ public final class User implements LockLoginSpigot, SpigotFiles {
         return plugin.getServer().getOfflinePlayer(player.getUniqueId()).getUniqueId();
     }
 
-    public final boolean checkCaptcha(final int code) {
+    /**
+     * Check the captcha
+     *
+     * @param code the captcha code the player
+     *             has typed
+     * @return if the code is valid
+     */
+    public final boolean checkCaptcha(final String code) {
         if (playerCaptcha.containsKey(player.getUniqueId()))
-            return code == playerCaptcha.remove(player.getUniqueId());
+            if (code.equals(playerCaptcha.remove(player.getUniqueId())))
+                return captchaLogged.add(player.getUniqueId());
 
         return false;
     }
 
+    /**
+     * Check if the player has a pending
+     * captcha
+     *
+     * @return if the player has pending captcha
+     */
     public final boolean hasCaptcha() {
-        return playerCaptcha.getOrDefault(player.getUniqueId(), -1) > 0;
+        if (config.getCaptchaType().equals(CaptchaType.DISABLED))
+            return false;
+        else
+            return !captchaLogged.contains(player.getUniqueId());
     }
 
     /**
@@ -723,26 +826,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @return if the player is logged
      */
     public final boolean isLogged() {
-        return logStatus.getOrDefault(player.getUniqueId(), false).equals(true);
-    }
-
-    /**
-     * The same as "isLogged" but for
-     * different purpose
-     *
-     * @return if the player is logged
-     */
-    public final boolean getLogStatus() {
-        return logStatus.getOrDefault(player.getUniqueId(), false);
-    }
-
-    /**
-     * Set the player session status
-     *
-     * @param value true/false
-     */
-    public final void setLogStatus(boolean value) {
-        logStatus.put(player.getUniqueId(), value);
+        return logged.contains(player.getUniqueId());
     }
 
     /**
@@ -770,17 +854,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * For example, if he has 2Fa or pin
      */
     public final boolean isTempLog() {
-        return tempLog.getOrDefault(player.getUniqueId(), false);
-    }
-
-    /**
-     * Set if the player is in temp-login
-     * status
-     *
-     * @param value true/false
-     */
-    public final void setTempLog(boolean value) {
-        tempLog.put(player.getUniqueId(), value);
+        return tempLog.contains(player.getUniqueId());
     }
 
     /**
@@ -816,23 +890,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Set the player password
-     *
-     * @param password the password
-     */
-    public final void setPassword(String password) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPassword(password);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPassword(password, false);
-        }
-    }
-
-    /**
      * Get the player pin
      *
      * @return the player pin
@@ -850,23 +907,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             }
         }
         return "";
-    }
-
-    /**
-     * Set the player pin
-     *
-     * @param pin the pin
-     */
-    public final void setPin(Object pin) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPin(pin);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPin(pin, false);
-        }
     }
 
     /**
@@ -933,6 +973,15 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Get the player captcha
+     *
+     * @return the player captcha
+     */
+    public final String getCaptcha() {
+        return playerCaptcha.getOrDefault(player.getUniqueId(), "");
+    }
+
+    /**
      * Get the player tries left
      *
      * @return the amount of login tries left
@@ -940,15 +989,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
-    }
-
-    /**
-     * Get the player captcha
-     *
-     * @return the player captcha
-     */
-    public final int getCaptcha() {
-        return playerCaptcha.getOrDefault(player.getUniqueId(), -1);
     }
 }
 

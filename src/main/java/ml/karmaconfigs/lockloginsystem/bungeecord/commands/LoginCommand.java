@@ -2,23 +2,14 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
-import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
-import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
-import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
-import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
-
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -60,17 +51,18 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
                         }
                     } else {
                         if (args.length == 2) {
+                            String captcha = args[1];
+
                             if (config.getCaptchaType().equals(CaptchaType.SIMPLE) && user.hasCaptcha()) {
-                                try {
-                                    int captcha = Integer.parseInt(args[1]);
+                                if (StringUtils.containsLetters(captcha) && !config.letters()) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[1])));
+                                } else {
                                     if (user.checkCaptcha(captcha)) {
                                         user.send(messages.prefix() + messages.captchaValidated());
                                         user.authPlayer(args[0]);
                                     } else {
                                         user.send(messages.prefix() + messages.invalidCaptcha());
                                     }
-                                } catch (Throwable ex) {
-                                    user.send(messages.prefix() + messages.invalidCaptcha());
                                 }
                             } else {
                                 user.send(messages.prefix() + messages.login(user.getCaptcha()));
@@ -86,5 +78,17 @@ public final class LoginCommand extends Command implements LockLoginBungee, Bung
         } else {
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
+    }
+
+    private String getInvalidChars(final String str) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < str.length(); i++) {
+            char character = str.charAt(i);
+            if (!Character.isDigit(character))
+                builder.append("'").append(character).append("'").append((i != str.length() - 1 ? ", " : ""));
+        }
+
+        return builder.toString();
     }
 }

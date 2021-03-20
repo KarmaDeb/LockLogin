@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
@@ -63,10 +64,10 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
                                     user.sendTitle("", "", 1, 2, 1);
 
                                     user.setPassword(password);
-                                    user.setLogStatus(true);
+                                    user.setLogged(true);
                                     user.send(messages.prefix() + messages.registered());
 
-                                    if (config.TakeBack()) {
+                                    if (config.takeBack()) {
                                         LastLocation lastLoc = new LastLocation(player);
                                         user.teleport(lastLoc.getLastLocation());
                                     }
@@ -93,18 +94,19 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
                     } else {
                         if (args.length == 3) {
                             if (user.hasCaptcha()) {
-                                try {
-                                    int code = Integer.parseInt(args[2]);
+                                String code = args[2];
 
+                                if (StringUtils.containsLetters(code) && !config.letters()) {
+                                    user.send(messages.prefix() + messages.invalidCaptcha(getInvalidChars(args[2])));
+                                } else {
                                     if (user.checkCaptcha(code)) {
                                         user.send(messages.prefix() + messages.captchaValidated());
                                         player.performCommand("register " + args[0] + " " + args[1]);
                                     } else {
                                         user.send(messages.prefix() + messages.invalidCaptcha());
                                     }
-                                } catch (Throwable ex) {
-                                    user.send(messages.prefix() + messages.invalidCaptcha());
                                 }
+
                             } else {
                                 user.send(messages.prefix() + messages.register(user.getCaptcha()));
                             }
@@ -120,5 +122,17 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
             Console.send(plugin, "This command is for players only", Level.WARNING);
         }
         return false;
+    }
+
+    private String getInvalidChars(final String str) {
+        StringBuilder builder = new StringBuilder();
+
+        for (int i = 0; i < str.length(); i++) {
+            char character = str.charAt(i);
+            if (!Character.isDigit(character))
+                builder.append("'").append(character).append("'").append((i != str.length() - 1 ? ", " : ""));
+        }
+
+        return builder.toString();
     }
 }

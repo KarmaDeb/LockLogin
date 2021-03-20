@@ -100,12 +100,12 @@ IpBlocked:
   - "&ctraffico insolito sul tuo IP ed è stato bloccato"
   - "&f{time} {time_format}"
 AntiBot:
-  - "&f{serverName}"
+  - "&f{ServerName}"
   - ""
   - "&cAggiungi questo server al tuo elenco di server"
   - "&cSe lo possiedi già, ricarica l{double_quote}elenco dei server"
 OnlyAzuriom:
-  - "&f{serverName}"
+  - "&f{ServerName}"
   - ""
   - "&cRegistra il tuo account da:"
   - "&ehttps://myazuriomwebsite.com/user/register"

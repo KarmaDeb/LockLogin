@@ -7,6 +7,7 @@ import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerBlockMoveEvent;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.BungeeListener;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
@@ -142,6 +143,8 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void playerPreLoginEvent(AsyncPlayerPreLoginEvent e) {
         if (!config.isBungeeCord()) {
+            UUID id = e.getUniqueId();
+
             if (tempVerified.contains(e.getAddress())) {
                 verifyName(e);
                 tempVerified.remove(e.getAddress());
@@ -161,15 +164,13 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     }
 
                     if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-                        UUID id = e.getUniqueId();
-
                         if (plugin.getServer().getPlayer(id) != null) {
                             if (config.allowSameIP()) {
                                 Player alreadyIn = plugin.getServer().getPlayer(id);
 
                                 if (alreadyIn != null && alreadyIn.getAddress() != null && alreadyIn.getAddress().getAddress().equals(e.getAddress())) {
                                     User user = new User(alreadyIn);
-                                    user.setLogStatus(false);
+                                    user.setLogged(false);
                                     plugin.getServer().getScheduler().runTask(plugin, () -> user.kick("&eLockLogin\n\n" + "&aYou've joined from another location with the same IP, if that's not you, contact the staff now" +
                                             "\n&aLockLogin will keep your account blocked (need of /login)"));
 
@@ -185,7 +186,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         }
 
                         if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
-                            if (config.CheckNames()) {
+                            if (config.checkNames()) {
                                 if (Checker.notValid(e.getName())) {
                                     e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" +
@@ -374,9 +375,15 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
             if (!user.isLogged() || user.isTempLog()) {
                 if (to != null) {
-                    e.setCancelled(from.getBlockX() != to.getBlockX()
-                            || from.getBlockZ() != to.getBlockZ()
-                            || !(from.getY() - to.getY() >= 0));
+                    PlayerBlockMoveEvent event = new PlayerBlockMoveEvent(player);
+                    plugin.getServer().getPluginManager().callEvent(event);
+
+                    if (!event.isCancelled()) {
+                        if (from.getBlockX() != to.getBlockX() || from.getBlockZ() != to.getBlockZ() || from.getY() - to.getY() < 0) {
+                            e.setCancelled(true);
+                            player.teleport(from);
+                        }
+                    }
                 }
             }
         }
@@ -457,7 +464,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
             }
@@ -538,7 +545,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                        user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
                 if (user.isTempLog()) {
@@ -648,7 +655,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
             } else {
                 if (!cmd.equals("captcha")) {
                     e.setCancelled(true);
-                    user.send(messages.prefix() + messages.typeCaptcha(user.getCaptcha()));
+                    user.send(messages.prefix() + messages.typeCaptcha());
                 }
             }
         } else {

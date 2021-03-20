@@ -42,7 +42,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
             User user = new User(player);
 
             if (args.length == 0) {
-                if (config.TakeBack()) {
+                if (config.takeBack()) {
                     LastLocation lastLocation = new LastLocation(player);
                     lastLocation.saveLocation();
                 }
@@ -53,7 +53,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                     user.teleport(spawn.getSpawn());
                 }
 
-                user.setLogStatus(false);
+                user.setLogged(false);
                 new StartCheck(player, CheckType.LOGIN);
                 user.send(messages.prefix() + messages.unLogged());
             } else {
@@ -66,7 +66,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                                 User targetUser = new User(target);
 
                                 if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                                    if (config.TakeBack()) {
+                                    if (config.takeBack()) {
                                         LastLocation lastLocation = new LastLocation(target);
                                         lastLocation.saveLocation();
                                     }
@@ -77,7 +77,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                                         targetUser.teleport(spawn.getSpawn());
                                     }
 
-                                    targetUser.setLogStatus(false);
+                                    targetUser.setLogged(false);
                                     new StartCheck(target, CheckType.LOGIN);
                                     targetUser.send(messages.prefix() + messages.forcedUnLog(player));
                                     user.send(messages.prefix() + messages.forcedUnLogAdmin(target));
@@ -109,7 +109,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                     User targetUser = new User(target);
 
                     if (targetUser.isLogged() && !targetUser.isTempLog()) {
-                        if (config.TakeBack()) {
+                        if (config.takeBack()) {
                             LastLocation lastLocation = new LastLocation(target);
                             lastLocation.saveLocation();
                         }
@@ -120,7 +120,7 @@ public final class UnlogCommand implements CommandExecutor, LockLoginSpigot, Spi
                             targetUser.teleport(spawn.getSpawn());
                         }
 
-                        targetUser.setLogStatus(false);
+                        targetUser.setLogged(false);
                         new StartCheck(target, CheckType.LOGIN);
                         targetUser.send(messages.prefix() + messages.forcedUnLog("SERVER"));
                         Console.send(messages.prefix() + messages.forcedUnLog(target));
