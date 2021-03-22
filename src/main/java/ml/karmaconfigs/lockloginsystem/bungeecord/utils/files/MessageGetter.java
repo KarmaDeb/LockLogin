@@ -6,6 +6,7 @@ import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.YamlConfiguration;
@@ -79,20 +80,19 @@ public final class MessageGetter implements LockLoginBungee {
         }
 
         if (!msg_file.exists() || messages == null) {
-            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
 
-            if (creator.copy(msg_file)) {
-                try {
-                    messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
+            try {
+                creator.copy(msg_file);
+                messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
 
-                    YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
 
-                    if (reloader.reloadAndCopy())
-                        logger.scheduleLog(Level.INFO, "Reloaded message file ( " + msg_file.getName() + " )");
-                } catch (Throwable e) {
-                    logger.scheduleLog(Level.GRAVE, e);
-                    logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
-                }
+                if (reloader.reloadAndCopy())
+                    logger.scheduleLog(Level.INFO, "Reloaded message file ( " + msg_file.getName() + " )");
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
             }
         }
 
@@ -116,7 +116,7 @@ public final class MessageGetter implements LockLoginBungee {
 
         if (cfg.strikethrough()) {
             if (cfg.randomStrikethrough()) {
-                String last_color = "&" + StringUtils.getLastColor(msg);
+                String last_color = StringUtils.getLastColor(msg);
 
                 StringBuilder builder = new StringBuilder();
 
@@ -124,7 +124,7 @@ public final class MessageGetter implements LockLoginBungee {
                     int random = new Random().nextInt(100);
 
                     if (random > 50) {
-                        builder.append("&m").append(code.charAt(i)).append("&r");
+                        builder.append(last_color).append("&m").append(code.charAt(i)).append("&r");
                     } else {
                         builder.append(last_color).append(code.charAt(i)).append("&r");
                     }

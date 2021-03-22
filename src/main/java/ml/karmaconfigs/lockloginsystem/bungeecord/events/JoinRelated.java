@@ -243,12 +243,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                     }
                 }
 
-                if (config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
-                    if (user.isRegistered())
-                        new StartCheck(player, CheckType.LOGIN);
-                    else
-                        new StartCheck(player, CheckType.REGISTER);
-                } else {
+                if (config.getCaptchaType().equals(CaptchaType.COMPLEX) && user.hasCaptcha()) {
                     if (config.getCaptchaTimeOut() > 0) {
                         Timer timer = new Timer();
                         timer.schedule(new TimerTask() {
@@ -256,27 +251,32 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
                             @Override
                             public void run() {
-                                if (user.hasCaptcha()) {
-                                    if (back == 0) {
-                                        cancel();
+                                if (back == 0 || !player.isConnected()) {
+                                    cancel();
 
+                                    if (player.isConnected())
                                         user.kick("&eLockLogin\n\n" + messages.captchaTimeOut());
 
-                                        if (!user.isRegistered()) {
-                                            FileManager manager = new FileManager(player.getUniqueId().toString().replace("-", "") + ".yml", "playerdata");
-                                            manager.delete();
+                                    if (!user.isRegistered()) {
+                                        FileManager manager = new FileManager(player.getUniqueId().toString().replace("-", "") + ".yml", "playerdata");
+                                        manager.delete();
 
-                                            user.remove();
-                                        }
+                                        user.remove();
                                     }
-                                } else {
-                                    cancel();
                                 }
+
+                                if (!user.hasCaptcha())
+                                    cancel();
 
                                 back--;
                             }
                         }, 0, 1000);
                     }
+                } else {
+                    if (user.isRegistered())
+                        new StartCheck(player, CheckType.LOGIN);
+                    else
+                        new StartCheck(player, CheckType.REGISTER);
                 }
             }
 

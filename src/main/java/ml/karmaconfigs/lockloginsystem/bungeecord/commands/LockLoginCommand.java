@@ -221,7 +221,7 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
                             user.send(messages.prefix() + messages.permission("locklogin.migrate"));
                         }
                         break;
-                    case "applyUpdates":
+                    case "applyupdates":
                         if (player.hasPermission("locklogin.update")) {
                             LockLoginBungeeManager b_manager = new LockLoginBungeeManager();
                             b_manager.applyUpdate(user);
@@ -344,7 +344,7 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
                             Console.send(messages.prefix() + "&cMigration already in progress by " + migrating_owner.getName());
                         }
                         break;
-                    case "applyUpdates":
+                    case "applyupdates":
                         LockLoginBungeeManager b_manager = new LockLoginBungeeManager();
                         b_manager.applyUpdate(null);
                         break;
@@ -492,8 +492,6 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
 
                 Console.send(messages.prefix() + messages.migratingAll());
 
-                sql.checkTables();
-
                 List<String> uuids = sql.getUUIDs();
                 max_migrations = uuids.size();
                 for (String id : uuids) {
@@ -528,7 +526,6 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
                     bucket.prepareTables(SQLData.ignoredColumns());
 
                     Utils sql = new Utils();
-                    sql.checkTables();
 
                     List<String> uuids = sql.getUUIDs();
                     max_migrations = uuids.size();

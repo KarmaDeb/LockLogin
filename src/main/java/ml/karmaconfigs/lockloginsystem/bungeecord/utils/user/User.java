@@ -11,6 +11,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.Motd;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
@@ -23,6 +24,7 @@ import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.Nullable;
 
+import java.io.File;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
@@ -95,22 +97,23 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * Generate a captcha for the player
      */
     public final void genCaptcha() {
-        if (!captchaLogged.contains(player.getUniqueId())) {
-            String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
+        if (!config.getCaptchaType().equals(CaptchaType.DISABLED))
+            if (!captchaLogged.contains(player.getUniqueId())) {
+                String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
 
-            playerCaptcha.put(player.getUniqueId(), captcha);
+                playerCaptcha.put(player.getUniqueId(), captcha);
 
-            Timer timer = new Timer();
-            timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    if (!player.isConnected() || !captchaLogged.contains(player.getUniqueId()))
-                        cancel();
-                    else
-                        player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.captcha(captcha))));
-                }
-            }, 0, 1000);
-        }
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        if (!player.isConnected() || captchaLogged.contains(player.getUniqueId()))
+                            cancel();
+                        else
+                            player.sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(StringUtils.toColor(messages.prefix() + messages.captcha(captcha))));
+                    }
+                }, 0, 1000);
+            }
     }
 
     /**
@@ -222,6 +225,13 @@ public final class User implements LockLoginBungee, BungeeFiles {
                             setPassword(password);
                         }
                     }
+
+                    File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                    Motd motd = new Motd(motd_file);
+
+                    if (motd.isEnabled())
+                        plugin.getProxy().getScheduler().schedule(plugin, () -> send(motd.onLogin(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
+
                     break;
                 case SUCCESS_TEMP:
                     if (valid_password) {
@@ -471,8 +481,12 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final boolean checkCaptcha(final String code) {
         if (playerCaptcha.containsKey(player.getUniqueId()))
-            if (code.equals(playerCaptcha.remove(player.getUniqueId())))
-                return captchaLogged.add(player.getUniqueId());
+            if (code.equals(playerCaptcha.get(player.getUniqueId()))) {
+                playerCaptcha.remove(player.getUniqueId());
+                captchaLogged.add(player.getUniqueId());
+
+                return true;
+            }
 
         return false;
     }

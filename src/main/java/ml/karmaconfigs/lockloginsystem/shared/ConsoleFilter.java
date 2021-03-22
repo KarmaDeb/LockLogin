@@ -99,6 +99,86 @@ public class ConsoleFilter implements Filter {
         return isSensitiveMessage(message) ? Result.DENY : Result.NEUTRAL;
     }
 
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7, Object p8) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
+    @Override
+    public Result filter(Logger logger, Level level, Marker marker, String message, Object p0, Object p1, Object p2, Object p3, Object p4, Object p5, Object p6, Object p7, Object p8, Object p9) {
+        if (isSensitiveMessage(message)) {
+            return Result.DENY;
+        }
+        return Result.NEUTRAL;
+    }
+
     public final Result filter(Logger arg0, Level arg1, Marker arg2, Object message, Throwable arg4) {
         return isSensitiveMessage(message.toString()) ? Result.DENY : Result.NEUTRAL;
     }
@@ -113,5 +193,35 @@ public class ConsoleFilter implements Filter {
 
     public final Result getOnMismatch() {
         return Result.NEUTRAL;
+    }
+
+    @Override
+    public State getState() {
+        return null;
+    }
+
+    @Override
+    public void initialize() {
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public boolean isStarted() {
+        return false;
+    }
+
+    @Override
+    public boolean isStopped() {
+        return false;
     }
 }

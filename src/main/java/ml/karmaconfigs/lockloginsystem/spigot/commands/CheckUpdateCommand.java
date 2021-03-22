@@ -299,7 +299,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
             user.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
             user.send("&aWe will notice you when it's downloaded");
 
-            if (!PluginManagerSpigot.manager.isReadyToUpdate()) {
+            if (PluginManagerSpigot.manager.notReadyToUpdate()) {
                 LockLoginSpigot.plugin.getServer().getScheduler().runTaskAsynchronously(LockLoginSpigot.plugin, () -> {
                     try {
                         DownloadLatest downloader = new DownloadLatest();
@@ -344,7 +344,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
             Console.send("&aDownloading latest LockLogin version &c( this process is async but may lag the server a bit )");
             Console.send("&aWe will notice you when it's downloaded");
 
-            if (!PluginManagerSpigot.manager.isReadyToUpdate()) {
+            if (PluginManagerSpigot.manager.notReadyToUpdate()) {
                 LockLoginSpigot.plugin.getServer().getScheduler().runTaskAsynchronously(LockLoginSpigot.plugin, () -> {
                     try {
                         DownloadLatest downloader = new DownloadLatest();

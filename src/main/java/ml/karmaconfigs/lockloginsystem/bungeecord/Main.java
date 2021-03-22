@@ -42,38 +42,16 @@ public final class Main extends Plugin {
             Console.setWarningPrefix(this, "&8[ &eLockLogin &8] &6WARNING &f>> &e");
             Console.setGravePrefix(this, "&8[ &eLockLogin &8] &4GRAVE &f>> &c");
 
-            File libs_folder = new File(getDataFolder(), "libraries");
-            File hikari = new File(libs_folder, "HikariCP.jar");
-            File codecs = new File(libs_folder, "CommonsCodec.jar");
-            File goauth = new File(libs_folder, "GoogleAuth.jar");
-            File slf4j = new File(libs_folder, "slf4j.jar");
-            File argon2 = new File(libs_folder, "Argon2.jar");
+            for (Dependency dependency : Dependency.values()) {
+                File target = new File(getDataFolder() + File.separator + "libraries", dependency.fileName());
 
-            JarInjector hikari_injector = new JarInjector(hikari);
-            JarInjector codecs_injector = new JarInjector(codecs);
-            JarInjector goauth_injector = new JarInjector(goauth);
-            JarInjector slf4j_injector = new JarInjector(slf4j);
-            JarInjector argon2_injector = new JarInjector(argon2);
+                JarInjector injector = new JarInjector(target);
+                if (!injector.isDownloaded())
+                    injector.download(dependency.downloadURL());
 
-            if (!hikari_injector.isDownloaded() || !codecs_injector.isDownloaded() || !goauth_injector.isDownloaded() || !slf4j_injector.isDownloaded() || !argon2_injector.isDownloaded()) {
-                hikari_injector.download(Dependency.hikari);
-                codecs_injector.download(Dependency.commons);
-                goauth_injector.download(Dependency.google);
-                slf4j_injector.download(Dependency.slf4j);
-                argon2_injector.download(Dependency.argon2);
+                if (injector.inject(this))
+                    LockLoginBungee.logger.scheduleLog(Level.INFO, "Injected dependency " + dependency.name());
             }
-
-            hikari_injector.inject(this);
-            codecs_injector.inject(this);
-            goauth_injector.inject(this);
-            slf4j_injector.inject(this);
-            argon2_injector.inject(this);
-
-            PluginManagerBungee manager = new PluginManagerBungee();
-            manager.enable();
-
-            Logger logger = new Logger(Main.this);
-            logger.scheduleLog(Level.GRAVE, "LockLogin initialized");
         } catch (Throwable e) {
             Logger logger = new Logger(this);
 
@@ -81,6 +59,12 @@ public final class Main extends Plugin {
             logger.scheduleLog(Level.INFO, "An error occurred while trying to load LockLogin");
             Console.send(this, "An error occurred while trying to enable LockLogin, check /LockLogin/logs for more info", Level.GRAVE);
         }
+
+        PluginManagerBungee manager = new PluginManagerBungee();
+        manager.enable();
+
+        Logger logger = new Logger(Main.this);
+        logger.scheduleLog(Level.GRAVE, "LockLogin initialized");
     }
 
     @Override

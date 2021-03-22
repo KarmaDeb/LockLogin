@@ -4,6 +4,7 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.Motd;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerAuthEvent;
@@ -17,6 +18,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Objects;
@@ -151,7 +153,13 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                             input.put(player, "/-/-/-/");
                             updateInput();
                             close();
-                        } else {
+
+                            File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                            Motd motd = new Motd(motd_file);
+
+                            if (motd.isEnabled())
+                                plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
+                        }else {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                         }
                         break;

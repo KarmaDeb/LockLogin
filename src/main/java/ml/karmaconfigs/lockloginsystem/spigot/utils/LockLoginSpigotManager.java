@@ -348,15 +348,17 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                             sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                     }
                 } else {
-                    Utils utils = new Utils();
-                    for (String id : utils.getUUIDs()) {
-                        utils = new Utils(id, utils.fetchName(id));
+                    try {
+                        Utils utils = new Utils();
+                        for (String id : utils.getUUIDs()) {
+                            utils = new Utils(id, utils.fetchName(id));
 
-                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
-                        migrate.start();
-                    }
+                            AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                            migrate.start();
+                        }
 
-                    Bucket.terminateMySQL();
+                        Bucket.terminateMySQL();
+                    } catch (Throwable ignored) {}
                 }
             }
         } else {
@@ -472,15 +474,17 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                             sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                     }
                 } else {
-                    Utils utils = new Utils();
-                    for (String id : utils.getUUIDs()) {
-                        utils = new Utils(id, utils.fetchName(id));
+                    try {
+                        Utils utils = new Utils();
+                        for (String id : utils.getUUIDs()) {
+                            utils = new Utils(id, utils.fetchName(id));
 
-                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
-                        migrate.start();
-                    }
+                            AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                            migrate.start();
+                        }
 
-                    Bucket.terminateMySQL();
+                        Bucket.terminateMySQL();
+                    } catch (Throwable ignored) {}
                 }
             }
         }
@@ -546,15 +550,17 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                 }
             } else {
-                Utils utils = new Utils();
-                for (String id : utils.getUUIDs()) {
-                    utils = new Utils(id, utils.fetchName(id));
+                try {
+                    Utils utils = new Utils();
+                    for (String id : utils.getUUIDs()) {
+                        utils = new Utils(id, utils.fetchName(id));
 
-                    AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
-                    migrate.start();
-                }
+                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
+                    }
 
-                Bucket.terminateMySQL();
+                    Bucket.terminateMySQL();
+                } catch (Throwable ignored) {}
             }
         } else {
             if (ConfigGetter.manager.reload())
@@ -602,15 +608,17 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         sql.setName(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
                 }
             } else {
-                Utils utils = new Utils();
-                for (String id : utils.getUUIDs()) {
-                    utils = new Utils(id, utils.fetchName(id));
+                try {
+                    Utils utils = new Utils();
+                    for (String id : utils.getUUIDs()) {
+                        utils = new Utils(id, utils.fetchName(id));
 
-                    AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
-                    migrate.start();
-                }
+                        AccountMigrate migrate = new AccountMigrate(utils, Migrate.YAML, Platform.SPIGOT);
+                        migrate.start();
+                    }
 
-                Bucket.terminateMySQL();
+                    Bucket.terminateMySQL();
+                } catch (Throwable ignored) {}
             }
         }
     }

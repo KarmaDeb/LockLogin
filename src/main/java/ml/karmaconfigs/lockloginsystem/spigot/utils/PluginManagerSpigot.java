@@ -6,10 +6,7 @@ import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.shared.CheckType;
-import ml.karmaconfigs.lockloginsystem.shared.ConsoleFilter;
-import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
-import ml.karmaconfigs.lockloginsystem.shared.IpData;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
@@ -39,6 +36,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.net.InetSocketAddress;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
@@ -72,12 +70,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * plugin will perform
      */
     public final void enable() {
-        if (!new ConfigGetter().isBungeeCord()) {
-            Bucket.terminateMySQL();
-        }
-
-        Logger coreLogger = (Logger) LogManager.getRootLogger();
-        coreLogger.addFilter(new ConsoleFilter());
         Console.send("--------------------");
         Console.send(" ");
         Console.send("&bEnabling {0} &bversion {1}", name, version);
@@ -120,6 +112,13 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 }
             }.runTaskTimer(plugin, 0, 20);
         }
+
+        Logger coreLogger = (Logger) LogManager.getRootLogger();
+        coreLogger.addFilter(new ConsoleFilter());
+
+        ConfigGetter cfg = new ConfigGetter();
+        if (!cfg.isBungeeCord() || !cfg.isMySQL())
+            Bucket.terminateMySQL();
     }
 
     /**
@@ -147,15 +146,27 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      */
     public final void setupFiles() {
         File config_file = new File(plugin.getDataFolder(), "config.yml");
-        FileCopy config = new FileCopy(plugin, "configs/config_spigot.yml");
-        config.copy(config_file);
+        FileCopy config = new FileCopy(plugin, "configs/config_spigot.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        try {
+            config.copy(config_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+
+        File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+        Motd motd = new Motd(motd_file);
+        motd.setup();
 
         FileManager cfgManager = new FileManager("config.yml");
         cfgManager.setInternal("configs/config_spigot.yml");
 
         File passwords_yml = new File(plugin.getDataFolder(), "passwords.yml");
-        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml");
-        passwords.copy(passwords_yml);
+        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        try {
+            passwords.copy(passwords_yml);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         FileManager passwordsManager = new FileManager("passwords.yml");
         List<String> customPasswords = passwordsManager.getList("Insecure");
@@ -213,15 +224,21 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName());
-        if (msg.copy(msg_file)) {
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            msg.copy(msg_file);
             logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
 
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
-        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml");
-
-        mysql.copy(sql_file);
+        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            mysql.copy(sql_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         if (cfg.accountSysValid()) {
             if (cfg.isMySQL()) {
@@ -230,12 +247,20 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
 
         File spawn_file = new File(plugin.getDataFolder(), "spawn.yml");
-        FileCopy spawn = new FileCopy(plugin, "auto-generated/spawn.yml");
-        spawn.copy(spawn_file);
+        FileCopy spawn = new FileCopy(plugin, "auto-generated/spawn.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            spawn.copy(spawn_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-        FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
-        allowedCMDs.copy(allowed_file);
+        FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            allowedCMDs.copy(allowed_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
         YamlConfiguration allowed = YamlConfiguration.loadConfiguration(allowed_file);
 
         AllowedCommands commands = new AllowedCommands();
@@ -353,11 +378,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
             bucket.prepareTables(SQLData.ignoredColumns());
-
-            plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                Utils utils = new Utils();
-                utils.checkTables();
-            });
         }
     }
 
@@ -452,7 +472,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * Start the version checker for spigot
      */
     private void startVersionChecker() {
-        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::doVersionCheck, 0, 20 * new ConfigGetter().checkInterval());
+        plugin.getServer().getScheduler().runTaskTimerAsynchronously(plugin, this::doVersionCheck, 0, 20L * new ConfigGetter().checkInterval());
     }
 
     /**
@@ -500,17 +520,20 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 if (!ModuleLoader.manager.isLoaded(temp_module)) {
                     spigot_module_loader.inject();
                 }
-                IpData data = new IpData(temp_module, player.getAddress().getAddress());
+                InetSocketAddress ip = player.getAddress();
+                if (ip != null && ip.getAddress() != null) {
+                    IpData data = new IpData(temp_module, ip.getAddress());
 
-                if (new ConfigGetter().accountsPerIp() != 0) {
-                    if (data.getConnections() + 1 > new ConfigGetter().accountsPerIp()) {
-                        user.kick(new MessageGetter().maxIp());
-                    } else {
-                        data.addIP();
+                    if (new ConfigGetter().accountsPerIp() != 0) {
+                        if (data.getConnections() + 1 > new ConfigGetter().accountsPerIp()) {
+                            user.kick(new MessageGetter().maxIp());
+                        } else {
+                            data.addIP();
+                        }
                     }
                 }
-            } catch (Throwable e) {
-                logger.scheduleLog(Level.GRAVE, e);
+            } catch (Throwable ex) {
+                logger.scheduleLog(Level.GRAVE, ex);
                 logger.scheduleLog(Level.INFO, "Error while trying to inject LockLogin temp accessor API module");
                 Console.send(plugin, "An error occurred while trying to load LockLogin temp accessor API module, check logs for more info", Level.GRAVE);
             }
@@ -521,8 +544,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
      * Restore player profile stats
      */
     private void unsetPlayers() {
-        ConfigGetter config = new ConfigGetter();
-
         for (Player player : plugin.getServer().getOnlinePlayers()) {
             User user = new User(player);
 
@@ -582,7 +603,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || manager.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {
@@ -644,7 +665,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || manager.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {
@@ -705,7 +726,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        if (!updatedLockLogin.exists() || !manager.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || manager.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {
@@ -735,8 +756,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
     public interface manager {
 
-        static boolean isReadyToUpdate() {
-            return ready_to_update;
+        static boolean notReadyToUpdate() {
+            return !ready_to_update;
         }
 
         static void setReadyToUpdate(final boolean status) {

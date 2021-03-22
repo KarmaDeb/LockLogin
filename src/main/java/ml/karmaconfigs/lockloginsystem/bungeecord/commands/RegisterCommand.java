@@ -9,11 +9,15 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
+import ml.karmaconfigs.lockloginsystem.shared.Motd;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+
+import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -62,6 +66,12 @@ public final class RegisterCommand extends Command implements LockLoginBungee, B
                                     PlayerRegisterEvent registerEvent = new PlayerRegisterEvent(player);
 
                                     plugin.getProxy().getPluginManager().callEvent(registerEvent);
+
+                                    File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                    Motd motd = new Motd(motd_file);
+
+                                    if (motd.isEnabled())
+                                        plugin.getProxy().getScheduler().schedule(plugin, () -> user.send(motd.onRegister(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
                                 } else {
                                     user.send(messages.prefix() + messages.passwordMinChar());
                                 }

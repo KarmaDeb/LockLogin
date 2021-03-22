@@ -5,6 +5,7 @@ import com.zaxxer.hikari.HikariDataSource;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,9 +81,12 @@ public final class Bucket {
      * Terminate the MySQL connection pool
      */
     public static void terminateMySQL() {
-        if (dataSource != null) {
-            dataSource.close();
-        }
+        /*
+        try {
+            if (dataSource != null) {
+                dataSource.close();
+            }
+        } catch (Throwable ignored) {}*/
     }
 
     /**
@@ -90,7 +94,7 @@ public final class Bucket {
      *
      * @return a connection
      */
-    public static HikariDataSource getBucket() {
+    public static DataSource getBucket() {
         return dataSource;
     }
 
@@ -144,7 +148,12 @@ public final class Bucket {
         try {
             connection = dataSource.getConnection();
             statement = connection.prepareStatement("ALTER TABLE " + table + " " + "ADD " + column + " " + type);
-            statement.executeUpdate();
+
+            try {
+                statement.executeUpdate();
+            } catch (Throwable ex) {
+                statement.executeLargeUpdate();
+            }
 
             status = true;
         } catch (Throwable e) {
@@ -199,24 +208,6 @@ public final class Bucket {
         }
 
         return value;
-    }
-
-    static void setValueIfNotSet(final String targetColumn, final String whereColumn, final String targetValue, final String whereValue) {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Bucket.getBucket().getConnection();
-            statement = connection.prepareStatement("UPDATE " + table + " SET " + targetColumn + "=? WHERE " + whereColumn + "=?");
-
-            statement.setString(1, targetValue);
-            statement.setString(2, whereValue);
-            statement.executeUpdate();
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while updating " + targetColumn + " to " + targetValue + " where " + whereColumn + " equals " + whereValue, Level.INFO);
-        } finally {
-            Bucket.close(connection, statement);
-        }
     }
 
     /**

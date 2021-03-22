@@ -6,15 +6,15 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
-import ml.karmaconfigs.lockloginsystem.shared.AuthType;
-import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
-import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
-import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import net.md_5.bungee.api.CommandSender;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Command;
+
+import java.io.File;
+import java.util.concurrent.TimeUnit;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -101,6 +101,12 @@ public final class GoogleAuthCommand extends Command implements LockLoginBungee,
 
                                             dataSender.sendAccountStatus(player);
                                             dataSender.blindEffect(player, false, config.nauseaLogin());
+
+                                            File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                            Motd motd = new Motd(motd_file);
+
+                                            if (motd.isEnabled())
+                                                plugin.getProxy().getScheduler().schedule(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
                                         } else {
                                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
                                         }

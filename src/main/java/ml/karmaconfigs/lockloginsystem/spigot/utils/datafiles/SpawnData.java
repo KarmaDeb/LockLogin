@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles;
 
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import org.bukkit.Location;
@@ -32,9 +33,13 @@ public final class SpawnData implements LockLoginSpigot {
      */
     public SpawnData() {
         File spawn = new File(plugin.getDataFolder(), "spawn.yml");
-        FileCopy spawn_copy = new FileCopy(plugin, "auto-generated/spawn.yml");
+        FileCopy spawn_copy = new FileCopy(plugin, "auto-generated/spawn.yml").withDebug(FileInfo.apiDebug(new File(jar)));
 
-        spawn_copy.copy(spawn);
+        try {
+            spawn_copy.copy(spawn);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
         manager = new FileManager("spawn.yml");
         manager.setInternal("auto-generated/spawn.yml");
     }

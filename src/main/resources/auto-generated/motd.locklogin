@@ -1,0 +1,36 @@
+/// YOU CAN EDIT THIS FILE EASILY USING -->
+/// https://github.com/KarmaConfigs/KarmaFileReader/ -->
+
+/// Enable disable the motd -->
+ENABLED: false
+
+/// The delay of the motd message -->
+/// before being sent -->
+DELAY: 5
+
+/// This is the target name of -->
+/// the message list name. -->
+OnLogin: MESSAGES
+OnRegister: MESSAGES
+
+
+[LIST=MESSAGES]
+&7Welcome&e {player}&7 to&b {ServerName}
+
+&7Hope you got a nice day!
+[/LIST=MESSAGES]
+
+
+[LIST=MESSAGES_LOGIN]
+&7Welcome&e {player}&7 to&b {ServerName}!
+
+&7Thanks for logging in and playing here!
+[/LIST=MESSAGES_LOGIN]
+
+
+[LIST=MESSAGES_REGISTER]
+&7Welcome&e {player}&7 to&b {ServerName}!
+
+&7Thanks for registering an account in our server
+&7Hope your stance and game experience in here is the best!
+[/LIST=MESSAGES_REGISTER]

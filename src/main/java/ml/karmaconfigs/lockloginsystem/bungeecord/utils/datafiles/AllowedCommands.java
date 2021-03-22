@@ -3,6 +3,7 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -32,9 +33,13 @@ public final class AllowedCommands implements LockLoginBungee {
      */
     public AllowedCommands() {
         File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-        FileCopy creator = new FileCopy(plugin, "auto-generated/allowed.yml");
+        FileCopy creator = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));
 
-        creator.copy(allowed_file);
+        try {
+            creator.copy(allowed_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         FileManager manager = new FileManager("allowed.yml");
         manager.setInternal("auto-generated/allowed.yml");

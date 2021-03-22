@@ -18,10 +18,7 @@ import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager.LockLoginBungeeManager;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
-import ml.karmaconfigs.lockloginsystem.shared.CheckType;
-import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
-import ml.karmaconfigs.lockloginsystem.shared.IpData;
-import ml.karmaconfigs.lockloginsystem.shared.Platform;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
@@ -116,15 +113,27 @@ public final class PluginManagerBungee implements LockLoginBungee {
      */
     public final void setupFiles() {
         File config_file = new File(plugin.getDataFolder(), "config.yml");
-        FileCopy config = new FileCopy(plugin, "configs/config.yml");
-        config.copy(config_file);
+        FileCopy config = new FileCopy(plugin, "configs/config.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        try {
+            config.copy(config_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+
+        File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+        Motd motd = new Motd(motd_file);
+        motd.setup();
 
         FileManager cfgManager = new FileManager("config.yml");
         cfgManager.setInternal("configs/config.yml");
 
         File passwords_yml = new File(plugin.getDataFolder(), "passwords.yml");
-        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml");
-        passwords.copy(passwords_yml);
+        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            passwords.copy(passwords_yml);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         FileManager passwordsManager = new FileManager("passwords.yml");
         List<String> customPasswords = passwordsManager.getList("Insecure");
@@ -199,9 +208,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
         }
 
-        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName());
-        if (msg.copy(msg_file)) {
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            msg.copy(msg_file);
             logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
+        } catch (Throwable ex) {
+            ex.printStackTrace();
         }
 
         if (cfg.accountSysValid()) {
@@ -212,7 +224,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         try {
             File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-            FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml");
+            FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
 
             allowedCMDs.copy(allowed_file);
 
@@ -338,9 +350,12 @@ public final class PluginManagerBungee implements LockLoginBungee {
      */
     private void setupMySQL() {
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
-        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml");
-
-        mysql.copy(sql_file);
+        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        try {
+            mysql.copy(sql_file);
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
 
         MySQLData SQLData = new MySQLData();
 
@@ -357,9 +372,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
         bucket.setOptions(SQLData.getMaxConnections(), SQLData.getMinConnections(), SQLData.getTimeOut(), SQLData.getLifeTime());
 
         bucket.prepareTables(SQLData.ignoredColumns());
-
-        Utils utils = new Utils();
-        utils.checkTables();
     }
 
     /**

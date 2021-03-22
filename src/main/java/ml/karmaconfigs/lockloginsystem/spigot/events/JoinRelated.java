@@ -42,9 +42,9 @@ public final class JoinRelated implements Listener, LockLoginSpigot, SpigotFiles
                     player.sendMessage(" ");
 
             user.setLogged(false);
-
             user.genCaptcha();
-            if (config.getCaptchaType().equals(CaptchaType.COMPLEX)) {
+
+            if (config.getCaptchaType().equals(CaptchaType.COMPLEX) && user.hasCaptcha()) {
                 if (config.getCaptchaTimeOut() > 0)
                     new BukkitRunnable() {
                         int back = config.getCaptchaTimeOut();

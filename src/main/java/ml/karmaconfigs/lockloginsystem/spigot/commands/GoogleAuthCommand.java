@@ -2,10 +2,7 @@ package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.lockloginsystem.shared.AuthType;
-import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
-import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
-import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
@@ -21,6 +18,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 
 /*
@@ -118,6 +116,12 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                             user.removeBlindEffect();
 
                                             player.setAllowFlight(user.hasFly());
+
+                                            File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                            Motd motd = new Motd(motd_file);
+
+                                            if (motd.isEnabled())
+                                                plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
                                         } else {
                                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
                                             user.send(event.getAuthMessage());

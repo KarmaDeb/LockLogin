@@ -8,10 +8,7 @@ import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.KarmaFile;
 import ml.karmaconfigs.api.spigot.reflections.BarMessage;
 import ml.karmaconfigs.api.spigot.reflections.TitleMessage;
-import ml.karmaconfigs.lockloginsystem.shared.AuthType;
-import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
-import ml.karmaconfigs.lockloginsystem.shared.CheckType;
-import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
+import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
@@ -28,6 +25,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 
+import java.io.File;
 import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
@@ -105,26 +103,27 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Generate a captcha for the player
      */
     public final void genCaptcha() {
-        if (!captchaLogged.contains(player.getUniqueId())) {
-            String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
-            playerCaptcha.put(player.getUniqueId(), captcha);
+        if (!config.getCaptchaType().equals(CaptchaType.DISABLED))
+            if (!captchaLogged.contains(player.getUniqueId())) {
+                String captcha = StringUtils.randomString(config.getCaptchaLength(), (config.letters() ? StringUtils.StringGen.NUMBERS_AND_LETTERS : StringUtils.StringGen.ONLY_NUMBERS), StringUtils.StringType.RANDOM_SIZE);
+                playerCaptcha.put(player.getUniqueId(), captcha);
 
-            BarMessage bar = new BarMessage(player, messages.prefix() + messages.captcha(captcha));
-            bar.send(true);
+                BarMessage bar = new BarMessage(player, messages.prefix() + messages.captcha(captcha));
+                bar.send(true);
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    try {
-                        if (!player.isOnline() || !captchaLogged.contains(player.getUniqueId())) {
-                            bar.setMessage("");
-                            bar.stop();
-                            cancel();
-                        }
-                    } catch (Throwable ignored) {}
-                }
-            }.runTaskTimerAsynchronously(plugin, 0, 20);
-        }
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            if (!player.isOnline() || captchaLogged.contains(player.getUniqueId())) {
+                                bar.setMessage("");
+                                bar.stop();
+                                cancel();
+                            }
+                        } catch (Throwable ignored) {}
+                    }
+                }.runTaskTimerAsynchronously(plugin, 0, 20);
+            }
     }
 
     /**
@@ -315,6 +314,12 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 }
 
                                 plugin.getServer().getScheduler().runTask(plugin, () -> player.setAllowFlight(hasFly()));
+
+                                File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                Motd motd = new Motd(motd_file);
+
+                                if (motd.isEnabled())
+                                    plugin.getServer().getScheduler().runTaskLater(plugin, () -> send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
                             } else {
                                 logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                             }
@@ -710,8 +715,12 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean checkCaptcha(final String code) {
         if (playerCaptcha.containsKey(player.getUniqueId()))
-            if (code.equals(playerCaptcha.remove(player.getUniqueId())))
-                return captchaLogged.add(player.getUniqueId());
+            if (code.equals(playerCaptcha.get(player.getUniqueId()))) {
+                playerCaptcha.remove(player.getUniqueId());
+                captchaLogged.add(player.getUniqueId());
+
+                return true;
+            }
 
         return false;
     }
@@ -803,6 +812,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @return if the player has fly
      */
     public final boolean hasFly() {
+        /*
         if (!config.isBungeeCord()) {
             if (config.isYaml()) {
                 PlayerFile playerFile = new PlayerFile(player);
@@ -817,7 +827,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             FlyData data = new FlyData(player);
 
             return data.contains();
-        }
+        }*/
+
+        return player.getAllowFlight();
     }
 
     /**

@@ -1,11 +1,12 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.files;
 
 import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
 import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import org.bukkit.ChatColor;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -81,18 +82,17 @@ public final class MessageGetter implements LockLoginSpigot {
         }
 
         if (!msg_file.exists()) {
-            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+            FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
 
-            if (creator.copy(msg_file)) {
-                try {
-                    YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+            try {
+                creator.copy(msg_file);
+                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
 
-                    if (reloader.reloadAndCopy())
-                        messages.loadFromString(reloader.getYamlString());
-                } catch (Throwable e) {
-                    logger.scheduleLog(Level.GRAVE, e);
-                    logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
-                }
+                if (reloader.reloadAndCopy())
+                    messages.loadFromString(reloader.getYamlString());
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
             }
         } else {
             manager.reload();
@@ -122,7 +122,7 @@ public final class MessageGetter implements LockLoginSpigot {
 
         if (cfg.strikethrough()) {
             if (cfg.randomStrikethrough()) {
-                String last_color = "&" + ChatColor.getLastColors(msg);
+                String last_color = StringUtils.getLastColor(msg);
 
                 StringBuilder builder = new StringBuilder();
 
@@ -130,7 +130,7 @@ public final class MessageGetter implements LockLoginSpigot {
                     int random = new Random().nextInt(100);
 
                     if (random > 50) {
-                        builder.append("&m").append(code.charAt(i)).append("&r");
+                        builder.append(last_color).append("&m").append(code.charAt(i)).append("&r");
                     } else {
                         builder.append(last_color).append(code.charAt(i)).append("&r");
                     }
@@ -665,21 +665,20 @@ public final class MessageGetter implements LockLoginSpigot {
                 }
 
                 if (!msg_file.exists()) {
-                    FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName());
+                    FileCopy creator = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
 
-                    if (creator.copy(msg_file)) {
-                        try {
-                            InputStream stream = plugin.getResource("messages/" + msg_file.getName());
-                            if (stream != null) {
-                                YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
+                    try {
+                        creator.copy(msg_file);
+                        InputStream stream = plugin.getResource("messages/" + msg_file.getName());
+                        if (stream != null) {
+                            YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
 
-                                if (reloader.reloadAndCopy())
-                                    messages.loadFromString(reloader.getYamlString());
-                            }
-                        } catch (Throwable e) {
-                            logger.scheduleLog(Level.GRAVE, e);
-                            logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
+                            if (reloader.reloadAndCopy())
+                                messages.loadFromString(reloader.getYamlString());
                         }
+                    } catch (Throwable e) {
+                        logger.scheduleLog(Level.GRAVE, e);
+                        logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
                     }
                 }
 

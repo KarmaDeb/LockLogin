@@ -39,7 +39,7 @@ public final class NameChecker {
             List<String> illegalChars = new ArrayList<>();
             for (int i = 0; i < name.length(); i++) {
                 String letter = String.valueOf(name.charAt(i));
-                if (!letter.matches(".*[aA-zZ].*") && !letter.matches(".*[0-9].*") && !letter.matches("_")) {
+                if (!letter.matches(".*[aA-zZ].*") && !letter.matches(".*[0-9].*") && !letter.matches("_") && !letter.matches(" ")) {
                     if (!illegalChars.contains(letter)) {
                         illegalChars.add(letter);
                     }

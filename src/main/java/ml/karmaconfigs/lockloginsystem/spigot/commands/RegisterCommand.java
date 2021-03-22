@@ -4,6 +4,7 @@ import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.api.spigot.Console;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
+import ml.karmaconfigs.lockloginsystem.shared.Motd;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.api.events.PlayerRegisterEvent;
@@ -16,6 +17,8 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.File;
 
 /*
 GNU LESSER GENERAL PUBLIC LICENSE
@@ -76,6 +79,12 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
 
                                     plugin.getServer().getPluginManager().callEvent(event);
                                     user.removeBlindEffect();
+
+                                    File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                    Motd motd = new Motd(motd_file);
+
+                                    if (motd.isEnabled())
+                                        plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onRegister(player.getName(), config.serverName())), 20L * motd.getDelay());
                                 } else {
                                     user.send(messages.prefix() + messages.passwordMinChar());
                                 }

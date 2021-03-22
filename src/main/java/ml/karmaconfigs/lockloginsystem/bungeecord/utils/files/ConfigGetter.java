@@ -6,12 +6,13 @@ import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
 import ml.karmaconfigs.api.shared.Level;
 import ml.karmaconfigs.api.shared.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
+import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
+import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Lang;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import net.md_5.bungee.api.plugin.Plugin;
-import net.md_5.bungee.config.YamlConfiguration;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -30,7 +31,7 @@ GNU LESSER GENERAL PUBLIC LICENSE
  the version number 2.1.]
  */
 
-public final class ConfigGetter {
+public final class ConfigGetter implements LockLoginBungee {
 
     private final static Plugin plugin = new InterfaceUtils().getPlugin();
     private final static Logger logger = new Logger(plugin);
@@ -42,19 +43,18 @@ public final class ConfigGetter {
 
     public ConfigGetter() {
         if (!config.exists()) {
-            FileCopy creator = new FileCopy(plugin, "configs/config.yml");
+            FileCopy creator = new FileCopy(plugin, "configs/config.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
 
-            if (creator.copy(config)) {
-                try {
-                    YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
-                    if (reloader.reloadAndCopy()) {
-                        logger.scheduleLog(Level.INFO, "Created and reloaded config file");
-                        configuration = new FileManager("config.yml");
-                    }
-                } catch (Throwable e) {
-                    logger.scheduleLog(Level.GRAVE, e);
-                    logger.scheduleLog(Level.INFO, "Error while reloading config file");
+            try {
+                creator.copy(config);
+                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
+                if (reloader.reloadAndCopy()) {
+                    logger.scheduleLog(Level.INFO, "Created and reloaded config file");
+                    configuration = new FileManager("config.yml");
                 }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
             }
         }
 
@@ -114,6 +114,9 @@ public final class ConfigGetter {
             case "cz_cs":
             case "czech":
                 return Lang.CZECH;
+            case "ru_ru":
+            case "russian":
+                return Lang.RUSSIAN;
             default:
                 return Lang.UNKNOWN;
         }
@@ -212,7 +215,7 @@ public final class ConfigGetter {
     }
 
     public final int registerInterval() {
-        int value = configuration.getInt("MessagesInterval.Register");
+        int value = configuration.getInt("MessagesInterval.Registration");
 
         if (value < 5 || value > registerTimeOut()) {
             value = 5;
@@ -226,7 +229,7 @@ public final class ConfigGetter {
     }
 
     public final int loginInterval() {
-        int value = configuration.getInt("MessagesInterval.Login");
+        int value = configuration.getInt("MessagesInterval.Logging");
 
         if (value < 5 || value > loginTimeOut()) {
             value = 5;
@@ -272,11 +275,11 @@ public final class ConfigGetter {
     }
 
     public final boolean strikethrough() {
-        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Enabled");
+        return configuration.getBoolean("Captcha.Strikethrough.Enabled");
     }
 
     public final boolean randomStrikethrough() {
-        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Random");
+        return configuration.getBoolean("Captcha.Strikethrough.Random");
     }
 
     public final int bfMaxTries() {

@@ -44,15 +44,14 @@ public final class ConfigGetter implements LockLoginSpigot {
         if (!config.exists()) {
             FileCopy creator = new FileCopy(plugin, "configs/config_spigot.yml");
 
-            if (creator.copy(config)) {
-                try {
-                    YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
-                    if (reloader.reloadAndCopy())
-                        configuration.loadFromString(reloader.getYamlString());
-                } catch (Throwable e) {
-                    logger.scheduleLog(Level.GRAVE, e);
-                    logger.scheduleLog(Level.INFO, "Error while reloading config file");
-                }
+            try {
+                creator.copy(config);
+                YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
+                if (reloader.reloadAndCopy())
+                    configuration.loadFromString(reloader.getYamlString());
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
             }
         }
 
@@ -123,6 +122,9 @@ public final class ConfigGetter implements LockLoginSpigot {
             case "cz_cs":
             case "czech":
                 return Lang.CZECH;
+            case "ru_ru":
+            case "russian":
+                return Lang.RUSSIAN;
             default:
                 return Lang.UNKNOWN;
         }
@@ -255,7 +257,7 @@ public final class ConfigGetter implements LockLoginSpigot {
 
         if (value < 5 || value > registerTimeOut()) {
             value = 5;
-            configuration.set("MessagesInterval.Register", value);
+            configuration.set("MessagesInterval.Registration", value);
 
             try {
                 configuration.save(config);
@@ -270,7 +272,7 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final int loginInterval() {
-        int value = configuration.getInt("MessagesInterval.Login", 5);
+        int value = configuration.getInt("MessagesInterval.Logging", 5);
 
         if (value < 5 || value > loginTimeOut()) {
             value = 5;
@@ -321,11 +323,11 @@ public final class ConfigGetter implements LockLoginSpigot {
     }
 
     public final boolean strikethrough() {
-        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Enabled", true);
+        return configuration.getBoolean("Captcha.Strikethrough.Enabled", true);
     }
 
     public final boolean randomStrikethrough() {
-        return configuration.getBoolean("Captcha.Difficulty.Strikethrough.Random", true);
+        return configuration.getBoolean("Captcha.Strikethrough.Random", true);
     }
 
     public final int bfMaxTries() {
@@ -414,22 +416,18 @@ public final class ConfigGetter implements LockLoginSpigot {
     public interface manager {
 
         static boolean reload() {
-            ConfigGetter cfg = new ConfigGetter();
-
-            if (!cfg.isBungeeCord()) {
-                try {
-                    InputStream stream = plugin.getResource("configs/config_spigot.yml");
-                    if (stream != null) {
-                        YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
-                        if (reloader.reloadAndCopy()) {
-                            configuration.loadFromString(reloader.getYamlString());
-                            return true;
-                        }
+            try {
+                InputStream stream = plugin.getResource("configs/config_spigot.yml");
+                if (stream != null) {
+                    YamlReloader reloader = new YamlReloader(plugin, config, "configs/config_spigot.yml");
+                    if (reloader.reloadAndCopy()) {
+                        configuration.loadFromString(reloader.getYamlString());
+                        return true;
                     }
-                } catch (Throwable e) {
-                    logger.scheduleLog(Level.GRAVE, e);
-                    logger.scheduleLog(Level.INFO, "Error while reloading config file");
                 }
+            } catch (Throwable e) {
+                logger.scheduleLog(Level.GRAVE, e);
+                logger.scheduleLog(Level.INFO, "Error while reloading config file");
             }
 
             return false;

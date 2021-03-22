@@ -248,7 +248,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             user.send(messages.prefix() + messages.permission(migratePermission.getName()));
                         }
                         break;
-                    case "applyUpdates":
+                    case "applyupdates":
                         if (player.hasPermission(applyUpdatePermission)) {
                             LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
                             s_manager.applyUpdate(user);
@@ -372,7 +372,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                             Console.send(messages.prefix() + "&cMigration already in progress by " + migrating_owner.getName());
                         }
                         break;
-                    case "applyUpdates":
+                    case "applyupdates":
                         LockLoginSpigotManager s_manager = new LockLoginSpigotManager();
                         s_manager.applyUpdate(null);
                         break;
@@ -528,8 +528,6 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
 
                 Console.send(messages.prefix() + messages.migratingAll());
 
-                sql.checkTables();
-
                 List<String> uuids = sql.getUUIDs();
                 max_migrations = uuids.size();
                 for (String id : uuids) {
@@ -564,7 +562,6 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     bucket.prepareTables(SQLData.ignoredColumns());
 
                     Utils sql = new Utils();
-                    sql.checkTables();
 
                     List<String> uuids = sql.getUUIDs();
                     max_migrations = uuids.size();
