@@ -86,7 +86,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                 back--;
                             }
                         } else {
-                            user.kick(config.bungeeProxy());
+                            user.kick(messages.bungeeProxy());
                             Console.send(plugin, "Player {0} have been kicked for a failed bungee proxy check", Level.INFO, player.getUniqueId());
                         }
                     } else {

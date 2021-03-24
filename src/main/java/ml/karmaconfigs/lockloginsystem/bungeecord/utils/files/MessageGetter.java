@@ -494,11 +494,24 @@ public final class MessageGetter implements LockLoginBungee {
     }
 
     public final String ipBlocked(final long time) {
-        String format = "min(s)";
-        if (TimeUnit.MINUTES.toSeconds(time) <= 60)
+        long seconds = TimeUnit.SECONDS.toSeconds(time);
+        long minutes = TimeUnit.SECONDS.toMinutes(time);
+        long hours = TimeUnit.SECONDS.toHours(time);
+
+        String format;
+        long final_time;
+        if (seconds <= 59) {
             format = "sec(s)";
-        if (TimeUnit.MINUTES.toHours(time) >= 1)
-            format = "hour(s)";
+            final_time = seconds;
+        } else {
+            if (minutes <= 59) {
+                format = "min(s) and " + Math.abs((minutes * 60) - seconds) + " sec(s)";
+                final_time = minutes;
+            } else {
+                format = "hour(s) " + Math.abs((hours * 60) - minutes) + " min(s)";
+                final_time = hours;
+            }
+        }
 
         List<String> msg = messages.getStringList("IpBlocked");
         List<String> replace = new ArrayList<>();
@@ -509,7 +522,7 @@ public final class MessageGetter implements LockLoginBungee {
                         .replace(",", "{replace-comma}")
                         .replace("[", "{replace-one}")
                         .replace("]", "{replace-two}")
-                        .replace("{time}", String.valueOf(Integer.parseInt(String.valueOf(time))))
+                        .replace("{time}", String.valueOf(final_time))
                         .replace("{time_format}", format) + "&r");
             }
         }

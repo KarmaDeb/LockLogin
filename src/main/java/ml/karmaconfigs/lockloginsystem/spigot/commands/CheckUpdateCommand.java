@@ -47,7 +47,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             user.send(messages.prefix() + messages.permission("locklogin.readversion"));
                         }
                         break;
-                    case "--update":
+                    case "--check":
                         if (player.hasPermission("locklogin.checkupdate")) {
                             if (last_version_id > curr_version_id) {
                                 switch (latest.getChannel()) {
@@ -89,7 +89,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             user.send(messages.prefix() + messages.permission("locklogin.checkupdate"));
                         }
                         break;
-                    case "--forceupdate":
+                    case "--update":
                         if (player.hasPermission("locklogin.forceupdate")) {
                             if (last_version_id > curr_version_id) {
                                 if (!downloading) {
@@ -151,15 +151,10 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                         Console.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
                         Console.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         break;
-                    case "--version&changelog":
-                        Console.send("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginSpigot.version));
-                        Console.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
-                        Console.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
-                        Console.send("\n");
-
+                    case "--changelog":
                         Console.send(latest.getChangeLog());
                         break;
-                    case "--update":
+                    case "--check":
                         if (last_version_id > curr_version_id) {
                             switch (latest.getChannel()) {
                                 case SNAPSHOT:
@@ -197,7 +192,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
                             Console.send("&aLockLogin is fully updated and you are enjoying the latest features and bug fixes");
                         }
                         break;
-                    case "--forceupdate":
+                    case "--update":
                         if (last_version_id > curr_version_id) {
                             if (!downloading) {
                                 switch (latest.getChannel()) {
@@ -258,12 +253,12 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
 
             user.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
             user.send("\n");
-            user.send("&7To update, run /updateChecker --forceUpdate");
+            user.send("&7To update, run /updateChecker --update");
             user.send("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginSpigot.jar).replace("{1}", LockLoginSpigot.jar));
         } else {
             Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()) + "&7( &e" + latest.getChannel().name() + " &7)");
             Console.send("\n");
-            Console.send("&7To update, run /updateChecker --forceUpdate");
+            Console.send("&7To update, run /updateChecker --update");
             Console.send("&7then replace plugins/{0} with /plugins/update/{1}".replace("{0}", LockLoginSpigot.jar).replace("{1}", LockLoginSpigot.jar));
         }
     }
@@ -274,7 +269,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
 
             user.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
             user.send("\n");
-            user.send("&7To update, run /updateChecker --forceUpdate");
+            user.send("&7To update, run /updateChecker --update");
             user.send("&7otherwise, there are other two ways to update it:");
             user.send("\n");
             user.send("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");
@@ -283,7 +278,7 @@ public final class CheckUpdateCommand implements CommandExecutor, SpigotFiles {
         } else {
             Console.send("&cLockLogin needs to update from &e" + StringUtils.stripColor(LockLoginSpigot.version) + "&c to &e" + StringUtils.stripColor(latest.getVersion()));
             Console.send("\n");
-            Console.send("&7To update, run /updateChecker --forceUpdate");
+            Console.send("&7To update, run /updateChecker --update");
             Console.send("&7otherwise, there are other two ways to update it:");
             Console.send("\n");
             Console.send("&e1 - &dUsing LockLogin auto-update system ( run /locklogin applyUpdates )");

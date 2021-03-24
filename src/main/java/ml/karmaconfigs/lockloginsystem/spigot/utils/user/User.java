@@ -247,7 +247,11 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param type the potion effect type
      */
     public final void removeEffect(PotionEffectType type) {
-        plugin.getServer().getScheduler().runTask(plugin, () -> player.removePotionEffect(type));
+        try {
+            plugin.getServer().getScheduler().runTask(plugin, () -> player.removePotionEffect(type));
+        } catch (Throwable ex) {
+            player.removePotionEffect(type);
+        }
     }
 
     /**

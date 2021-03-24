@@ -128,14 +128,14 @@ BruteForce:
   Tries: 3
   BlockTime: 30
 
-#antiBot is a feature that
+#AntiBot is a feature that
 #will try to keep bots away
 #from your server by just checking
 #if the connecting player has pinged
 #the server (bots doesn't ping servers)
 AntiBot: false
 
-#allowSameIP is a feature that will
+#AllowSameIP is a feature that will
 #allow a player that is already connected
 #to join the server if his IP is the same
 #that the one is already connected.
@@ -221,13 +221,3 @@ Lang: en_EN
 #For more info please visit:
 # https://rb.gy/jlmjah
 AccountSys: File
-
-#The message to send when the server is
-#bungeecord mode and a player tries to
-#join directly to the spigot server,
-#without going through bungeecord,
-#he will be kicked with this message.
-#This is a method to bypass some login plugins
-#but LockLogin prevents it (Requires to LockLogin to be
-#installed in all your spigot servers to fully work)
-BungeeProxy: "&cPlease, connect through bungeecord proxy!"

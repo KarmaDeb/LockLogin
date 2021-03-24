@@ -69,9 +69,11 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 }
             }
 
-            if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
-                e.setCancelled(true);
-                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.alreadyPlaying())));
+            if (config.alreadyPlaying()) {
+                if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
+                    e.setCancelled(true);
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.alreadyPlaying())));
+                }
             }
 
             if (!e.isCancelled()) {
@@ -283,6 +285,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             plugin.getProxy().getScheduler().schedule(plugin, () -> {
                 dataSender.sendAccountStatus(player);
                 dataSender.sendUUID(player.getUniqueId(), player.getServer());
+                dataSender.sendBungeeCordMessages(player);
             }, 1, TimeUnit.SECONDS);
         }
     }
@@ -294,6 +297,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
             dataSender.sendAccountStatus(player);
             dataSender.sendUUID(e.getPlayer().getUniqueId(), e.getPlayer().getServer());
+            dataSender.sendBungeeCordMessages(player);
         }, 1, TimeUnit.SECONDS);
     }
 }

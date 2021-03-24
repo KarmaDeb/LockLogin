@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>LockLogin</artifactId>
     <groupId>ml.karmaconfigs</groupId>
-    <version>1.0.7.8</version>
+    <version>1.0.8.1</version>
     <packaging>jar</packaging>
 
     <name>LockLogin</name>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>ml.karmaconfigs</groupId>
             <artifactId>KarmaAPI</artifactId>
-            <version>3.6-SNAPSHOT</version>
+            <version>3.7-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

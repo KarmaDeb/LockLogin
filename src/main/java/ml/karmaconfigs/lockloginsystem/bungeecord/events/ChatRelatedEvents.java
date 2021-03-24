@@ -111,8 +111,10 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                     }
                 }
             } else {
-                if (!cmd.equals("captcha"))
+                if (!cmd.equals("captcha")) {
                     user.send(messages.prefix() + messages.typeCaptcha());
+                    e.setCancelled(true);
+                }
             }
         } else {
             if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {

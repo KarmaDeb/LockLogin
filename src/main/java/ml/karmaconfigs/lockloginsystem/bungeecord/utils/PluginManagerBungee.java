@@ -196,18 +196,6 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
         }
 
-        if (msg_file.exists()) {
-            FileManager msgManager = new FileManager(msg_file.getName(), "lang");
-            msgManager.setInternal("messages/" + msg_file.getName());
-
-            if (!msgManager.getString("Login").contains("{captcha}") || !msgManager.getString("Register").contains("{captcha}")) {
-                msgManager.unset("Login");
-                msgManager.unset("Register");
-
-                msgManager.save();
-            }
-        }
-
         FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));;
         try {
             msg.copy(msg_file);
@@ -595,7 +583,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginBungee.jar, LockLoginBungee.jar);
@@ -658,7 +646,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3To use this new version, you must go to /plugins/update and copy {0} to /plugins folder, replacing current {1}", LockLoginBungee.jar, LockLoginBungee.jar);
@@ -720,7 +708,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 logger.scheduleLog(Level.INFO, "[ LLAUS ] Error while downloading LockLogin latest version instance");
             }
         } else {
-            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /applyUpdates or restart your proxy (Recommended)", Level.INFO);
+            Console.send(plugin, "[ LLAUS ] LockLogin have been updated, you can run /locklogin applyUpdates or restart your proxy (Recommended)", Level.INFO);
         }
 
         Console.send("&3Otherwise, you can download latest version from &dhttps://www.spigotmc.org/resources/gsa-locklogin.75156/");

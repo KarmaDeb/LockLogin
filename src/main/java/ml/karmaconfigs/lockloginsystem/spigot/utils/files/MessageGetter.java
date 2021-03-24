@@ -106,6 +106,10 @@ public final class MessageGetter implements LockLoginSpigot {
         return messages.getString("Prefix");
     }
 
+    public final String bungeeProxy() {
+        return messages.getString("BungeeProxy", "&cPlease, connect through bungeecord proxy!");
+    }
+
     public final String notVerified(Player target) {
         return Objects.requireNonNull(messages.getString("PlayerNotVerified")).replace("{player}", target.getName());
     }

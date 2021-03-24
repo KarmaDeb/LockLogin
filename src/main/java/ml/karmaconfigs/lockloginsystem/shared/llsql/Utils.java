@@ -166,28 +166,57 @@ public final class Utils {
      * Creates user on MySQL tables
      */
     public final void createUser() {
-        if (!userExists()) {
-            Connection connection = null;
-            PreparedStatement statement = null;
-            try {
-                connection = Bucket.getBucket().getConnection();
-                statement = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
+        if (Bucket.isAzuriom()) {
+            if (!userExists()) {
+                Connection connection = null;
+                PreparedStatement statement = null;
+                try {
+                    connection = Bucket.getBucket().getConnection();
+                    statement = connection.prepareStatement("INSERT INTO " + table + "(name,users_email_unique,PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?,?,?)");
 
-                statement.setString(1, name);
-                statement.setString(2, "");
-                statement.setString(3, uuid);
-                statement.setString(4, "");
-                statement.setString(5, "");
-                statement.setBoolean(6, false);
-                statement.setString(7, "");
-                statement.setBoolean(8, false);
+                    statement.setString(1, name);
+                    statement.setString(2, "temp_" + name + "@locklogin.tmp");
+                    statement.setString(3, name);
+                    statement.setString(4, "");
+                    statement.setString(5, uuid);
+                    statement.setString(6, "");
+                    statement.setString(7, "");
+                    statement.setBoolean(8, false);
+                    statement.setString(9, "");
+                    statement.setBoolean(10, false);
 
-                statement.executeUpdate();
-            } catch (Throwable e) {
-                PlatformUtils.log(e, Level.GRAVE);
-                PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
-            } finally {
-                Bucket.close(connection, statement);
+                    statement.executeUpdate();
+                } catch (Throwable e) {
+                    PlatformUtils.log(e, Level.GRAVE);
+                    PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
+                } finally {
+                    Bucket.close(connection, statement);
+                }
+            }
+        } else {
+            if (!userExists()) {
+                Connection connection = null;
+                PreparedStatement statement = null;
+                try {
+                    connection = Bucket.getBucket().getConnection();
+                    statement = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
+
+                    statement.setString(1, name);
+                    statement.setString(2, "");
+                    statement.setString(3, uuid);
+                    statement.setString(4, "");
+                    statement.setString(5, "");
+                    statement.setBoolean(6, false);
+                    statement.setString(7, "");
+                    statement.setBoolean(8, false);
+
+                    statement.executeUpdate();
+                } catch (Throwable e) {
+                    PlatformUtils.log(e, Level.GRAVE);
+                    PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
+                } finally {
+                    Bucket.close(connection, statement);
+                }
             }
         }
     }

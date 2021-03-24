@@ -295,6 +295,10 @@ public final class ConfigGetter implements LockLoginBungee {
         return (int) TimeUnit.MINUTES.toSeconds(val);
     }
 
+    public final boolean alreadyPlaying() {
+        return configuration.getBoolean("AlreadyPlaying");
+    }
+
     public final boolean pinEnabled() {
         return configuration.getBoolean("Pin");
     }

@@ -121,7 +121,14 @@ BruteForce:
   Tries: 3
   BlockTime: 30
 
-#antiBot is a feature that
+#Protect the server against
+#connections with the same
+#name. ( THIS IS USELESS IN
+# BUNGEECORD, AND WILL BE
+# REMOVED IN A FUTURE )
+AlreadyPlaying: false
+
+#AntiBot is a feature that
 #will try to keep bots away
 #from your server by just checking
 #if the connecting player has pinged

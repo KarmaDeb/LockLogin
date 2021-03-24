@@ -55,6 +55,22 @@ public final class ConfigGetter implements LockLoginSpigot {
             }
         }
 
+        String svName = configuration.getString("ServerName", "");
+        assert svName != null;
+        
+        if (svName.replaceAll("\\s", "").isEmpty()) {
+            svName = StringUtils.randomString(8, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER);
+            configuration.set("ServerName", svName);
+
+            try {
+                configuration.save(config);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+
+            manager.reload();
+        }
+
         if (!loaded) {
             manager.reload();
             loaded = true;
@@ -91,6 +107,26 @@ public final class ConfigGetter implements LockLoginSpigot {
                 return false;
             }
         }
+    }
+
+    public final String serverName() {
+        String name = configuration.getString("ServerName", "");
+        assert name != null;
+
+        if (name.isEmpty()) {
+            name = StringUtils.randomString(8, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER);
+            configuration.set("ServerName", name);
+
+            try {
+                configuration.save(config);
+            } catch (Throwable ex) {
+                ex.printStackTrace();
+            }
+
+            manager.reload();
+        }
+
+        return name;
     }
 
     public final boolean advancedFiltering() {
@@ -148,26 +184,6 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final boolean accountSysValid() {
         return isYaml() || isMySQL();
-    }
-
-    public final String serverName() {
-        String name = configuration.getString("ServerName", "");
-        assert name != null;
-
-        if (name.isEmpty()) {
-            name = StringUtils.randomString(8, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER);
-            configuration.set("ServerName", name);
-
-            try {
-                configuration.save(config);
-            } catch (Throwable ex) {
-                ex.printStackTrace();
-            }
-
-            manager.reload();
-        }
-
-        return name;
     }
 
     public final boolean registerRestricted() {
@@ -407,10 +423,6 @@ public final class ConfigGetter implements LockLoginSpigot {
 
     public final boolean checkNames() {
         return configuration.getBoolean("CheckNames", false);
-    }
-
-    public final String bungeeProxy() {
-        return configuration.getString("BungeeProxy", "&cPlease, connect through bungeecord proxy!");
     }
 
     public interface manager {
