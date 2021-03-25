@@ -123,7 +123,7 @@ public final class MessageGetter implements LockLoginBungee {
                 for (int i = 0; i < code.length(); i++) {
                     int random = new Random().nextInt(100);
 
-                    if (random > 50) {
+                    if (random > 20) {
                         builder.append(last_color).append("&m").append(code.charAt(i)).append("&r");
                     } else {
                         builder.append(last_color).append(code.charAt(i)).append("&r");
@@ -169,7 +169,7 @@ public final class MessageGetter implements LockLoginBungee {
 
     public final String login(final String captcha) {
         if (captcha != null && !captcha.isEmpty())
-            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
+        return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
         else
             return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
     }

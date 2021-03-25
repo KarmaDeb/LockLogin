@@ -49,21 +49,19 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                             if (!user.isRegistered()) {
                                 if (back != 0) {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
-                                    if (!user.isRegistered()) {
-                                        dataSender.sendAccountStatus(p);
+                                    dataSender.sendAccountStatus(p);
 
-                                        if (!messages.registerTitle(back).isEmpty() || !messages.registerSubtitle(back).isEmpty())
-                                            user.sendTitle(messages.registerTitle(back), messages.registerSubtitle(back));
-                                    } else {
-                                        user.sendTitle("", "");
-                                        task.cancel();
-                                    }
+                                    if (!messages.registerTitle(back).isEmpty() || !messages.registerSubtitle(back).isEmpty())
+                                        user.sendTitle(messages.registerTitle(back), messages.registerSubtitle(back));
                                 } else {
+                                    dataSender.blindEffect(p, false, config.nauseaRegister());
                                     user.kick("&eLockLogin\n\n" + messages.registerTimeOut());
                                     task.cancel();
                                 }
                             } else {
                                 task.cancel();
+                                dataSender.blindEffect(p, false, config.nauseaRegister());
+                                user.sendTitle("&a", "&b");
                             }
                             back--;
                         } else {
@@ -84,16 +82,12 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                             if (!user.isLogged()) {
                                 if (back != 0) {
                                     dataSender.sendUUID(p.getUniqueId(), p.getServer());
-                                    if (!user.isLogged()) {
-                                        dataSender.sendAccountStatus(p);
+                                    dataSender.sendAccountStatus(p);
 
-                                        if (!messages.loginTitle(back).isEmpty() || !messages.loginSubtitle(back).isEmpty())
-                                            user.sendTitle(messages.loginTitle(back), messages.loginSubtitle(back));
-                                    } else {
-                                        user.sendTitle("", "");
-                                        task.cancel();
-                                    }
+                                    if (!messages.loginTitle(back).isEmpty() || !messages.loginSubtitle(back).isEmpty())
+                                        user.sendTitle(messages.loginTitle(back), messages.loginSubtitle(back));
                                 } else {
+                                    dataSender.blindEffect(p, false, config.nauseaLogin());
                                     user.kick("&eLockLogin\n\n" + messages.loginTimeOut());
                                     task.cancel();
                                 }
@@ -101,9 +95,11 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                             } else {
                                 task.cancel();
                                 dataSender.blindEffect(p, false, config.nauseaLogin());
+                                user.sendTitle("&a", "&b");
                             }
                         } else {
                             task.cancel();
+                            dataSender.blindEffect(p, false, config.nauseaLogin());
                         }
                     } else {
                         task.cancel();

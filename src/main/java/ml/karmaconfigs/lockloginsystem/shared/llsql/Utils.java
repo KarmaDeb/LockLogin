@@ -53,6 +53,8 @@ public final class Utils {
     public Utils(UUID uuid, final String _name) {
         name = _name;
         this.uuid = uuid.toString();
+
+        checkUUID();
     }
 
     /**
@@ -64,6 +66,8 @@ public final class Utils {
     public Utils(String uuid, final String _name) {
         name = _name;
         this.uuid = uuid;
+
+        checkUUID();
     }
 
     /**
@@ -76,7 +80,7 @@ public final class Utils {
         this.uuid = fetchUUID(player.getName());
 
         if (!offline_conversion.containsKey(player.getUniqueId()) || offline_conversion.get(player.getUniqueId()).equals(player.getUniqueId().toString())) {
-            if (uuid.replaceAll("\\s", "").isEmpty()) {
+            if (uuid == null || uuid.replaceAll("\\s", "").isEmpty()) {
                 ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter spigotConfig = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter();
 
                 if (!PlatformUtils.isPremium()) {
@@ -98,6 +102,8 @@ public final class Utils {
         } else {
             this.uuid = offline_conversion.getOrDefault(player.getUniqueId(), player.getUniqueId().toString());
         }
+
+        checkUUID();
     }
 
     /**
@@ -110,7 +116,7 @@ public final class Utils {
         this.uuid = fetchUUID(player.getName());
 
         if (!offline_conversion.containsKey(player.getUniqueId()) || offline_conversion.get(player.getUniqueId()).equals(player.getUniqueId().toString())) {
-            if (uuid.replaceAll("\\s", "").isEmpty()) {
+            if (uuid == null || uuid.replaceAll("\\s", "").isEmpty()) {
                 ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter bungeeConfig = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.ConfigGetter();
 
                 if (!PlatformUtils.isPremium()) {
@@ -132,6 +138,8 @@ public final class Utils {
         } else {
             this.uuid = offline_conversion.getOrDefault(player.getUniqueId(), player.getUniqueId().toString());
         }
+
+        checkUUID();
     }
 
     /**
@@ -140,26 +148,49 @@ public final class Utils {
      * @return if the user exists in the mysql
      */
     public final boolean userExists() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        boolean exists = false;
-        try {
-            connection = Bucket.getBucket().getConnection();
-            statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
-            statement.setString(1, uuid);
+        if (Bucket.isAzuriom()) {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            boolean exists = false;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE name=?");
+                statement.setString(1, name);
 
-            ResultSet results = statement.executeQuery();
-            exists = results.next();
+                ResultSet results = statement.executeQuery();
+                exists = results.next();
 
-            results.close();
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while checking MySQL user existence for " + uuid, Level.INFO);
-        } finally {
-            Bucket.close(connection, statement);
+                results.close();
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while checking MySQL user existence for " + uuid, Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
+            }
+
+            return exists;
+        } else {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            boolean exists = false;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("SELECT * FROM " + table + " WHERE UUID=?");
+                statement.setString(1, uuid);
+
+                ResultSet results = statement.executeQuery();
+                exists = results.next();
+
+                results.close();
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while checking MySQL user existence for " + uuid, Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
+            }
+
+            return exists;
         }
-
-        return exists;
     }
 
     /**
@@ -172,18 +203,14 @@ public final class Utils {
                 PreparedStatement statement = null;
                 try {
                     connection = Bucket.getBucket().getConnection();
-                    statement = connection.prepareStatement("INSERT INTO " + table + "(name,users_email_unique,PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?,?,?)");
+                    statement = connection.prepareStatement("UPDATE " + table + " SET email=?, PLAYER=?, UUID=?, FAON=?, GAUTH=?, FLY=?");
 
-                    statement.setString(1, name);
-                    statement.setString(2, "temp_" + name + "@locklogin.tmp");
-                    statement.setString(3, name);
-                    statement.setString(4, "");
-                    statement.setString(5, uuid);
-                    statement.setString(6, "");
-                    statement.setString(7, "");
-                    statement.setBoolean(8, false);
-                    statement.setString(9, "");
-                    statement.setBoolean(10, false);
+                    statement.setString(1, (!getEmail().isEmpty() ? getEmail() : "temp_" + name + "@locklogin.tmp"));
+                    statement.setString(2, name);
+                    statement.setString(3, uuid);
+                    statement.setBoolean(4, false);
+                    statement.setBoolean(5, false);
+                    statement.setBoolean(6, false);
 
                     statement.executeUpdate();
                 } catch (Throwable e) {
@@ -202,7 +229,7 @@ public final class Utils {
                     statement = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
 
                     statement.setString(1, name);
-                    statement.setString(2, "");
+                    statement.setString(2, "temp_" + name + "@locklogin.tmp");
                     statement.setString(3, uuid);
                     statement.setString(4, "");
                     statement.setString(5, "");
@@ -323,12 +350,41 @@ public final class Utils {
             statement.executeUpdate();
         } catch (Throwable e) {
             PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while setting MySQL user password of " + uuid, Level.INFO);
+            PlatformUtils.log("Error while setting MySQL user email of " + uuid, Level.INFO);
         } finally {
             Bucket.close(connection, statement);
         }
 
         registerAzuriom();
+    }
+
+    /**
+     * Check if the user UUID is valid
+     */
+    public final void checkUUID() {
+        String id = fetchUUID(name);
+
+        if (id == null || id.isEmpty()) {
+            if (!userExists())
+                createUser();
+
+            Connection connection = null;
+            PreparedStatement statement = null;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("UPDATE " + table + " SET UUID=? WHERE PLAYER=?");
+
+                statement.setString(1, uuid);
+                statement.setString(2, name);
+
+                statement.executeUpdate();
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while checking MySQL user email of " + uuid, Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
+            }
+        }
     }
 
     /**

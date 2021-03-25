@@ -1,14 +1,14 @@
 package ml.karmaconfigs.lockloginsystem.shared.dependencies;
 
 public enum Dependency {
-    COMMONS,POOL2,SLF4J,HIKARICP,GOOGLE,ARGON2;
+    COMMONS,JNA,SLF4J,HIKARICP,GOOGLE,ARGON2;
 
     public String downloadURL() {
         switch (this) {
             case COMMONS:
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/commons-codec.jar";
-            case POOL2:
-                return "https://repo1.maven.org/maven2/org/apache/commons/commons-pool2/2.9.0/commons-pool2-2.9.0.jar";
+            case JNA:
+                return "https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.8.0/jna-5.8.0.jar";
             case SLF4J:
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/slf4j.jar";
             case HIKARICP:
@@ -26,8 +26,8 @@ public enum Dependency {
         switch (this) {
             case COMMONS:
                 return "CommonsCodec.jar";
-            case POOL2:
-                return "CommonsPool2.jar";
+            case JNA:
+                return "SunJNA.jar";
             case SLF4J:
                 return "SLF4J.jar";
             case HIKARICP:
@@ -35,7 +35,7 @@ public enum Dependency {
             case GOOGLE:
                 return "GoogleAuth.jar";
             case ARGON2:
-                return "Argon2I.jar";
+                return "Argon2.jar";
             default:
                 return "";
         }

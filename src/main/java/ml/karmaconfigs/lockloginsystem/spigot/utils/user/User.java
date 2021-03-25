@@ -133,10 +133,23 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final void send(String text) {
         if (!text.replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty()) {
-            if (!text.contains("\n"))
+            try {
+                String[] data = text.split("\\{newline}");
+                for (int i = 0; i < data.length; i++) {
+                    String msg = data[i];
+                    try {
+                        String last = data[0];
+                        if (i > 0)
+                            last = data[i - 1];
+
+                        player.sendMessage(StringUtils.toColor(StringUtils.getLastColor(last) + msg));
+                    } catch (Throwable ex) {
+                        player.sendMessage(StringUtils.toColor(msg));
+                    }
+                }
+            } catch (Throwable ex) {
                 player.sendMessage(StringUtils.toColor(text));
-            else
-                send(Arrays.asList(text.split("\n")));
+            }
         }
     }
 

@@ -22,10 +22,7 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.LoginEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -152,7 +149,9 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
         User user = new User(player);
 
         if (config.isMySQL()) {
-            if (!user.isRegistered()) {
+            Utils sql = new Utils(player);
+
+            if (!sql.userExists()) {
                 if (config.registerRestricted()) {
                     user.kick(messages.onlyAzuriom());
 
@@ -165,7 +164,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             manager.setInternal("auto-generated/userTemplate.yml");
 
             if (manager.getManaged().exists()) {
-                Utils sql = new Utils(player);
                 if (!sql.userExists())
                     sql.createUser();
 
@@ -238,7 +236,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
             if (!user.isLogged()) {
                 user.genCaptcha();
 
-                user.checkServer();
                 if (config.clearChat()) {
                     for (int i = 0; i < 150; i++) {
                         user.send(" ");
@@ -286,6 +283,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                 dataSender.sendAccountStatus(player);
                 dataSender.sendUUID(player.getUniqueId(), player.getServer());
                 dataSender.sendBungeeCordMessages(player);
+
+                user.checkServer();
             }, 1, TimeUnit.SECONDS);
         }
     }

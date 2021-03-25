@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>LockLogin</artifactId>
     <groupId>ml.karmaconfigs</groupId>
-    <version>1.0.8.1</version>
+    <version>1.0.8.2</version>
     <packaging>jar</packaging>
 
     <name>LockLogin</name>
@@ -190,22 +190,14 @@
         </dependency>
         <dependency>
             <groupId>de.mkammerer</groupId>
-            <artifactId>argon2-jvm</artifactId>
+            <artifactId>argon2-jvm-nolibs</artifactId>
             <version>2.9.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>net.md-5</groupId>
             <artifactId>bungeecord-api</artifactId>
-            <version>1.16-R0.4</version>
-            <type>jar</type>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.md-5</groupId>
-            <artifactId>bungeecord-api</artifactId>
-            <version>1.16-R0.4</version>
-            <type>javadoc</type>
+            <version>1.16-R0.5-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

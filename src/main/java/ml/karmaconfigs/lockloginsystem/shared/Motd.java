@@ -16,6 +16,8 @@ public final class Motd {
      */
     public Motd(final File motd_file) {
         file = new GlobalKarmaFile(motd_file);
+
+        System.out.println("Reading from: " + file.getFile().getAbsolutePath());
     }
 
     /**
@@ -51,7 +53,7 @@ public final class Motd {
     public final int getDelay() {
         setup();
 
-        return file.getInt("DElAY", 5);
+        return file.getInt("DELAY", 5);
     }
 
     /**
@@ -62,16 +64,31 @@ public final class Motd {
      *
      * @return the on login motd
      */
-    public final List<String> onLogin(final String player, final String serverName) {
+    public final String onLogin(final String player, final String serverName) {
         setup();
 
         String path = file.getString("OnLogin", "MESSAGES");
 
-        List<String> messages = file.getStringList(path, "&7Welcome&e {player}&7 to&b {ServerName}", " ", "&7Hope you got a nice day!");
-        for (int i = 0; i < messages.size(); i++)
-            messages.set(i, messages.get(i).replace("{player}", player).replace("{ServerName}", serverName));
+        System.out.println("Path: " + path);
 
-        return messages;
+        List<String> messages = file.getStringList(path, "&7Welcome&e {player}&7 to&b {ServerName}", " ", "&7Hope you got a nice day!");
+        System.out.println("Found messages: " + messages);
+
+        for (int i = 0; i < messages.size(); i++)
+            messages.set(i, messages.get(i)
+                    .replace("{player}", player)
+                    .replace("{ServerName}", serverName)
+                    .replace("[", "{open}")
+                    .replace("]", "{close}")
+                    .replace(",", "{comma}"));
+
+        return messages.toString()
+                .replace("[", "")
+                .replace("]", "")
+                .replace(", ", "{newline}")
+                .replace("{open}", "[")
+                .replace("{close}", "]")
+                .replace("{comma}", ",");
     }
 
     /**
@@ -82,15 +99,26 @@ public final class Motd {
      *
      * @return the on login motd
      */
-    public final List<String> onRegister(final String player, final String serverName) {
+    public final String onRegister(final String player, final String serverName) {
         setup();
 
         String path = file.getString("OnRegister", "MESSAGES");
 
         List<String> messages = file.getStringList(path, "&7Welcome&e {player}&7 to&b {ServerName}", " ", "&7Hope you got a nice day!");
         for (int i = 0; i < messages.size(); i++)
-            messages.set(i, messages.get(i).replace("{player}", player).replace("{ServerName}", serverName));
+            messages.set(i, messages.get(i)
+                    .replace("{player}", player)
+                    .replace("{ServerName}", serverName)
+                    .replace("[", "{open}")
+                    .replace("]", "{close}")
+                    .replace(",", "{comma}"));
 
-        return messages;
+        return messages.toString()
+                .replace("[", "")
+                .replace("]", "")
+                .replace(", ", "{newline}")
+                .replace("{open}", "[")
+                .replace("{close}", "]")
+                .replace("{comma}", ",");
     }
 }

@@ -23,6 +23,7 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.Nullable;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -122,11 +123,25 @@ public final class User implements LockLoginBungee, BungeeFiles {
      * @param text the message
      */
     public final void send(String text) {
-        if (!text.replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty())
-            if (!text.contains("\n"))
+        if (!text.replace(messages.prefix(), "").replaceAll("\\s", "").isEmpty()) {
+            try {
+                String[] data = text.split("\\{newline}");
+                for (int i = 0; i < data.length; i++) {
+                    String msg = data[i];
+                    try {
+                        String last = data[0];
+                        if (i > 0)
+                            last = data[i - 1];
+
+                        player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(StringUtils.getLastColor(last) + msg)));
+                    } catch (Throwable ex) {
+                        player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(msg)));
+                    }
+                }
+            } catch (Throwable ex) {
                 player.sendMessage(TextComponent.fromLegacyText(StringUtils.toColor(text)));
-            else
-                send(Arrays.asList(text.split("\n")));
+            }
+        }
     }
 
     /**
@@ -169,9 +184,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
      */
     public final void sendTitle(String Title, String Subtitle) {
         Title title = plugin.getProxy().createTitle();
-        title.fadeIn(20);
+        title.fadeIn(0);
         title.stay(20 * 5);
-        title.fadeOut(20);
+        title.fadeOut(0);
         title.title(TextComponent.fromLegacyText(StringUtils.toColor(Title)));
         title.subTitle(TextComponent.fromLegacyText(StringUtils.toColor(Subtitle)));
 
@@ -442,15 +457,15 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @return the player InetAddress
      */
-    @Nullable
-    public final InetAddress getIp() {
+    @SuppressWarnings("deprecation")
+    public final @Nullable InetAddress getIp() {
         try {
             InetSocketAddress address = (InetSocketAddress) player.getSocketAddress();
             return address.getAddress();
         } catch (Throwable ex) {
             logger.scheduleLog(Level.GRAVE, ex);
             logger.scheduleLog(Level.INFO, "Failed to retrieve player IP");
-            return null;
+            return player.getAddress().getAddress();
         }
     }
 
@@ -517,9 +532,9 @@ public final class User implements LockLoginBungee, BungeeFiles {
         } else {
             Utils sql = new Utils(player);
 
-            if (sql.getPassword() != null) {
+            if (sql.getPassword() != null)
                 return !sql.getPassword().isEmpty();
-            }
+
             return false;
         }
     }

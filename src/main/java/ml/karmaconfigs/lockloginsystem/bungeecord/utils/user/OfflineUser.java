@@ -25,8 +25,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
 
 public final class OfflineUser implements LockLoginBungee, BungeeFiles {
 
-    private final String uuid;
-    private final String name;
+    private String uuid;
+    private String name;
     private FileManager manager = null;
     private Utils managerSQL = null;
 
@@ -79,15 +79,21 @@ public final class OfflineUser implements LockLoginBungee, BungeeFiles {
             List<String> uuids = utils.getUUIDs();
 
             for (String id : uuids) {
-                if (managerSQL != null)
-                    break;
+                if (id != null) {
+                    if (managerSQL != null)
+                        break;
 
-                Utils idUtils = new Utils(id, name);
-                if (idUtils.getName() != null && idUtils.getName().equals(name))
-                    managerSQL = idUtils;
-                else
-                    if (id.equals(uuid))
-                        managerSQL = idUtils;
+                    if (!id.replaceAll("\\s", "").isEmpty()) {
+                        if (name.isEmpty())
+                            name = new Utils().fetchName(id);
+
+                        Utils idUtils = new Utils(id, name);
+                        if (idUtils.getName() != null && idUtils.getName().equals(name))
+                            managerSQL = idUtils;
+                        else if (id.equals(uuid))
+                            managerSQL = idUtils;
+                    }
+                }
             }
         }
     }
