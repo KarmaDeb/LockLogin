@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
@@ -21,6 +21,19 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public final class ModuleListInventory implements InventoryHolder, LockLoginSpigot {
 
     private static final HashMap<UUID, Integer> playerPage = new HashMap<>();
@@ -307,16 +320,35 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
         return pages.get(getPlayerPage());
     }
 
+    /**
+     * Module list inventory
+     * manager utilities
+     */
     public interface manager {
 
+        /**
+         * Get the player module list inventory
+         *
+         * @param player the player to get
+         *               from
+         * @return the player module list inventory
+         */
         @Nullable
         static ModuleListInventory getInventory(final Player player) {
             return inventories.getOrDefault(player.getUniqueId(), null);
         }
     }
 
+    /**
+     * Module list inventory utils
+     */
     public interface utils {
 
+        /**
+         * Get the inventory next button
+         *
+         * @return the inventory next button
+         */
         @SuppressWarnings("deprecation")
         static ItemStack nextButton() {
             ItemStack next;
@@ -338,6 +370,11 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             return next;
         }
 
+        /**
+         * Get the inventory back button
+         *
+         * @return the inventory back button
+         */
         @SuppressWarnings("deprecation")
         static ItemStack backButton() {
             ItemStack back;
@@ -359,6 +396,12 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             return back;
         }
 
+        /**
+         * Get the module update url
+         *
+         * @param item the item to read from
+         * @return the stack update url
+         */
         static String getUpdateURL(final ItemStack item) {
             if (item != null) {
                 if (item.getItemMeta() != null && item.hasItemMeta()) {
@@ -382,6 +425,12 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             return null;
         }
 
+        /**
+         * Get the module real name
+         *
+         * @param item the item to read from
+         * @return the module real name
+         */
         static String getRealName(final ItemStack item) {
             if (item != null) {
                 if (item.getItemMeta() != null && item.hasItemMeta()) {

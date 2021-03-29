@@ -3,8 +3,8 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.user;
 import com.warrenstrange.googleauth.GoogleAuthenticator;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.api.events.PlayerAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
@@ -23,7 +23,6 @@ import net.md_5.bungee.api.config.ServerInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.connection.Server;
 import org.jetbrains.annotations.Nullable;
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -32,16 +31,16 @@ import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
@@ -333,32 +332,6 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
-     * Set the player session status
-     *
-     * @param value true/false
-     */
-    public final void setLogged(boolean value) {
-        if (value)
-            logged.add(player.getUniqueId());
-        else
-            logged.remove(player.getUniqueId());
-    }
-
-    /**
-     * Set if the player is in temp-login
-     * status
-     *
-     * @param value true/false
-     */
-    public final void setTempLog(boolean value) {
-        if (value) {
-            tempLog.add(player.getUniqueId());
-        } else {
-            tempLog.remove(player.getUniqueId());
-        }
-    }
-
-    /**
      * Rest a trie for the player
      */
     public final void restTries() {
@@ -399,7 +372,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
         if (config.isYaml()) {
             PlayerFile playerFile = new PlayerFile(player);
 
-            playerFile.setToken(token);
+            playerFile.setToken(new PasswordUtils(token).hash());
         } else {
             Utils sql = new Utils(player);
 
@@ -738,6 +711,18 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Set the player session status
+     *
+     * @param value true/false
+     */
+    public final void setLogged(boolean value) {
+        if (value)
+            logged.add(player.getUniqueId());
+        else
+            logged.remove(player.getUniqueId());
+    }
+
+    /**
      * Check if the player has tries left
      *
      * @return if the player has login tries left
@@ -763,6 +748,20 @@ public final class User implements LockLoginBungee, BungeeFiles {
     }
 
     /**
+     * Set if the player is in temp-login
+     * status
+     *
+     * @param value true/false
+     */
+    public final void setTempLog(boolean value) {
+        if (value) {
+            tempLog.add(player.getUniqueId());
+        } else {
+            tempLog.remove(player.getUniqueId());
+        }
+    }
+
+    /**
      * Check if the code is ok
      *
      * @param code the code
@@ -771,7 +770,7 @@ public final class User implements LockLoginBungee, BungeeFiles {
     public final boolean validateCode(int code) {
         GoogleAuthenticator gauth = new GoogleAuthenticator();
 
-        return gauth.authorize(getToken(true), code);
+        return gauth.authorize(getToken(true), code) || gauth.authorize(getToken(false), code);
     }
 
     /**
@@ -784,8 +783,17 @@ public final class User implements LockLoginBungee, BungeeFiles {
         return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
     }
 
+    /**
+     * External user utilities
+     */
     public interface external {
 
+        /**
+         * Get the user ip
+         *
+         * @param connection the user connection
+         * @return the user ip
+         */
         @Nullable
         static InetAddress getIp(final SocketAddress connection) {
             try {

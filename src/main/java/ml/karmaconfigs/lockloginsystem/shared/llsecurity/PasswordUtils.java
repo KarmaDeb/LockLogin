@@ -1,20 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsecurity;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-[This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
- */
-
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
@@ -25,6 +11,19 @@ import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.authme.libs.BCr
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.plugins.loginsecurity.LoginSecurityAuth;
 import org.apache.commons.codec.binary.Base64;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public final class PasswordUtils {
 
     private final String password;
@@ -93,12 +92,8 @@ public final class PasswordUtils {
      * @return the hash value of password
      */
     public final String hash() {
-        if (!Base64.isBase64(password)) {
-            encoded = Base64.encodeBase64(password.getBytes());
-            return new String(encoded);
-        }
-
-        return password;
+        encoded = Base64.encodeBase64(password.getBytes());
+        return new String(encoded);
     }
 
     /**
@@ -107,12 +102,8 @@ public final class PasswordUtils {
      * @return the unhashed password
      */
     public final String unHash() {
-        if (Base64.isBase64(password)) {
-            byte[] decoded = Base64.decodeBase64(password);
-            return new String(decoded);
-        }
-
-        return password;
+        byte[] decoded = Base64.decodeBase64(password);
+        return new String(decoded);
     }
 
     /**

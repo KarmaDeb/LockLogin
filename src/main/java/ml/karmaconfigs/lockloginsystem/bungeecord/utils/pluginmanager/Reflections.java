@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-/*
+/**
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
@@ -17,14 +17,31 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public class Reflections {
 
+    /**
+     * Set a method accessible and return the same method
+     *
+     * @param t the method
+     * @param <T> the method type
+     * @return the accessible method
+     */
     public static <T extends java.lang.reflect.AccessibleObject> T setAccessible(T t) {
         t.setAccessible(true);
         return t;
     }
 
+    /**
+     * Get a field value
+     *
+     * @param obj the class object
+     * @param fieldname the field name
+     * @param <T> the field type
+     * @return the field value
+     *
+     * @throws IllegalAccessException if the field is private or package-private
+     * @throws NoSuchFieldException if the field does not exist
+     */
     public static <T> T getFieldValue(Object obj, String fieldname) throws IllegalAccessException, NoSuchFieldException {
         Class<?> clazz = obj.getClass();
         while (true) {
@@ -37,6 +54,17 @@ public class Reflections {
         }
     }
 
+    /**
+     * Get a field value
+     *
+     * @param clazz the class
+     * @param fieldname the field name
+     * @param <T> the field type
+     * @return the field value
+     *
+     * @throws IllegalAccessException if the field is private or package-private
+     * @throws NoSuchFieldException if the field does not exist
+     */
     public static <T> T getStaticFieldValue(Class<?> clazz, String fieldname) throws IllegalAccessException, NoSuchFieldException {
         while (true) {
             for (Field field : clazz.getDeclaredFields()) {
@@ -48,6 +76,15 @@ public class Reflections {
         }
     }
 
+    /**
+     * Set a field value
+     *
+     * @param obj the class object
+     * @param fieldname the field name
+     *
+     * @throws IllegalAccessException if the field is private or package-private
+     * @throws NoSuchFieldException if the field does not exist
+     */
     public static void setFieldValue(Object obj, String fieldname, Object value) throws IllegalAccessException, NoSuchFieldException {
         Class<?> clazz = obj.getClass();
         while (true) {
@@ -62,6 +99,16 @@ public class Reflections {
         }
     }
 
+    /**
+     * Invoke a class method
+     *
+     * @param obj the class object
+     * @param methodname the method name
+     * @param args the method arguments
+     *
+     * @throws IllegalAccessException if the field is private or package-private
+     * @throws InvocationTargetException if something goes wrong while calling method
+     */
     public static void invokeMethod(Object obj, String methodname, Object... args) throws IllegalAccessException, InvocationTargetException {
         Class<?> clazz = obj.getClass();
         do {

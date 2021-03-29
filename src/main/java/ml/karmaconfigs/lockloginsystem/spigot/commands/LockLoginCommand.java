@@ -1,9 +1,9 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
-import ml.karmaconfigs.api.shared.FileUtilities;
-import ml.karmaconfigs.api.shared.StringUtils;
-import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.reflections.BarMessage;
+import ml.karmaconfigs.api.common.FileUtilities;
+import ml.karmaconfigs.api.common.StringUtils;
+import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.bukkit.reflections.BarMessage;
 import ml.karmaconfigs.lockloginsystem.shared.InsertInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.filemigration.FileInserter;
@@ -32,20 +32,19 @@ import java.io.File;
 import java.util.HashSet;
 import java.util.List;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
     private static CommandSender migrating_owner = null;
@@ -441,7 +440,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 for (String id : uuids) {
                     Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
-                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUKKIT);
                     migrate.start();
 
                     passed_migration++;
@@ -503,7 +502,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     for (String id : uuids) {
                         Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
-                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUKKIT);
                         migrate.start();
 
                         passed_migration++;
@@ -533,7 +532,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 for (String id : uuids) {
                     Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
-                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                    AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUKKIT);
                     migrate.start();
 
                     passed_migration++;
@@ -569,7 +568,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     for (String id : uuids) {
                         Utils sqlUUID = new Utils(id, sql.fetchName(id));
 
-                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.SPIGOT);
+                        AccountMigrate migrate = new AccountMigrate(sqlUUID, Migrate.YAML, Platform.BUKKIT);
                         migrate.start();
 
                         passed_migration = passed_migration + 1;

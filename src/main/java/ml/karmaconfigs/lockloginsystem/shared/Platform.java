@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-/*
+/**
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
@@ -13,7 +13,8 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public enum Platform {
-    BUNGEE, SPIGOT, ANY
+    /** BungeeCord platform */ BUNGEE,
+    /** Bukkit platform */ BUKKIT,
+    /** Try bungeecord, then bukkit platform */ ANY
 }

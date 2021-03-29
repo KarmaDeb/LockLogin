@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
@@ -22,7 +22,10 @@ import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.*;
+import net.md_5.bungee.api.event.LoginEvent;
+import net.md_5.bungee.api.event.PostLoginEvent;
+import net.md_5.bungee.api.event.ServerConnectEvent;
+import net.md_5.bungee.api.event.ServerSwitchEvent;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -32,33 +35,31 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onPreJoin(LoginEvent e) {
         PendingConnection connection = e.getConnection();
+        InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
-        BFSystem bf_prevention = new BFSystem(connection.getVirtualHost().getAddress());
+        BFSystem bf_prevention = new BFSystem(ip);
         if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
         } else {
-            InetAddress ip = User.external.getIp(connection.getSocketAddress());
-
             if (config.checkNames()) {
                 if (Checker.notValid(connection.getName())) {
                     e.setCancelled(true);
@@ -116,15 +117,15 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
                         if (config.maxRegister() > 0) {
                             try {
-                                if (storager.canJoin(connection.getUniqueId(), config.maxRegister())) {
-                                    storager.save(connection.getUniqueId());
+                                if (storager.canJoin(connection.getUniqueId(), ip, config.maxRegister())) {
+                                    storager.save(connection.getUniqueId(), connection.getName());
 
-                                    if (storager.hasAltAccounts(connection.getUniqueId())) {
+                                    if (storager.hasAltAccounts(connection.getUniqueId(), ip)) {
                                         for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
                                             User user = new User(online);
 
                                             if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(connection.getUniqueId()))
-                                                user.send(messages.prefix() + messages.altsFound(connection.getName(), storager.getAltsAmount(connection.getUniqueId())));
+                                                user.send(messages.prefix() + messages.altsFound(connection.getName(), storager.getAltsAmount(connection.getUniqueId(), ip)));
                                         }
                                     }
                                 } else {
@@ -134,6 +135,8 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                             } catch (Throwable ex) {
                                 ex.printStackTrace();
                             }
+                        } else {
+                            storager.save(connection.getUniqueId(), connection.getName());
                         }
                     } catch (Throwable ex) {
                         ex.printStackTrace();
@@ -213,10 +216,10 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
                                 if (user.isTempLog())
                                     if (user.has2FA())
                                         user.send(messages.prefix() + messages.gAuthenticate());
+                                    else
+                                        user.send(messages.prefix() + messages.login(user.getCaptcha()));
                                 else
-                                    user.send(messages.prefix() + messages.login(user.getCaptcha()));
-                            else
-                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                                    user.send(messages.prefix() + messages.register(user.getCaptcha()));
 
                             break;
                     }

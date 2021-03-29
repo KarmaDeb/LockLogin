@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.version;
 
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
 import java.io.BufferedReader;

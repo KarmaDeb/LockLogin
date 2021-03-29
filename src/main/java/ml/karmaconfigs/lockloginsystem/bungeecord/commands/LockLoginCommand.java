@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.commands;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.shared.FileUtilities;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.FileUtilities;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.MySQLData;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
@@ -28,18 +28,32 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public class LockLoginCommand extends Command implements LockLoginBungee, BungeeFiles {
 
+    private static CommandSender migrating_owner = null;
+    private static int passed_migration = 0;
+    private static int max_migrations = 0;
+
+    /**
+     * Initialize LockLogin command
+     */
     public LockLoginCommand() {
         super("locklogin");
     }
-
-    private static CommandSender migrating_owner = null;
-    
-    private static int passed_migration = 0;
-    private static int max_migrations = 0;
 
     @Override
     public void execute(CommandSender sender, String[] args) {
@@ -378,7 +392,7 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
 
                 List<String> uuids = sql.getUUIDs();
                 max_migrations = uuids.size();
-                
+
                 Timer timer = new Timer();
                 timer.schedule(new TimerTask() {
                     @Override

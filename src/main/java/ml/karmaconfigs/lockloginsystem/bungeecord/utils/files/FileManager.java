@@ -2,7 +2,7 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.files;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import net.md_5.bungee.config.Configuration;
 import net.md_5.bungee.config.YamlConfiguration;

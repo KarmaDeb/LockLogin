@@ -3,8 +3,8 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.files;
 import ml.karmaconfigs.api.bungee.Logger;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
@@ -17,20 +17,19 @@ import net.md_5.bungee.api.plugin.Plugin;
 import java.io.File;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class ConfigGetter implements LockLoginBungee {
 
     private final static Plugin plugin = new InterfaceUtils().getPlugin();
@@ -43,7 +42,8 @@ public final class ConfigGetter implements LockLoginBungee {
 
     public ConfigGetter() {
         if (!config.exists()) {
-            FileCopy creator = new FileCopy(plugin, "configs/config.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+            FileCopy creator = new FileCopy(plugin, "configs/config.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+            ;
 
             try {
                 creator.copy(config);
@@ -380,8 +380,17 @@ public final class ConfigGetter implements LockLoginBungee {
         return configuration.getString("AccountSys");
     }
 
+    /**
+     * Configuration manager
+     * utilities
+     */
     public interface manager {
 
+        /**
+         * Reload configuration file
+         *
+         * @return if the file could be reloaded
+         */
         static boolean reload() {
             try {
                 YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");

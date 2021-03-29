@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.files;
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
+import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.bukkit.karmayaml.YamlReloader;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;

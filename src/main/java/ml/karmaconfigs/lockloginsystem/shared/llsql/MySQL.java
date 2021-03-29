@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsql;
 
-/*
+/**
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
@@ -13,7 +13,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 @Deprecated
 @SuppressWarnings("unused")
 public class MySQL {

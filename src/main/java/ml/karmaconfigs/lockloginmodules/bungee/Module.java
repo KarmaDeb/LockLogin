@@ -7,30 +7,84 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.*;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public abstract class Module {
 
+    /**
+     * Get the module owner
+     *
+     * @return the module owner
+     */
     @NotNull
     public abstract Plugin owner();
 
+    /**
+     * Get the module name
+     *
+     * @return the module name
+     */
     @NotNull
     public abstract String name();
 
+    /**
+     * Get the module version
+     *
+     * @return the module version
+     */
     @NotNull
     public abstract String version();
 
+    /**
+     * Get the module auth
+     *
+     * @return the module author
+     */
     @NotNull
     public abstract String author();
 
+    /**
+     * Get the module description
+     * as string
+     *
+     * @return the module description as string
+     */
     @NotNull
     public abstract String description();
 
+    /**
+     * Get the module spigot resource id
+     *
+     * @return the module spigot id
+     */
     public int spigot_resource_id() {
         return 75156;
     }
 
+    /**
+     * Get module update url
+     *
+     * @return the module update url
+     */
     @NotNull
     public abstract String author_url();
 
+    /**
+     * Get the module update info
+     *
+     * @return the module update information
+     */
     public final HashMap<Boolean, String> getUpdateInfo() {
         HashMap<Boolean, String> update_info = new HashMap<>();
         try {
@@ -67,6 +121,11 @@ public abstract class Module {
         return update_info;
     }
 
+    /**
+     * Get the module description
+     *
+     * @return the module description
+     */
     public final List<String> getDescription() {
         String description = "&7" + description();
 

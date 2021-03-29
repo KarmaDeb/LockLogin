@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.shared.FileUtilities;
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.FileUtilities;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.PluginManagerBungee;
@@ -43,7 +43,7 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
 
-/*
+/**
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
@@ -56,7 +56,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 @SuppressWarnings("unused")
 public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFiles {
 
@@ -343,6 +342,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                     Timer load_timer = new Timer();
                     load_timer.schedule(new TimerTask() {
                         int second = 7;
+
                         @Override
                         public void run() {
                             if (second <= 5)
@@ -467,6 +467,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                     Timer load_timer = new Timer();
                     load_timer.schedule(new TimerTask() {
                         int second = 7;
+
                         @Override
                         public void run() {
                             if (second <= 5)

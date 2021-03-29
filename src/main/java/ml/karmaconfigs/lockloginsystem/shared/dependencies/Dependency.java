@@ -1,8 +1,31 @@
 package ml.karmaconfigs.lockloginsystem.shared.dependencies;
 
-public enum Dependency {
-    COMMONS,JNA,SLF4J,HIKARICP,GOOGLE,ARGON2;
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
+public enum Dependency {
+    /** LockLogin dependency */ COMMONS,
+    /** LockLogin dependency */ JNA,
+    /** LockLogin dependency */ SLF4J,
+    /** LockLogin dependency */ HIKARICP,
+    /** LockLogin dependency */ GOOGLE,
+    /** LockLogin dependency */ ARGON2;
+
+    /**
+     * Get the dependency download url
+     *
+     * @return the dependency download url
+     */
     public String downloadURL() {
         switch (this) {
             case COMMONS:
@@ -22,6 +45,11 @@ public enum Dependency {
         }
     }
 
+    /**
+     * Get the dependency file name
+     *
+     * @return the dependency .jar name
+     */
     public String fileName() {
         switch (this) {
             case COMMONS:
@@ -33,7 +61,7 @@ public enum Dependency {
             case HIKARICP:
                 return "HikariCP.jar";
             case GOOGLE:
-                return "GoogleAuth.jar";
+                return "GoogleAuthenticator.jar";
             case ARGON2:
                 return "Argon2.jar";
             default:

@@ -1,10 +1,23 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-import ml.karmaconfigs.api.shared.GlobalKarmaFile;
+import ml.karmaconfigs.api.common.GlobalKarmaFile;
 
 import java.io.File;
 import java.util.List;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public final class Motd {
 
     private final GlobalKarmaFile file;
@@ -16,8 +29,6 @@ public final class Motd {
      */
     public Motd(final File motd_file) {
         file = new GlobalKarmaFile(motd_file);
-
-        System.out.println("Reading from: " + file.getFile().getAbsolutePath());
     }
 
     /**
@@ -59,9 +70,8 @@ public final class Motd {
     /**
      * Get the on login message
      *
-     * @param player the player name
+     * @param player     the player name
      * @param serverName the server name
-     *
      * @return the on login motd
      */
     public final String onLogin(final String player, final String serverName) {
@@ -94,9 +104,8 @@ public final class Motd {
     /**
      * Get the on register message
      *
-     * @param player the player name
+     * @param player     the player name
      * @param serverName the server name
-     *
      * @return the on login motd
      */
     public final String onRegister(final String player, final String serverName) {

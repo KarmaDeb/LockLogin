@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsql.Insert;
 
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.shared.InsertInfo;
 import ml.karmaconfigs.lockloginsystem.shared.InsertReader;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;

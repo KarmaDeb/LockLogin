@@ -1,16 +1,15 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils;
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
-import ml.karmaconfigs.api.spigot.karmayaml.YamlReloader;
+import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.bukkit.karmayaml.FileCopy;
+import ml.karmaconfigs.api.bukkit.karmayaml.YamlReloader;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
-import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.SpigotMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
@@ -19,7 +18,9 @@ import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.commands.*;
 import ml.karmaconfigs.lockloginsystem.spigot.events.*;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.AllowedCommands;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.LastLocation;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.MySQLData;
+import ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles.Spawn;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.MessageGetter;
@@ -44,20 +45,19 @@ import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Objects;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class PluginManagerSpigot implements LockLoginSpigot {
 
     private static String last_changelog = "";
@@ -224,7 +224,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
             }
         }
 
-        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             msg.copy(msg_file);
             logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
@@ -233,7 +234,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
 
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
-        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             mysql.copy(sql_file);
         } catch (Throwable ex) {
@@ -247,7 +249,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
 
         File spawn_file = new File(plugin.getDataFolder(), "spawn.yml");
-        FileCopy spawn = new FileCopy(plugin, "auto-generated/spawn.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy spawn = new FileCopy(plugin, "auto-generated/spawn.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             spawn.copy(spawn_file);
         } catch (Throwable ex) {
@@ -255,7 +258,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
 
         File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-        FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             allowedCMDs.copy(allowed_file);
         } catch (Throwable ex) {
@@ -500,6 +504,11 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 player.setMetadata("LockLoginUser", new FixedMetadataValue(plugin, player.getUniqueId()));
             }
 
+            if (config.enableSpawn()) {
+                Spawn spawn = new Spawn();
+                user.teleport(spawn.getSpawn());
+            }
+
             if (user.isRegistered()) {
                 new StartCheck(player, CheckType.LOGIN);
                 if (config.blindLogin()) {
@@ -551,6 +560,12 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 player.removeMetadata("LockLoginUser", plugin);
             }
 
+            ConfigGetter cfg = new ConfigGetter();
+            if (cfg.takeBack()) {
+                LastLocation last = new LastLocation(player);
+                last.saveLocation();
+            }
+
             user.removeBlindEffect();
         }
     }
@@ -598,7 +613,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
@@ -660,7 +676,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
@@ -721,7 +738,8 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
@@ -754,18 +772,46 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
     }
 
+    /**
+     * Plugin manager spigot manager
+     * utilities
+     */
     public interface manager {
 
+        /**
+         * Check if the plugin is not ready to
+         * update
+         *
+         * @return if the plugin is ready to update
+         */
         static boolean notReadyToUpdate() {
             return !ready_to_update;
         }
 
+        /**
+         * Set if the plugin is ready to update
+         *
+         * @param status if is ready to update
+         */
         static void setReadyToUpdate(final boolean status) {
             ready_to_update = status;
         }
     }
 }
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 class TempModule extends Module {
 
     @Override

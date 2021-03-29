@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.bungeecord.BungeeExecutorService;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
@@ -19,7 +19,7 @@ public interface PlatformUtils {
     static void send(String message) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 new SpigotExecutorService().message(message);
                 break;
             case BUNGEE:
@@ -33,7 +33,7 @@ public interface PlatformUtils {
     static void send(String message, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 new SpigotExecutorService().message(message, level);
                 break;
             case BUNGEE:
@@ -47,7 +47,7 @@ public interface PlatformUtils {
     static void log(String info, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 new SpigotExecutorService().log(level, info);
                 break;
             case BUNGEE:
@@ -61,7 +61,7 @@ public interface PlatformUtils {
     static void log(Throwable error, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 new SpigotExecutorService().log(level, error);
                 break;
             case BUNGEE:
@@ -75,7 +75,7 @@ public interface PlatformUtils {
     static boolean isPremium() {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 return new SpigotExecutorService().isPremium();
             case BUNGEE:
                 return new BungeeExecutorService().isPremium();
@@ -87,7 +87,7 @@ public interface PlatformUtils {
     static CryptType getEncryption(final CryptTarget target) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
-            case SPIGOT:
+            case BUKKIT:
                 SpigotExecutorService spigot = new SpigotExecutorService();
 
                 switch (target) {
@@ -114,7 +114,12 @@ public interface PlatformUtils {
         }
     }
 
+    /**
+     * All platform available
+     * encryption target
+     */
     enum CryptTarget {
-        PASSWORD,PIN
+        /** LockLogin password encryption */ PASSWORD,
+        /** LockLogin pin encryption */ PIN
     }
 }

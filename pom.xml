@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>LockLogin</artifactId>
     <groupId>ml.karmaconfigs</groupId>
-    <version>1.0.8.2</version>
+    <version>1.0.8.5</version>
     <packaging>jar</packaging>
 
     <name>LockLogin</name>
     <description>
-        Adds an extra protection to your Bukkit-Spigot-Paper/BungeeCord server with this plugins that adds 2FA to his security system
+        Adds an extra protection to your Bukkit-Spigot-Paper/BungeeCord server with this plugins that adds 2FA to his
+        security system
     </description>
     <url>https://github.com/KarmaConfigs/LockLogin</url>
 
@@ -184,8 +186,8 @@
     <dependencies>
         <dependency>
             <groupId>ml.karmaconfigs</groupId>
-            <artifactId>KarmaAPI</artifactId>
-            <version>3.7-SNAPSHOT</version>
+            <artifactId>KarmaAPI-Bundle</artifactId>
+            <version>1.0.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>

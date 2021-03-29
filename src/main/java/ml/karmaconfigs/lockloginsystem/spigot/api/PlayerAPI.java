@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.api;
 
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginmodules.spigot.Module;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.*;
@@ -16,21 +16,21 @@ import ml.karmaconfigs.lockloginsystem.spigot.utils.user.User;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
+import java.util.Set;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 @SuppressWarnings("unused")
 public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
 
@@ -478,9 +478,9 @@ public final class PlayerAPI implements LockLoginSpigot, SpigotFiles {
      *
      * @return a list of names that can be associated to that player
      */
-    public final HashSet<OfflineUser> getAccounts() {
+    public final Set<OfflineUser> getAccounts() {
         if (player != null) {
-            return IPStorager.manager.getAlts(module, null, player.getUniqueId());
+            return IPStorager.manager.getAlts(module, player.getUniqueId());
         }
 
         return new HashSet<>();

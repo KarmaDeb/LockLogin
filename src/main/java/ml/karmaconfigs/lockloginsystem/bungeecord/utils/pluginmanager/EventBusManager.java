@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.Set;
 import java.util.WeakHashMap;
 
-/*
+/**
 GNU LESSER GENERAL PUBLIC LICENSE
                        Version 2.1, February 1999
 
@@ -21,7 +21,6 @@ GNU LESSER GENERAL PUBLIC LICENSE
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public class EventBusManager extends EventBus {
 
     private static final Set<AsyncEvent<?>> uncompletedEvents = Collections.newSetFromMap(new WeakHashMap<AsyncEvent<?>, Boolean>());

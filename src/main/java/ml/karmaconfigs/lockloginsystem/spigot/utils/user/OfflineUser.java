@@ -9,20 +9,19 @@ import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
 
     private final String uuid;
@@ -35,8 +34,8 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      * Initialize the offline player
      * management
      *
-     * @param uuid the player uuid
-     * @param name the player name
+     * @param uuid   the player uuid
+     * @param name   the player name
      * @param byName fetch by name
      */
     public OfflineUser(final String uuid, String name, final boolean byName) {
@@ -84,8 +83,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
                 Utils idUtils = new Utils(id, name);
                 if (idUtils.getName() != null && idUtils.getName().equals(name))
                     managerSQL = idUtils;
-                else
-                if (id.equals(uuid))
+                else if (id.equals(uuid))
                     managerSQL = idUtils;
             }
         }

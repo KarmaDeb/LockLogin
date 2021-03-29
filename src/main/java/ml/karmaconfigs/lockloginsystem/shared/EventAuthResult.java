@@ -1,5 +1,22 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public enum EventAuthResult {
-    WAITING, FAILED, SUCCESS, SUCCESS_TEMP, ERROR
+    /** LockLogin auth event result waiting for validation */ WAITING,
+    /** LockLogin auth event result failed validation */ FAILED,
+    /** LockLogin auth event result validation success */ SUCCESS,
+    /** LockLogin auth event result validation success but has 2fa or pin */ SUCCESS_TEMP,
+    /** LockLogin auth event result something went wrong*/ ERROR
 }

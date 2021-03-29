@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.datafiles;
 
-import ml.karmaconfigs.api.spigot.karmayaml.FileCopy;
+import ml.karmaconfigs.api.bukkit.karmayaml.FileCopy;
 import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
@@ -10,20 +10,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class AllowedCommands implements LockLoginSpigot {
 
     private final static Set<String> allowed = new HashSet<>();
@@ -34,7 +33,8 @@ public final class AllowedCommands implements LockLoginSpigot {
      */
     public AllowedCommands() {
         File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-        FileCopy creator = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy creator = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
 
         try {
             creator.copy(allowed_file);
@@ -106,7 +106,18 @@ public final class AllowedCommands implements LockLoginSpigot {
         return false;
     }
 
+    /**
+     * External accessor for
+     * this class
+     */
     public interface external {
+
+        /**
+         * Check if the command is allowed
+         *
+         * @param cmd the command
+         * @return if the command is allowed
+         */
         static boolean isAllowed(String cmd) {
             return allowed.contains("/" + cmd.replace("/", ""));
         }

@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.bukkit.Console;
 import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
@@ -19,6 +19,19 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
 
     @EventHandler(priority = EventPriority.HIGHEST)
@@ -38,28 +51,30 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                     } catch (Throwable ignored) {
                     }
 
-                    if (config.maxRegister() > 0) {
-                        try {
-                            IPStorager storager = new IPStorager(temp_module, e.getAddress());
-                            if (storager.canJoin(player.getUniqueId(), config.maxRegister())) {
-                                storager.save(player.getUniqueId());
+                    try {
+                        IPStorager storager = new IPStorager(temp_module, e.getAddress());
 
-                                if (storager.hasAltAccounts(player.getUniqueId())) {
+                        if (config.maxRegister() > 0) {
+                            if (storager.canJoin(player.getUniqueId(), e.getAddress(), config.maxRegister())) {
+                                storager.save(player.getUniqueId(), player.getName());
+
+                                if (storager.hasAltAccounts(player.getUniqueId(), e.getAddress())) {
                                     for (Player online : plugin.getServer().getOnlinePlayers()) {
                                         if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(player.getUniqueId()))
-                                            user.send(messages.prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId())));
+                                            user.send(messages.prefix() + messages.altFound(plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName(), storager.getAltsAmount(player.getUniqueId(), e.getAddress())));
                                     }
                                 }
                             } else {
                                 user.kick("&eLockLogin\n\n" + messages.maxRegisters());
                             }
-                        } catch (Throwable ignored) {
+                        } else {
+                            storager.save(player.getUniqueId(), player.getName());
                         }
-                    }
+                    } catch (Throwable ignored) {}
 
                     if (config.accountsPerIp() != 0) {
                         IpData data = new IpData(temp_module, e.getAddress());
-                        data.fetch(Platform.SPIGOT);
+                        data.fetch(Platform.BUKKIT);
 
                         if (data.getConnections() > config.accountsPerIp()) {
                             user.kick("&eLockLogin\n\n" + messages.maxIp());
@@ -94,7 +109,7 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
                                 if (manager.isSet("Password")) {
                                     if (!manager.isEmpty("Password")) {
-                                        AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.SPIGOT);
+                                        AccountMigrate migrate = new AccountMigrate(sql, Migrate.MySQL, Platform.BUKKIT);
                                         migrate.start();
 
                                         Console.send(plugin, messages.migratingAccount(player.getUniqueId().toString()), Level.INFO);

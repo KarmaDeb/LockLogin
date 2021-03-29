@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord;
 
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.StringUtils;
 
 /**
  * Private GSA code
@@ -72,8 +72,8 @@ public final class InterfaceUtils {
      *
      * @return if the plugin is ready to update
      */
-    public final boolean isReadyToUpdate() {
-        return ready_to_update;
+    public final boolean notReadyToUpdate() {
+        return !ready_to_update;
     }
 
     /**

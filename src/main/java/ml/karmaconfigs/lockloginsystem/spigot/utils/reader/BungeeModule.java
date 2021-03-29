@@ -3,6 +3,19 @@ package ml.karmaconfigs.lockloginsystem.spigot.utils.reader;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
+
+ Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+ [This is the first released version of the Lesser GPL.  It also counts
+ as the successor of the GNU Library Public License, version 2, hence
+ the version number 2.1.]
+ */
 public final class BungeeModule {
 
     private final String owner;
@@ -24,7 +37,7 @@ public final class BungeeModule {
      * @param module_version     the module version
      * @param module_description the module description
      * @param module_status      the module status
-     * @param outdated           if the module is outdated
+     * @param module_outdated    if the module is outdated
      * @param update_url         the module update url
      */
     public BungeeModule(final String module_owner, final String module_name, final String module_author, final String module_version, final String module_description, final boolean module_status, final boolean module_outdated, final String update_url) {

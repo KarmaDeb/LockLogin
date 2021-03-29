@@ -17,6 +17,13 @@ public final class AlertUtils {
 
     private final AlertSystem wMSG = new AlertSystem();
 
+    /**
+     * Check if there's a new alert
+     * available
+     *
+     * @return if there's a new alert
+     * available
+     */
     public final boolean available() {
         if (lastMsg != null) {
             return !lastMsg.equalsIgnoreCase(wMSG.getMessage());

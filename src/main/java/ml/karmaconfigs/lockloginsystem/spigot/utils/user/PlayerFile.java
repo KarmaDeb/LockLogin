@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.spigot.Console;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.bukkit.Console;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
@@ -12,20 +12,19 @@ import java.io.File;
 import java.util.Arrays;
 import java.util.UUID;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
 
     private final Player player;
@@ -59,6 +58,16 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
                 manager.unset("Security.2FA");
             }
         }
+
+        try {
+            if (manager.getString("Player").replaceAll("\\s", "").isEmpty())
+                manager.set("Player", plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName());
+
+            if (manager.getString("UUID").replaceAll("\\s", "").isEmpty())
+                manager.set("UUID", player.getUniqueId().toString());
+
+            manager.save();
+        } catch (Throwable ignored) {}
     }
 
     /**
@@ -237,7 +246,7 @@ public final class PlayerFile implements LockLoginSpigot, SpigotFiles {
      * @param token the token
      */
     public final void setToken(String token) {
-        manager.set("GAuth", new PasswordUtils(token).hash());
+        manager.set("GAuth", token);
     }
 
     /**

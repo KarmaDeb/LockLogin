@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.Motd;
@@ -159,7 +159,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                             if (motd.isEnabled())
                                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
-                        }else {
+                        } else {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                         }
                         break;

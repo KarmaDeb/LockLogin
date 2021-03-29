@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsql;
 
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,18 +14,21 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
@@ -42,12 +45,13 @@ public final class Utils {
      * <code>This should be used only to
      * get a list of the registered UUIDs</code>
      */
-    public Utils() {}
+    public Utils() {
+    }
 
     /**
      * Starts the MySQL management
      *
-     * @param uuid the player UUID
+     * @param uuid  the player UUID
      * @param _name the player name
      */
     public Utils(UUID uuid, final String _name) {
@@ -60,7 +64,7 @@ public final class Utils {
     /**
      * Starts the MySQL management
      *
-     * @param uuid the player UUID as string
+     * @param uuid  the player UUID as string
      * @param _name the player name
      */
     public Utils(String uuid, final String _name) {
@@ -140,6 +144,32 @@ public final class Utils {
         }
 
         checkUUID();
+    }
+
+    /**
+     * Fix the trimmed UUID
+     *
+     * @param id the trimmed UUID
+     * @return the full UUID
+     * @throws IllegalArgumentException if the UUID is invalid ( not an UUID )
+     */
+    public static UUID fixUUID(String id) throws IllegalArgumentException {
+        if (id == null) throw new IllegalArgumentException();
+        if (!id.contains("-")) {
+            StringBuilder builder = new StringBuilder(id.trim());
+            try {
+                builder.insert(20, "-");
+                builder.insert(16, "-");
+                builder.insert(12, "-");
+                builder.insert(8, "-");
+            } catch (StringIndexOutOfBoundsException e) {
+                throw new IllegalArgumentException();
+            }
+
+            return UUID.fromString(builder.toString());
+        }
+
+        return UUID.fromString(id);
     }
 
     /**
@@ -1036,31 +1066,5 @@ public final class Utils {
         } catch (Throwable e) {
             return UUID.nameUUIDFromBytes(("OfflinePlayer:" + name).getBytes(StandardCharsets.UTF_8));
         }
-    }
-
-    /**
-     * Fix the trimmed UUID
-     *
-     * @param id the trimmed UUID
-     * @return the full UUID
-     * @throws IllegalArgumentException if the UUID is invalid ( not an UUID )
-     */
-    public static UUID fixUUID(String id) throws IllegalArgumentException {
-        if (id == null) throw new IllegalArgumentException();
-        if (!id.contains("-")) {
-            StringBuilder builder = new StringBuilder(id.trim());
-            try {
-                builder.insert(20, "-");
-                builder.insert(16, "-");
-                builder.insert(12, "-");
-                builder.insert(8, "-");
-            } catch (StringIndexOutOfBoundsException e) {
-                throw new IllegalArgumentException();
-            }
-
-            return UUID.fromString(builder.toString());
-        }
-
-        return UUID.fromString(id);
     }
 }

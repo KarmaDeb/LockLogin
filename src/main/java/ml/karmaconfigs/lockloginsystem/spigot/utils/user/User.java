@@ -1,13 +1,14 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
-import ml.karmaconfigs.api.spigot.Console;
-import ml.karmaconfigs.api.spigot.KarmaFile;
-import ml.karmaconfigs.api.spigot.reflections.BarMessage;
-import ml.karmaconfigs.api.spigot.reflections.TitleMessage;
+import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.bukkit.KarmaFile;
+import ml.karmaconfigs.api.bukkit.reflections.BarMessage;
+import ml.karmaconfigs.api.bukkit.reflections.TitleMessage;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -30,16 +31,16 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
@@ -120,7 +121,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                 bar.stop();
                                 cancel();
                             }
-                        } catch (Throwable ignored) {}
+                        } catch (Throwable ignored) {
+                        }
                     }
                 }.runTaskTimerAsynchronously(plugin, 0, 20);
             }
@@ -499,10 +501,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
         if (config.isYaml()) {
             PlayerFile playerFile = new PlayerFile(player);
 
-            playerFile.setToken(token);
+            playerFile.setToken(new PasswordUtils(token).hash());
         } else {
             Utils sql = new Utils(player);
-
             sql.setGAuth(token, true);
         }
     }
@@ -639,65 +640,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             Utils sql = new Utils(player);
 
             sql.delPin();
-        }
-    }
-
-    /**
-     * Set the player session status
-     *
-     * @param value true/false
-     */
-    public final void setLogged(boolean value) {
-        if (value)
-            logged.add(player.getUniqueId());
-        else
-            logged.remove(player.getUniqueId());
-    }
-
-    /**
-     * Set if the player is in temp-login
-     * status
-     *
-     * @param value true/false
-     */
-    public final void setTempLog(boolean value) {
-        if (value)
-            tempLog.add(player.getUniqueId());
-        else
-            tempLog.remove(player.getUniqueId());
-    }
-
-    /**
-     * Set the player password
-     *
-     * @param password the password
-     */
-    public final void setPassword(String password) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPassword(password);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPassword(password, false);
-        }
-    }
-
-    /**
-     * Set the player pin
-     *
-     * @param pin the pin
-     */
-    public final void setPin(Object pin) {
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setPin(pin);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.setPin(pin, false);
         }
     }
 
@@ -859,6 +801,18 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set the player session status
+     *
+     * @param value true/false
+     */
+    public final void setLogged(boolean value) {
+        if (value)
+            logged.add(player.getUniqueId());
+        else
+            logged.remove(player.getUniqueId());
+    }
+
+    /**
      * Check if the player has tries left
      *
      * @return if the player has login tries left
@@ -887,6 +841,19 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set if the player is in temp-login
+     * status
+     *
+     * @param value true/false
+     */
+    public final void setTempLog(boolean value) {
+        if (value)
+            tempLog.add(player.getUniqueId());
+        else
+            tempLog.remove(player.getUniqueId());
+    }
+
+    /**
      * Check if the code is ok
      *
      * @param code the code
@@ -895,7 +862,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     public final boolean validateCode(int code) {
         GoogleAuthenticator gauth = new GoogleAuthenticator();
 
-        return gauth.authorize(getToken(true), code);
+        return gauth.authorize(getToken(false), code) || gauth.authorize(getToken(true), code);
     }
 
     /**
@@ -919,6 +886,23 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
+     * Set the player password
+     *
+     * @param password the password
+     */
+    public final void setPassword(String password) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPassword(password);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPassword(password, false);
+        }
+    }
+
+    /**
      * Get the player pin
      *
      * @return the player pin
@@ -936,6 +920,23 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             }
         }
         return "";
+    }
+
+    /**
+     * Set the player pin
+     *
+     * @param pin the pin
+     */
+    public final void setPin(Object pin) {
+        if (config.isYaml()) {
+            PlayerFile playerFile = new PlayerFile(player);
+
+            playerFile.setPin(pin);
+        } else {
+            Utils sql = new Utils(player);
+
+            sql.setPin(pin, false);
+        }
     }
 
     /**

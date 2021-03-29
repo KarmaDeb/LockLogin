@@ -3,7 +3,7 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils;
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
-import ml.karmaconfigs.api.shared.Level;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginmodules.bungee.Module;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.InterfaceUtils;
@@ -22,7 +22,6 @@ import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.alerts.LockLoginAlerts;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.passwords.InsecurePasswords;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Bucket;
-import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.shared.metrics.BungeeMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
@@ -42,20 +41,19 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class PluginManagerBungee implements LockLoginBungee {
 
     private static String last_changelog = "";
@@ -128,7 +126,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
         cfgManager.setInternal("configs/config.yml");
 
         File passwords_yml = new File(plugin.getDataFolder(), "passwords.yml");
-        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy passwords = new FileCopy(plugin, "auto-generated/passwords.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             passwords.copy(passwords_yml);
         } catch (Throwable ex) {
@@ -196,7 +195,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
             }
         }
 
-        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             msg.copy(msg_file);
             logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
@@ -212,7 +212,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
 
         try {
             File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
-            FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+            FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+            ;
 
             allowedCMDs.copy(allowed_file);
 
@@ -338,7 +339,8 @@ public final class PluginManagerBungee implements LockLoginBungee {
      */
     private void setupMySQL() {
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
-        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));;
+        FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));
+        ;
         try {
             mysql.copy(sql_file);
         } catch (Throwable ex) {
@@ -563,13 +565,14 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
 
         InterfaceUtils utils = new InterfaceUtils();
-        if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || utils.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {
@@ -626,13 +629,14 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
 
         InterfaceUtils utils = new InterfaceUtils();
-        if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || utils.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {
@@ -688,13 +692,14 @@ public final class PluginManagerBungee implements LockLoginBungee {
                 if (!dest_channel.equals(current_channel)) {
                     try {
                         Files.delete(updatedLockLogin.toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
             }
         }
 
         InterfaceUtils utils = new InterfaceUtils();
-        if (!updatedLockLogin.exists() || !utils.isReadyToUpdate()) {
+        if (!updatedLockLogin.exists() || utils.notReadyToUpdate()) {
             try {
                 DownloadLatest downloader = new DownloadLatest();
                 if (!downloader.isDownloading()) {

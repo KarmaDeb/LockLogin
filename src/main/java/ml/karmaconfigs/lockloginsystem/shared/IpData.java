@@ -124,7 +124,7 @@ public final class IpData {
                         }
                     }
                     break;
-                case SPIGOT:
+                case BUKKIT:
                     for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
                         InetSocketAddress ip = player.getAddress();
 

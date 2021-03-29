@@ -3,8 +3,8 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.utils.files;
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.bungee.karmayaml.FileCopy;
 import ml.karmaconfigs.api.bungee.karmayaml.YamlReloader;
-import ml.karmaconfigs.api.shared.Level;
-import ml.karmaconfigs.api.shared.StringUtils;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -18,20 +18,19 @@ import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
+/**
+ GNU LESSER GENERAL PUBLIC LICENSE
+ Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  Everyone is permitted to copy and distribute verbatim copies
  of this license document, but changing it is not allowed.
 
-[This is the first released version of the Lesser GPL.  It also counts
+ [This is the first released version of the Lesser GPL.  It also counts
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
  */
-
 public final class MessageGetter implements LockLoginBungee {
 
     private static File msg_file = new File(plugin.getDataFolder() + File.separator + "lang", "messages_en.yml");
@@ -169,9 +168,9 @@ public final class MessageGetter implements LockLoginBungee {
 
     public final String login(final String captcha) {
         if (captcha != null && !captcha.isEmpty())
-        return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
+            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "<captcha>");
         else
-            return Objects.requireNonNull(messages.getString("Login")).replace("{captcha}", "");
+            return Objects.requireNonNull(messages.getString("Login")).replace("<captcha>", "").replace("{captcha}", "");
     }
 
     public final String logged(ProxiedPlayer player) {
@@ -190,7 +189,7 @@ public final class MessageGetter implements LockLoginBungee {
         if (captcha != null && !captcha.isEmpty())
             return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "<captcha>");
         else
-            return Objects.requireNonNull(messages.getString("Register")).replace("{captcha}", "");
+            return Objects.requireNonNull(messages.getString("Register")).replace("<captcha>", "").replace("{captcha}", "");
     }
 
     public final String registered() {
@@ -559,8 +558,16 @@ public final class MessageGetter implements LockLoginBungee {
                 .replace("{replace_comma}", ",");
     }
 
+    /**
+     * Get the messages manager
+     */
     public interface manager {
 
+        /**
+         * Reload the messages file
+         *
+         * @return if the file could be reloaded
+         */
         static boolean reload() {
             ConfigGetter cfg = new ConfigGetter();
             switch (cfg.getLang()) {
@@ -615,6 +622,11 @@ public final class MessageGetter implements LockLoginBungee {
             return false;
         }
 
+        /**
+         * Get the messages file
+         *
+         * @return the current messages file
+         */
         static File getAsFile() {
             ConfigGetter cfg = new ConfigGetter();
             File msg_file;

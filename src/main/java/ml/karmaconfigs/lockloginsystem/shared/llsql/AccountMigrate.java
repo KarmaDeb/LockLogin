@@ -36,7 +36,7 @@ public final class AccountMigrate {
                     if (bungeeConfig.registerRestricted())
                         return;
                     break;
-                case SPIGOT:
+                case BUKKIT:
                     ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter spigotConfig = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.ConfigGetter();
                     if (spigotConfig.registerRestricted())
                         return;
@@ -77,7 +77,7 @@ public final class AccountMigrate {
                         has2FA = bungeeManager.getBoolean("2FA");
                         hasFly = bungeeManager.getBoolean("Fly");
                         break;
-                    case SPIGOT:
+                    case BUKKIT:
                         id = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
                         ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager spigotManager = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager(id + ".yml", "playerdata");
                         player = spigotManager.getString("Player");
@@ -130,7 +130,7 @@ public final class AccountMigrate {
                             bungeeManager.set("Fly", hasFly);
                             bungeeManager.save();
                             break;
-                        case SPIGOT:
+                        case BUKKIT:
                             ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager spigotManager = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager(UUIDForFile + ".yml", "playerdata");
                             spigotManager.set("Player", player);
                             spigotManager.set("UUID", Utils.fixUUID(id).toString());
