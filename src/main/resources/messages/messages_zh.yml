@@ -1,7 +1,36 @@
+#LockLogin message file
+#----------------------------------
+#Translation: Chinese - Simplified
+#Editor: <Author lost>
+#Last edited: 5, April 2021, 00:10H
+
+#Plugin prefix
 Prefix: "&eLockLogin &7>> "
+
+#Permission error message
+PermissionError: "&c您没有这个权限{ {permission}"
+
+#BungeeCord proxy message
 BungeeProxy: "&c请通过Bungeecord代理连接!"
+
+#Session messages - Manager
 PlayerNotVerified: "&c{player} 现在未登录/未注册，您无法与他战斗"
 AlreadyPlaying: "&c这个玩家已经在线了"
+PasswordMinChar: "&c密码必须至少包含4个字符"
+MaxIp: "&c你的IP已经达到了注册账户上限"
+ConnectionError: "&c玩家 {player} 现在不在线"
+PlayerInfoUsage: "&c正确用法: &b/playerinfo [player]"
+LookUpUsage: "&c正确用法: &b/lookup <player>"
+AltFound: "&c{player} {player}可能有{alts}个alt帐户，键入/lookup {player}以获得更多信息"
+NeverPlayed: "&c玩家 {player} 从来没有进入过服务器"
+TargetAccessError: "&c玩家 {player} 尚未登录/注册"
+OnlyAzuriom:
+  - "&f{ServerName}"
+  - ""
+  - "&c请从以下位置注册您的帐户:"
+  - "&ehttps://myazuriomwebsite.com/user/register"
+
+#Session messages - Captcha
 Captcha: "&7您的验证码是: &e{captcha}"
 TypeCaptcha: "&b请用 &3/captcha &c{captcha}"
 CaptchaTimeOut: "&c你花太多时间写验证码"
@@ -10,84 +39,34 @@ CaptchaValidated: "&a验证码已验证"
 InvalidCaptcha: "&c指定的验证码无效或正确"
 InvalidCaptchaArguments: "&c提供的验证码包含无效的参数 ( {arguments}&c )"
 AlreadyCaptcha: "&a您的验证码已通过验证"
-Login: "&b请使用 &3/login &c<你的密码> <captcha>"
-Logged: "&a登陆成功,欢迎回来 &7{player}"
-AlreadyLogged: "&c你已成功登录"
-LogError: "&c在试一下登陆吧: &4密码错误"
+
+#Session messages - Register
 Register: "&b请使用 &3/register &c<密码> <密码> <captcha>"
 Registered: "&a注册成功了, 感谢您的注册"
 AlreadyRegistered: "&c你已经注册了"
 RegisterError: "&c请再试一次注册: &4两次密码不匹配"
-ChangePass: "&b更改密码请用 &4/change &c<当前密码> <新密码>"
-ChangeError: "&4更改密码时错误, &4原密码错误"
-ChangeSame: "&4您的密码不能与旧密码相同!"
-ChangeDone: "&a您的密码已成功更改"
-Reset2Fa: "&b请使用 &3/resetfa &c<password> <2fa code>"
-ReseatedFA: "&c您的2FA验证码已被删除，新的验证码已生成，如果要禁用2fa，请使用/2fa <password> <code>"
-Enable2FA: "&b请使用此命令启动2FA &3/2fa &c<password>"
-ToggleFAError: "&c切换2FA时出错: &4错误的 密码/验证码"
-2FAUsage: "&b输入此命令来启动二步验证(2FA) &3/2fa &c<code>"
-Enabled2FA: "&a启用 2FA, 请输入您的Google授权码"
-Disabled2FA: "&c已关闭 2FA, 你的帐户现在不太安全了"
-LoginOut: "&c你花了太多时间登录，请重新进入服务器"
+PasswordInsecure: "&c这个密码不安全！请尝试其他密码!"
 RegisterOut: "&c您花了太多时间注册，请重新尝试"
-MaxIp: "&c你的IP已经达到了注册账户上限"
-LoginTitle: "&4你还有"
-LoginSubtitle: "&3{time}秒&c来登录"
 RegisterTitle: "&4你还有"
 RegisterSubtitle: "&3{time}秒&c来注册"
-UnLog: "&b使用这个命令来退出登录 &3/unlog"
-UnLogged: "&c已超时，请重新登录"
-DelAccount: "&b使用这个命令删除当前账户 &3/del <password> <password>"
-DelAccountError: "&c无法删除当前账户: &4密码错误"
-DelAccountMatch: "&c无法删除当前账户: &4两次密码不一致"
-AccountDeleted: "&4您已删除您的帐户{newline}&4可以重新加入服务器来重新注册"
-ForcedUnLog: "&c您的会话已被管理员关闭，请重新登录"
-ForcedUnLogAdmin: "&a {player} 已登出"
-ForcedDelAccount: "&4管理员已删除您的帐户{newline}&4可以重新加入服务器来重新注册"
-ForcedDelAccountAdmin: "&a玩家 {player} 的账户已被移除"
-2FaLink: "&b单击此处获取2FA QR码"
-2FaInstructions:
-  - "&f 如何使用google身份验证器登录?"
-  - "&71 - 从Google验证器获取代码"
-  - "&72 - 在聊天栏中输入 /2fa <code>"
-  - "&73 - 每次登录时重复此过程"
-2FaAuthenticate: "&4输入 /2fa 来确认使用"
-2FaIncorrect: "&4错误的 2FA 验证码"
-2FaCorrect: "&a2FA 验证码 通过验证"
-2FaAlready: "&c你已经通过2FA进行了身份验证"
-PermissionError: "&c您没有这个权限{ {permission}"
-ConnectionError: "&c玩家 {player} 现在不在线"
-NeverPlayed: "&c玩家 {player} 从来没有进入过服务器"
-TargetAccessError: "&c玩家 {player} 尚未登录/注册"
-SpawnSet: "&a已设置登录时位置"
-SpawnDisabled: "&cLockLogin的重生位置设置已禁用，可以在你的配置中启用它"
-Migrating: "&a迁移玩家 &b( &f{uuid} &b) &a到MYSQL"
-MigratingAll: "&a将所有玩家数据迁移到YAML"
-Migrated: "&a帐户迁移已结束"
-MigrationUsage: "&c正确用法: &b/ll migrate"
-PasswordInsecure: "&c这个密码不安全！请尝试其他密码!"
-LoginInsecure: "&c当前使用的密码可能不安全，请尽快更换为更安全的密码"
-PasswordMinChar: "&c密码必须至少包含4个字符"
-MigrationConnectionError: "&c尝试连接到MySQL时出错"
-LocationsReset: "&a所有人的最后下线位置已重置"
-LocationReset: "&7{player} &a最后下线的位置&a已重置 "
-NoLastLocation: "&7{player} &c没有最后下线的位置记录"
-RestLastLocUsage: "&c正确用法: &b/resetlocs [player|@all|@me]"
-PlayerInfoUsage: "&c正确用法: &b/playerinfo [player]"
-AltFound: "&c{player} {player}可能有{alts}个alt帐户，键入/lookup {player}以获得更多信息"
-2FADisabled: "&c此服务器当前已禁用2FA"
 MaxRegisters:
   - "&c注册帐户数量已达到服务器上限"
   - ""
   - "&e如果你认为这是一个错误，请在以下网站上告知作者"
   - "&bhttps://discordexample.gg"
-LookUpUsage: "&c正确用法: &b/lookup <player>"
-IllegalName:
-  - "&c非法ID"
-  - ""
-  - "&c您的ID不能包含:"
-  - "{chars}"
+
+#Session messages - Login
+Login: "&b请使用 &3/login &c<你的密码> <captcha>"
+Logged: "&a登陆成功,欢迎回来 &7{player}"
+AlreadyLogged: "&c你已成功登录"
+LogError: "&c在试一下登陆吧: &4密码错误"
+LoginInsecure: "&c当前使用的密码可能不安全，请尽快更换为更安全的密码"
+LoginOut: "&c你花了太多时间登录，请重新进入服务器"
+LoginTitle: "&4你还有"
+LoginSubtitle: "&3{time}秒&c来登录"
+
+#Session messages - Pin
+PinTitle: "&eLockLogin pinner"
 PinSet: "&aY您的PIN已设置为 &7{pin}"
 AlreadyPin: "&c已经设定好PIN"
 NoPin: "&c你没有设置PIN!"
@@ -96,6 +75,63 @@ ResetPin: "&c正确用法: &b/resetPin <pin>"
 PinDisabled: "&cPIN已禁用"
 PinLength: "&c密码必须为4位数字"
 IncorrectPin: "&c输入的PIN不正确"
+
+#Session messages - 2FA
+2FaAuthenticate: "&4输入 /2fa 来确认使用"
+2FaCorrect: "&a2FA 验证码 通过验证"
+2FaAlready: "&c你已经通过2FA进行了身份验证"
+2FaIncorrect: "&4错误的 2FA 验证码"
+2FaInstructions:
+  - "&f 如何使用google身份验证器登录?"
+  - "&71 - 从Google验证器获取代码"
+  - "&72 - 在聊天栏中输入 /2fa <code>"
+  - "&73 - 每次登录时重复此过程"
+2FaLink: "&b单击此处获取2FA QR码"
+
+#Session messages - 2FA manager
+Reset2Fa: "&b请使用 &3/resetfa &c<password> <2fa code>"
+ReseatedFA: "&c您的2FA验证码已被删除，新的验证码已生成，如果要禁用2fa，请使用/2fa <password> <code>"
+Enable2FA: "&b请使用此命令启动2FA &3/2fa &c<password>"
+ToggleFAError: "&c切换2FA时出错: &4错误的 密码/验证码"
+Disabled2FA: "&c已关闭 2FA, 你的帐户现在不太安全了"
+2FADisabled: "&c此服务器当前已禁用2FA"
+
+#Session messages - Password change
+ChangePass: "&b更改密码请用 &4/change &c<当前密码> <新密码>"
+ChangeError: "&4更改密码时错误, &4原密码错误"
+ChangeSame: "&4您的密码不能与旧密码相同!"
+ChangeDone: "&a您的密码已成功更改"
+
+#Session messages - Unloging
+UnLog: "&b使用这个命令来退出登录 &3/unlog"
+UnLogged: "&c已超时，请重新登录"
+ForcedUnLog: "&c您的会话已被管理员关闭，请重新登录"
+ForcedUnLogAdmin: "&a {player} 已登出"
+
+#Session messages - Account removal
+DelAccount: "&b使用这个命令删除当前账户 &3/del <password> <password>"
+DelAccountError: "&c无法删除当前账户: &4密码错误"
+DelAccountMatch: "&c无法删除当前账户: &4两次密码不一致"
+AccountDeleted: "&4您已删除您的帐户{newline}&4可以重新加入服务器来重新注册"
+ForcedDelAccount: "&4管理员已删除您的帐户{newline}&4可以重新加入服务器来重新注册"
+ForcedDelAccountAdmin: "&a玩家 {player} 的账户已被移除"
+
+#Spawn utilities ( includes take back )
+SpawnSet: "&a已设置登录时位置"
+SpawnDisabled: "&cLockLogin的重生位置设置已禁用，可以在你的配置中启用它"
+LocationsReset: "&a所有人的最后下线位置已重置"
+LocationReset: "&7{player} &a最后下线的位置&a已重置 "
+NoLastLocation: "&7{player} &c没有最后下线的位置记录"
+RestLastLocUsage: "&c正确用法: &b/resetlocs [player|@all|@me]"
+
+#Account migration
+Migrating: "&a迁移玩家 &b( &f{uuid} &b) &a到MYSQL"
+MigratingAll: "&a将所有玩家数据迁移到YAML"
+Migrated: "&a帐户迁移已结束"
+MigrationUsage: "&c正确用法: &b/ll migrate"
+MigrationConnectionError: "&c尝试连接到MySQL时出错"
+
+#Security messages
 IpBlocked:
   - "&cLockLogin 系统检测"
   - "&c检测到异常流量，已阻止"
@@ -105,8 +141,8 @@ AntiBot:
   - ""
   - "&c将此服务器添加到当前服务器列表中"
   - "&c如已添加，请重新加载服务器列表"
-OnlyAzuriom:
-  - "&f{ServerName}"
+IllegalName:
+  - "&c非法ID"
   - ""
-  - "&c请从以下位置注册您的帐户:"
-  - "&ehttps://myazuriomwebsite.com/user/register"
+  - "&c您的ID不能包含:"
+  - "{chars}"

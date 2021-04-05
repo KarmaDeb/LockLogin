@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
 import com.mojang.authlib.GameProfile;
-import ml.karmaconfigs.api.common.StringUtils;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;

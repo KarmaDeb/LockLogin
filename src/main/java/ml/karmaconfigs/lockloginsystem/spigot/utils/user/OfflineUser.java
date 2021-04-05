@@ -1,33 +1,34 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 
+import ml.karmaconfigs.api.bukkit.KarmaFile;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.Utils;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.UUID;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
 
     private final String uuid;
-    private final String name;
+    private String name;
 
-    private FileManager manager;
+    private KarmaFile manager;
     private Utils managerSQL = null;
 
     /**
@@ -46,7 +47,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
 
     private void checkFiles(boolean byName) {
         if (config.isYaml()) {
-            File folder = new File(plugin.getDataFolder() + "/playerdata");
+            File folder = new File(plugin.getDataFolder() + File.separator + "data" + File.separator + "accounts");
 
             if (folder.exists()) {
                 if (folder.listFiles() != null) {
@@ -62,11 +63,11 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
                             String supposed_file = uuid.replace("-", "") + ".yml";
 
                             if (file_name.equals(supposed_file))
-                                manager = new FileManager(file_name, "playerdata");
+                                manager = new KarmaFile(file);
                         } else {
-                            FileManager temManager = new FileManager(file_name, "playerdata");
+                            KarmaFile temManager = new KarmaFile(file);
 
-                            if (temManager.getString("Player").equals(name))
+                            if (temManager.getString("PLAYER", "").equals(name))
                                 manager = temManager;
                         }
                     }
@@ -77,14 +78,21 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
             List<String> uuids = utils.getUUIDs();
 
             for (String id : uuids) {
-                if (managerSQL != null)
-                    break;
+                if (id != null) {
+                    if (managerSQL != null)
+                        break;
 
-                Utils idUtils = new Utils(id, name);
-                if (idUtils.getName() != null && idUtils.getName().equals(name))
-                    managerSQL = idUtils;
-                else if (id.equals(uuid))
-                    managerSQL = idUtils;
+                    if (!id.replaceAll("\\s", "").isEmpty()) {
+                        if (name.isEmpty())
+                            name = new Utils().fetchName(id);
+
+                        Utils idUtils = new Utils(id, name);
+                        if (idUtils.getName() != null && idUtils.getName().equals(name))
+                            managerSQL = idUtils;
+                        else if (id.equals(uuid))
+                            managerSQL = idUtils;
+                    }
+                }
             }
         }
     }
@@ -106,7 +114,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final String getName() {
         if (managerSQL == null)
-            return manager.getString("Player");
+            return manager.getString("PLAYER", "");
         else
             return managerSQL.getName();
     }
@@ -118,7 +126,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final UUID getUUID() {
         if (managerSQL == null)
-            return UUID.fromString(manager.getString("UUID"));
+            return UUID.fromString(manager.getString("UUID", String.valueOf(UUID.randomUUID())));
         else
             return Utils.fixUUID(managerSQL.getUUID());
     }
@@ -130,7 +138,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean has2FA() {
         if (managerSQL == null)
-            return manager.getBoolean("2FA");
+            return manager.getBoolean("2FA", false);
         else
             return managerSQL.has2fa();
     }
@@ -142,21 +150,9 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean isRegistered() {
         if (managerSQL == null)
-            return manager.isSet("Password") && !manager.isEmpty("Password");
+            return manager.isSet("PASSWORD") && !manager.getString("PASSWORD", "").isEmpty();
         else
             return managerSQL.getPassword() != null && !managerSQL.getPassword().isEmpty();
-    }
-
-    /**
-     * Check if the user has fly
-     *
-     * @return if the user has fly
-     */
-    public final boolean hasFly() {
-        if (managerSQL == null)
-            return manager.getBoolean("Fly");
-        else
-            return managerSQL.hasFly();
     }
 
     /**
@@ -166,7 +162,7 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final String getToken() {
         if (managerSQL == null)
-            return manager.getString("GAuth");
+            return manager.getString("TOKEN", "");
         else
             return managerSQL.getToken();
     }
@@ -177,7 +173,9 @@ public final class OfflineUser implements LockLoginSpigot, SpigotFiles {
      */
     public final void delete() {
         if (managerSQL == null)
-            manager.delete();
+            try {
+                Files.delete(manager.getFile().toPath());
+            } catch (Throwable ignored) {}
         else
             managerSQL.removeUser();
     }

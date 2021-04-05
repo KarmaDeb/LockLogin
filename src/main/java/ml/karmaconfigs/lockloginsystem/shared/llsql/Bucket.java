@@ -11,17 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 @SuppressWarnings("unused")
 public final class Bucket {
@@ -80,12 +80,11 @@ public final class Bucket {
      * Terminate the MySQL connection pool
      */
     public static void terminateMySQL() {
-        /*
         try {
             if (dataSource != null) {
                 dataSource.close();
             }
-        } catch (Throwable ignored) {}*/
+        } catch (Throwable ignored) {}
     }
 
     /**
@@ -163,6 +162,27 @@ public final class Bucket {
         }
 
         return status;
+    }
+
+    /**
+     * Update the column type
+     *
+     * @param column the column
+     * @param type the new column type
+     */
+    static void updateColumn(final String column, final String type) {
+        Connection connection = null;
+        PreparedStatement statement = null;
+        try {
+            connection = dataSource.getConnection();
+            statement = connection.prepareStatement("ALTER TABLE " + table + " MODIFY " + column + " " + type);
+            statement.executeUpdate();
+        } catch (Throwable e) {
+            PlatformUtils.log(e, Level.GRAVE);
+            PlatformUtils.log("Error while updating column " + column + " to " + type, Level.INFO);
+        } finally {
+            close(connection, statement);
+        }
     }
 
     /**
@@ -257,10 +277,12 @@ public final class Bucket {
         PreparedStatement statement = null;
         try {
             connection = dataSource.getConnection();
-            statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (PLAYER text, EMAIL text, UUID text, PASSWORD text, FAON boolean, GAUTH text, FLY boolean, PIN text)");
+            statement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS " + table + " (PLAYER text, EMAIL text, UUID text, PASSWORD longtext, FAON boolean, GAUTH text, FLY boolean, PIN longtext)");
 
             statement.executeUpdate();
             removeAndRenameTables(ignored);
+            updateColumn("password", "LONGTEXT");
+            updateColumn("pin", "LONGTEXT");
         } catch (Throwable e) {
             e.printStackTrace();
         } finally {

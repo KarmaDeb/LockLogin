@@ -8,7 +8,6 @@ import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.OfflineUser;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.Codification2;
-import net.md_5.bungee.api.connection.ProxiedPlayer;
 
 import java.io.File;
 import java.net.InetAddress;
@@ -17,21 +16,19 @@ import java.nio.file.Files;
 import java.util.*;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class IPStorager implements LockLoginBungee {
-
-    private final static HashMap<ProxiedPlayer, Integer> scan_passed = new HashMap<>();
 
     private final KarmaFile separated_ip_data;
     private final Module module;
@@ -41,7 +38,6 @@ public final class IPStorager implements LockLoginBungee {
      *
      * @param module  the module that is calling the API
      * @param address the ip address
-     *
      * @throws UnknownHostException with a null ip
      */
     public IPStorager(final Module module, final InetAddress address) throws UnknownHostException {
@@ -177,7 +173,6 @@ public final class IPStorager implements LockLoginBungee {
                         }
 
                         List<String> libraries_owner = v5File.getStringList("LIBRARIES");
-
                         if (!libraries_owner.contains(library.getFile().getName())) {
                             libraries_owner.add(library.getFile().getName());
                             v5File.set("LIBRARIES", libraries_owner);
@@ -186,12 +181,14 @@ public final class IPStorager implements LockLoginBungee {
 
                     try {
                         Files.delete(v4File.getFile().toPath());
-                    } catch (Throwable ignored) {}
+                    } catch (Throwable ignored) {
+                    }
                 }
 
                 try {
                     Files.delete(ips_v4.toPath());
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             }
         });
     }
@@ -214,14 +211,12 @@ public final class IPStorager implements LockLoginBungee {
         }
 
         List<String> assigned = separated_ip_data.getStringList("UUIDs");
-
         if (!assigned.contains(uuid.toString())) {
             assigned.add(uuid.toString());
             separated_ip_data.set("UUIDs", assigned);
         }
 
         List<String> libraries_owner = separated_ip_data.getStringList("LIBRARIES");
-
         if (!libraries_owner.contains(library.getFile().getName())) {
             libraries_owner.add(library.getFile().getName());
             separated_ip_data.set("LIBRARIES", libraries_owner);
@@ -240,6 +235,7 @@ public final class IPStorager implements LockLoginBungee {
      * @return if the amount of users is over the max or
      * the user is already saved
      */
+    @Deprecated
     public final boolean canJoin(final UUID uuid, final int max) {
         Set<OfflineUser> alts = manager.getAlts(module, uuid);
         boolean available = false;
@@ -262,6 +258,7 @@ public final class IPStorager implements LockLoginBungee {
      * @param target the uuid of player target
      * @return if the player has alt account
      */
+    @Deprecated
     public final boolean hasAltAccounts(final UUID target) {
         return getAltsAmount(target) > 0;
     }
@@ -281,7 +278,7 @@ public final class IPStorager implements LockLoginBungee {
      * Check if the user can join the server
      *
      * @param uuid the uuid of the player
-     * @param ip the target ip
+     * @param ip   the target ip
      * @param max  the maximum amount of accounts
      *             allowed per ip
      * @return if the amount of users is over the max or
@@ -307,7 +304,7 @@ public final class IPStorager implements LockLoginBungee {
      * matching results and checking the amount of names it has
      *
      * @param target the uuid of player target
-     * @param ip the target ip
+     * @param ip     the target ip
      * @return if the player has alt account
      */
     public final boolean hasAltAccounts(final UUID target, final InetAddress ip) {
@@ -318,7 +315,7 @@ public final class IPStorager implements LockLoginBungee {
      * Get the amount of alts the player has
      *
      * @param target the uuid of player target
-     * @param ip the target ip
+     * @param ip     the target ip
      * @return the amount of player alt accounts
      */
     public final int getAltsAmount(final UUID target, final InetAddress ip) {
@@ -390,7 +387,7 @@ public final class IPStorager implements LockLoginBungee {
          *
          * @param module the LockLogin module to access
          *               api method
-         * @param ip the target ip
+         * @param ip     the target ip
          * @param target the request target
          * @return the target alt accounts
          */
@@ -435,7 +432,6 @@ public final class IPStorager implements LockLoginBungee {
                             library = new KarmaFile(plugin, libFile, "data", "ips_library");
 
                             List<String> libs = library.getStringList("DATA");
-
                             for (String lib : libs) {
                                 KarmaFile ipFile = new KarmaFile(plugin, lib, "data", "ips_v5");
 

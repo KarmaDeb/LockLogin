@@ -1,7 +1,36 @@
+#LockLogin message file
+#----------------------------------
+#Translation: English (native)
+#Editor: KarmaDev
+#Last edited: 5, April 2021, 00:10H
+
+#Plugin prefix
 Prefix: "&eLockLogin &7>> "
+
+#Permission error message
+PermissionError: "&cYou do not have the permission {permission}"
+
+#BungeeCord proxy message
 BungeeProxy: "&cPlease, connect through bungeecord proxy!"
+
+#Session messages - Manager
 PlayerNotVerified: "&cYou can't fight against {player} while he's not logged/registered"
 AlreadyPlaying: "&cThat player is already playing"
+PasswordMinChar: "&cPassword must have 4 chars min"
+MaxIp: "&cMax ip per account reached on the server"
+ConnectionError: "&cThe player {player} is not online"
+PlayerInfoUsage: "&cCorrect usage: &b/playerinfo [player]"
+LookUpUsage: "&cCorrect usage: &b/lookup <player>"
+AltFound: "&c{player} could have {alts} alt accounts, type /lookup {player} for more info"
+NeverPlayed: "&cThe player {player} never played on the server"
+TargetAccessError: "&cThe player {player} isn't logged in/registered"
+OnlyAzuriom:
+  - "&f{ServerName}"
+  - ""
+  - "&cPlease register your account from:"
+  - "&ehttps://myazuriomwebsite.com/user/register"
+
+#Session messages - Captcha
 Captcha: "&7Your captcha code is: &e{captcha}"
 TypeCaptcha: "&bPlease, use &3/captcha &c{captcha}"
 CaptchaTimeOut: "&cYou took too much time to write captcha"
@@ -10,83 +39,34 @@ CaptchaValidated: "&aCaptcha code validated"
 InvalidCaptcha: "&cThe specified captcha code is not valid or correct"
 InvalidCaptchaArguments: "&cThe provided captcha has invalid arguments ( {arguments}&c )"
 AlreadyCaptcha: "&aYour captcha code is already verified"
-Login: "&bPlease, use &3/login &c<password> <captcha>"
-Logged: "&aLogged-in, welcome back &7{player}"
-AlreadyLogged: "&cYou are already logged"
-LogError: "&cError while trying to log-in: &4incorrect password"
+
+#Session messages - Register
 Register: "&bPlease, use &3/register &c<password> <password> <captcha>"
 Registered: "&aRegister completed, thank for playing"
 AlreadyRegistered: "&cYou are already registered"
 RegisterError: "&cError while trying to register: &4Passwords doesn't match"
 PasswordInsecure: "&cThe specified password is not secure!"
-LoginInsecure: "&cYour password has been classified as not secure and you must change it"
-PasswordMinChar: "&cPassword must have 4 chars min"
-ChangePass: "&bPlease, use &4/change &c<password> <new password>"
-ChangeError: "&4Error while changing your password, &4incorrect password"
-ChangeSame: "&4Your password can't be the same as old!"
-ChangeMinChar: "&cThe password must "
-ChangeDone: "&aYour password has changed!"
-Reset2Fa: "&bPlease, use &3/resetfa &c<password> <2fa code>"
-ReseatedFA: "&cYour 2fa code have been removed, a new one have been generated, if you want to disable 2fa, use /2fa <password> <code>"
-Enable2FA: "&bPlease, use &3/2fa &c<password>"
-ToggleFAError: "&cError while trying to toggle 2FA: &4incorrect password/code"
-Disabled2FA: "&c2FA disabled, your account is now less secure"
-2FADisabled: "&c2FA is currently disabled in this server"
-LoginOut: "&cYou took too much time to log-in"
 RegisterOut: "&cYou took too much time to register"
-MaxIp: "&cMax ip per account reached on the server"
-LoginTitle: "&4You have"
-LoginSubtitle: "&3{time} &cto login"
 RegisterTitle: "&4You have"
 RegisterSubtitle: "&3{time} &cto register"
-UnLog: "&bPlease, use &3/unlog"
-UnLogged: "&cSession closed, re-login now"
-DelAccount: "&bPlease, use &3/delacc <password> <password>"
-DelAccountError: "&cError while trying to delete account: &4Incorrect password"
-DelAccountMatch: "&cError while trying to delete account: &4Passwords doesn't match"
-AccountDeleted: "&cYour account have been deleted"
-ForcedUnLog: "&cYour session have been closed by an admin, login again"
-ForcedUnLogAdmin: "&aSession of {player} closed"
-ForcedDelAccount: "&4An admin has deleted your account{newline}&4Join again to register"
-ForcedDelAccountAdmin: "&aAccount of {player} removed"
-2FaLink: "&bClick here to get your 2FA QR code"
-2FaInstructions:
-  - "&fHow to log in using the google authenticator?"
-  - "&71 - Get the code from the Google Authenticator"
-  - "&72 - Write /2fa <code> on the chat"
-  - "&73 - Repeat the progress every time you log-in"
-2FaAuthenticate: "&4Verify with /2fa to start playing"
-2FaIncorrect: "&4Incorrect 2FA code"
-2FaCorrect: "&a2FA code validated"
-2FaAlready: "&cYou are already authenticated with 2FA"
-PermissionError: "&cYou do not have the permission {permission}"
-ConnectionError: "&cThe player {player} is not online"
-NeverPlayed: "&cThe player {player} never played on the server"
-TargetAccessError: "&cThe player {player} isn't logged in/registered"
-SpawnSet: "&aThe login spawn location have been set"
-SpawnDisabled: "&cLockLogin's spawn is disabled, enable it in your config"
-Migrating: "&aMigrating player account &b( &f{uuid} &b) &ato MySQL"
-MigratingAll: "&aMigrating all player accounts to Yaml"
-Migrated: "&aAccount(s) migration ended"
-MigrationUsage: "&cCorrect usage: &b/migrate"
-MigrationConnectionError: "&cThere was an error while trying to connect to MySQL"
-LocationsReset: "&aAll last locations have been reset"
-LocationReset: "&aLast location of &7{player} &ahave been reset"
-NoLastLocation: "&cThe player &7{player} &cdoesn't has last location"
-RestLastLocUsage: "&cCorrect usage: &b/resetlocs [player|@all|@me]"
-PlayerInfoUsage: "&cCorrect usage: &b/playerinfo [player]"
-AltFound: "&c{player} could have {alts} alt accounts, type /lookup {player} for more info"
 MaxRegisters:
   - "&cYou've reached max registered accounts in the server"
   - ""
   - "&eIf you think this is an error, please, report it on"
   - "&bhttps://discordexample.gg"
-LookUpUsage: "&cCorrect usage: &b/lookup <player>"
-IllegalName:
-  - "&cIllegal name'"
-  - ""
-  - "&cYour name can't contain:"
-  - "{chars}"
+
+#Session messages - Login
+Login: "&bPlease, use &3/login &c<password> <captcha>"
+Logged: "&aLogged-in, welcome back &7{player}"
+AlreadyLogged: "&cYou are already logged"
+LogError: "&cError while trying to log-in: &4incorrect password"
+LoginInsecure: "&cYour password has been classified as not secure and you must change it"
+LoginOut: "&cYou took too much time to log-in"
+LoginTitle: "&4You have"
+LoginSubtitle: "&3{time} &cto login"
+
+#Session messages - Pin
+PinTitle: "&eLockLogin pinner"
 PinSet: "&aYour pin has been set to &7{pin}"
 AlreadyPin: "&cYou already have set your pin"
 NoPin: "&cYou don't have a pin!"
@@ -95,6 +75,63 @@ ResetPin: "&cCorrect usage: &b/resetPin <pin>"
 PinDisabled: "&cPins are disabled"
 PinLength: "&cPin must have 4 digits"
 IncorrectPin: "&cThe specified pin is not correct"
+
+#Session messages - 2FA
+2FaAuthenticate: "&4Verify with /2fa to start playing"
+2FaCorrect: "&a2FA code validated"
+2FaAlready: "&cYou are already authenticated with 2FA"
+2FaIncorrect: "&4Incorrect 2FA code"
+2FaInstructions:
+  - "&fHow to log in using the google authenticator?"
+  - "&71 - Get the code from the Google Authenticator"
+  - "&72 - Write /2fa <code> on the chat"
+  - "&73 - Repeat the progress every time you log-in"
+2FaLink: "&bClick here to get your 2FA QR code"
+
+#Session messages - 2FA manager
+Reset2Fa: "&bPlease, use &3/resetfa &c<password> <2fa code>"
+ReseatedFA: "&cYour 2fa code have been removed, a new one have been generated, if you want to disable 2fa, use /2fa <password> <code>"
+Enable2FA: "&bPlease, use &3/2fa &c<password>"
+ToggleFAError: "&cError while trying to toggle 2FA: &4incorrect password/code"
+Disabled2FA: "&c2FA disabled, your account is now less secure"
+2FADisabled: "&c2FA is currently disabled in this server"
+
+#Session messages - Password change
+ChangePass: "&bPlease, use &4/change &c<password> <new password>"
+ChangeError: "&4Error while changing your password, &4incorrect password"
+ChangeSame: "&4Your password can't be the same as old!"
+ChangeDone: "&aYour password has changed!"
+
+#Session messages - Unloging
+UnLog: "&bPlease, use &3/unlog"
+UnLogged: "&cSession closed, re-login now"
+ForcedUnLog: "&cYour session have been closed by an admin, login again"
+ForcedUnLogAdmin: "&aSession of {player} closed"
+
+#Session messages - Account removal
+DelAccount: "&bPlease, use &3/delacc <password> <password>"
+DelAccountError: "&cError while trying to delete account: &4Incorrect password"
+DelAccountMatch: "&cError while trying to delete account: &4Passwords doesn't match"
+AccountDeleted: "&cYour account have been deleted"
+ForcedDelAccount: "&4An admin has deleted your account{newline}&4Join again to register"
+ForcedDelAccountAdmin: "&aAccount of {player} removed"
+
+#Spawn utilities ( includes take back )
+SpawnSet: "&aThe login spawn location have been set"
+SpawnDisabled: "&cLockLogin's spawn is disabled, enable it in your config"
+LocationsReset: "&aAll last locations have been reset"
+LocationReset: "&aLast location of &7{player}&a have been reset"
+NoLastLocation: "&cThe player &7{player}&c doesn't has last location"
+RestLastLocUsage: "&cCorrect usage: &b/resetlocs [player|@all|@me]"
+
+#Account migration
+Migrating: "&aMigrating player account &b( &f{uuid} &b) &ato MySQL"
+MigratingAll: "&aMigrating all player accounts to Yaml"
+Migrated: "&aAccount(s) migration ended"
+MigrationUsage: "&cCorrect usage: &b/migrate"
+MigrationConnectionError: "&cThere was an error while trying to connect to MySQL"
+
+#Security messages
 IpBlocked:
   - "&cLockLogin systems have detected an"
   - "&cunusual traffic on your IP and has been blocked"
@@ -104,8 +141,8 @@ AntiBot:
   - ""
   - "&cAdd this server to your server list"
   - "&cIf you already have it, reload server list"
-OnlyAzuriom:
-  - "&f{ServerName}"
+IllegalName:
+  - "&cIllegal name'"
   - ""
-  - "&cPlease register your account from:"
-  - "&ehttps://myazuriomwebsite.com/user/register"
+  - "&cYour name can't contain:"
+  - "{chars}"

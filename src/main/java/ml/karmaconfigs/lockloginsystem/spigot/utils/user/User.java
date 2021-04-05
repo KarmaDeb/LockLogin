@@ -1,14 +1,11 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.user;
 
 import com.warrenstrange.googleauth.GoogleAuthenticator;
-import com.warrenstrange.googleauth.GoogleAuthenticatorConfig;
 import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
-import ml.karmaconfigs.api.bukkit.Console;
-import ml.karmaconfigs.api.bukkit.KarmaFile;
 import ml.karmaconfigs.api.bukkit.reflections.BarMessage;
 import ml.karmaconfigs.api.bukkit.reflections.TitleMessage;
 import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.api.common.StringUtils;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -32,17 +29,17 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class User implements LockLoginSpigot, SpigotFiles {
 
@@ -76,13 +73,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 if (config.isYaml()) {
                     PlayerFile playerFile = new PlayerFile(player);
 
-                    if (playerFile.isOld()) {
-                        Console.send(plugin, "Detected old player ( {0} ) data file, converting it...", Level.INFO, player.getUniqueId());
-                        playerFile.startConversion();
-                    } else {
-                        playerFile.setupFile();
-                    }
-
                     if (!playerFile.getName().equals(player.getName()))
                         playerFile.setName(player.getName());
                 } else {
@@ -90,7 +80,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                         return;
 
                     Utils sql = new Utils(player);
-                    sql.createUser();
+                    if (!sql.userExists())
+                        sql.createUser();
 
                     String name = sql.getName();
                     if (name != null && !name.equals(player.getName()))
@@ -332,8 +323,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                                     }
                                 }
 
-                                plugin.getServer().getScheduler().runTask(plugin, () -> player.setAllowFlight(hasFly()));
-
                                 File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
                                 Motd motd = new Motd(motd_file);
 
@@ -509,35 +498,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     }
 
     /**
-     * Set the player fly status
-     *
-     * @param value true/false
-     */
-    public final void setFly(boolean value) {
-        if (!config.isBungeeCord()) {
-            if (config.isYaml()) {
-                PlayerFile playerFile = new PlayerFile(player);
-
-                playerFile.setFly(value);
-            } else {
-                Utils sql = new Utils(player);
-
-                sql.setFly(value);
-            }
-        } else {
-            FlyData data = new FlyData(player);
-
-            if (value) {
-                if (!data.contains()) {
-                    data.write();
-                }
-            } else {
-                data.remove();
-            }
-        }
-    }
-
-    /**
      * Remove the player file
      * or if using mysql, player info
      */
@@ -707,7 +667,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             if (config.isYaml()) {
                 PlayerFile playerFile = new PlayerFile(player);
 
-                return playerFile.getPassword() != null && !playerFile.getPassword().isEmpty();
+                return !playerFile.getPassword().isEmpty();
             } else {
                 Utils sql = new Utils(player);
 
@@ -728,7 +688,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                 if (config.isYaml()) {
                     PlayerFile playerFile = new PlayerFile(player);
 
-                    return playerFile.getPin() != null && !playerFile.getPin().isEmpty();
+                    return !playerFile.getPin().isEmpty();
                 } else {
                     Utils sql = new Utils(player);
 
@@ -763,32 +723,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
             }
         }
         return false;
-    }
-
-    /**
-     * Check if the player has fly
-     *
-     * @return if the player has fly
-     */
-    public final boolean hasFly() {
-        /*
-        if (!config.isBungeeCord()) {
-            if (config.isYaml()) {
-                PlayerFile playerFile = new PlayerFile(player);
-
-                return playerFile.hasFly();
-            } else {
-                Utils sql = new Utils(player);
-
-                return sql.hasFly();
-            }
-        } else {
-            FlyData data = new FlyData(player);
-
-            return data.contains();
-        }*/
-
-        return player.getAllowFlight();
     }
 
     /**
@@ -1019,70 +953,5 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final int getTriesLeft() {
         return playerTries.getOrDefault(player.getUniqueId(), config.loginMaxTries());
-    }
-}
-
-/*
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-[This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
- */
-
-class FlyData implements LockLoginSpigot {
-
-    private final static KarmaFile data = new KarmaFile(plugin, "fly.userdb", "data");
-    private final Player player;
-
-    protected FlyData(Player player) {
-        this.player = player;
-
-        createFlyData();
-    }
-
-    /**
-     * Create fly data file
-     */
-    private void createFlyData() {
-        if (!data.exists()) {
-            data.create();
-        }
-    }
-
-    /**
-     * Save the player fly data
-     */
-    protected final void write() {
-        String name = plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName();
-        data.set(name + ";");
-    }
-
-    /**
-     * Remove the user from the fly data
-     */
-    protected final void remove() {
-        String name = plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName();
-        data.unset(name + ";");
-    }
-
-    /**
-     * Check if the data contains the player
-     *
-     * @return if the data contains the player
-     */
-    protected final boolean contains() {
-        String name = plugin.getServer().getOfflinePlayer(player.getUniqueId()).getName();
-
-        String[] data_info = data.toString().replaceAll("\\s", "").split(";");
-        List<String> data_users = Arrays.asList(data_info);
-
-        return data_users.contains(name);
     }
 }

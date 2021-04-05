@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.shared.llsql;
 
 import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -14,23 +15,22 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.*;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class Utils {
 
@@ -233,19 +233,53 @@ public final class Utils {
                 PreparedStatement statement = null;
                 try {
                     connection = Bucket.getBucket().getConnection();
-                    statement = connection.prepareStatement("UPDATE " + table + " SET email=?, PLAYER=?, UUID=?, FAON=?, GAUTH=?, FLY=?");
+                    statement = connection.prepareStatement("INSERT INTO " + table + " (name,email,password,PIN,PLAYER,UUID,FAON,GAUTH,FLY,email_verified_at,created_at) VALUE (?,?,?,?,?,?,?,?,?,?,?)");
 
-                    statement.setString(1, (!getEmail().isEmpty() ? getEmail() : "temp_" + name + "@locklogin.tmp"));
-                    statement.setString(2, name);
-                    statement.setString(3, uuid);
-                    statement.setBoolean(4, false);
-                    statement.setBoolean(5, false);
-                    statement.setBoolean(6, false);
+                    statement.setString(1, name);
+                    statement.setString(2, (!getEmail().isEmpty() ? getEmail() : "temp_" + StringUtils.randomString(3, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER) + "_" + name + "@locklogin.tmp"));
+                    statement.setString(3, "");
+                    statement.setString(4, "");
+                    statement.setString(5, name);
+                    statement.setString(6, uuid);
+                    statement.setBoolean(7, false);
+                    statement.setString(8, "");
+                    statement.setBoolean(9, false);
+
+                    Date date = new Date();
+                    SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                    statement.setString(10, format.format(date));
+                    statement.setString(11, format.format(date));
 
                     statement.executeUpdate();
                 } catch (Throwable e) {
                     PlatformUtils.log(e, Level.GRAVE);
-                    PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
+                    PlatformUtils.log("Error while creating MySQL user " + uuid + " ( " + name + " ), trying to modify", Level.INFO);
+
+                    try {
+                        connection = Bucket.getBucket().getConnection();
+                        statement = connection.prepareStatement("UPDATE " + table + " SET email=?, PLAYER=?, UUID=?, FAON=?, GAUTH=?, FLY=?, email_verified_at=?, created_at=?");
+
+                        statement.setString(1, (!getEmail().isEmpty() ? getEmail() : "temp_" + name + "@locklogin.tmp"));
+                        statement.setString(2, name);
+                        statement.setString(3, uuid);
+                        statement.setBoolean(4, false);
+                        statement.setBoolean(5, false);
+                        statement.setBoolean(6, false);
+
+                        Date date = new Date();
+                        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
+                        statement.setString(7, format.format(date));
+                        statement.setString(8, format.format(date));
+
+                        statement.executeUpdate();
+                    } catch (Throwable ex) {
+                        PlatformUtils.log(ex, Level.GRAVE);
+                        PlatformUtils.log("Error while modifying MySQL user " + uuid + " ( " + name + " )", Level.INFO);
+                    } finally {
+                        Bucket.close(connection, statement);
+                    }
                 } finally {
                     Bucket.close(connection, statement);
                 }
@@ -259,7 +293,7 @@ public final class Utils {
                     statement = connection.prepareStatement("INSERT INTO " + table + "(PLAYER,EMAIL,UUID,PASSWORD,PIN,FAON,GAUTH,FLY) VALUE (?,?,?,?,?,?,?,?)");
 
                     statement.setString(1, name);
-                    statement.setString(2, "temp_" + name + "@locklogin.tmp");
+                    statement.setString(2, (!getEmail().isEmpty() ? getEmail() : "temp_" + StringUtils.randomString(3, StringUtils.StringGen.ONLY_LETTERS, StringUtils.StringType.ALL_LOWER) + "_" + name + "@locklogin.tmp"));
                     statement.setString(3, uuid);
                     statement.setString(4, "");
                     statement.setString(5, "");
@@ -282,38 +316,53 @@ public final class Utils {
      * Removes the user from the MySQL tables
      */
     public final void removeUser() {
-        Connection connection = null;
-        PreparedStatement statement = null;
-        try {
-            connection = Bucket.getBucket().getConnection();
-            statement = connection.prepareStatement("DELETE * FROM " + table + " WHERE UUID=?");
-
-            statement.setString(1, uuid);
-
-            statement.executeUpdate();
-        } catch (Throwable e) {
-            PlatformUtils.log(e, Level.GRAVE);
-            PlatformUtils.log("Error while creating MySQL user " + uuid + ", switching to 2nd method", Level.INFO);
+        if (Bucket.isAzuriom()) {
+            Connection connection = null;
+            PreparedStatement statement = null;
             try {
                 connection = Bucket.getBucket().getConnection();
-                statement = connection.prepareStatement("DELETE FROM " + table + " WHERE UUID=?");
+                statement = connection.prepareStatement("UPDATE " + table + " SET password=NULL, PIN=NULL, GAUTH=NULL, FAON=0 WHERE UUID=?");
 
                 statement.setString(1, uuid);
 
                 statement.executeUpdate();
-            } catch (Throwable ex) {
+            } catch (Throwable e) {
                 PlatformUtils.log(e, Level.GRAVE);
-                PlatformUtils.log("Error while creating MySQL user " + uuid, Level.INFO);
+                PlatformUtils.log("Error while removing MySQL user " + uuid + " ( using Azuriom )", Level.INFO);
+            } finally {
+                Bucket.close(connection, statement);
             }
-        } finally {
-            Bucket.close(connection, statement);
+        } else {
+            Connection connection = null;
+            PreparedStatement statement = null;
+            try {
+                connection = Bucket.getBucket().getConnection();
+                statement = connection.prepareStatement("DELETE * FROM " + table + " WHERE UUID=?");
+
+                statement.setString(1, uuid);
+
+                statement.executeUpdate();
+            } catch (Throwable e) {
+                PlatformUtils.log(e, Level.GRAVE);
+                PlatformUtils.log("Error while removing MySQL user " + uuid + ", switching to 2nd method", Level.INFO);
+                try {
+                    connection = Bucket.getBucket().getConnection();
+                    statement = connection.prepareStatement("DELETE FROM " + table + " WHERE UUID=?");
+
+                    statement.setString(1, uuid);
+
+                    statement.executeUpdate();
+                } catch (Throwable ex) {
+                    PlatformUtils.log(e, Level.GRAVE);
+                    PlatformUtils.log("Error while removing MySQL user " + uuid, Level.INFO);
+                }
+            } finally {
+                Bucket.close(connection, statement);
+            }
         }
     }
 
     private void registerAzuriom() {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -333,9 +382,6 @@ public final class Utils {
     }
 
     public final String getEmail() {
-        if (!userExists())
-            createUser();
-
         String value = "";
 
         Connection connection = null;
@@ -361,9 +407,6 @@ public final class Utils {
     }
 
     public final void setEmail(String email) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -395,9 +438,6 @@ public final class Utils {
         String id = fetchUUID(name);
 
         if (id == null || id.isEmpty()) {
-            if (!userExists())
-                createUser();
-
             Connection connection = null;
             PreparedStatement statement = null;
             try {
@@ -424,9 +464,6 @@ public final class Utils {
      * @param literal  if the password is already hashed or not
      */
     public final void setPassword(String password, boolean literal) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -470,9 +507,6 @@ public final class Utils {
      * @param literal is the pin encrypted?
      */
     public final void setPin(Object pin, boolean literal) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
 
@@ -500,9 +534,6 @@ public final class Utils {
      * Remove the player pin
      */
     public final void delPin() {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
 
@@ -528,9 +559,6 @@ public final class Utils {
      * @param Value true/false
      */
     public final void gAuthStatus(boolean Value) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -556,9 +584,6 @@ public final class Utils {
      * @param hashed is the token hashed?
      */
     public final void setGAuth(String Token, boolean hashed) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -587,9 +612,6 @@ public final class Utils {
      * @param Value true/false
      */
     public final void setFly(boolean Value) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -614,9 +636,6 @@ public final class Utils {
      * @return the client name
      */
     public final String getName() {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
 
@@ -647,9 +666,6 @@ public final class Utils {
      * @param name the new name
      */
     public final void setName(String name) {
-        if (!userExists())
-            createUser();
-
         Connection connection = null;
         PreparedStatement statement = null;
         try {
@@ -742,9 +758,6 @@ public final class Utils {
      * @return the player UUID
      */
     public final String getUUID() {
-        if (!userExists())
-            createUser();
-
         String value = "";
 
         Connection connection = null;
@@ -837,9 +850,6 @@ public final class Utils {
      * @return the player password
      */
     public final String getPassword() {
-        if (!userExists())
-            createUser();
-
         String password = "";
 
         Connection connection = null;
@@ -870,9 +880,6 @@ public final class Utils {
      * @return the player pin
      */
     public final String getPin() {
-        if (!userExists())
-            createUser();
-
         String pin = "";
 
         Connection connection = null;
@@ -904,9 +911,6 @@ public final class Utils {
      * @return if the player has 2Fa in his account
      */
     public final boolean has2fa() {
-        if (!userExists())
-            createUser();
-
         boolean status = false;
 
         Connection connection = null;
@@ -937,9 +941,6 @@ public final class Utils {
      * @return the player google auth token
      */
     public final String getToken() {
-        if (!userExists())
-            createUser();
-
         String value = "";
 
         Connection connection = null;
@@ -970,9 +971,6 @@ public final class Utils {
      * @return if the player has fly
      */
     public final boolean hasFly() {
-        if (!userExists())
-            createUser();
-
         boolean status = false;
 
         Connection connection = null;

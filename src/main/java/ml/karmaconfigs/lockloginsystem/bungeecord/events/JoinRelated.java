@@ -2,7 +2,7 @@ package ml.karmaconfigs.lockloginsystem.bungeecord.events;
 
 import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.api.common.StringUtils;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.datafiles.IPStorager;
@@ -36,17 +36,17 @@ import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles {
 
@@ -164,7 +164,7 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
             String UUID = player.getUniqueId().toString().replace("-", "");
             FileManager manager = new FileManager(UUID + ".yml", "playerdata");
-            manager.setInternal("auto-generated/userTemplate.yml");
+            manager.setInternal("auto-generated/userTemplate.lldb");
 
             if (manager.getManaged().exists()) {
                 if (!sql.userExists())

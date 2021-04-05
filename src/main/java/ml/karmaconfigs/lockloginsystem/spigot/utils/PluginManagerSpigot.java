@@ -46,17 +46,17 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class PluginManagerSpigot implements LockLoginSpigot {
 
@@ -117,7 +117,7 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         coreLogger.addFilter(new ConsoleFilter());
 
         ConfigGetter cfg = new ConfigGetter();
-        if (!cfg.isBungeeCord() || !cfg.isMySQL())
+        if (!cfg.isBungeeCord() && !cfg.isMySQL())
             Bucket.terminateMySQL();
     }
 
@@ -225,7 +225,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
         }
 
         FileCopy msg = new FileCopy(plugin, "messages/" + msg_file.getName()).withDebug(FileInfo.apiDebug(new File(jar)));
-        ;
         try {
             msg.copy(msg_file);
             logger.scheduleLog(Level.INFO, "Checked lang file " + msg_file.getName());
@@ -235,7 +234,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         File sql_file = new File(plugin.getDataFolder(), "mysql.yml");
         FileCopy mysql = new FileCopy(plugin, "auto-generated/mysql.yml").withDebug(FileInfo.apiDebug(new File(jar)));
-        ;
         try {
             mysql.copy(sql_file);
         } catch (Throwable ex) {
@@ -250,7 +248,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         File spawn_file = new File(plugin.getDataFolder(), "spawn.yml");
         FileCopy spawn = new FileCopy(plugin, "auto-generated/spawn.yml").withDebug(FileInfo.apiDebug(new File(jar)));
-        ;
         try {
             spawn.copy(spawn_file);
         } catch (Throwable ex) {
@@ -259,7 +256,6 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 
         File allowed_file = new File(plugin.getDataFolder(), "allowed.yml");
         FileCopy allowedCMDs = new FileCopy(plugin, "auto-generated/allowed.yml").withDebug(FileInfo.apiDebug(new File(jar)));
-        ;
         try {
             allowedCMDs.copy(allowed_file);
         } catch (Throwable ex) {
@@ -800,17 +796,17 @@ public final class PluginManagerSpigot implements LockLoginSpigot {
 }
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 class TempModule extends Module {
 

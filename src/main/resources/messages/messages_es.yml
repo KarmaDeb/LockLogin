@@ -1,7 +1,36 @@
+#LockLogin message file
+#----------------------------------
+#Translation: Spanish
+#Editor: KarmaDev
+#Last edited: 5, April 2021, 00:10H
+
+#Plugin prefix
 Prefix: "&eLockLogin &7>> "
+
+#Permission error message
+PermissionError: "&cNo tienes el permiso {permission}"
+
+#BungeeCord proxy message
 BungeeProxy: "&cPor favor, conéctese a través del proxy bungeecord!"
+
+#Session messages - Manager
 PlayerNotVerified: "&cNo puedes luchar contra {player} por qué aun no se ha logueado/registrado"
 AlreadyPlaying: "&cEste jugador ya está jugando"
+PasswordMinChar: "&cLa contraseña debe tener 4 caracteres como mínimo"
+MaxIp: "&cMáximo de IP por cuentas alcanzado"
+ConnectionError: "&cEl jugador {player} no está online"
+PlayerInfoUsage: "&cUso correcto: &b/playerinfo [player]"
+LookUpUsage: "&cUso correcto: &b/lookup <player>"
+AltFound: "&c{player} podría tener {alts} cuentas secundarias, escribe /lookup {player} para más información"
+NeverPlayed: "&cEl jugador {player} nunca jugó en el servidor"
+TargetAccessError: "&cEl jugador {player} no está logeado ni registrado"
+OnlyAzuriom:
+  - "&f{ServerName}"
+  - ""
+  - "&cRegistre su cuenta desde:"
+  - "&ehttps://myazuriomwebsite.com/user/register"
+
+#Session messages - Captcha
 Captcha: "&7Tu captcha es: &e{captcha}"
 TypeCaptcha: "&bPorfavor, usa &3/captcha &c{captcha}"
 CaptchaTimeOut: "&cHas tardado demasiado en validar tu captcha"
@@ -10,84 +39,34 @@ CaptchaValidated: "&aCódigo captcha validado"
 InvalidCaptcha: "&cEl captcha especificado no es válido o correcto"
 InvalidCaptchaArguments: "&cEl captcha especificado tiene argumentos inválidos ( {arguments}&c )"
 AlreadyCaptcha: "&aTu captcha ya está validado"
-Login: "&bPorfavor, usa &3/login &c<contraseña> <captcha>"
-Logged: "&aLogeado, bienvenido de vuelta &7{player}"
-AlreadyLogged: "&cYa estás logueado"
-LogError: "&cError al intentar iniciar sesión: &4contraseña incorrecta"
+
+#Session messages - Register
 Register: "&bPorfavor, usa &3/register &c<contraseña> <contraseña> <captcha>"
 Registered: "&aRegistro completado, gracias por jugar"
 AlreadyRegistered: "&cYa estás registrado"
 RegisterError: "&cError al intentar registrarse: &4Las contraseñas no coinciden"
 PasswordInsecure: "&cLa contraseña no es segura!"
-LoginInsecure: "&cTu contraseña ha sido catalogada como no segura y debes cambiarla"
-PasswordMinChar: "&cLa contraseña debe tener 4 caracteres como mínimo"
-ChangePass: "&bPorfavor, usa &4/change &c<contraseña> <nueva contra>"
-ChangeError: "&4Error al intentar cambiar tu contraseña, &4contraseña incorrecta"
-ChangeSame: "&4Tu contraseña no puede ser igual que la anterior!"
-ChangeDone: "&aTu contraseña ha cambiado!"
-Reset2Fa: "&bPorfavor, usa &3/resetfa &c<contraseña> <código 2fa>"
-ReseatedFA: "&cCódigo 2fa eliminado, se ha generado un nuevo token, si quieres desactivarlo, usa /2fa <contraseña> <código>"
-Enable2FA: "&bPorfavor, usa &3/2fa &c<contraseña>"
-ToggleFAError: "&cError al activar/desactivar: &4contraseña/código incorrectos"
-2FAUsage: "&bPorfavor, usa &3/2fa &c<código>"
-Enabled2FA: "&a2FA activado, escribe el código de autentificación"
-Disabled2FA: "&c2FA desactivado, tu cuenta ahora es menos segura"
-2FADisabled: "&cLa seguridad 2FA esta desactivada en este servidor"
-LoginOut: "&cHas tardado demasiado tiempo en logearte"
 RegisterOut: "&cHas tardado demasiado tiempo en registrarte"
-MaxIp: "&cMáximo de IP por cuentas alcanzado"
-LoginTitle: "&4Tienes"
-LoginSubtitle: "&3{time} &cpara logearte"
 RegisterTitle: "&4Tienes"
 RegisterSubtitle: "&3{time} &cpara registrarte"
-UnLog: "&bPorfavor, usa &3/unlog"
-UnLogged: "&cCuenta cerrada, vuelve a logearte"
-DelAccount: "&bPorfavor, usa &3/delacc <contraseña> <contraseña>"
-DelAccountError: "&cError al borrar la cuenta: &4contraseña incorrecta"
-DelAccountMatch: "&cError al borrar la cuenta: &4las contraseñas no coinciden"
-AccountDeleted: "&cTu cuenta ha sido eliminada"
-ForcedUnLog: "&cTu sesión ha sido cerrada por un admin"
-ForcedUnLogAdmin: "&aSesión de {player} cerrada"
-ForcedDelAccount: "&4Un admin ha borrado tu cuenta y tienes que volver a registrarte"
-ForcedDelAccountAdmin: "&aCuenta de {player} eliminada"
-2FaLink: "&bHaz click aquí para obtener tu código de 2FA"
-2FaInstructions:
-  - "&fComo logearse con el autentificador?"
-  - "&71 - Escanea el código que has obtenido"
-  - "&72 - Escribe /2fa <código> en el chat"
-  - "&73 - Repetir cada vez que inicies sesión"
-2FaAuthenticate: "&4Verifícate con tu /2fa para empezar a jugar"
-2FaIncorrect: "&4Código 2fa incorrecto"
-2FaCorrect: "&aCódigo 2fa validado"
-2FaAlready: "&cYa has introducido tu código 2fa"
-PermissionError: "&cNo tienes el permiso {permission}"
-ConnectionError: "&cEl jugador {player} no está online"
-NeverPlayed: "&cEl jugador {player} nunca jugó en el servidor"
-TargetAccessError: "&cEl jugador {player} no está logeado ni registrado"
-SpawnSet: "&aHubicación del spawn establecida"
-SpawnDisabled: "&cEl spawn de LockLogin esta desactivado, actívalo en tu configuración"
-Migrating: "&aMigrando la cuenta de &b( &f{uuid} &b) &aa MySQL"
-MigratingAll: "&aMigrando las cuentas de MySQL a Yaml"
-Migrated: "&aMigración de cuenta(s) finalizada"
-MigrationUsage: "&cUso correcto: &b/migrate [authme]"
-MigrationConnectionError: "&cHubo un error al intentar establecer conexión con MySQL"
-LocationsReset: "&aTodas las últimas ubicaciones han sido eliminadas"
-LocationReset: "&aLa utlima ubicación de &7{player} &aha sido eliminada"
-NoLastLocation: "&cEl jugador &7{player} &cno tiene ultima úbicacion"
-RestLastLocUsage: "&cUso correcto: &b/resetlocs [player|@all|@me]"
-PlayerInfoUsage: "&cUso correcto: &b/playerinfo [player]"
-AltFound: "&c{player} podría tener {alts} cuentas secundarias, escribe /lookup {player} para más información"
 MaxRegisters:
   - "&cHas alcanzado el número máximo de cuentas registradas"
   - ""
   - "&eSi crees que se trata de un error, repórtalo en"
   - "&bhttps://discordexample.gg"
-LookUpUsage: "&cUso correcto: &b/lookup <player>"
-IllegalName:
-  - "&cNombre ilegal"
-  - ""
-  - "&cTu nombre no puede contener:"
-  - "{chars}"
+
+#Session messages - Login
+Login: "&bPorfavor, usa &3/login &c<contraseña> <captcha>"
+Logged: "&aLogeado, bienvenido de vuelta &7{player}"
+AlreadyLogged: "&cYa estás logueado"
+LogError: "&cError al intentar iniciar sesión: &4contraseña incorrecta"
+LoginInsecure: "&cTu contraseña ha sido catalogada como no segura y debes cambiarla"
+LoginOut: "&cHas tardado demasiado tiempo en logearte"
+LoginTitle: "&4Tienes"
+LoginSubtitle: "&3{time} &cpara logearte"
+
+#Session messages - Pin
+PinTitle: "&eLockLogin pinner"
 PinSet: "&aTu pin ha sido establecido en &7{pin}"
 AlreadyPin: "&cYa has establecido tu pin"
 NoPin: "&cNo tienes ningún pin!"
@@ -96,6 +75,63 @@ ResetPin: "&cUso correcto: &b/resetPin <pin>"
 PinDisabled: "&cLos pines están desactivados"
 PinLength: "&cEl pin debe tener 4 dígitos"
 IncorrectPin: "&cEl pin especificado no es correcto"
+
+#Session messages - 2FA
+2FaAuthenticate: "&4Verifícate con tu /2fa para empezar a jugar"
+2FaCorrect: "&aCódigo 2fa validado"
+2FaAlready: "&cYa has introducido tu código 2fa"
+2FaIncorrect: "&4Código 2fa incorrecto"
+2FaInstructions:
+  - "&fComo logearse con el autentificador?"
+  - "&71 - Escanea el código que has obtenido"
+  - "&72 - Escribe /2fa <código> en el chat"
+  - "&73 - Repetir cada vez que inicies sesión"
+2FaLink: "&bHaz click aquí para obtener tu código de 2FA"
+
+#Session messages - 2FA manager
+Reset2Fa: "&bPorfavor, usa &3/resetfa &c<contraseña> <código 2fa>"
+ReseatedFA: "&cCódigo 2fa eliminado, se ha generado un nuevo token, si quieres desactivarlo, usa /2fa <contraseña> <código>"
+Enable2FA: "&bPorfavor, usa &3/2fa &c<contraseña>"
+ToggleFAError: "&cError al activar/desactivar: &4contraseña/código incorrectos"
+Disabled2FA: "&c2FA desactivado, tu cuenta ahora es menos segura"
+2FADisabled: "&cLa seguridad 2FA esta desactivada en este servidor"
+
+#Session messages - Password change
+ChangePass: "&bPorfavor, usa &4/change &c<contraseña> <nueva contra>"
+ChangeError: "&4Error al intentar cambiar tu contraseña, &4contraseña incorrecta"
+ChangeSame: "&4Tu contraseña no puede ser igual que la anterior!"
+ChangeDone: "&aTu contraseña ha cambiado!"
+
+#Session messages - Unloging
+UnLog: "&bPorfavor, usa &3/unlog"
+UnLogged: "&cCuenta cerrada, vuelve a logearte"
+ForcedUnLog: "&cTu sesión ha sido cerrada por un admin"
+ForcedUnLogAdmin: "&aSesión de {player} cerrada"
+
+#Session messages - Account removal
+DelAccount: "&bPorfavor, usa &3/delacc <contraseña> <contraseña>"
+DelAccountError: "&cError al borrar la cuenta: &4contraseña incorrecta"
+DelAccountMatch: "&cError al borrar la cuenta: &4las contraseñas no coinciden"
+AccountDeleted: "&cTu cuenta ha sido eliminada"
+ForcedDelAccount: "&4Un admin ha borrado tu cuenta y tienes que volver a registrarte"
+ForcedDelAccountAdmin: "&aCuenta de {player} eliminada"
+
+#Spawn utilities ( includes take back )
+SpawnSet: "&aHubicación del spawn establecida"
+SpawnDisabled: "&cEl spawn de LockLogin esta desactivado, actívalo en tu configuración"
+LocationsReset: "&aTodas las últimas ubicaciones han sido eliminadas"
+LocationReset: "&aLa utlima ubicación de &7{player} &aha sido eliminada"
+NoLastLocation: "&cEl jugador &7{player} &cno tiene ultima úbicacion"
+RestLastLocUsage: "&cUso correcto: &b/resetlocs [player|@all|@me]"
+
+#Account migration
+Migrating: "&aMigrando la cuenta de &b( &f{uuid} &b) &aa MySQL"
+MigratingAll: "&aMigrando las cuentas de MySQL a Yaml"
+Migrated: "&aMigración de cuenta(s) finalizada"
+MigrationUsage: "&cUso correcto: &b/migrate [authme]"
+MigrationConnectionError: "&cHubo un error al intentar establecer conexión con MySQL"
+
+#Security messages
 IpBlocked:
   - "&cLos sistemas de LockLogin han detectado un"
   - "&ctráfico inusual en tu IP y ha sido bloqueada"
@@ -105,8 +141,8 @@ AntiBot:
   - ""
   - "&cAgrega el servidor a tu lista de servidores"
   - "&cSi ya lo tienes, recarga la lista de servidores"
-OnlyAzuriom:
-  - "&f{ServerName}"
+IllegalName:
+  - "&cNombre ilegal"
   - ""
-  - "&cRegistre su cuenta desde:"
-  - "&ehttps://myazuriomwebsite.com/user/register"
+  - "&cTu nombre no puede contener:"
+  - "{chars}"

@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
-import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
 
 /**

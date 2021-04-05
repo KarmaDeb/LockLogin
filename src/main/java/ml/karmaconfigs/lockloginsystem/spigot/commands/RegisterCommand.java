@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.commands;
 
-import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.ComponentMaker;
 import ml.karmaconfigs.lockloginsystem.shared.Motd;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Passwords;
@@ -21,17 +21,17 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
@@ -55,49 +55,51 @@ public final class RegisterCommand implements CommandExecutor, LockLoginSpigot, 
             } else {
                 if (!user.isLogged()) {
                     if (args.length == 2) {
-                        String password = args[0];
-                        String confirmation = args[1];
+                        if (!user.hasCaptcha()) {
+                            String password = args[0];
+                            String confirmation = args[1];
 
-                        if (password.equals(confirmation)) {
-                            if (Passwords.isSecure(password, player)) {
-                                if (password.length() >= 4) {
-                                    PlayerRegisterEvent event = new PlayerRegisterEvent(player);
+                            if (password.equals(confirmation)) {
+                                if (Passwords.isSecure(password, player)) {
+                                    if (password.length() >= 4) {
+                                        PlayerRegisterEvent event = new PlayerRegisterEvent(player);
 
-                                    user.sendTitle("", "", 1, 2, 1);
+                                        user.sendTitle("", "", 1, 2, 1);
 
-                                    user.setPassword(password);
-                                    user.setLogged(true);
-                                    user.send(messages.prefix() + messages.registered());
+                                        user.setPassword(password);
+                                        user.setLogged(true);
+                                        user.send(messages.prefix() + messages.registered());
 
-                                    if (config.takeBack()) {
-                                        LastLocation lastLoc = new LastLocation(player);
-                                        user.teleport(lastLoc.getLastLocation());
+                                        if (config.takeBack()) {
+                                            LastLocation lastLoc = new LastLocation(player);
+                                            user.teleport(lastLoc.getLastLocation());
+                                        }
+
+                                        plugin.getServer().getPluginManager().callEvent(event);
+                                        user.removeBlindEffect();
+
+                                        File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                                        Motd motd = new Motd(motd_file);
+
+                                        if (motd.isEnabled())
+                                            plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onRegister(player.getName(), config.serverName())), 20L * motd.getDelay());
+                                    } else {
+                                        user.send(messages.prefix() + messages.passwordMinChar());
                                     }
-
-                                    player.setAllowFlight(user.hasFly());
-
-                                    plugin.getServer().getPluginManager().callEvent(event);
-                                    user.removeBlindEffect();
-
-                                    File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
-                                    Motd motd = new Motd(motd_file);
-
-                                    if (motd.isEnabled())
-                                        plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onRegister(player.getName(), config.serverName())), 20L * motd.getDelay());
                                 } else {
-                                    user.send(messages.prefix() + messages.passwordMinChar());
+                                    user.send(messages.prefix() + messages.passwordInsecure());
+
+                                    ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
+                                    json.setHoverText("&7Opens an url to a password-gen page");
+                                    json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
+
+                                    user.send(json.getComponent());
                                 }
                             } else {
-                                user.send(messages.prefix() + messages.passwordInsecure());
-
-                                ComponentMaker json = new ComponentMaker(messages.prefix() + " &bClick here to generate a secure password");
-                                json.setHoverText("&7Opens an url to a password-gen page");
-                                json.setClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, "https://karmaconfigs.ml/password/"));
-
-                                user.send(json.getComponent());
+                                user.send(messages.prefix() + messages.registerError());
                             }
                         } else {
-                            user.send(messages.prefix() + messages.registerError());
+                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
                     } else {
                         if (args.length == 3) {

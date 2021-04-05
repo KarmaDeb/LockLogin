@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.bungeecord.utils.pluginmanager;
 
 import ml.karmaconfigs.api.bungee.Console;
-import ml.karmaconfigs.api.common.FileUtilities;
 import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.utils.FileUtilities;
 import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungeecord.Main;
 import ml.karmaconfigs.lockloginsystem.bungeecord.utils.PluginManagerBungee;
@@ -31,10 +31,8 @@ import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.text.MessageFormat;
@@ -42,25 +40,26 @@ import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.logging.Handler;
+import java.util.zip.ZipEntry;
 
 /**
-GNU LESSER GENERAL PUBLIC LICENSE
-                       Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
-[This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 @SuppressWarnings("unused")
 public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFiles {
 
     @SuppressWarnings("deprecation")
-    public final void unloadPlugin() {
+    private void unload() {
         IllegalStateException error = new IllegalStateException("Errors occurred while unloading plugin " + plugin.getDescription().getName()) {
             private static final long serialVersionUID = 1L;
 
@@ -159,18 +158,18 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
         }
     }
 
-    public final void loadPlugin(File pluginfile) {
+    private void load(File pluginFile) {
         ProxyServer proxyserver = ProxyServer.getInstance();
         PluginManager pluginmanager = proxyserver.getPluginManager();
 
-        try (JarFile jar = new JarFile(pluginfile)) {
+        try (JarFile jar = new JarFile(pluginFile)) {
             JarEntry pdf = jar.getJarEntry("bungee.yml");
             if (pdf == null) {
                 pdf = jar.getJarEntry("plugin.yml");
             }
             try (InputStream in = jar.getInputStream(pdf)) {
                 PluginDescription desc = new Yaml().loadAs(in, PluginDescription.class);
-                desc.setFile(pluginfile);
+                desc.setFile(pluginFile);
                 HashSet<String> plugins = new HashSet<>();
                 for (Plugin plugin : pluginmanager.getPlugins()) {
                     plugins.add(plugin.getDescription().getName());
@@ -185,7 +184,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                                 Main.class.getClassLoader().getClass()
                                         .getDeclaredConstructor(ProxyServer.class, PluginDescription.class, URL[].class)
                         )
-                                .newInstance(proxyserver, desc, new URL[]{pluginfile.toURI().toURL()})
+                                .newInstance(proxyserver, desc, new URL[]{pluginFile.toURI().toURL()})
                                 .loadClass(desc.getMain()).getDeclaredConstructor()
                                 .newInstance();
                 Reflections.invokeMethod(plugin, "init", proxyserver, desc);
@@ -199,71 +198,38 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
     }
 
     /**
-     * Get the .jar version
-     * <p>
-     * Private GSA code
-     * <p>
-     * The use of this code
-     * without GSA team authorization
-     * will be a violation of
-     * terms of use determined
-     * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     * Tries to localize LockLogin.jar plugin
+     * file if provided does not exist or is null
      *
-     * @param readFrom the file to read from
-     * @return the .jar version
+     * @return the LockLogin.jar update file
      */
-    private String getJarVersion(File readFrom) {
-        try {
-            JarFile newLockLogin = new JarFile(readFrom);
-            JarEntry pluginYML = newLockLogin.getJarEntry("bungee.yml");
-            if (pluginYML != null) {
-                InputStream pluginInfo = newLockLogin.getInputStream(pluginYML);
-                InputStreamReader reader = new InputStreamReader(pluginInfo, StandardCharsets.UTF_8);
+    private File detectLockLogin() {
+        File[] updates = new File(FileUtilities.getPluginsFolder(), "update").listFiles();
+        if (updates != null) {
+            for (File file : updates) {
+                try {
+                    JarFile jar = new JarFile(file);
 
-                Configuration desc = YamlConfiguration.getProvider(YamlConfiguration.class).load(reader);
+                    ZipEntry entry = jar.getEntry("plugin.yml");
+                    if (entry != null) {
+                        InputStream stream = jar.getInputStream(entry);
+                        if (stream != null) {
+                            Configuration plugin_yml = YamlConfiguration.getProvider(YamlConfiguration.class).load(stream);
 
-                newLockLogin.close();
-                pluginInfo.close();
-                reader.close();
-                return desc.getString("version");
+                            String name = plugin_yml.getString("name", "");
+                            assert name != null;
+                            if (!name.replaceAll("\\s", "").isEmpty()) {
+                                name = name.replace("\"", "");
+                                if (name.equals("LockLogin"))
+                                    return file;
+                            }
+                        }
+                    }
+                } catch (Throwable ignored) {}
             }
-            return null;
-        } catch (Throwable e) {
-            return null;
         }
-    }
 
-    /**
-     * Private GSA code
-     * <p>
-     * The use of this code
-     * without GSA team authorization
-     * will be a violation of
-     * terms of use determined
-     * in <a href="https://karmaconfigs.ml/license/"> here </a>
-     *
-     * @param readFrom the .jar to read from
-     * @return if the .jar specified to ignore version differences
-     */
-    private boolean ignoredUpdateVersion(File readFrom) {
-        try {
-            JarFile newLockLogin = new JarFile(readFrom);
-            JarEntry pluginYML = newLockLogin.getJarEntry("plugin.yml");
-            if (pluginYML != null) {
-                InputStream pluginInfo = newLockLogin.getInputStream(pluginYML);
-                InputStreamReader reader = new InputStreamReader(pluginInfo, StandardCharsets.UTF_8);
-
-                Configuration desc = YamlConfiguration.getProvider(YamlConfiguration.class).load(reader);
-
-                newLockLogin.close();
-                pluginInfo.close();
-                reader.close();
-                return desc.getBoolean("ignoreUpdateVersion");
-            }
-            return false;
-        } catch (Throwable e) {
-            return false;
-        }
+        return new File(FileUtilities.getPluginsFolder() + File.separator + "update", LockLoginBungee.jar);
     }
 
     /**
@@ -300,8 +266,10 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                 if (new_version > cur_version) {
                     update = true;
                 } else {
-                    update = ignoredUpdateVersion(updatedLockLogin);
-                    user.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    update = FileInfo.unsafeUpdates(updatedLockLogin);
+
+                    if (update)
+                        user.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -323,7 +291,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                 }
 
                 if (update) {
-                    unloadPlugin();
+                    unload();
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -351,7 +319,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                             if (second <= 0) {
                                 File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
 
-                                loadPlugin(new_locklogin);
+                                load(new_locklogin);
                                 user.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
                             }
@@ -387,7 +355,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                         String UUID = player.getUniqueId().toString().replace("-", "");
 
                         FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                        fm.setInternal("auto-generated/userTemplate.yml");
+                        fm.setInternal("auto-generated/userTemplate.lldb");
 
                         if (fm.getManaged().exists()) {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -425,8 +393,9 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                 if (new_version > cur_version) {
                     update = true;
                 } else {
-                    update = ignoredUpdateVersion(updatedLockLogin);
-                    Console.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    update = FileInfo.unsafeUpdates(updatedLockLogin);
+                    if (update)
+                        Console.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -448,7 +417,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                 }
 
                 if (update) {
-                    unloadPlugin();
+                    unload();
 
                     Timer timer = new Timer();
                     timer.schedule(new TimerTask() {
@@ -476,7 +445,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                             if (second <= 0) {
                                 File new_locklogin = new File(FileUtilities.getPluginsFolder(), updatedLockLogin.getName());
 
-                                loadPlugin(new_locklogin);
+                                load(new_locklogin);
                                 Console.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
                             }
@@ -512,7 +481,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                         String UUID = player.getUniqueId().toString().replace("-", "");
 
                         FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                        fm.setInternal("auto-generated/userTemplate.yml");
+                        fm.setInternal("auto-generated/userTemplate.lldb");
 
                         if (fm.getManaged().exists()) {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -586,7 +555,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                     String UUID = player.getUniqueId().toString().replace("-", "");
 
                     FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                    fm.setInternal("auto-generated/userTemplate.yml");
+                    fm.setInternal("auto-generated/userTemplate.lldb");
 
                     if (fm.getManaged().exists()) {
                         if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -642,7 +611,7 @@ public final class LockLoginBungeeManager implements LockLoginBungee, BungeeFile
                     String UUID = player.getUniqueId().toString().replace("-", "");
 
                     FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                    fm.setInternal("auto-generated/userTemplate.yml");
+                    fm.setInternal("auto-generated/userTemplate.lldb");
 
                     if (fm.getManaged().exists()) {
                         if (sql.getPassword() == null || sql.getPassword().isEmpty()) {

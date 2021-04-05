@@ -15,7 +15,7 @@ import java.util.List;
  */
 public final class NameChecker {
 
-    private final static HashMap<String, List<String>> nameIllegalChars = new HashMap<>();
+    private final static HashMap<String, List<Character>> nameIllegalChars = new HashMap<>();
     private final static HashMap<String, InvalidateReason> invalidationReason = new HashMap<>();
     private final String name;
 
@@ -36,14 +36,12 @@ public final class NameChecker {
      */
     public final boolean isValid() {
         if (name.length() >= 3 && name.length() <= 16) {
-            List<String> illegalChars = new ArrayList<>();
+            List<Character> illegalChars = new ArrayList<>();
             for (int i = 0; i < name.length(); i++) {
-                String letter = String.valueOf(name.charAt(i));
-                if (!letter.matches(".*[aA-zZ].*") && !letter.matches(".*[0-9].*") && !letter.matches("_") && !letter.matches(" ")) {
-                    if (!illegalChars.contains(letter)) {
-                        illegalChars.add(letter);
-                    }
-                }
+                char character = name.charAt(i);
+                if (Character.isSpaceChar(character) || !Character.isLetterOrDigit(character) || character != '_')
+                    if (!illegalChars.contains(character))
+                        illegalChars.add(character);
             }
 
             if (!illegalChars.isEmpty()) {
@@ -79,15 +77,15 @@ public final class NameChecker {
                 case MIN:
                     return "Min name length limit (3)";
                 case ILLEGAL:
-                    List<String> illegal = new ArrayList<>();
-                    for (String str : nameIllegalChars.get(name)) {
-                        if (str.equals(" ")) {
-                            if (!illegal.contains("spaces")) {
-                                illegal.add("spaces");
+                    List<Character> illegal = new ArrayList<>();
+                    for (char character : nameIllegalChars.get(name)) {
+                        if (Character.isSpaceChar(character)) {
+                            if (!illegal.contains(' ')) {
+                                illegal.add(' ');
                             }
                         } else {
-                            if (!illegal.contains(str)) {
-                                illegal.add(str);
+                            if (!illegal.contains(character)) {
+                                illegal.add(character);
                             }
                         }
                     }

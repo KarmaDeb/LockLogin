@@ -1,7 +1,36 @@
+#LockLogin message file
+#----------------------------------
+#Translation: Polish
+#Editor: <Author lost>
+#Last edited: 5, April 2021, 00:10H
+
+#Plugin prefix
 Prefix: "&eLockLogin &7» "
+
+#Permission error message
+PermissionError: "&cNie masz pozwolenia {permission}"
+
+#BungeeCord proxy message
 BungeeProxy: "&cPołącz się przez proxy bungeecord!"
+
+#Session messages - Manager
 PlayerNotVerified: "&cNie możesz walczyć z {player} gdy nie jest zalogowany/zarejstrowany"
 AlreadyPlaying: "&cTen gracz już gra"
+PasswordMinChar: "&cHasło musi składać się z co najmniej 4 znaków"
+MaxIp: "&cOsiągnięto maksymalną liczbę adresów IP na konto"
+ConnectionError: "&cGracz {player} nie jest online"
+PlayerInfoUsage: "&cPrawidłowe użycie: &b/playerinfo [player]"
+LookUpUsage: "&cPrawidłowe użycie: &b/lookup <player>"
+AltFound: "&c{player} może mieć {alts} alternatywne konta, wpisz /lookup {player}, aby uzyskać więcej informacji"
+NeverPlayed: "&cGracz {player} nigdy nie grał na serwerze"
+TargetAccessError: "&cGracz {player} nie jest zalogowany/zarejstrowany"
+OnlyAzuriom:
+  - "&f{ServerName}"
+  - ""
+  - "&cZarejestruj swoje konto z:"
+  - "&ehttps://myazuriomwebsite.com/user/register"
+
+#Session messages - Captcha
 Captcha: "&7Twój kod captcha to: &e{captcha}"
 TypeCaptcha: "&bProszę użyć &3/captcha &c{captcha}"
 CaptchaTimeOut: "&cNapisanie captcha zajęło Ci zbyt dużo czasu"
@@ -10,84 +39,34 @@ CaptchaValidated: "&aZatwierdzono kod Captcha"
 InvalidCaptcha: "&cPodany kod captcha jest nieprawidłowy lub nieprawidłowy"
 InvalidCaptchaArguments: "&cPodana captcha ma nieprawidłowe argumenty ( {arguments}&c )"
 AlreadyCaptcha: "&aTwój kod captcha jest już zweryfikowany"
-Login: "&bZaloguj się za pomocą polecenia: &3/login &c<hasło> <captcha>"
-Logged: "&aZalogowano, witaj ponownie &7{player}"
-AlreadyLogged: "&cJesteś już zalogowany"
-LogError: "&cBłąd podczas próby logowania: &4Nieprawidłowe hasło!"
+
+#Session messages - Register
 Register: "&bZarejstruj się za pomocą polecenia: &3/register &c<hasło> <powtórzhasło> <captcha>"
 Registered: "&aRejestracja zakończona, baw się dobrze!"
 AlreadyRegistered: "&cJesteś już zarejestrowany"
 RegisterError: "&cBłąd podczas próby rejestracji: &4Hasła nie są identyczne!"
 PasswordInsecure: "&cPodane hasło nie jest bezpieczne!"
-LoginInsecure: "&cTwoje hasło zostało sklasyfikowane jako niezabezpieczone i musisz je zmienić"
-PasswordMinChar: "&cHasło musi składać się z co najmniej 4 znaków"
-ChangePass: "&bZmień hasło za pomocą polecenia: &4/change &c<hasło> <nowe hasło>"
-ChangeError: "&cBłąd podczas zmiany hasła: &4Nieprawidłowe hasło!"
-ChangeSame: "&4Twoje hasło nie może być takie samo jak stare!"
-ChangeDone: "&aTwoje hasło zostało zmienione!"
-Reset2Fa: "&bZresetuj kod 2fa za pomocą polecenia: &3/resetfa &c<hasło> <kod 2fa>"
-ReseatedFA: "&cTwój kod 2fa został usunięty, nowy został wygenerowany, jeśli chceszwyłączyć 2fa, użyj polecenia /2fa <hasło> <kod>"
-Enable2FA: "&bWłącz uwierzytelnienie dwuetapowe za pomocą polecenia: &3/2fa &c<hasło>"
-ToggleFAError: "&cBłąd podczas próby przełączenia 2FA: &4Nieprawidłowe hasło/kod!"
-2FAUsage: "&bUżyj uwierzytelnienia dwuetapowego za pomocą polecenia: &3/2fa &c<kod>"
-Enabled2FA: "&a2FA włączone, wpisz swój kod autoryzacji Google"
-Disabled2FA: "&c2FA wyłączone, twoje konto jest teraz mniej bezpieczne"
-2FADisabled: "&c2FA jest obecnie wyłączony na tym serwerze"
-LoginOut: "&cTwój czas na logowanie minął"
 RegisterOut: "&cTwój czas na rejstrację minął"
-MaxIp: "&cOsiągnięto maksymalną liczbę adresów IP na konto"
-LoginTitle: "&4Masz"
-LoginSubtitle: "&3{time} sekund &caby się zalogować"
 RegisterTitle: "&4Masz"
 RegisterSubtitle: "&3{time} sekund &caby się zarejestrować"
-UnLog: "&bUżyj polecenia: &3/unlog"
-UnLogged: "&cSesja zamknięta, teraz zaloguj się ponownie"
-DelAccount: "&bUżyj polecenia: &3/del <hasło> <hasło>"
-DelAccountError: "&cBłąd podczas próby usunięcia konta: &4Nieprawidłowe hasło!"
-DelAccountMatch: "&cBłąd podczas próby usunięcia konta: &4Hasła nie są identyczne!"
-AccountDeleted: "&4Usunąłeś swoje konto{newline}&4Dołącz ponownie, aby się zarejestrować"
-ForcedUnLog: "&cTwoja sesja została zamknięta przez administratora, zaloguj się ponownie"
-ForcedUnLogAdmin: "&aSesja gracza {player} została zamknięta"
-ForcedDelAccount: "&4Administrator usunął twoje konto{newline}&4Dołącz ponownie, abysię zarejestrować"
-ForcedDelAccountAdmin: "&aKonto gracza {player} zostało usunięte"
-2FaLink: "&bKliknij tutaj, aby otrzymać kod QR 2FA"
-2FaInstructions:
-  - "&fJak zalogować się przy użyciu Uwierzytelniacza Google?"
-  - "&71 - Pobierz kod z Uwierzytelniacza Google"
-  - "&72 - Napisz /2fa <kod> na czacie"
-  - "&73 - Powtórz czynność przy każdym logowaniu"
-2FaAuthenticate: "&4Zweryfikuj się za pomocą /2fa by rozpocząć rozgrywkę"
-2FaIncorrect: "&4Niepoprawny kod 2FA"
-2FaCorrect: "&aZweryfikowano kod 2FA"
-2FaAlready: "&cJesteś już uwierzytelniony za pomocą 2FA"
-PermissionError: "&cNie masz pozwolenia {permission}"
-ConnectionError: "&cGracz {player} nie jest online"
-NeverPlayed: "&cGracz {player} nigdy nie grał na serwerze"
-TargetAccessError: "&cGracz {player} nie jest zalogowany/zarejstrowany"
-SpawnSet: "&aLokalizacja spawnu logowania została ustawiona"
-SpawnDisabled: "&cSpawn pluginu LockLogin jest wyłączony, włącz go w swojej konfiguracji"
-Migrating: "&aMigracja konta gracza &b( &f{uuid} &b) &ado MySQL"
-MigratingAll: "&aMigracja wszystkich kont graczy do Yaml"
-Migrated: "&aMigracja kont(a) została zakończona"
-MigrationUsage: "&cPrawidłowe użycie: &b/migrate"
-MigrationConnectionError: "&cWystąpił błąd podczas próby połączenia z MySQL"
-LocationsReset: "&aWszystkie najnowsze lokalizacje zostały usunięte"
-LocationReset: "&aOstatnia lokalizacja &7{player}&a została usunięta"
-NoLastLocation: "&cGracz &7{player} &cnie ma ostatniej lokalizacji"
-RestLastLocUsage: "&cPrawidłowe użycie: &b/resetlocs [player|@all|@me]"
-PlayerInfoUsage: "&cPrawidłowe użycie: &b/playerinfo [player]"
-AltFound: "&c{player} może mieć {alts} alternatywne konta, wpisz /lookup {player}, aby uzyskać więcej informacji"
 MaxRegisters:
   - "&cOsiągnięto maksymalną liczbę zarejestrowanych kont na serwerze"
   - ""
   - "&eJeśli uważasz, że to błąd, zgłoś go"
   - "&bhttps://discordexample.gg"
-LookUpUsage: "&cPrawidłowe użycie: &b/lookup <player>"
-IllegalName:
-  - "&cNielegalna nazwa"
-  - ""
-  - "&cTwoje nazwa nie może zawierać:"
-  - "{chars}"
+
+#Session messages - Login
+Login: "&bZaloguj się za pomocą polecenia: &3/login &c<hasło> <captcha>"
+Logged: "&aZalogowano, witaj ponownie &7{player}"
+AlreadyLogged: "&cJesteś już zalogowany"
+LogError: "&cBłąd podczas próby logowania: &4Nieprawidłowe hasło!"
+LoginInsecure: "&cTwoje hasło zostało sklasyfikowane jako niezabezpieczone i musisz je zmienić"
+LoginOut: "&cTwój czas na logowanie minął"
+LoginTitle: "&4Masz"
+LoginSubtitle: "&3{time} sekund &caby się zalogować"
+
+#Session messages - Pin
+PinTitle: "&eLockLogin pinner"
 PinSet: "&aTwój kod PIN został ustawiony na &7{pin}"
 AlreadyPin: "&cJuż ustawiłeś swój kod PIN"
 NoPin: "&cNie masz kodu PIN!"
@@ -96,6 +75,63 @@ ResetPin: "&cPrawidłowe użycie: &b/resetPin <pin>"
 PinDisabled: "&cKody PIN są wyłączone"
 PinLength: "&cKod PIN musi mieć 4 cyfry"
 IncorrectPin: "&cPodany kod PIN jest nieprawidłowy"
+
+#Session messages - 2FA
+2FaAuthenticate: "&4Zweryfikuj się za pomocą /2fa by rozpocząć rozgrywkę"
+2FaCorrect: "&aZweryfikowano kod 2FA"
+2FaAlready: "&cJesteś już uwierzytelniony za pomocą 2FA"
+2FaIncorrect: "&4Niepoprawny kod 2FA"
+2FaInstructions:
+  - "&fJak zalogować się przy użyciu Uwierzytelniacza Google?"
+  - "&71 - Pobierz kod z Uwierzytelniacza Google"
+  - "&72 - Napisz /2fa <kod> na czacie"
+  - "&73 - Powtórz czynność przy każdym logowaniu"
+2FaLink: "&bKliknij tutaj, aby otrzymać kod QR 2FA"
+
+#Session messages - 2FA manager
+Reset2Fa: "&bZresetuj kod 2fa za pomocą polecenia: &3/resetfa &c<hasło> <kod 2fa>"
+ReseatedFA: "&cTwój kod 2fa został usunięty, nowy został wygenerowany, jeśli chceszwyłączyć 2fa, użyj polecenia /2fa <hasło> <kod>"
+Enable2FA: "&bWłącz uwierzytelnienie dwuetapowe za pomocą polecenia: &3/2fa &c<hasło>"
+ToggleFAError: "&cBłąd podczas próby przełączenia 2FA: &4Nieprawidłowe hasło/kod!"
+Disabled2FA: "&c2FA wyłączone, twoje konto jest teraz mniej bezpieczne"
+2FADisabled: "&c2FA jest obecnie wyłączony na tym serwerze"
+
+#Session messages - Password change
+ChangePass: "&bZmień hasło za pomocą polecenia: &4/change &c<hasło> <nowe hasło>"
+ChangeError: "&cBłąd podczas zmiany hasła: &4Nieprawidłowe hasło!"
+ChangeSame: "&4Twoje hasło nie może być takie samo jak stare!"
+ChangeDone: "&aTwoje hasło zostało zmienione!"
+
+#Session messages - Unloging
+UnLog: "&bUżyj polecenia: &3/unlog"
+UnLogged: "&cSesja zamknięta, teraz zaloguj się ponownie"
+ForcedUnLog: "&cTwoja sesja została zamknięta przez administratora, zaloguj się ponownie"
+ForcedUnLogAdmin: "&aSesja gracza {player} została zamknięta"
+
+#Session messages - Account removal
+DelAccount: "&bUżyj polecenia: &3/del <hasło> <hasło>"
+DelAccountError: "&cBłąd podczas próby usunięcia konta: &4Nieprawidłowe hasło!"
+DelAccountMatch: "&cBłąd podczas próby usunięcia konta: &4Hasła nie są identyczne!"
+AccountDeleted: "&4Usunąłeś swoje konto{newline}&4Dołącz ponownie, aby się zarejestrować"
+ForcedDelAccount: "&4Administrator usunął twoje konto{newline}&4Dołącz ponownie, abysię zarejestrować"
+ForcedDelAccountAdmin: "&aKonto gracza {player} zostało usunięte"
+
+#Spawn utilities ( includes take back )
+SpawnSet: "&aLokalizacja spawnu logowania została ustawiona"
+SpawnDisabled: "&cSpawn pluginu LockLogin jest wyłączony, włącz go w swojej konfiguracji"
+LocationsReset: "&aWszystkie najnowsze lokalizacje zostały usunięte"
+LocationReset: "&aOstatnia lokalizacja &7{player}&a została usunięta"
+NoLastLocation: "&cGracz &7{player} &cnie ma ostatniej lokalizacji"
+RestLastLocUsage: "&cPrawidłowe użycie: &b/resetlocs [player|@all|@me]"
+
+#Account migration
+Migrating: "&aMigracja konta gracza &b( &f{uuid} &b) &ado MySQL"
+MigratingAll: "&aMigracja wszystkich kont graczy do Yaml"
+Migrated: "&aMigracja kont(a) została zakończona"
+MigrationUsage: "&cPrawidłowe użycie: &b/migrate"
+MigrationConnectionError: "&cWystąpił błąd podczas próby połączenia z MySQL"
+
+#Security messages
 IpBlocked:
   - "&cSystemy LockLogin wykryły plik"
   - "&cnietypowy ruch na Twoim IP i został zablokowany"
@@ -105,8 +141,8 @@ AntiBot:
   - ""
   - "&cDodaj ten serwer do listy serwerów"
   - "&cJeśli już go masz, załaduj ponownie listę serwerów"
-OnlyAzuriom:
-  - "&f{ServerName}"
+IllegalName:
+  - "&cNielegalna nazwa"
   - ""
-  - "&cZarejestruj swoje konto z:"
-  - "&ehttps://myazuriomwebsite.com/user/register"
+  - "&cTwoje nazwa nie może zawierać:"
+  - "{chars}"

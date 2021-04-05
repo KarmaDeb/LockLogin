@@ -21,17 +21,17 @@ import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigot, SpigotFiles {
 
@@ -110,7 +110,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
                     user.send("&eToken&7: &aTarget google token found");
                 }
             }
-            user.send("&eFly&7: &f" + targetUser.hasFly());
+            user.send("&eCan fly&7/ &eFly: &f" + target.getAllowFlight() + " &7/&f " + target.isFlying());
             String mode = target.getGameMode().name().substring(0, 1).toUpperCase() + target.getGameMode().name().substring(1).toLowerCase();
             user.send("&eGamemode&7: &f" + mode);
             user.send("&eServer&7: &f" + target.getServer().getName());
@@ -129,7 +129,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
                         user.send("&eToken&7: &aTarget google token found");
                     }
                 }
-                user.send("&eFly&7: &f" + targetUser.hasFly());
+                user.send("&eFly&7: &cDISCONNECTED");
                 user.send("&eGamemode&7: &cDISCONNECTED");
                 user.send("&eServer&7: &cDISCONNECTED");
             } else {
@@ -180,7 +180,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
                     Console.send("&eToken&7: &aTarget google token found");
                 }
             }
-            Console.send("&eFly&7: &7: &f" + targetUser.hasFly());
+            Console.send("&eCan fly&7/ &eFly: &f" + target.getAllowFlight() + " &7/&f " + target.isFlying());
             String mode = target.getGameMode().name().substring(0, 1).toUpperCase() + target.getGameMode().name().substring(1).toLowerCase();
             Console.send("&eGamemode&7: &f" + mode);
             Console.send("&eServer&7: &f" + target.getServer().getName());
@@ -199,7 +199,7 @@ public final class CheckPlayerCommand implements CommandExecutor, LockLoginSpigo
                         Console.send("&eToken&7: &aTarget google token found");
                     }
                 }
-                Console.send("&eFly&7: &f" + targetUser.hasFly());
+                Console.send("&eFly&7: &cDISCONNECTED");
                 Console.send("&eGamemode&7: &cDISCONNECTED");
                 Console.send("&eServer&7: &cDISCONNECTED");
             } else {

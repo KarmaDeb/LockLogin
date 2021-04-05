@@ -1,25 +1,51 @@
 package ml.karmaconfigs.lockloginsystem.shared.dependencies;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public enum Dependency {
-    /** LockLogin dependency */ COMMONS,
-    /** LockLogin dependency */ JNA,
-    /** LockLogin dependency */ SLF4J,
-    /** LockLogin dependency */ HIKARICP,
-    /** LockLogin dependency */ GOOGLE,
-    /** LockLogin dependency */ ARGON2;
+    /**
+     * LockLogin dependency
+     */
+    COMMONS,
+    /**
+     * LockLogin dependency
+     */
+    JNA,
+    /**
+     * LockLogin dependency
+     */
+    SLF4J,
+    /**
+     * LockLogin dependency
+     */
+    HIKARICP,
+    /**
+     * LockLogin dependency
+     */
+    GOOGLE,
+    /**
+     * LockLogin dependency
+     */
+    JARGON2,
+    /**
+     * LockLogin dependency
+     */
+    JARGON2BACKEND,
+    /**
+     * LockLogin dependency
+     */
+    ARGON2;
 
     /**
      * Get the dependency download url
@@ -38,6 +64,10 @@ public enum Dependency {
                 return "https://repo1.maven.org/maven2/com/zaxxer/HikariCP/4.0.3/HikariCP-4.0.3.jar";
             case GOOGLE:
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/googleauth.jar";
+            case JARGON2:
+                return "https://repo1.maven.org/maven2/com/kosprov/jargon2/jargon2-api/1.1.1/jargon2-api-1.1.1.jar";
+            case JARGON2BACKEND:
+                return "https://repo1.maven.org/maven2/com/kosprov/jargon2/jargon2-native-ri-backend/1.1.1/jargon2-native-ri-backend-1.1.1.jar";
             case ARGON2:
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/Argon2.jar";
             default:
@@ -62,6 +92,10 @@ public enum Dependency {
                 return "HikariCP.jar";
             case GOOGLE:
                 return "GoogleAuthenticator.jar";
+            case JARGON2:
+                return "JArgon2.jar";
+            case JARGON2BACKEND:
+                return "Jargon2Backed.jar";
             case ARGON2:
                 return "Argon2.jar";
             default:

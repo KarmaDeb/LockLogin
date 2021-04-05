@@ -68,7 +68,7 @@ public final class AccountMigrate {
             case MySQL:
                 switch (migration_platform) {
                     case BUNGEE:
-                        id = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
+                        id = Objects.requireNonNull(sql_instance.getUUID()).replace("-", "");
                         ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager bungeeManager = new ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.FileManager(id + ".yml", "playerdata");
                         player = bungeeManager.getString("Player");
                         password = bungeeManager.getString("Password");
@@ -78,7 +78,7 @@ public final class AccountMigrate {
                         hasFly = bungeeManager.getBoolean("Fly");
                         break;
                     case BUKKIT:
-                        id = Objects.requireNonNull(sql_instance.getUUID()).toString().replace("-", "");
+                        id = Objects.requireNonNull(sql_instance.getUUID()).replace("-", "");
                         ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager spigotManager = new ml.karmaconfigs.lockloginsystem.spigot.utils.files.FileManager(id + ".yml", "playerdata");
                         player = spigotManager.getString("Player");
                         password = spigotManager.getString("Password");

@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils.inventory;
 
 import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.api.common.StringUtils;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.Motd;

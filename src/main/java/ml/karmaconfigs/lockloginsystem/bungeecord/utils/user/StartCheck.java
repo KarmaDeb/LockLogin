@@ -10,17 +10,17 @@ import net.md_5.bungee.api.scheduler.ScheduledTask;
 import java.util.concurrent.TimeUnit;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class StartCheck implements LockLoginBungee, BungeeFiles {
 
@@ -116,6 +116,7 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
      */
     private void sendAuthMessage(ProxiedPlayer player, CheckType type) {
         User user = new User(player);
+
         switch (type) {
             case LOGIN:
                 user.send(messages.prefix() + messages.login(user.getCaptcha()));
@@ -133,16 +134,12 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
      * @param type   the message type
      */
     private void startSendingMessage(ProxiedPlayer player, CheckType type) {
-        int interval = (new User(player).isLogged() ? config.loginInterval() : config.registerInterval());
+        int interval = (new User(player).isRegistered() ? config.loginInterval() : config.registerInterval());
 
         msTask = plugin.getProxy().getScheduler().schedule(plugin, () -> {
             User user = new User(player);
             if (!user.isLogged()) {
-                if (type.equals(CheckType.LOGIN)) {
-                    sendAuthMessage(player, CheckType.LOGIN);
-                } else {
-                    sendAuthMessage(player, CheckType.REGISTER);
-                }
+                sendAuthMessage(player, type);
             } else {
                 msTask.cancel();
             }

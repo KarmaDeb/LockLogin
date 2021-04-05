@@ -119,7 +119,13 @@ public interface PlatformUtils {
      * encryption target
      */
     enum CryptTarget {
-        /** LockLogin password encryption */ PASSWORD,
-        /** LockLogin pin encryption */ PIN
+        /**
+         * LockLogin password encryption
+         */
+        PASSWORD,
+        /**
+         * LockLogin pin encryption
+         */
+        PIN
     }
 }

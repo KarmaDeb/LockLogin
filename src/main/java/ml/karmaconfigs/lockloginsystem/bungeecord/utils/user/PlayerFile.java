@@ -13,17 +13,17 @@ import java.util.Arrays;
 import java.util.UUID;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class PlayerFile implements LockLoginBungee, BungeeFiles {
 
@@ -42,7 +42,7 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
         this.uuid = player.getUniqueId().toString().replace("-", "");
 
         manager = new FileManager(uuid + ".yml", "playerdata");
-        manager.setInternal("auto-generated/userTemplate.yml");
+        manager.setInternal("auto-generated/userTemplate.lldb");
 
         if (manager.get("Security.Password") != null) {
             manager.set("Password", manager.getString("Security.Password"));
@@ -56,6 +56,29 @@ public final class PlayerFile implements LockLoginBungee, BungeeFiles {
             manager.set("2FA", manager.getBoolean("Security.2FA"));
             manager.unset("Security.2FA");
         }
+    }
+
+    /**
+     * Migrate from LockLogin v1 player database
+     */
+    public static void migrateV1() {
+        File v1DataFolder = new File(plugin.getDataFolder() + File.separator + "Users");
+        File[] files = v1DataFolder.listFiles();
+
+        if (files != null) {
+            Console.send(plugin, "Initializing LockLogin v1 player database migration", Level.INFO);
+
+            for (File file : files) {
+
+            }
+        }
+    }
+
+    /**
+     * Migrate from LockLogin v2 player database
+     */
+    public static void migrateV2() {
+
     }
 
     /**

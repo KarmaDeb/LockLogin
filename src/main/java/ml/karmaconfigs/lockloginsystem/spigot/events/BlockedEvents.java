@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.events;
 
-import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.api.common.StringUtils;
 import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;

@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.spigot.utils;
 
-import ml.karmaconfigs.api.common.FileUtilities;
-import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.bukkit.Console;
+import ml.karmaconfigs.api.common.Level;
+import ml.karmaconfigs.api.common.utils.FileUtilities;
 import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.llsql.AccountMigrate;
@@ -33,25 +33,24 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.URLClassLoader;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.*;
-import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
- GNU LESSER GENERAL PUBLIC LICENSE
- Version 2.1, February 1999
-
- Copyright (C) 1991, 1999 Free Software Foundation, Inc.
- 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
-
- [This is the first released version of the Lesser GPL.  It also counts
- as the successor of the GNU Library Public License, version 2, hence
- the version number 2.1.]
+ * GNU LESSER GENERAL PUBLIC LICENSE
+ * Version 2.1, February 1999
+ * <p>
+ * Copyright (C) 1991, 1999 Free Software Foundation, Inc.
+ * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+ * Everyone is permitted to copy and distribute verbatim copies
+ * of this license document, but changing it is not allowed.
+ * <p>
+ * [This is the first released version of the Lesser GPL.  It also counts
+ * as the successor of the GNU Library Public License, version 2, hence
+ * the version number 2.1.]
  */
 public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFiles {
 
@@ -59,7 +58,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
      * Unload LockLogin
      */
     @SuppressWarnings("all")
-    public final void unload() {
+    private void unload() {
         String name = plugin.getName();
 
         PluginManager pluginManager = Bukkit.getPluginManager();
@@ -162,7 +161,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
      *
      * @param pluginFile LockLogin .jar
      */
-    public final void load(File pluginFile) {
+    private void load(File pluginFile) {
         try {
             Plugin plugin = Bukkit.getPluginManager().loadPlugin(pluginFile);
             if (plugin != null)
@@ -175,36 +174,38 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
     }
 
     /**
-     * Private GSA code
-     * <p>
-     * The use of this code
-     * without GSA team authorization
-     * will be a violation of
-     * terms of use determined
-     * in <a href="https://karmaconfigs.ml/license/"> here </a>
+     * Tries to localize LockLogin.jar plugin
+     * file if provided does not exist or is null
      *
-     * @param readFrom the .jar to read from
-     * @return if the .jar specified to ignore version differences
+     * @return the LockLogin.jar update file
      */
-    private boolean ignoredUpdateVersion(File readFrom) {
-        try {
-            JarFile newLockLogin = new JarFile(readFrom);
-            JarEntry pluginYML = newLockLogin.getJarEntry("plugin.yml");
-            if (pluginYML != null) {
-                InputStream pluginInfo = newLockLogin.getInputStream(pluginYML);
-                InputStreamReader reader = new InputStreamReader(pluginInfo, StandardCharsets.UTF_8);
+    private File detectLockLogin() {
+        File[] updates = new File(FileUtilities.getPluginsFolder(), "update").listFiles();
+        if (updates != null) {
+            for (File file : updates) {
+                try {
+                    JarFile jar = new JarFile(file);
 
-                YamlConfiguration desc = YamlConfiguration.loadConfiguration(reader);
+                    ZipEntry entry = jar.getEntry("plugin.yml");
+                    if (entry != null) {
+                        InputStream stream = jar.getInputStream(entry);
+                        if (stream != null) {
+                            YamlConfiguration plugin_yml = YamlConfiguration.loadConfiguration(new InputStreamReader(stream));
 
-                newLockLogin.close();
-                pluginInfo.close();
-                reader.close();
-                return desc.getBoolean("ignoreUpdateVersion");
+                            String name = plugin_yml.getString("name", "");
+                            assert name != null;
+                            if (!name.replaceAll("\\s", "").isEmpty()) {
+                                name = name.replace("\"", "");
+                                if (name.equals("LockLogin"))
+                                    return file;
+                            }
+                        }
+                    }
+                } catch (Throwable ignored) {}
             }
-            return false;
-        } catch (Throwable e) {
-            return false;
         }
+
+        return new File(FileUtilities.getPluginsFolder() + File.separator + "update", LockLoginSpigot.jar);
     }
 
     /**
@@ -222,10 +223,8 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
      * @param user the issuer
      */
     public final void applyUpdate(@Nullable final User user) {
-        String dir = plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
-        File pluginsFolder = new File(dir.replace("/LockLogin", ""));
-        File lockLogin = new File(pluginsFolder, LockLoginSpigot.jar);
-        File updatedLockLogin = new File(pluginsFolder + "/update/", LockLoginSpigot.jar);
+        File lockLogin = new File(FileUtilities.getPluginsFolder(), LockLoginSpigot.jar);
+        File updatedLockLogin = detectLockLogin();
 
         int new_version = Integer.parseInt(FileInfo.getJarVersion(updatedLockLogin).replaceAll("[aA-zZ]", "").replace(".", ""));
         int cur_version = Integer.parseInt(FileInfo.getJarVersion(lockLogin).replaceAll("[aA-zZ]", "").replace(".", ""));
@@ -241,8 +240,9 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                 if (new_version > cur_version) {
                     update = true;
                 } else {
-                    update = ignoredUpdateVersion(updatedLockLogin);
-                    user.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    update = FileInfo.unsafeUpdates(updatedLockLogin);
+                    if (update)
+                        user.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -328,7 +328,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         String UUID = player.getUniqueId().toString().replace("-", "");
 
                         FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                        fm.setInternal("auto-generated/userTemplate.yml");
+                        fm.setInternal("auto-generated/userTemplate.lldb");
 
                         if (fm.getManaged().exists()) {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -369,8 +369,9 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                 if (new_version > cur_version) {
                     update = true;
                 } else {
-                    update = ignoredUpdateVersion(updatedLockLogin);
-                    Console.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
+                    update = FileInfo.unsafeUpdates(updatedLockLogin);
+                    if (update)
+                        Console.send(messages.prefix() + "&7Target LockLogin version specifies to ignore age difference, this time is legal :)");
                 }
 
                 if (!update) {
@@ -456,7 +457,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                         String UUID = player.getUniqueId().toString().replace("-", "");
 
                         FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                        fm.setInternal("auto-generated/userTemplate.yml");
+                        fm.setInternal("auto-generated/userTemplate.lldb");
 
                         if (fm.getManaged().exists()) {
                             if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -533,7 +534,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                     String UUID = player.getUniqueId().toString().replace("-", "");
 
                     FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                    fm.setInternal("auto-generated/userTemplate.yml");
+                    fm.setInternal("auto-generated/userTemplate.lldb");
 
                     if (fm.getManaged().exists()) {
                         if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
@@ -592,7 +593,7 @@ public final class LockLoginSpigotManager implements LockLoginSpigot, SpigotFile
                     String UUID = player.getUniqueId().toString().replace("-", "");
 
                     FileManager fm = new FileManager(UUID + ".yml", "playerdata");
-                    fm.setInternal("auto-generated/userTemplate.yml");
+                    fm.setInternal("auto-generated/userTemplate.lldb");
 
                     if (fm.getManaged().exists()) {
                         if (sql.getPassword() == null || sql.getPassword().isEmpty()) {
