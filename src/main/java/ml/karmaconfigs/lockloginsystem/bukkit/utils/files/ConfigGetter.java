@@ -83,7 +83,7 @@ public final class ConfigGetter implements LockLoginSpigot {
     public final boolean isBungeeCord() {
         if (spigot.exists()) {
             YamlConfiguration sp = YamlConfiguration.loadConfiguration(spigot);
-            return sp.getBoolean("settings.bungee");
+            return sp.getBoolean("settings.bungeecord");
         } else {
             try {
                 if (spigot.createNewFile()) {
@@ -93,8 +93,8 @@ public final class ConfigGetter implements LockLoginSpigot {
                     Console.send(plugin, "An error occurred while trying to generate spigot.yml, (You won't be able to enable bungee mode)", Level.INFO);
                 }
                 YamlConfiguration sp = YamlConfiguration.loadConfiguration(spigot);
-                if (!sp.isSet("settings.bungee")) {
-                    sp.set("settings.bungee", false);
+                if (!sp.isSet("settings.bungeecord")) {
+                    sp.set("settings.bungeecord", false);
                     try {
                         sp.save(spigot);
                     } catch (IOException e) {
@@ -103,7 +103,7 @@ public final class ConfigGetter implements LockLoginSpigot {
                     }
                 }
 
-                return sp.getBoolean("settings.bungee");
+                return sp.getBoolean("settings.bungeecord");
             } catch (IOException e) {
                 logger.scheduleLog(Level.GRAVE, e);
                 logger.scheduleLog(Level.INFO, "Error while creating artificial spigot.yml for bungee support");
