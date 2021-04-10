@@ -246,54 +246,57 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
             File[] modules = modulesFolder.listFiles();
             if (modules != null) {
                 for (File module : modules) {
-                    try {
-                        AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
-                        AdvancedModule adv_module = loader.getAsModule();
+                    if (module.isFile() && module.getName().endsWith(".jar")) {
+                        try {
+                            AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
+                            AdvancedModule adv_module = loader.getAsModule();
 
-                        if (adv_module != null) {
-                            page.setItem(item_index, blackPane());
+                            if (adv_module != null) {
+                                page.setItem(item_index, blackPane());
 
-                            boolean outdated = update_info.containsKey(true);
-                            String updateURL = update_info.get(outdated);
+                                boolean outdated = update_info.containsKey(true);
+                                String updateURL = update_info.get(outdated);
 
-                            ItemStack item = new ItemStack(Material.CHEST, 1);
-                            ItemMeta meta = item.getItemMeta();
-                            assert meta != null;
+                                ItemStack item = new ItemStack(Material.CHEST, 1);
+                                ItemMeta meta = item.getItemMeta();
+                                assert meta != null;
 
-                            item_name.put(module_index, adv_module.name());
+                                item_name.put(module_index, adv_module.name());
 
-                            meta.setDisplayName(StringUtils.toColor("&f" + adv_module.name() + " &7&o[ &b" + adv_module.version() + " &7&o]"));
-                            List<String> lore = new ArrayList<>();
-                            for (String str : adv_module.getDescription()) {
-                                lore.add(StringUtils.toColor(str));
+                                meta.setDisplayName(StringUtils.toColor("&f" + adv_module.name() + " &7&o[ &b" + adv_module.version() + " &7&o]"));
+                                List<String> lore = new ArrayList<>();
+                                for (String str : adv_module.getDescription()) {
+                                    lore.add(StringUtils.toColor(str));
+                                }
+                                lore.add(" ");
+                                lore.add(StringUtils.toColor("&7Owner:&c ") + adv_module.author());
+                                lore.add(StringUtils.toColor("&7Jar:&c ") + module.getName());
+                                lore.add(StringUtils.toColor("&7Module enabled: " + String.valueOf(AdvancedModuleLoader.manager.isLoaded(adv_module)).replace("true", "&ayes").replace("false", "&cno")));
+                                lore.add(StringUtils.toColor("&7Needs update: " + String.valueOf(outdated).replace("true", "&ayes").replace("false", "&cno")));
+                                if (outdated) {
+                                    lore.add(StringUtils.toColor("&7Click to get update url"));
+                                    item_url.put(module_index, updateURL);
+                                }
+                                StringBuilder hider = new StringBuilder();
+                                String number = String.valueOf(module_index);
+                                for (int i = 0; i < number.length(); i++)
+                                    hider.append("\u00a7").append(number.charAt(i));
+
+                                lore.add(hider.toString());
+
+                                meta.setLore(lore);
+                                item.setItemMeta(meta);
+                                page.addItem(item);
+
+                                item_index++;
+                                if (item_index > page.getSize())
+                                    item_index = 0;
+
+                                module_index++;
                             }
-                            lore.add(" ");
-                            lore.add(StringUtils.toColor("&7Owner:&c ") + adv_module.author());
-                            lore.add(StringUtils.toColor("&7Jar:&c ") + module.getName());
-                            lore.add(StringUtils.toColor("&7Module enabled: " + String.valueOf(AdvancedModuleLoader.manager.isLoaded(adv_module)).replace("true", "&ayes").replace("false", "&cno")));
-                            lore.add(StringUtils.toColor("&7Needs update: " + String.valueOf(outdated).replace("true", "&ayes").replace("false", "&cno")));
-                            if (outdated) {
-                                lore.add(StringUtils.toColor("&7Click to get update url"));
-                                item_url.put(module_index, updateURL);
-                            }
-                            StringBuilder hider = new StringBuilder();
-                            String number = String.valueOf(module_index);
-                            for (int i = 0; i < number.length(); i++)
-                                hider.append("\u00a7").append(number.charAt(i));
-
-                            lore.add(hider.toString());
-
-                            meta.setLore(lore);
-                            item.setItemMeta(meta);
-                            page.addItem(item);
-
-                            item_index++;
-                            if (item_index > page.getSize())
-                                item_index = 0;
-
-                            module_index++;
+                        } catch (Throwable ignored) {
                         }
-                    } catch (Throwable ignored) {}
+                    }
                 }
             }
         }

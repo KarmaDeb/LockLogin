@@ -76,12 +76,14 @@ public final class Main extends Plugin {
                 Injector injector = new Injector(LockLoginBungee.getJar());
                 
                 for (File module : modules) {
-                    AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
-                    injector.inject(loader.getMainClass());
-                    loaders.add(loader);
+                    if (module.isFile() && module.getName().endsWith(".jar")) {
+                        AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
+                        injector.inject(loader.getMainClass());
+                        loaders.add(loader);
 
-                    JarInjector subInjector = new JarInjector(module);
-                    subInjector.inject(this);
+                        JarInjector subInjector = new JarInjector(module);
+                        subInjector.inject(this);
+                    }
                 }
             }
 

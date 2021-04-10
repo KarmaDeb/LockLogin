@@ -628,7 +628,9 @@ public final class PluginManagerBukkit implements LockLoginSpigot {
         metrics.addCustomChart(new SpigotMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().clearChat())
                 .replace("true", "Clear chat")
                 .replace("false", "Don't clear chat")));
-        metrics.addCustomChart(new SpigotMetrics.SimplePie("file_system", () -> "Removed in 1.0.9.6"));
+        metrics.addCustomChart(new SpigotMetrics.SimplePie("file_system", () -> new ConfigGetter().accountSys().toLowerCase()
+                .replace("file", "File")
+                .replace("mysql", "MySQL")));
     }
 
     /**

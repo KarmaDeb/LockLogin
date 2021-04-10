@@ -19,6 +19,7 @@ import ml.karmaconfigs.lockloginsystem.bungee.utils.files.ConfigGetter;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.FileManager;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.MessageGetter;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.pluginmanager.LockLoginBungeeManager;
+import ml.karmaconfigs.lockloginsystem.bungee.utils.user.PlayerFile;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.user.StartCheck;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.*;
@@ -28,7 +29,6 @@ import ml.karmaconfigs.lockloginsystem.shared.metrics.BungeeMetrics;
 import ml.karmaconfigs.lockloginsystem.shared.version.DownloadLatest;
 import ml.karmaconfigs.lockloginsystem.shared.version.GetLatestVersion;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
-import ml.karmaconfigs.lockloginsystem.bukkit.utils.user.PlayerFile;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.plugin.Plugin;
 import net.md_5.bungee.config.Configuration;
@@ -469,7 +469,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         metrics.addCustomChart(new BungeeMetrics.SimplePie("clear_chat", () -> String.valueOf(new ConfigGetter().clearChat())
                 .replace("true", "Clear chat")
                 .replace("false", "Don't clear chat")));
-        metrics.addCustomChart(new BungeeMetrics.SimplePie("file_system", () -> new ConfigGetter().accountSystem()
+        metrics.addCustomChart(new BungeeMetrics.SimplePie("file_system", () -> new ConfigGetter().accountSystem().toLowerCase()
                 .replace("file", "File")
                 .replace("mysql", "MySQL")));
     }

@@ -173,7 +173,6 @@ public final class CheckUpdateCommand extends Command implements BungeeFiles {
                     case "--version":
                         Console.send("&cLockLogin current version: &e" + StringUtils.stripColor(LockLoginBungee.version));
                         Console.send("&cLatest LockLogin version: &e" + StringUtils.stripColor(latest.getVersion()));
-                        Console.send("&cVersion channel: &e" + latest.getChannel().name().toUpperCase());
                         Console.send("&cCurrent version channel: &e" + current_channel.name().toUpperCase());
                         Console.send("&cLatest version channel: &e" + latest_channel.name().toUpperCase());
                         break;

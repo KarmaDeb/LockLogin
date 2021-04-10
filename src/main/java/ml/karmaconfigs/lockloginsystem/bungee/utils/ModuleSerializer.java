@@ -79,24 +79,27 @@ public final class ModuleSerializer implements LockLoginBungee {
         File[] modules = modulesFolder.listFiles();
         if (modules != null) {
             for (File module : modules) {
-                try {
-                    AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
-                    AdvancedModule adv_module = loader.getAsModule();
+                if (module.isFile() && module.getName().endsWith(".jar")) {
+                    try {
+                        AdvancedModuleLoader loader = new AdvancedModuleLoader(module);
+                        AdvancedModule adv_module = loader.getAsModule();
 
-                    if (adv_module != null) {
-                        HashMap<Boolean, String> update_info = adv_module.getUpdateInfo();
-                        boolean outdated = update_info.containsKey(true);
+                        if (adv_module != null) {
+                            HashMap<Boolean, String> update_info = adv_module.getUpdateInfo();
+                            boolean outdated = update_info.containsKey(true);
 
-                        serialized.append("Owner").append("=").append(module.getName()).append(",")
-                                .append("Name").append("=").append(adv_module.name()).append(",")
-                                .append("Author").append("=").append(adv_module.author()).append(",")
-                                .append("Version").append("=").append(adv_module.version()).append(",")
-                                .append("Description").append("=").append(adv_module.description()).append(",")
-                                .append("Enabled").append("=").append(AdvancedModuleLoader.manager.isLoaded(adv_module)).append(",")
-                                .append("Outdated").append("=").append(outdated).append(",")
-                                .append("URL").append("=").append(update_info.get(outdated)).append(";");
+                            serialized.append("Owner").append("=").append(module.getName()).append(",")
+                                    .append("Name").append("=").append(adv_module.name()).append(",")
+                                    .append("Author").append("=").append(adv_module.author()).append(",")
+                                    .append("Version").append("=").append(adv_module.version()).append(",")
+                                    .append("Description").append("=").append(adv_module.description()).append(",")
+                                    .append("Enabled").append("=").append(AdvancedModuleLoader.manager.isLoaded(adv_module)).append(",")
+                                    .append("Outdated").append("=").append(outdated).append(",")
+                                    .append("URL").append("=").append(update_info.get(outdated)).append(";");
+                        }
+                    } catch (Throwable ignored) {
                     }
-                } catch (Throwable ignored) {}
+                }
             }
         }
 
