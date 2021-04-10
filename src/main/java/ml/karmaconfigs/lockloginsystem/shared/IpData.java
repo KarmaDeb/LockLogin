@@ -1,8 +1,8 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-import ml.karmaconfigs.lockloginmodules.spigot.Module;
-import ml.karmaconfigs.lockloginmodules.spigot.ModuleLoader;
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.user.User;
+import ml.karmaconfigs.lockloginmodules.Module;
+import ml.karmaconfigs.lockloginmodules.bukkit.ModuleUtil;
+import ml.karmaconfigs.lockloginsystem.bungee.utils.user.User;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import org.bukkit.entity.Player;
 
@@ -33,22 +33,7 @@ public final class IpData {
      * @param Ip     the IP
      */
     public IpData(final Module loader, InetAddress Ip) {
-        if (ModuleLoader.manager.isLoaded(loader)) {
-            this.ip = Ip;
-        } else {
-            this.ip = null;
-        }
-    }
-
-    /**
-     * Initialize the IP database
-     *
-     * @param loader the module that will
-     *               execute the call
-     * @param Ip     the IP
-     */
-    public IpData(final ml.karmaconfigs.lockloginmodules.bungee.Module loader, InetAddress Ip) {
-        if (ml.karmaconfigs.lockloginmodules.bungee.ModuleLoader.manager.isLoaded(loader)) {
+        if (ModuleUtil.isLoaded(loader) || ml.karmaconfigs.lockloginmodules.bungee.ModuleUtil.isLoaded(loader)) {
             this.ip = Ip;
         } else {
             this.ip = null;
@@ -112,20 +97,20 @@ public final class IpData {
             switch (platform) {
                 case ANY:
                     try {
-                        for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
+                        for (Player player : ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
                             InetSocketAddress ip = player.getAddress();
 
                             if (ip != null)
                                 ips.put(ip.getAddress(), ips.getOrDefault(ip.getAddress(), 0) + 1);
                         }
                     } catch (Throwable e) {
-                        for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
+                        for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee.plugin.getProxy().getPlayers()) {
                             ips.put(User.external.getIp(player.getSocketAddress()), ips.getOrDefault(User.external.getIp(player.getSocketAddress()), 0) + 1);
                         }
                     }
                     break;
                 case BUKKIT:
-                    for (Player player : ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
+                    for (Player player : ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot.plugin.getServer().getOnlinePlayers()) {
                         InetSocketAddress ip = player.getAddress();
 
                         if (ip != null)
@@ -133,7 +118,7 @@ public final class IpData {
                     }
                     break;
                 case BUNGEE:
-                    for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee.plugin.getProxy().getPlayers()) {
+                    for (ProxiedPlayer player : ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee.plugin.getProxy().getPlayers()) {
                         ips.put(User.external.getIp(player.getSocketAddress()), ips.getOrDefault(User.external.getIp(player.getSocketAddress()), 0) + 1);
                     }
                     break;

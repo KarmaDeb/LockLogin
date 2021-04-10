@@ -1,9 +1,12 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
 import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.lockloginsystem.bungeecord.BungeeExecutorService;
+import ml.karmaconfigs.lockloginsystem.bukkit.SpigotExecutorService;
+import ml.karmaconfigs.lockloginsystem.bungee.BungeeExecutorService;
+import ml.karmaconfigs.lockloginsystem.shared.account.AccountManager;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
-import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
+
+import java.lang.reflect.Constructor;
 
 /**
  * Private GSA code
@@ -14,9 +17,15 @@ import ml.karmaconfigs.lockloginsystem.spigot.SpigotExecutorService;
  * terms of use determined
  * in <a href="https://karmaconfigs.ml/license/"> here </a>
  */
-public interface PlatformUtils {
+public class PlatformUtils {
 
-    static void send(String message) {
+    private static Class<? extends AccountManager> manager = null;
+
+    public static void setAccountManager(final Class<? extends AccountManager> manager) {
+        PlatformUtils.manager = manager;
+    }
+
+    public static void send(String message) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -30,7 +39,7 @@ public interface PlatformUtils {
         }
     }
 
-    static void send(String message, Level level) {
+    public static void send(String message, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -44,7 +53,7 @@ public interface PlatformUtils {
         }
     }
 
-    static void log(String info, Level level) {
+    public static void log(String info, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -58,7 +67,7 @@ public interface PlatformUtils {
         }
     }
 
-    static void log(Throwable error, Level level) {
+    public static void log(Throwable error, Level level) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -72,7 +81,7 @@ public interface PlatformUtils {
         }
     }
 
-    static boolean isPremium() {
+    public static boolean isPremium() {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -84,7 +93,18 @@ public interface PlatformUtils {
         }
     }
 
-    static CryptType getEncryption(final CryptTarget target) {
+    public static boolean accountManagerValid() {
+        return manager != null;
+    }
+
+    public static boolean isNativeManager() {
+        if (accountManagerValid())
+            return manager.getName().contains("ml.karmaconfigs.lockloginsystem");
+
+        return false;
+    }
+
+    public static CryptType getEncryption(final CryptTarget target) {
         CurrentPlatform current = new CurrentPlatform();
         switch (current.getRunning()) {
             case BUKKIT:
@@ -114,11 +134,26 @@ public interface PlatformUtils {
         }
     }
 
+    public static AccountManager getManager(final Class<?>[] paramTypes, final Object... parameters) {
+        try {
+            if (parameters.length > 0) {
+                Constructor<? extends AccountManager> constructor = manager.getConstructor(paramTypes);
+                return constructor.newInstance(parameters);
+            } else {
+                return manager.getDeclaredConstructor().newInstance();
+            }
+        } catch (Throwable ex) {
+            ex.printStackTrace();
+        }
+
+        return null;
+    }
+
     /**
      * All platform available
      * encryption target
      */
-    enum CryptTarget {
+    public enum CryptTarget {
         /**
          * LockLogin password encryption
          */

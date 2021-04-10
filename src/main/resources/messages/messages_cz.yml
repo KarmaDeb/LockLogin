@@ -11,7 +11,7 @@ Prefix: "&eLockLogin &7>> "
 PermissionError: "&cNemáte oprávnění {permission}"
 
 #BungeeCord proxy message
-BungeeProxy: "&cProsím, připojte se přes proxy bungeecord!"
+BungeeProxy: "&cProsím, připojte se přes proxy bungee!"
 
 #Session messages - Manager
 PlayerNotVerified: "&cNemůžeš bojovat proti {player} zatímco není přihlášen / registrován"

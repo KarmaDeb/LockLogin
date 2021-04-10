@@ -1,4 +1,4 @@
-package ml.karmaconfigs.lockloginsystem.shared.llsql.SQLite;
+package ml.karmaconfigs.lockloginsystem.shared.llsql.sqlite;
 
 import java.io.File;
 import java.sql.Connection;

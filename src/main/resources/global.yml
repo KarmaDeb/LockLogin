@@ -4,3 +4,4 @@ project_developers: ${project.author}
 project_build: ${project.buildType}
 project_debug: ${project.debug}
 project_unsafeUpdate: ${project.unsafeUpdate}
+project_logSizeLimit: ${project.logSizeLimit}

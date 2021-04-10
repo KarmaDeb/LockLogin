@@ -113,45 +113,19 @@ public final class PasswordUtils {
      */
     public final CryptType getCrypto() {
         if (token != null) {
-            String[] token_data;
-            if (Base64.isBase64(token))
-                token_data = new String(Base64.decodeBase64(token)).split("\\$");
-            else
-                token_data = token.split("\\$");
+            try {
+                String[] token_data;
+                if (Base64.isBase64(token))
+                    token_data = new String(Base64.decodeBase64(token)).split("\\$");
+                else
+                    token_data = token.split("\\$");
 
-            String type_backend = token_data[2];
-            String type = token_data[1];
+                String type_backend = token_data[2];
+                String type = token_data[1];
 
-            CryptType crypto;
+                CryptType crypto;
 
-            switch (type.toLowerCase()) {
-                case "sha512":
-                case "512":
-                    crypto = CryptType.SHA512;
-                    break;
-                case "sha256":
-                case "256":
-                    crypto = CryptType.SHA256;
-                    break;
-                case "2y":
-                    crypto = CryptType.BCryptPHP;
-                    break;
-                case "2a":
-                    crypto = CryptType.BCrypt;
-                    break;
-                case "argon2i":
-                    crypto = CryptType.ARGON2I;
-                    break;
-                case "argon2id":
-                    crypto = CryptType.ARGON2ID;
-                    break;
-                default:
-                    crypto = CryptType.UNKNOWN;
-                    break;
-            }
-
-            if (crypto == CryptType.UNKNOWN)
-                switch (type_backend.toLowerCase()) {
+                switch (type.toLowerCase()) {
                     case "sha512":
                     case "512":
                         crypto = CryptType.SHA512;
@@ -177,7 +151,37 @@ public final class PasswordUtils {
                         break;
                 }
 
-            return crypto;
+                if (crypto == CryptType.UNKNOWN)
+                    switch (type_backend.toLowerCase()) {
+                        case "sha512":
+                        case "512":
+                            crypto = CryptType.SHA512;
+                            break;
+                        case "sha256":
+                        case "256":
+                            crypto = CryptType.SHA256;
+                            break;
+                        case "2y":
+                            crypto = CryptType.BCryptPHP;
+                            break;
+                        case "2a":
+                            crypto = CryptType.BCrypt;
+                            break;
+                        case "argon2i":
+                            crypto = CryptType.ARGON2I;
+                            break;
+                        case "argon2id":
+                            crypto = CryptType.ARGON2ID;
+                            break;
+                        default:
+                            crypto = CryptType.UNKNOWN;
+                            break;
+                    }
+
+                return crypto;
+            } catch (Throwable ex) {
+                return CryptType.UNKNOWN;
+            }
         } else {
             return CryptType.NONE;
         }

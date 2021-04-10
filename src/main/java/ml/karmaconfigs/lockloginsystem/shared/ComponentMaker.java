@@ -1,7 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-import ml.karmaconfigs.lockloginsystem.bungeecord.utils.files.BungeeFiles;
-import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.bungee.utils.files.BungeeFiles;
+import ml.karmaconfigs.lockloginsystem.bukkit.utils.files.SpigotFiles;
 import net.md_5.bungee.api.ChatColor;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;

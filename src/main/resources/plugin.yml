@@ -1,14 +1,14 @@
-name: "LockLogin"
+name: LockLogin
 version: ${project.version}
-main: ml.karmaconfigs.lockloginsystem.spigot.Main
+main: ml.karmaconfigs.lockloginsystem.bukkit.Main
 api-version: "1.13"
 authors:
   - KarmaConfigs
   - KarmaDev
 load: STARTUP
 website: https://karmaconfigs.ml
-prefix: "LockLogin"
-description: "Adds an extra protection to your Bukkit-Spigot-Paper/BungeeCord  server with this plugins that adds 2FA to his security system"
+prefix: LockLogin
+description: Adds an extra protection to your Bukkit-Spigot-Paper/BungeeCord/Velocity server with this plugins that adds 2FA to his security system
 commands:
   captcha:
     description: The main captcha command

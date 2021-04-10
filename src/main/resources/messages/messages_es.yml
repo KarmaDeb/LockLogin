@@ -11,7 +11,7 @@ Prefix: "&eLockLogin &7>> "
 PermissionError: "&cNo tienes el permiso {permission}"
 
 #BungeeCord proxy message
-BungeeProxy: "&cPor favor, conéctese a través del proxy bungeecord!"
+BungeeProxy: "&cPor favor, conéctese a través del proxy bungee!"
 
 #Session messages - Manager
 PlayerNotVerified: "&cNo puedes luchar contra {player} por qué aun no se ha logueado/registrado"

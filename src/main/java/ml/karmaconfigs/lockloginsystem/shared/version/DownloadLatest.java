@@ -1,14 +1,15 @@
 package ml.karmaconfigs.lockloginsystem.shared.version;
 
 import ml.karmaconfigs.api.common.Level;
-import ml.karmaconfigs.lockloginsystem.bungeecord.LockLoginBungee;
+import ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.shared.FileInfo;
 import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
-import ml.karmaconfigs.lockloginsystem.spigot.LockLoginSpigot;
+import ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot;
 
 import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.function.Consumer;
 
 /**
  * Private GSA code
@@ -37,25 +38,25 @@ public final class DownloadLatest {
         downloadURL = new URL("https://karmaconfigs.github.io/updates/LockLogin/LockLogin.jar");
 
         try {
-            main = new File(LockLoginSpigot.jar);
+            main = LockLoginSpigot.getJar();
             update = new File(LockLoginSpigot.plugin.getServer().getWorldContainer() + "/plugins/update");
-            destJar = new File(update + "/", LockLoginSpigot.jar);
+            destJar = new File(update + "/", LockLoginSpigot.getJar().getName());
         } catch (Throwable e) {
             String dir = LockLoginBungee.plugin.getDataFolder().getPath().replaceAll("\\\\", "/");
             File pluginsFolder = new File(dir.replace("/LockLogin", ""));
 
-            main = new File(LockLoginBungee.jar);
+            main = LockLoginBungee.getJar();
             update = new File(pluginsFolder + "/update");
-            destJar = new File(update + "/", LockLoginBungee.jar);
+            destJar = new File(update + "/", LockLoginBungee.getJar().getName());
         }
     }
 
     /**
      * Download the latest LockLogin jar version
      *
-     * @param onEnd do something on end...
+     * @param onDownload do something on download...
      */
-    public final void download(Runnable onEnd) {
+    public final void download(final Consumer<DownloadLatest> onDownload) {
         if (destJar.exists()) {
             String dest_version = FileInfo.getJarVersion(destJar);
             String curr_version = FileInfo.getJarVersion(main);
@@ -108,7 +109,9 @@ public final class DownloadLatest {
                 PlatformUtils.log(e, Level.GRAVE);
                 PlatformUtils.log("Error while downloading latest LockLogin instance", Level.INFO);
             } finally {
-                onEnd.run();
+                if (onDownload != null)
+                    onDownload.accept(this);
+
                 downloading = false;
             }
         }

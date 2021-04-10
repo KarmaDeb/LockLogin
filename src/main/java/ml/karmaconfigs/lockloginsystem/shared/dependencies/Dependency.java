@@ -25,27 +25,15 @@ public enum Dependency {
     /**
      * LockLogin dependency
      */
-    SLF4J,
-    /**
-     * LockLogin dependency
-     */
-    HIKARICP,
-    /**
-     * LockLogin dependency
-     */
     GOOGLE,
     /**
      * LockLogin dependency
      */
-    JARGON2,
+    LOG4J,
     /**
      * LockLogin dependency
      */
-    JARGON2BACKEND,
-    /**
-     * LockLogin dependency
-     */
-    ARGON2;
+    LOG4J_WEB;
 
     /**
      * Get the dependency download url
@@ -58,18 +46,12 @@ public enum Dependency {
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/commons-codec.jar";
             case JNA:
                 return "https://repo1.maven.org/maven2/net/java/dev/jna/jna/5.8.0/jna-5.8.0.jar";
-            case SLF4J:
-                return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/slf4j.jar";
-            case HIKARICP:
-                return "https://repo1.maven.org/maven2/com/zaxxer/HikariCP/4.0.3/HikariCP-4.0.3.jar";
             case GOOGLE:
                 return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/googleauth.jar";
-            case JARGON2:
-                return "https://repo1.maven.org/maven2/com/kosprov/jargon2/jargon2-api/1.1.1/jargon2-api-1.1.1.jar";
-            case JARGON2BACKEND:
-                return "https://repo1.maven.org/maven2/com/kosprov/jargon2/jargon2-native-ri-backend/1.1.1/jargon2-native-ri-backend-1.1.1.jar";
-            case ARGON2:
-                return "https://raw.githubusercontent.com/KarmaConfigs/project_c/main/src/libs/LockLogin/Argon2.jar";
+            case LOG4J:
+                return "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-core/2.14.1/log4j-core-2.14.1.jar";
+            case LOG4J_WEB:
+                return "https://repo1.maven.org/maven2/org/apache/logging/log4j/log4j-web/2.14.1/log4j-web-2.14.1.jar";
             default:
                 return "";
         }
@@ -86,18 +68,12 @@ public enum Dependency {
                 return "CommonsCodec.jar";
             case JNA:
                 return "SunJNA.jar";
-            case SLF4J:
-                return "SLF4J.jar";
-            case HIKARICP:
-                return "HikariCP.jar";
             case GOOGLE:
                 return "GoogleAuthenticator.jar";
-            case JARGON2:
-                return "JArgon2.jar";
-            case JARGON2BACKEND:
-                return "Jargon2Backed.jar";
-            case ARGON2:
-                return "Argon2.jar";
+            case LOG4J:
+                return "Log4jCore.jar";
+            case LOG4J_WEB:
+                return "Log4jWeb.jar";
             default:
                 return "";
         }

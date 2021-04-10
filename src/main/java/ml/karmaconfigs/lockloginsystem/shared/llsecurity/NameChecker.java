@@ -15,13 +15,13 @@ import java.util.List;
  */
 public final class NameChecker {
 
-    private final static HashMap<String, List<Character>> nameIllegalChars = new HashMap<>();
+    private final static HashMap<String, List<String>> nameIllegalChars = new HashMap<>();
     private final static HashMap<String, InvalidateReason> invalidationReason = new HashMap<>();
     private final String name;
 
     /**
      * Initialize the name checker for
-     * a bungeecord player
+     * a bungee player
      *
      * @param player the player
      */
@@ -36,12 +36,18 @@ public final class NameChecker {
      */
     public final boolean isValid() {
         if (name.length() >= 3 && name.length() <= 16) {
-            List<Character> illegalChars = new ArrayList<>();
+            List<String> illegalChars = new ArrayList<>();
             for (int i = 0; i < name.length(); i++) {
                 char character = name.charAt(i);
-                if (Character.isSpaceChar(character) || !Character.isLetterOrDigit(character) || character != '_')
-                    if (!illegalChars.contains(character))
-                        illegalChars.add(character);
+                if (Character.isSpaceChar(character)) {
+                    if (!illegalChars.contains("space"))
+                        illegalChars.add("space");
+                } else {
+                    if (!Character.isLetterOrDigit(character) && character != '_') {
+                        if (!illegalChars.contains(String.valueOf(character)))
+                            illegalChars.add(String.valueOf(character));
+                    }
+                }
             }
 
             if (!illegalChars.isEmpty()) {
@@ -77,22 +83,13 @@ public final class NameChecker {
                 case MIN:
                     return "Min name length limit (3)";
                 case ILLEGAL:
-                    List<Character> illegal = new ArrayList<>();
-                    for (char character : nameIllegalChars.get(name)) {
-                        if (Character.isSpaceChar(character)) {
-                            if (!illegal.contains(' ')) {
-                                illegal.add(' ');
-                            }
-                        } else {
-                            if (!illegal.contains(character)) {
-                                illegal.add(character);
-                            }
-                        }
-                    }
+                    List<String> illegal = new ArrayList<>();
+                    for (String character : nameIllegalChars.get(name))
+                        illegal.add(character.replace(",", "comma"));
 
                     return illegal.toString()
                             .replace("[", "\u00a7b")
-                            .replace(",", "{replace_comma_gray}\u00a7b")
+                            .replace(",", "\u00a77{comma}\u00a7b")
                             .replace("]", "");
             }
         }

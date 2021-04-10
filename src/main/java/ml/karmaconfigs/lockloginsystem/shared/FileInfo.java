@@ -87,6 +87,27 @@ public interface FileInfo {
         }
     }
 
+    static int logFileSize(final File file) {
+        try {
+            JarFile jar = new JarFile(file);
+            JarEntry jar_info = jar.getJarEntry("global.yml");
+
+            if (jar_info != null) {
+                InputStream yml = jar.getInputStream(jar_info);
+
+                Yaml yaml = new Yaml();
+                Map<String, Object> values = yaml.load(yml);
+                yml.close();
+                return Integer.parseInt(values.getOrDefault("project_logSizeLimit", 100).toString());
+            }
+            jar.close();
+
+            return 100;
+        } catch (Throwable ex) {
+            return 100;
+        }
+    }
+
     static VersionChannel getChannel(final File file) {
         try {
             JarFile jar = new JarFile(file);

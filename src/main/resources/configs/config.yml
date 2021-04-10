@@ -218,7 +218,7 @@ Servers:
 #              will be used, if the fallback one
 #              goes down, the current server of the player
 #              will be used ( That's why I recommend
-#              to install LockLogin in all your spigot
+#              to install LockLogin in all your bukkit
 #              instances )
 # getMainLobby -> Fallback lobby server, in case
 #              the original goes down, this one

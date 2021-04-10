@@ -1,6 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.shared;
 
-import ml.karmaconfigs.lockloginsystem.spigot.utils.files.SpigotFiles;
+import ml.karmaconfigs.lockloginsystem.bukkit.utils.files.SpigotFiles;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Filter;

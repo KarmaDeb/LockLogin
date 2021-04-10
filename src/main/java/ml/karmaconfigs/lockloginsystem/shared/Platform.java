@@ -23,7 +23,7 @@ public enum Platform {
      */
     BUKKIT,
     /**
-     * Try bungeecord, then bukkit platform
+     * Try bungee, then bukkit platform
      */
     ANY
 }
