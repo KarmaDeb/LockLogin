@@ -18,4 +18,11 @@ public abstract class Event {
      * @return if the event has been handled
      */
     public abstract boolean isHandled();
+
+    /**
+     * Get the event instance
+     *
+     * @return the event instance
+     */
+    public abstract Object getEvent();
 }

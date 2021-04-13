@@ -50,7 +50,7 @@ public final class PlayerLeave implements Listener {
 
             user.setLogged(false);
 
-            UserQuitEvent event = new UserQuitEvent(player);
+            UserQuitEvent event = new UserQuitEvent(player, this);
             LockLoginListener.callEvent(event);
         }, 2, TimeUnit.SECONDS);
     }

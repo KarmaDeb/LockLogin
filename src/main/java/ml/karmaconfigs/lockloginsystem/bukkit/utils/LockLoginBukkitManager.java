@@ -261,7 +261,7 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
                 }
 
                 if (update) {
-                    PluginStatusChangeEvent update_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_START);
+                    PluginStatusChangeEvent update_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_START, null);
                     LockLoginListener.callEvent(update_start);
 
                     unload();
@@ -296,7 +296,7 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
                                 user.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
 
-                                PluginStatusChangeEvent update_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_END);
+                                PluginStatusChangeEvent update_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_END, null);
                                 LockLoginListener.callEvent(update_end);
                             }
                             second--;
@@ -339,7 +339,7 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
                 }
 
                 if (update) {
-                    PluginStatusChangeEvent update_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_START);
+                    PluginStatusChangeEvent update_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_START, null);
                     LockLoginListener.callEvent(update_start);
 
                     unload();
@@ -374,7 +374,7 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
                                 Console.send(messages.prefix() + "&7Update process finished");
                                 load_timer.cancel();
 
-                                PluginStatusChangeEvent update_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_END);
+                                PluginStatusChangeEvent update_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UPDATE_END, null);
                                 LockLoginListener.callEvent(update_end);
                             }
                             second--;
@@ -403,7 +403,7 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
      * @param user the issuer
      */
     public final void reload(@Nullable final User user) {
-        PluginStatusChangeEvent reload_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.RELOAD_START);
+        PluginStatusChangeEvent reload_start = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.RELOAD_START, null);
         LockLoginListener.callEvent(reload_start);
 
         if (user != null) {
@@ -422,18 +422,9 @@ public final class LockLoginBukkitManager implements LockLoginSpigot, SpigotFile
 
             PluginManagerBukkit s_manager = new PluginManagerBukkit();
             s_manager.setupFiles();
-
-            if (config.isMySQL()) {
-                for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                    User playerUser = new User(player);
-
-                    UserJoinEvent event = new UserJoinEvent(playerUser);
-                    LockLoginListener.callEvent(event);
-                }
-            }
         }
 
-        PluginStatusChangeEvent reload_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.RELOAD_END);
+        PluginStatusChangeEvent reload_end = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.RELOAD_END, null);
         LockLoginListener.callEvent(reload_end);
     }
 }

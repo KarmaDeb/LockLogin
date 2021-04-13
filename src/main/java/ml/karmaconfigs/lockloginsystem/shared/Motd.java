@@ -79,11 +79,7 @@ public final class Motd {
 
         String path = file.getString("OnLogin", "MESSAGES");
 
-        System.out.println("Path: " + path);
-
         List<String> messages = file.getStringList(path, "&7Welcome&e {player}&7 to&b {ServerName}", " ", "&7Hope you got a nice day!");
-        System.out.println("Found messages: " + messages);
-
         for (int i = 0; i < messages.size(); i++)
             messages.set(i, messages.get(i)
                     .replace("{player}", player)

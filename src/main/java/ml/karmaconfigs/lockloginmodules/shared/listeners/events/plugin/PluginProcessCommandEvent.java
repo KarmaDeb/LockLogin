@@ -4,48 +4,45 @@ import ml.karmaconfigs.lockloginmodules.shared.listeners.events.util.Event;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * This event is fired when a player
- * or the console types migrate command, with
- * an invalid argument, for example /locklogin migrate Hello.
- *
- * So if a module has a custom migration method, it can be
- * handled by it using this event.
+ * This event is fired when a player or server
+ * performs a LockLogin command ( $[argument] )
  */
-public final class MigrationRequestEvent extends Event {
+public final class PluginProcessCommandEvent extends Event {
 
     private boolean handled = false;
 
     private final String arg;
+    private final Object sender;
     private final String[] parameters;
-    private final Object commandSender;
+
     private final Object eventObj;
 
     /**
-     * Initialize event
+     * Initialize the event
      *
      * @param argument the command argument
-     * @param params the command parameters
      * @param sender the command sender
+     * @param arguments the command arguments
      * @param event the event in where this event is fired
      */
-    public MigrationRequestEvent(final String argument, final String[] params, final Object sender, final Object event) {
+    public PluginProcessCommandEvent(final String argument, final Object sender, final Object event, final String... arguments) {
         arg = argument;
-        parameters = params;
-        commandSender = sender;
+        this.sender = sender;
+        parameters = arguments;
         eventObj = event;
     }
 
     /**
-     * Get the command event argument
+     * Get the command argument
      *
-     * @return the argument
+     * @return the command argument
      */
     public final String getArgument() {
         return arg;
     }
 
     /**
-     * Get the command event parameters
+     * Get the command parameters
      *
      * @return the command parameters
      */
@@ -59,7 +56,7 @@ public final class MigrationRequestEvent extends Event {
      * @return the command sender
      */
     public final Object getSender() {
-        return commandSender;
+        return sender;
     }
 
     /**

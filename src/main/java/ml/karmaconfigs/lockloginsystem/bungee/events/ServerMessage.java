@@ -2,6 +2,8 @@ package ml.karmaconfigs.lockloginsystem.bungee.events;
 
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginapi.bungee.events.PlayerAuthEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.user.User;
@@ -68,6 +70,7 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                         }
 
                         plugin.getProxy().getPluginManager().callEvent(event);
+                        UserAuthEvent authEvent = new UserAuthEvent(event.getAuthType(), event.getAuthResult(), player, event.getAuthMessage(), event);
 
                         switch (event.getAuthResult()) {
                             case SUCCESS:
@@ -88,6 +91,8 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
 
                                     if (motd.isEnabled())
                                         plugin.getProxy().getScheduler().schedule(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
+
+                                    LockLoginListener.callEvent(authEvent);
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                                     dataSender.openPinGUI(player);
@@ -102,16 +107,20 @@ public final class ServerMessage implements Listener, LockLoginBungee, BungeeFil
                                     if (utils.needsRehash(config.pinEncryption())) {
                                         user.setPin(input);
                                     }
+
+                                    LockLoginListener.callEvent(authEvent);
                                 } else {
                                     logger.scheduleLog(Level.WARNING, "Someone tried to force temp log (PIN AUTH) " + player.getName() + " using event API");
                                     dataSender.openPinGUI(player);
                                 }
                                 break;
                             case FAILED:
+                                LockLoginListener.callEvent(authEvent);
                                 break;
                             case ERROR:
                             case WAITING:
                                 user.send(event.getAuthMessage());
+                                LockLoginListener.callEvent(authEvent);
                                 break;
                         }
                     }

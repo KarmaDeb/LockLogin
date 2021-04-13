@@ -68,7 +68,7 @@ public final class PlayerKick implements Listener, LockLoginSpigot, SpigotFiles 
                 player.removeMetadata("LockLoginUser", plugin);
             }
 
-            UserQuitEvent event = new UserQuitEvent(player);
+            UserQuitEvent event = new UserQuitEvent(player, this);
             LockLoginListener.callEvent(event);
         }
     }

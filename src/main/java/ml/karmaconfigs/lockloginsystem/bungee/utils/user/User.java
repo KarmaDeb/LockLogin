@@ -5,6 +5,8 @@ import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginapi.bungee.events.PlayerAuthEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserAuthEvent;
 import ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.pluginmanager.LockLoginBungeeManager;
@@ -209,35 +211,39 @@ public final class User implements LockLoginBungee, BungeeFiles {
             }
 
             plugin.getProxy().getPluginManager().callEvent(event);
+            UserAuthEvent authEvent = new UserAuthEvent(event.getAuthType(), event.getAuthResult(), player, event.getAuthMessage(), event);
 
             switch (event.getAuthResult()) {
                 case SUCCESS:
-                    send(event.getAuthMessage());
                     if (valid_password) {
-                        bf_prevention.success();
-                        setLogged(true);
-                        checkServer();
+                        send(event.getAuthMessage());
+                        if (valid_password) {
+                            bf_prevention.success();
+                            setLogged(true);
+                            checkServer();
 
-                        dataSender.sendAccountStatus(player);
-                    } else {
-                        logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
-                    }
-
-                    if (Passwords.isLegacySalt(getPassword())) {
-                        setPassword(password);
-                        send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
-                    } else {
-                        if (utils.needsRehash(config.passwordEncryption())) {
-                            setPassword(password);
+                            dataSender.sendAccountStatus(player);
+                        } else {
+                            logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                         }
+
+                        if (Passwords.isLegacySalt(getPassword())) {
+                            setPassword(password);
+                            send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
+                        } else {
+                            if (utils.needsRehash(config.passwordEncryption())) {
+                                setPassword(password);
+                            }
+                        }
+
+                        File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
+                        Motd motd = new Motd(motd_file);
+
+                        if (motd.isEnabled())
+                            plugin.getProxy().getScheduler().schedule(plugin, () -> send(motd.onLogin(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
+
+                        LockLoginListener.callEvent(authEvent);
                     }
-
-                    File motd_file = new File(plugin.getDataFolder(), "motd.locklogin");
-                    Motd motd = new Motd(motd_file);
-
-                    if (motd.isEnabled())
-                        plugin.getProxy().getScheduler().schedule(plugin, () -> send(motd.onLogin(player.getName(), config.serverName())), motd.getDelay(), TimeUnit.SECONDS);
-
                     break;
                 case SUCCESS_TEMP:
                     if (valid_password) {
@@ -259,6 +265,8 @@ public final class User implements LockLoginBungee, BungeeFiles {
                         } else {
                             dataSender.openPinGUI(player);
                         }
+
+                        LockLoginListener.callEvent(authEvent);
                     } else {
                         logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
                         send(event.getAuthMessage());
@@ -295,10 +303,13 @@ public final class User implements LockLoginBungee, BungeeFiles {
                         delTries();
                         kick("&eLockLogin\n\n" + messages.logError());
                     }
+
+                    LockLoginListener.callEvent(authEvent);
                     break;
                 case ERROR:
                 case WAITING:
                     send(event.getAuthMessage());
+                    LockLoginListener.callEvent(authEvent);
                     break;
             }
         });

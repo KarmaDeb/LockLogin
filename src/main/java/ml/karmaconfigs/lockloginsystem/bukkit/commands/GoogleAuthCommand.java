@@ -3,6 +3,8 @@ package ml.karmaconfigs.lockloginsystem.bukkit.commands;
 import ml.karmaconfigs.api.bukkit.Console;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.lockloginapi.bukkit.events.PlayerAuthEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserAuthEvent;
 import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.PasswordUtils;
@@ -90,6 +92,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                 }
 
                                 plugin.getServer().getPluginManager().callEvent(event);
+                                UserAuthEvent authEvent = new UserAuthEvent(event.getAuthType(), event.getAuthResult(), player, event.getAuthMessage(), event);
 
                                 switch (event.getAuthResult()) {
                                     case SUCCESS:
@@ -120,6 +123,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
 
                                             if (motd.isEnabled())
                                                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
+                                            LockLoginListener.callEvent(authEvent);
                                         } else {
                                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (2FA) " + player.getName() + " using event API");
                                             user.send(event.getAuthMessage());
@@ -129,6 +133,7 @@ public final class GoogleAuthCommand implements CommandExecutor, LockLoginSpigot
                                     case ERROR:
                                     case WAITING:
                                         user.send(event.getAuthMessage());
+                                        LockLoginListener.callEvent(authEvent);
                                         break;
                                 }
                             } else {

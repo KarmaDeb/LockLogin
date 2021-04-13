@@ -43,7 +43,7 @@ public final class PlayerKick implements Listener {
 
         user.setLogged(false);
 
-        UserQuitEvent event = new UserQuitEvent(e.getPlayer());
+        UserQuitEvent event = new UserQuitEvent(e.getPlayer(), this);
         LockLoginListener.callEvent(event);
     }
 }

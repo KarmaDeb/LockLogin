@@ -100,7 +100,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         registerMetrics();
         reHookPlayers();
 
-        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.LOAD);
+        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.LOAD, null);
         LockLoginListener.callEvent(event);
     }
 
@@ -117,7 +117,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         plugin.getProxy().unregisterChannel("ll:info");
         unHookPlayers();
 
-        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UNLOAD);
+        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UNLOAD, null);
         LockLoginListener.callEvent(event);
     }
 
@@ -498,7 +498,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
         }
 
         for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
-            UserHookEvent event = new UserHookEvent(player);
+            UserHookEvent event = new UserHookEvent(player, null);
             LockLoginListener.callEvent(event);
 
             if (!event.isHandled()) {
@@ -567,7 +567,7 @@ public final class PluginManagerBungee implements LockLoginBungee {
      */
     private void unHookPlayers() {
         for (ProxiedPlayer player : plugin.getProxy().getPlayers()) {
-            UserUnHookEvent event = new UserUnHookEvent(player);
+            UserUnHookEvent event = new UserUnHookEvent(player, null);
             LockLoginListener.callEvent(event);
 
             if (!event.isHandled()) {

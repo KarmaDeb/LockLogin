@@ -1,5 +1,7 @@
 package ml.karmaconfigs.lockloginsystem.bukkit.events;
 
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserPostJoinEvent;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.datafiles.Spawn;

@@ -67,7 +67,7 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
                     case "migrate":
                         if (player.hasPermission("locklogin.migrate")) {
                             if (migrating_owner == null) {
-                                MigrationRequestEvent event = new MigrationRequestEvent("locklogin", args, sender);
+                                MigrationRequestEvent event = new MigrationRequestEvent("locklogin", args, sender, null);
                                 LockLoginListener.callEvent(event);
                                 
                                 if (args.length == 1)
@@ -263,7 +263,7 @@ public class LockLoginCommand extends Command implements LockLoginBungee, Bungee
                 switch (args[0].toLowerCase()) {
                     case "migrate":
                         if (migrating_owner == null) {
-                            MigrationRequestEvent event = new MigrationRequestEvent("locklogin", args, sender);
+                            MigrationRequestEvent event = new MigrationRequestEvent("locklogin", args, sender, null);
                             LockLoginListener.callEvent(event);
                             
                             if (args.length == 1)

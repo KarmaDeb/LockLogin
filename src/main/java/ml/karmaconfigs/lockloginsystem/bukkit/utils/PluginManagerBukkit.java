@@ -125,7 +125,7 @@ public final class PluginManagerBukkit implements LockLoginSpigot {
         Logger coreLogger = (Logger) LogManager.getRootLogger();
         coreLogger.addFilter(new ConsoleFilter());
 
-        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.LOAD);
+        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.LOAD, null);
         LockLoginListener.callEvent(event);
     }
 
@@ -145,7 +145,7 @@ public final class PluginManagerBukkit implements LockLoginSpigot {
         }
         PinInventory.clearVerifiedList();
 
-        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UNLOAD);
+        PluginStatusChangeEvent event = new PluginStatusChangeEvent(PluginStatusChangeEvent.Status.UNLOAD, null);
         LockLoginListener.callEvent(event);
     }
 
@@ -516,7 +516,7 @@ public final class PluginManagerBukkit implements LockLoginSpigot {
         MessageGetter messages = new MessageGetter();
 
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            UserHookEvent event = new UserHookEvent(player);
+            UserHookEvent event = new UserHookEvent(player, null);
             LockLoginListener.callEvent(event);
 
             if (!event.isHandled()) {
@@ -597,7 +597,7 @@ public final class PluginManagerBukkit implements LockLoginSpigot {
      */
     private void unsetPlayers() {
         for (Player player : plugin.getServer().getOnlinePlayers()) {
-            UserUnHookEvent event = new UserUnHookEvent(player);
+            UserUnHookEvent event = new UserUnHookEvent(player, null);
             LockLoginListener.callEvent(event);
 
             if (!event.isHandled()) {

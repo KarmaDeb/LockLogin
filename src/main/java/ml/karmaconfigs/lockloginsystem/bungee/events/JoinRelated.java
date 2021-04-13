@@ -4,6 +4,8 @@ import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.PluginModuleLoader;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserJoinEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserPostJoinEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserPreJoinEvent;
 import ml.karmaconfigs.lockloginsystem.bungee.LockLoginBungee;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.datafiles.IPStorager;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.BungeeFiles;
@@ -18,10 +20,7 @@ import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
-import net.md_5.bungee.api.event.LoginEvent;
-import net.md_5.bungee.api.event.PostLoginEvent;
-import net.md_5.bungee.api.event.ServerConnectEvent;
-import net.md_5.bungee.api.event.ServerSwitchEvent;
+import net.md_5.bungee.api.event.*;
 import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
@@ -45,6 +44,28 @@ import java.util.concurrent.TimeUnit;
  * the version number 2.1.]
  */
 public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles {
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onPreLogin(PreLoginEvent e) {
+        InetAddress ip = User.external.getIp(e.getConnection().getSocketAddress());
+
+        if (ip != null) {
+            UserPreJoinEvent event = new UserPreJoinEvent(ip, e.getConnection().getUniqueId(), e.getConnection().getName(), e);
+            LockLoginListener.callEvent(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onLogin(LoginEvent e) {
+        UserJoinEvent event = new UserJoinEvent(plugin.getProxy().getPlayer(e.getConnection().getUniqueId()), e);
+        LockLoginListener.callEvent(event);
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onPostLogin(PostLoginEvent e) {
+        UserPostJoinEvent event = new UserPostJoinEvent(e.getPlayer(), e);
+        LockLoginListener.callEvent(event);
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onPreJoin(LoginEvent e) {
@@ -147,9 +168,6 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
     public final void onJoin(ServerConnectEvent e) {
         ProxiedPlayer player = e.getPlayer();
         User user = new User(player);
-
-        UserJoinEvent event = new UserJoinEvent(player);
-        LockLoginListener.callEvent(event);
 
         if (user.isLogged()) {
             if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {

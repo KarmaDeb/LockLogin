@@ -7,6 +7,8 @@ import ml.karmaconfigs.api.bukkit.reflections.TitleMessage;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginapi.bukkit.events.PlayerAuthEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserAuthEvent;
 import ml.karmaconfigs.lockloginsystem.shared.*;
 import ml.karmaconfigs.lockloginsystem.shared.account.AccountID;
 import ml.karmaconfigs.lockloginsystem.shared.account.AccountManager;
@@ -287,6 +289,7 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
             plugin.getServer().getScheduler().runTask(plugin, () -> {
                 plugin.getServer().getPluginManager().callEvent(event);
+                UserAuthEvent authEvent = new UserAuthEvent(event.getAuthType(), event.getAuthResult(), player, event.getAuthMessage(), event);
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
@@ -327,6 +330,8 @@ public final class User implements LockLoginSpigot, SpigotFiles {
 
                                 if (motd.isEnabled())
                                     plugin.getServer().getScheduler().runTaskLater(plugin, () -> send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
+
+                                LockLoginListener.callEvent(authEvent);
                             } else {
                                 logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
                             }
@@ -334,67 +339,74 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                         break;
                     case SUCCESS_TEMP:
                         plugin.getServer().getScheduler().runTaskAsynchronously(plugin, () -> {
-                            setLogged(true);
-                            if (Passwords.isLegacySalt(getPassword())) {
-                                setPassword(password);
-                                send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
-                            } else {
-                                if (utils.needsRehash(config.passwordEncryption())) {
+                            if (utils.validate()) {
+                                setLogged(true);
+                                if (Passwords.isLegacySalt(getPassword())) {
                                     setPassword(password);
+                                    send(messages.prefix() + "&cYour account password was using legacy encryption and has been updated");
+                                } else {
+                                    if (utils.needsRehash(config.passwordEncryption())) {
+                                        setPassword(password);
+                                    }
                                 }
-                            }
 
-                            if (hasPin()) {
-                                PinInventory inventory = new PinInventory(player);
-                                inventory.open();
-
-                                setTempLog(true);
-                            } else {
-                                if (has2FA()) {
-                                    send(event.getAuthMessage());
+                                if (hasPin()) {
+                                    PinInventory inventory = new PinInventory(player);
+                                    inventory.open();
 
                                     setTempLog(true);
                                 } else {
-                                    logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
+                                    if (has2FA()) {
+                                        send(event.getAuthMessage());
 
-                                    send(event.getAuthMessage());
-                                    InetSocketAddress ip = player.getAddress();
+                                        setTempLog(true);
+                                    } else {
+                                        logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
 
-                                    if (ip != null) {
-                                        BFSystem bf_prevention = new BFSystem(ip.getAddress());
-                                        if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
-                                            bf_prevention.block();
-                                            bf_prevention.updateTime(config.bfBlockTime());
+                                        send(event.getAuthMessage());
+                                        InetSocketAddress ip = player.getAddress();
 
-                                            Timer unban = new Timer();
-                                            unban.schedule(new TimerTask() {
-                                                final BFSystem saved_system = bf_prevention;
-                                                int back = config.bfBlockTime();
+                                        if (ip != null) {
+                                            BFSystem bf_prevention = new BFSystem(ip.getAddress());
+                                            if (bf_prevention.getTries() >= config.bfMaxTries() && config.bfMaxTries() > 0) {
+                                                bf_prevention.block();
+                                                bf_prevention.updateTime(config.bfBlockTime());
 
-                                                @Override
-                                                public void run() {
-                                                    if (back == 0) {
-                                                        saved_system.unlock();
-                                                        cancel();
+                                                Timer unban = new Timer();
+                                                unban.schedule(new TimerTask() {
+                                                    final BFSystem saved_system = bf_prevention;
+                                                    int back = config.bfBlockTime();
+
+                                                    @Override
+                                                    public void run() {
+                                                        if (back == 0) {
+                                                            saved_system.unlock();
+                                                            cancel();
+                                                        }
+                                                        saved_system.updateTime(back);
+                                                        back--;
                                                     }
-                                                    saved_system.updateTime(back);
-                                                    back--;
-                                                }
-                                            }, 0, TimeUnit.SECONDS.toMillis(1));
+                                                }, 0, TimeUnit.SECONDS.toMillis(1));
 
-                                            kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
-                                        } else {
-                                            if (!hasTries()) {
-                                                delTries();
-                                                bf_prevention.fail();
-                                                plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.logError()));
-                                                return;
+                                                kick("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()));
+                                            } else {
+                                                if (!hasTries()) {
+                                                    delTries();
+                                                    bf_prevention.fail();
+                                                    plugin.getServer().getScheduler().runTask(plugin, () -> kick("&eLockLogin\n\n" + messages.logError()));
+                                                    return;
+                                                }
+                                                restTries();
+                                                send(event.getAuthMessage());
                                             }
-                                            restTries();
-                                            send(event.getAuthMessage());
                                         }
                                     }
                                 }
+
+                                LockLoginListener.callEvent(authEvent);
+                            } else {
+                                logger.scheduleLog(Level.WARNING, "Someone tried to force temp log " + player.getName() + " using event API");
+                                send(event.getAuthMessage());
                             }
                         });
                         break;
@@ -438,10 +450,12 @@ public final class User implements LockLoginSpigot, SpigotFiles {
                             }
                         });
 
+                        LockLoginListener.callEvent(authEvent);
                         break;
                     case ERROR:
                     case WAITING:
                         send(event.getAuthMessage());
+                        LockLoginListener.callEvent(authEvent);
                         break;
                 }
             });

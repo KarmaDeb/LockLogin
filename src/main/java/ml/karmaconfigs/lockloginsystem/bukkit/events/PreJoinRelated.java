@@ -4,6 +4,8 @@ import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserJoinEvent;
 import ml.karmaconfigs.lockloginmodules.bukkit.ModuleUtil;
 import ml.karmaconfigs.lockloginmodules.bukkit.PluginModuleLoader;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserPostJoinEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserPreJoinEvent;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot;
@@ -14,7 +16,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
+
+import java.net.InetAddress;
 
 /**
  * GNU LESSER GENERAL PUBLIC LICENSE
@@ -31,6 +37,32 @@ import org.bukkit.event.player.PlayerLoginEvent;
  */
 public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
 
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onPreLogin(AsyncPlayerPreLoginEvent e) {
+        if (!config.isBungeeCord()) {
+            InetAddress ip = e.getAddress();
+
+            UserPreJoinEvent event = new UserPreJoinEvent(ip, e.getUniqueId(), e.getName(), e);
+            LockLoginListener.callEvent(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onPostLogin(PlayerJoinEvent e) {
+        if (!config.isBungeeCord()) {
+            UserPostJoinEvent event = new UserPostJoinEvent(e.getPlayer(), e);
+            LockLoginListener.callEvent(event);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOWEST)
+    public final void onConnect(PlayerLoginEvent e) {
+        if (!config.isBungeeCord()) {
+            UserJoinEvent event = new UserJoinEvent(e.getPlayer(), e);
+            LockLoginListener.callEvent(event);
+        }
+    }
+    
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onLogin(PlayerLoginEvent e) {
         if (!config.isBungeeCord()) {
@@ -81,9 +113,6 @@ public class PreJoinRelated implements Listener, LockLoginSpigot, SpigotFiles {
                             }
                         }
                     }
-
-                    UserJoinEvent event = new UserJoinEvent(player);
-                    LockLoginListener.callEvent(event);
                 });
             }
         }

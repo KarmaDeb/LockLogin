@@ -3,6 +3,8 @@ package ml.karmaconfigs.lockloginsystem.bukkit.utils.inventory;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginapi.bukkit.events.PlayerAuthEvent;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.user.UserAuthEvent;
 import ml.karmaconfigs.lockloginsystem.shared.AuthType;
 import ml.karmaconfigs.lockloginsystem.shared.EventAuthResult;
 import ml.karmaconfigs.lockloginsystem.shared.Motd;
@@ -130,6 +132,7 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                 }
 
                 plugin.getServer().getPluginManager().callEvent(event);
+                UserAuthEvent authEvent = new UserAuthEvent(event.getAuthType(), event.getAuthResult(), player, event.getAuthMessage(), event);
 
                 switch (event.getAuthResult()) {
                     case SUCCESS:
@@ -159,6 +162,8 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                             if (motd.isEnabled())
                                 plugin.getServer().getScheduler().runTaskLater(plugin, () -> user.send(motd.onLogin(player.getName(), config.serverName())), 20L * motd.getDelay());
+
+                            LockLoginListener.callEvent(authEvent);
                         } else {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force log (PIN AUTH) " + player.getName() + " using event API");
                         }
@@ -181,6 +186,8 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
 
                                 user.setTempLog(false);
                             }
+
+                            LockLoginListener.callEvent(authEvent);
                         } else {
                             logger.scheduleLog(Level.WARNING, "Someone tried to force temp log (PIN AUTH) " + player.getName() + " using event API");
                         }
@@ -188,10 +195,12 @@ public final class PinInventory implements LockLoginSpigot, SpigotFiles {
                         user.send(event.getAuthMessage());
                         break;
                     case FAILED:
+                        LockLoginListener.callEvent(authEvent);
                         break;
                     case ERROR:
                     case WAITING:
                         user.send(event.getAuthMessage());
+                        LockLoginListener.callEvent(authEvent);
                         break;
                 }
             } else {

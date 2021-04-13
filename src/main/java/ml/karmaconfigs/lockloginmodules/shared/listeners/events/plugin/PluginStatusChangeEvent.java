@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginmodules.shared.listeners.events.plugin;
 
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.util.Event;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This event is fired when the plugin
@@ -13,13 +14,17 @@ public final class PluginStatusChangeEvent extends Event {
     private boolean handled = false;
     private final Status status;
 
+    private final Object eventObj;
+
     /**
      * Initialize the event
      *
      * @param _status the plugin status
+     * @param event the event in where this event is fired
      */
-    public PluginStatusChangeEvent(final Status _status) {
+    public PluginStatusChangeEvent(final Status _status, final Object event) {
         status = _status;
+        eventObj = event;
     }
 
     /**
@@ -40,6 +45,16 @@ public final class PluginStatusChangeEvent extends Event {
     @Override
     public boolean isHandled() {
         return handled;
+    }
+
+    /**
+     * Get the event instance
+     *
+     * @return the event instance
+     */
+    @Override
+    public @Nullable Object getEvent() {
+        return null;
     }
 
     /**

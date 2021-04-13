@@ -70,7 +70,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                     case "migrate":
                         if (player.hasPermission(migratePermission)) {
                             if (migrating_owner == null) {
-                                MigrationRequestEvent event = new MigrationRequestEvent(arg, args, sender);
+                                MigrationRequestEvent event = new MigrationRequestEvent(arg, args, sender, null);
                                 LockLoginListener.callEvent(event);
 
                                 if (args.length == 1)
@@ -276,7 +276,7 @@ public final class LockLoginCommand implements CommandExecutor, LockLoginSpigot,
                 switch (args[0].toLowerCase()) {
                     case "migrate":
                         if (migrating_owner == null) {
-                            MigrationRequestEvent event = new MigrationRequestEvent(arg, args, sender);
+                            MigrationRequestEvent event = new MigrationRequestEvent(arg, args, sender, null);
                             LockLoginListener.callEvent(event);
 
                             if (args.length == 1) {

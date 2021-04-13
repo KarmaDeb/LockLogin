@@ -1,30 +1,39 @@
 package ml.karmaconfigs.lockloginmodules.shared.listeners.events.user;
 
+
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.util.Event;
 
 /**
- * This event is fired when a user quits
- * the server at the eyes of the plugin.
- *
- * This means, this event will be fire when
- * a player quits the server, or it's kicked...
+ * This event is fired when a player joins
+ * the server at the eyes of the plugin. In
+ * bukkit, this event is fired with {@link org.bukkit.event.player.PlayerJoinEvent},
+ * and with {@link net.md_5.bungee.api.event.PostLoginEvent} in BungeeCord
  */
-public final class UserQuitEvent extends Event {
-
-    private boolean handled = false;
+public final class UserPostJoinEvent extends Event {
 
     private final Object player;
     private final Object eventObj;
 
+    private boolean handled = false;
+
     /**
-     * Initialize the event
+     * Initialize event
      *
-     * @param playerObject the player object
+     * @param player the player
      * @param event the event in where this event is fired
      */
-    public UserQuitEvent(final Object playerObject, final Object event) {
-        player = playerObject;
+    public UserPostJoinEvent(final Object player, final Object event) {
+        this.player = player;
         eventObj = event;
+    }
+
+    /**
+     * Get the event player
+     *
+     * @return the event player
+     */
+    public final Object getPlayer() {
+        return player;
     }
 
     /**
@@ -34,7 +43,7 @@ public final class UserQuitEvent extends Event {
      */
     @Override
     public void setHandled(boolean status) {
-        handled = true;
+        handled = status;
     }
 
     /**
@@ -48,15 +57,6 @@ public final class UserQuitEvent extends Event {
     }
 
     /**
-     * Get the player
-     *
-     * @return the player
-     */
-    public final Object getPlayer() {
-        return player;
-    }
-
-    /**
      * Get the event instance
      *
      * @return the event instance
@@ -66,3 +66,5 @@ public final class UserQuitEvent extends Event {
         return eventObj;
     }
 }
+
+

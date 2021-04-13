@@ -4,6 +4,10 @@ import ml.karmaconfigs.api.bukkit.Console;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginapi.bukkit.events.PlayerBlockMoveEvent;
+import ml.karmaconfigs.lockloginmodules.shared.commands.LockLoginCommand;
+import ml.karmaconfigs.lockloginmodules.shared.commands.help.HelpPage;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
+import ml.karmaconfigs.lockloginmodules.shared.listeners.events.plugin.PluginProcessCommandEvent;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
@@ -35,6 +39,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryInteractEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.server.RemoteServerCommandEvent;
+import org.bukkit.event.server.ServerCommandEvent;
 import org.bukkit.event.server.ServerListPingEvent;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.metadata.FixedMetadataValue;
@@ -535,24 +541,94 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
         if (!config.isBungeeCord()) {
             User user = new User(player);
+            String msg = e.getMessage();
 
-            if (!user.isLogged() || user.isTempLog()) {
-                e.setCancelled(true);
-                if (!user.isLogged()) {
-                    if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
-                        if (user.isRegistered()) {
-                            user.send(messages.prefix() + messages.login(user.getCaptcha()));
-                        } else {
-                            user.send(messages.prefix() + messages.register(user.getCaptcha()));
+            if (msg.startsWith("$")) {
+                boolean allow;
+                if (!user.isLogged() || user.isTempLog())
+                    allow = AllowedCommands.external.isAllowed(msg.replaceFirst("\\$", ""));
+                else
+                    allow = true;
+
+                if (allow) {
+                    if (msg.contains(" ")) {
+                        String[] split = msg.split(" ");
+                        String first_arg = split[0];
+
+                        msg = msg.replace(first_arg + " ", "");
+                        split = msg.split(" ");
+
+                        PluginProcessCommandEvent event = new PluginProcessCommandEvent(first_arg, player, split);
+                        LockLoginListener.callEvent(event);
+
+                        if (!event.isHandled()) {
+                            if (!first_arg.toLowerCase().startsWith("$help")) {
+                                if (LockLoginCommand.isValid(first_arg))
+                                    LockLoginCommand.fireCommand(first_arg, player, split);
+                                else
+                                    user.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                            } else {
+                                int page = 0;
+
+                                try {
+                                    page = Integer.parseInt(split[0]);
+                                } catch (Throwable ignored) {
+                                }
+                                if (page > HelpPage.getPages())
+                                    page = HelpPage.getPages();
+
+                                HelpPage help = new HelpPage(page);
+                                help.scan();
+
+                                user.send("&e-------- LockLogin modules help " + page + "/" + HelpPage.getPages() + " --------");
+                                for (String cmd : help.getHelp())
+                                    user.send(cmd);
+                            }
                         }
                     } else {
-                        user.send(messages.prefix() + messages.typeCaptcha());
+                        PluginProcessCommandEvent event = new PluginProcessCommandEvent(msg, player, this);
+                        LockLoginListener.callEvent(event);
+
+                        if (!event.isHandled()) {
+                            if (!msg.toLowerCase().startsWith("$help")) {
+                                if (LockLoginCommand.isValid(msg))
+                                    LockLoginCommand.fireCommand(msg, player);
+                                else
+                                    user.send(messages.prefix() + "&cUnknown module command: &7" + msg);
+                            } else {
+                                HelpPage help = new HelpPage(0);
+                                help.scan();
+
+                                user.send("&e-------- LockLogin modules help 0/" + HelpPage.getPages() + " --------");
+                                for (String cmd : help.getHelp())
+                                    user.send(cmd);
+                            }
+                        }
                     }
-                }
-                if (user.isTempLog()) {
+
                     e.setCancelled(true);
-                    if (user.has2FA()) {
-                        user.send(messages.prefix() + messages.gAuthAuthenticate());
+                }
+            }
+
+            if (!e.isCancelled()) {
+                if (!user.isLogged() || user.isTempLog()) {
+                    e.setCancelled(true);
+                    if (!user.isLogged()) {
+                        if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
+                            if (user.isRegistered()) {
+                                user.send(messages.prefix() + messages.login(user.getCaptcha()));
+                            } else {
+                                user.send(messages.prefix() + messages.register(user.getCaptcha()));
+                            }
+                        } else {
+                            user.send(messages.prefix() + messages.typeCaptcha());
+                        }
+                    }
+                    if (user.isTempLog()) {
+                        e.setCancelled(true);
+                        if (user.has2FA()) {
+                            user.send(messages.prefix() + messages.gAuthAuthenticate());
+                        }
                     }
                 }
             }
@@ -572,6 +648,140 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
             if (!verifier.isVerified()) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public final void onConsoleCommand(ServerCommandEvent e) {
+        if (!config.isBungeeCord()) {
+            String msg = e.getCommand();
+
+            if (msg.startsWith("$")) {
+                if (msg.contains(" ")) {
+                    String[] split = msg.split(" ");
+                    String first_arg = split[0];
+
+                    msg = msg.replace(first_arg + " ", "");
+                    split = msg.split(" ");
+
+                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(first_arg, e.getSender(), split);
+                    LockLoginListener.callEvent(event);
+
+                    if (!event.isHandled()) {
+                        if (!first_arg.toLowerCase().startsWith("$help")) {
+                            if (LockLoginCommand.isValid(first_arg))
+                                LockLoginCommand.fireCommand(first_arg, e.getSender(), split);
+                            else
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                        } else {
+                            int page = 0;
+
+                            try {
+                                page = Integer.parseInt(split[0]);
+                            } catch (Throwable ignored) {
+                            }
+                            if (page > HelpPage.getPages())
+                                page = HelpPage.getPages();
+
+                            HelpPage help = new HelpPage(page);
+                            help.scan();
+
+                            Console.send("&e-------- LockLogin modules help " + page + "/" + HelpPage.getPages() + " --------");
+                            for (String cmd : help.getHelp())
+                                Console.send(cmd);
+                        }
+                    }
+                } else {
+                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(msg, e.getSender(), this);
+                    LockLoginListener.callEvent(event);
+
+                    if (!event.isHandled()) {
+                        if (!msg.toLowerCase().startsWith("$help")) {
+                            if (LockLoginCommand.isValid(msg))
+                                LockLoginCommand.fireCommand(msg, e.getSender());
+                            else
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                        } else {
+                            HelpPage help = new HelpPage(0);
+                            help.scan();
+
+                            Console.send("&e-------- LockLogin modules help 0/" + HelpPage.getPages() + " --------");
+                            for (String cmd : help.getHelp())
+                                Console.send(cmd);
+                        }
+                    }
+                }
+
+                e.setCancelled(true);
+            }
+        } else {
+            Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public final void onConsoleCommand(RemoteServerCommandEvent e) {
+        if (!config.isBungeeCord()) {
+            String msg = e.getCommand();
+
+            if (msg.startsWith("$")) {
+                if (msg.contains(" ")) {
+                    String[] split = msg.split(" ");
+                    String first_arg = split[0];
+
+                    msg = msg.replace(first_arg + " ", "");
+                    split = msg.split(" ");
+
+                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(first_arg, e.getSender(), split);
+                    LockLoginListener.callEvent(event);
+
+                    if (!first_arg.toLowerCase().startsWith("$help")) {
+                        if (LockLoginCommand.isValid(first_arg))
+                            LockLoginCommand.fireCommand(first_arg, e.getSender(), split);
+                        else
+                            Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                    } else {
+                        int page = 0;
+
+                        try {
+                            page = Integer.parseInt(split[0]);
+                        } catch (Throwable ignored) {
+                        }
+                        if (page > HelpPage.getPages())
+                            page = HelpPage.getPages();
+
+                        HelpPage help = new HelpPage(page);
+                        help.scan();
+
+                        Console.send("&e-------- LockLogin modules help " + page + "/" + HelpPage.getPages() + " --------");
+                        for (String cmd : help.getHelp())
+                            Console.send(cmd);
+                    }
+                } else {
+                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(msg, e.getSender(), this);
+                    LockLoginListener.callEvent(event);
+
+                    if (!event.isHandled()) {
+                        if (!msg.toLowerCase().startsWith("$help")) {
+                            if (LockLoginCommand.isValid(msg))
+                                LockLoginCommand.fireCommand(msg, e.getSender());
+                            else
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                        } else {
+                            HelpPage help = new HelpPage(0);
+                            help.scan();
+
+                            Console.send("&e-------- LockLogin modules help 0/" + HelpPage.getPages() + " --------");
+                            for (String cmd : help.getHelp())
+                                Console.send(cmd);
+                        }
+                    }
+                }
+
+                e.setCancelled(true);
+            }
+        } else {
+            Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
         }
     }
 

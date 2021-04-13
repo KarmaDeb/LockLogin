@@ -18,7 +18,7 @@ import java.util.HashSet;
  */
 public final class BungeeModuleReader {
 
-    private final HashMap<String, HashSet<BungeeModule>> modules = new HashMap<>();
+    private final static HashMap<String, HashSet<BungeeModule>> modules = new HashMap<>();
 
     private final String data;
 
@@ -32,6 +32,7 @@ public final class BungeeModuleReader {
     }
 
     public final void parse() {
+        modules.clear();
         if (data.contains(";")) {
             String[] full_data = data.split(";");
 

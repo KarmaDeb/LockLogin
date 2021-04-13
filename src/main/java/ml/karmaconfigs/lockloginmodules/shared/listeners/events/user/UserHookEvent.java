@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginmodules.shared.listeners.events.user;
 
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.util.Event;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * This event is fire when a player is hook
@@ -14,14 +15,17 @@ public final  class UserHookEvent extends Event {
     private boolean handled = false;
 
     private final Object player;
+    private final Object eventObj;
 
     /**
      * Initialize the event
      *
      * @param playerObject the player object
+     * @param event the event in where this event is fired
      */
-    public UserHookEvent(final Object playerObject) {
+    public UserHookEvent(final Object playerObject, final Object event) {
         player = playerObject;
+        eventObj = event;
     }
 
     /**
@@ -51,5 +55,15 @@ public final  class UserHookEvent extends Event {
      */
     public final Object getPlayer() {
         return player;
+    }
+
+    /**
+     * Get the event instance
+     *
+     * @return the event instance
+     */
+    @Override
+    public @Nullable Object getEvent() {
+        return eventObj;
     }
 }
