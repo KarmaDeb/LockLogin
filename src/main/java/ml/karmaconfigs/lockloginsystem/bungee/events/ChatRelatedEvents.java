@@ -1,6 +1,5 @@
 package ml.karmaconfigs.lockloginsystem.bungee.events;
 
-import ml.karmaconfigs.api.bungee.Console;
 import ml.karmaconfigs.lockloginmodules.shared.commands.LockLoginCommand;
 import ml.karmaconfigs.lockloginmodules.shared.commands.help.HelpPage;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
@@ -11,6 +10,7 @@ import ml.karmaconfigs.lockloginsystem.bungee.utils.datafiles.AllowedCommands;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.files.BungeeFiles;
 import ml.karmaconfigs.lockloginsystem.bungee.utils.user.User;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
+import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.event.ChatEvent;
 import net.md_5.bungee.api.plugin.Listener;
@@ -85,6 +85,7 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
             User user = new User(player);
 
             String cmd = getCommand(e.getMessage());
+            boolean allowCommand = true;
 
             if (e.getMessage().startsWith("/")) {
                 if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
@@ -94,12 +95,16 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                                 e.setCancelled(true);
                                 user.send(messages.prefix() + messages.register(user.getCaptcha()));
                             }
+
+                            allowCommand = false;
                         } else {
                             if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
                                 if (!cmd.equals("login") && !cmd.equals("l")) {
                                     e.setCancelled(true);
                                     user.send(messages.prefix() + messages.login(user.getCaptcha()));
                                 }
+
+                                allowCommand = false;
                             }
                         }
                     } else {
@@ -113,6 +118,8 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                                     user.send(messages.prefix() + messages.gAuthenticate());
                                 }
                             }
+
+                            allowCommand = false;
                         }
                     }
                 } else {
@@ -120,12 +127,18 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                         user.send(messages.prefix() + messages.typeCaptcha());
                         e.setCancelled(true);
                     }
+
+                    allowCommand = false;
                 }
-            } else {
-                if (cmd.startsWith("$")) {
+            }
+
+            cmd = e.getMessage();
+
+            if (allowCommand) {
+                if (cmd.startsWith(PlatformUtils.modulePrefix())) {
                     boolean allow;
                     if (!user.isLogged() || user.isTempLog())
-                        allow = AllowedCommands.external.isAllowed(cmd.replaceFirst("\\$", ""));
+                        allow = AllowedCommands.external.isAllowed(cmd.substring(1));
                     else
                         allow = true;
 
@@ -141,11 +154,17 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                             LockLoginListener.callEvent(event);
 
                             if (!event.isHandled()) {
-                                if (!cmd.toLowerCase().startsWith("$help")) {
+                                if (!cmd.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                                     if (LockLoginCommand.isValid(first_arg))
                                         LockLoginCommand.fireCommand(first_arg, player, split);
-                                    else
-                                        user.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type $help for help");
+                                    else {
+                                        if (PlatformUtils.modulePrefix().equals("/")) {
+                                            e.setCancelled(false);
+                                            return;
+                                        } else {
+                                            user.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
+                                        }
+                                    }
                                 } else {
                                     int page = 0;
 
@@ -169,11 +188,17 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                             LockLoginListener.callEvent(event);
 
                             if (!event.isHandled()) {
-                                if (!cmd.toLowerCase().startsWith("$help")) {
+                                if (!cmd.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                                     if (LockLoginCommand.isValid(cmd))
                                         LockLoginCommand.fireCommand(cmd, player);
-                                    else
-                                        user.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type $help for help");
+                                    else {
+                                        if (PlatformUtils.modulePrefix().equals("/")) {
+                                            e.setCancelled(false);
+                                            return;
+                                        } else {
+                                            user.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
+                                        }
+                                    }
                                 } else {
                                     HelpPage help = new HelpPage(0);
                                     help.scan();
@@ -210,67 +235,6 @@ public final class ChatRelatedEvents implements Listener, LockLoginBungee, Bunge
                         user.send(messages.prefix() + messages.typeCaptcha());
                     }
                 }
-            }
-        } else {
-            String cmd = e.getMessage();
-
-            if (cmd.startsWith("$")) {
-                if (cmd.contains(" ")) {
-                    String[] split = cmd.split(" ");
-                    String first_arg = split[0];
-
-                    cmd = cmd.replace(first_arg + " ", "");
-                    split = cmd.split(" ");
-
-                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(first_arg, e.getSender(), split);
-                    LockLoginListener.callEvent(event);
-
-                    if (!event.isHandled()) {
-                        if (!first_arg.toLowerCase().startsWith("$help")) {
-                            if (LockLoginCommand.isValid(first_arg))
-                                LockLoginCommand.fireCommand(first_arg, e.getSender(), split);
-                            else
-                                Console.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type $help for help");
-                        } else {
-                            int page = 0;
-
-                            try {
-                                page = Integer.parseInt(split[0]);
-                            } catch (Throwable ignored) {
-                            }
-                            if (page > HelpPage.getPages())
-                                page = HelpPage.getPages();
-
-                            HelpPage help = new HelpPage(page);
-                            help.scan();
-
-                            Console.send("&e-------- LockLogin modules help " + page + "/" + HelpPage.getPages() + " --------");
-                            for (String msg : help.getHelp())
-                                Console.send(msg);
-                        }
-                    }
-                } else {
-                    PluginProcessCommandEvent event = new PluginProcessCommandEvent(cmd, e.getSender(), this);
-                    LockLoginListener.callEvent(event);
-
-                    if (!event.isHandled()) {
-                        if (!cmd.toLowerCase().startsWith("$help")) {
-                            if (LockLoginCommand.isValid(cmd))
-                                LockLoginCommand.fireCommand(cmd, e.getSender());
-                            else
-                                Console.send(messages.prefix() + "&cUnknown module command: &7" + cmd + "&c, type $help for help");
-                        } else {
-                            HelpPage help = new HelpPage(0);
-                            help.scan();
-
-                            Console.send("&e-------- LockLogin modules help 0/" + HelpPage.getPages() + " --------");
-                            for (String msg : help.getHelp())
-                                Console.send(msg);
-                        }
-                    }
-                }
-
-                e.setCancelled(true);
             }
         }
     }

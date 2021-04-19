@@ -86,4 +86,8 @@ public final class SpigotExecutorService {
     public final CryptType getPinType() {
         return SpigotFiles.config.pinEncryption();
     }
+
+    public final String getCommandPrefix() {
+        return SpigotFiles.config.getCommandPrefix();
+    }
 }

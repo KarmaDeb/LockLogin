@@ -71,6 +71,10 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
 
                 if (!last_plugin.equals(plugin)) {
                     page.setItem(item_index, blackPane());
+                    item_index++;
+
+                    System.out.println("Switched owner ( from / to ): " + last_plugin + " / " + plugin);
+
                     last_plugin = plugin;
                 }
 
@@ -104,7 +108,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
-                    page.addItem(item);
+                    page.setItem(item_index, item);
 
                     item_index++;
                     if (item_index > page.getSize())
@@ -157,7 +161,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
-                    page.addItem(item);
+                    page.setItem(module_index, item);
 
                     item_index++;
                     module_index++;
@@ -183,12 +187,14 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
                 if (last_plugin.replaceAll("\\s", "").isEmpty()) {
                     last_plugin = plugin;
                     page.setItem(item_index, blackPane());
+                    item_index++;
                 }
 
                 if (!last_plugin.equals(plugin)) {
                     last_plugin = plugin;
                     item_index++;
                     page.setItem(item_index, blackPane());
+                    module_index++;
                     new_plugin = true;
                 }
 
@@ -232,7 +238,7 @@ public final class ModuleListInventory implements InventoryHolder, LockLoginSpig
 
                     meta.setLore(lore);
                     item.setItemMeta(meta);
-                    page.addItem(item);
+                    page.setItem(item_index, item);
 
                     item_index++;
                     if (item_index > page.getSize())

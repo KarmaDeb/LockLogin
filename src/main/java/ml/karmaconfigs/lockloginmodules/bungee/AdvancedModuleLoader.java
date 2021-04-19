@@ -74,9 +74,9 @@ public final class AdvancedModuleLoader {
 
                         AdvancedModule module = moduleLoader.getDeclaredConstructor().newInstance();
 
-                        if (!manager.isLoaded(module)) {
+                        if (!modules.containsKey(jar_module)) {
                             modules.put(jar_module, module);
-                            
+
                             module.onEnable();
 
                             Console.send(LockLoginBungee.plugin, "Loading module {0} [ {1} ] by {2}", Level.INFO,
@@ -222,6 +222,7 @@ public final class AdvancedModuleLoader {
 
             for (File moduleJar : modules.keySet()) {
                 AdvancedModule module = modules.getOrDefault(moduleJar, null);
+
                 if (module != null) {
                     String name = module.name();
                     String author = module.author();

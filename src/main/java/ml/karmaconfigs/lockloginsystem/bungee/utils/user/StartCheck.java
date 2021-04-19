@@ -7,6 +7,9 @@ import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
 import net.md_5.bungee.api.scheduler.ScheduledTask;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -25,6 +28,9 @@ import java.util.concurrent.TimeUnit;
 public final class StartCheck implements LockLoginBungee, BungeeFiles {
 
     private final BungeeSender dataSender = new BungeeSender();
+
+    private final Set<UUID> inCheck = new HashSet<>();
+
     private ScheduledTask task;
     private ScheduledTask msTask;
     private int back;
@@ -36,12 +42,13 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
      * @param type the check type
      */
     public StartCheck(ProxiedPlayer p, CheckType type) {
-        startSendingMessage(p, type);
-        switch (type) {
-            case REGISTER:
-                back = config.registerTimeOut();
-                task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                    if (p != null) {
+        if (p != null && !inCheck.contains(p.getUniqueId())) {
+            inCheck.add(p.getUniqueId());
+            startSendingMessage(p, type);
+            switch (type) {
+                case REGISTER:
+                    back = config.registerTimeOut();
+                    task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
                         if (p.isConnected()) {
                             dataSender.sendUUID(p.getUniqueId(), p.getServer());
                             User user = new User(p);
@@ -56,25 +63,23 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                     dataSender.blindEffect(p, false, config.nauseaRegister());
                                     user.kick("&eLockLogin\n\n" + messages.registerTimeOut());
                                     task.cancel();
+                                    inCheck.remove(p.getUniqueId());
                                 }
                             } else {
                                 task.cancel();
                                 dataSender.blindEffect(p, false, config.nauseaRegister());
                                 user.sendTitle("&a", "&b");
+                                inCheck.remove(p.getUniqueId());
                             }
                             back--;
                         } else {
                             task.cancel();
                         }
-                    } else {
-                        task.cancel();
-                    }
-                }, 0, 1, TimeUnit.SECONDS);
-                break;
-            case LOGIN:
-                back = config.loginTimeOut();
-                task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                    if (p != null) {
+                    }, 0, 1, TimeUnit.SECONDS);
+                    break;
+                case LOGIN:
+                    back = config.loginTimeOut();
+                    task = plugin.getProxy().getScheduler().schedule(plugin, () -> {
                         if (p.isConnected()) {
                             dataSender.sendUUID(p.getUniqueId(), p.getServer());
                             User user = new User(p);
@@ -89,22 +94,22 @@ public final class StartCheck implements LockLoginBungee, BungeeFiles {
                                     dataSender.blindEffect(p, false, config.nauseaLogin());
                                     user.kick("&eLockLogin\n\n" + messages.loginTimeOut());
                                     task.cancel();
+                                    inCheck.remove(p.getUniqueId());
                                 }
                                 back--;
                             } else {
                                 task.cancel();
                                 dataSender.blindEffect(p, false, config.nauseaLogin());
                                 user.sendTitle("&a", "&b");
+                                inCheck.remove(p.getUniqueId());
                             }
                         } else {
                             task.cancel();
                             dataSender.blindEffect(p, false, config.nauseaLogin());
                         }
-                    } else {
-                        task.cancel();
-                    }
-                }, 0, 1, TimeUnit.SECONDS);
-                break;
+                    }, 0, 1, TimeUnit.SECONDS);
+                    break;
+            }
         }
     }
 

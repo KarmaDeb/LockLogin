@@ -2,6 +2,7 @@ package ml.karmaconfigs.lockloginmodules.shared.commands.help;
 
 import ml.karmaconfigs.lockloginmodules.shared.commands.CommandData;
 import ml.karmaconfigs.lockloginmodules.shared.commands.LockLoginCommand;
+import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
 import java.util.*;
 
@@ -37,7 +38,7 @@ public final class HelpPage {
             int lower_page = getLowerPage();
             Set<String> info = pages.getOrDefault(lower_page, new LinkedHashSet<>());
 
-            builder.append("$");
+            builder.append(PlatformUtils.modulePrefix());
             for (String arg : data.getArguments())
                 builder.append(arg).append(" | ");
 

@@ -1,5 +1,6 @@
 package ml.karmaconfigs.lockloginsystem.bungee.utils;
 
+import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginmodules.bungee.AdvancedModule;
 import ml.karmaconfigs.lockloginmodules.bungee.AdvancedModuleLoader;
 import ml.karmaconfigs.lockloginmodules.bungee.PluginModule;
@@ -74,7 +75,7 @@ public final class ModuleSerializer implements LockLoginBungee {
         }
 
         AdvancedModuleLoader.manager.getModules().keySet().forEach(jarFile -> {
-            AdvancedModule module = AdvancedModuleLoader.manager.getModules().getOrDefault(jarFile, null);
+            AdvancedModule module = AdvancedModuleLoader.manager.getByJar(jarFile);
 
             if (module != null) {
                 HashMap<Boolean, String> update_info = module.getUpdateInfo();
@@ -90,11 +91,8 @@ public final class ModuleSerializer implements LockLoginBungee {
                         .append("URL").append("=").append(update_info.get(outdated)).append(";");
             }
         });
+        serialized.append("}");
 
-        return removeGhostSemiColon(serialized.append("}").toString());
-    }
-
-    private String removeGhostSemiColon(String text) {
-        return text.replaceFirst("(?s)" + ";" + "(?!.*?" + ";" + ")", "");
+        return StringUtils.replaceLast(serialized.toString(), " ;", "");
     }
 }

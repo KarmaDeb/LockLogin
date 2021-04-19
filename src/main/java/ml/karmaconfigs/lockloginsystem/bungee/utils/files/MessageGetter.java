@@ -86,9 +86,8 @@ public final class MessageGetter implements LockLoginBungee {
                 messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
 
                 YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
-
-                if (reloader.reloadAndCopy())
-                    logger.scheduleLog(Level.INFO, "Reloaded message file ( " + msg_file.getName() + " )");
+                messages = reloader.reloadAndCopy();
+                logger.scheduleLog(Level.INFO, "Created and reloaded config file");
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);
                 logger.scheduleLog(Level.INFO, "Error while reloading messages file ( " + msg_file.getName() + " )");
@@ -610,10 +609,8 @@ public final class MessageGetter implements LockLoginBungee {
 
             try {
                 YamlReloader reloader = new YamlReloader(plugin, msg_file, "messages/" + msg_file.getName());
-                if (reloader.reloadAndCopy()) {
-                    messages = YamlConfiguration.getProvider(YamlConfiguration.class).load(msg_file);
-                    return true;
-                }
+                messages = reloader.reloadAndCopy();
+                logger.scheduleLog(Level.INFO, "Created and reloaded config file");
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);
                 logger.scheduleLog(Level.INFO, "Error while reloading config file");

@@ -217,15 +217,11 @@ public final class User implements LockLoginBungee, BungeeFiles {
                 case SUCCESS:
                     if (valid_password) {
                         send(event.getAuthMessage());
-                        if (valid_password) {
-                            bf_prevention.success();
-                            setLogged(true);
-                            checkServer();
+                        bf_prevention.success();
+                        setLogged(true);
+                        checkServer();
 
-                            dataSender.sendAccountStatus(player);
-                        } else {
-                            logger.scheduleLog(Level.WARNING, "Someone tried to force log " + player.getName() + " using event API");
-                        }
+                        dataSender.sendAccountStatus(player);
 
                         if (Passwords.isLegacySalt(getPassword())) {
                             setPassword(password);

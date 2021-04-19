@@ -45,6 +45,27 @@ public interface FileInfo {
         }
     }
 
+    static String getKarmaVersion(final File file) {
+        try {
+            JarFile jar = new JarFile(file);
+            JarEntry jar_info = jar.getJarEntry("global.yml");
+
+            if (jar_info != null) {
+                InputStream yml = jar.getInputStream(jar_info);
+
+                Yaml yaml = new Yaml();
+                Map<String, Object> values = yaml.load(yml);
+                yml.close();
+                return values.getOrDefault("project_karmaapi", "1.1.4").toString();
+            }
+            jar.close();
+
+            return "1.1.4";
+        } catch (Throwable ex) {
+            return "1.1.4";
+        }
+    }
+
     static boolean apiDebug(final File file) {
         try {
             JarFile jar = new JarFile(file);

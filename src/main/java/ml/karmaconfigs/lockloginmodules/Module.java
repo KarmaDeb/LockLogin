@@ -74,8 +74,7 @@ public abstract class Module {
 
             boolean outdated = latest != null && !latest.equalsIgnoreCase(version());
             update_info.put(outdated, update_url);
-        } catch (Throwable ignored) {
-        }
+        } catch (Throwable ignored) {}
 
         return update_info;
     }

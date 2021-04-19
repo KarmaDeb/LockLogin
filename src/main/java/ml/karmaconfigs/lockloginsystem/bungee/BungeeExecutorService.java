@@ -85,4 +85,8 @@ public final class BungeeExecutorService {
     public final CryptType getPinType() {
         return BungeeFiles.config.pinEncryption();
     }
+
+    public final String getCommandPrefix() {
+        return BungeeFiles.config.getCommandPrefix();
+    }
 }

@@ -5,17 +5,16 @@ import ml.karmaconfigs.api.bukkit.timer.AdvancedPluginTimer;
 import ml.karmaconfigs.api.common.Level;
 import ml.karmaconfigs.api.common.utils.StringUtils;
 import ml.karmaconfigs.lockloginmodules.Module;
-import ml.karmaconfigs.lockloginmodules.shared.NoJarException;
-import ml.karmaconfigs.lockloginmodules.shared.NoModuleException;
 import ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot;
 import org.jetbrains.annotations.NotNull;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 import java.util.Map;
+import java.util.jar.JarFile;
+import java.util.zip.ZipEntry;
 
 /**
  * LockLogin advanced module
@@ -34,38 +33,10 @@ public abstract class AdvancedModule extends Module {
 
     /**
      * Reload the module
-     *
-     * @throws IOException as part of
-     * {@link AdvancedModuleLoader#inject()} throwable
      */
-    public final void reload() throws IOException {
-        try {
-            AdvancedModuleLoader module = null;
-            for (File jarFile : AdvancedModuleLoader.manager.getModules().keySet()) {
-                AdvancedModuleLoader loader = new AdvancedModuleLoader(jarFile);
-                Class<? extends AdvancedModule> moduleClass = loader.getMainClass();
-
-                if (moduleClass != null) {
-                    if (moduleClass == this.getClass()) {
-                        module = loader;
-                        break;
-                    }
-                }
-            }
-
-            if (module != null) {
-                AdvancedModule advModule = module.getAsModule();
-
-                if (advModule != null) {
-                    if (AdvancedModuleLoader.manager.isLoaded(advModule))
-                        module.uninject();
-                    if (!AdvancedModuleLoader.manager.isLoaded(advModule))
-                        module.inject();
-                } else {
-                    Console.send(LockLoginSpigot.plugin, "Tried to reload a null or not loaded module!", Level.WARNING);
-                }
-            }
-        } catch (NoModuleException | NoJarException ignored) {}
+    public final void reload() {
+        if (unload())
+            load();
     }
 
     /**
@@ -150,14 +121,26 @@ public abstract class AdvancedModule extends Module {
         String name = "name not set in module.yml";
 
         try {
-            InputStream module_yml = this.getClass().getResourceAsStream("/module.yml");
-            if (module_yml != null) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> values = yaml.load(module_yml);
+            String flName = new java.io.File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath()).getName();
 
-                name = values.getOrDefault("name", "name not set in module.yml").toString();
-                module_yml.close();
+            JarFile jar = new JarFile(new File(LockLoginSpigot.plugin.getDataFolder() + File.separator + "modules", flName));
+            ZipEntry moduleEntry = jar.getEntry("module.yml");
+
+            if (moduleEntry != null) {
+                InputStream module_yml = jar.getInputStream(moduleEntry);
+                if (module_yml != null) {
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> values = yaml.load(module_yml);
+
+                    name = values.getOrDefault("name", "name not set in module.yml").toString();
+                    module_yml.close();
+                }
             }
+
+            jar.close();
         } catch (Throwable ignored) {}
 
         return name;
@@ -173,14 +156,26 @@ public abstract class AdvancedModule extends Module {
         String version = "version not set in module.yml";
 
         try {
-            InputStream module_yml = this.getClass().getResourceAsStream("/module.yml");
-            if (module_yml != null) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> values = yaml.load(module_yml);
+            String flName = new java.io.File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath()).getName();
 
-                version = values.getOrDefault("version", "version not set in module.yml").toString();
-                module_yml.close();
+            JarFile jar = new JarFile(new File(LockLoginSpigot.plugin.getDataFolder() + File.separator + "modules", flName));
+            ZipEntry moduleEntry = jar.getEntry("module.yml");
+
+            if (moduleEntry != null) {
+                InputStream module_yml = jar.getInputStream(moduleEntry);
+                if (module_yml != null) {
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> values = yaml.load(module_yml);
+
+                    version = values.getOrDefault("version", "version not set in module.yml").toString();
+                    module_yml.close();
+                }
             }
+
+            jar.close();
         } catch (Throwable ignored) {}
 
         return version;
@@ -197,39 +192,51 @@ public abstract class AdvancedModule extends Module {
         String description = "LockLogin module ( " + this.getClass().getPackage().getName() + " )";
 
         try {
-            InputStream module_yml = this.getClass().getResourceAsStream("/module.yml");
-            if (module_yml != null) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> values = yaml.load(module_yml);
+            String flName = new java.io.File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath()).getName();
 
-                Object desc = values.getOrDefault("description", "LockLogin module ( " + this.getClass().getPackage().getName() + " )");
-                if (desc instanceof List) {
-                    List<?> list = (List<?>) desc;
-                    StringBuilder descBuilder = new StringBuilder();
+            JarFile jar = new JarFile(new File(LockLoginSpigot.plugin.getDataFolder() + File.separator + "modules", flName));
+            ZipEntry moduleEntry = jar.getEntry("module.yml");
 
-                    for (Object obj : list) {
-                        descBuilder.append(obj).append(" ");
-                    }
+            if (moduleEntry != null) {
+                InputStream module_yml = jar.getInputStream(moduleEntry);
+                if (module_yml != null) {
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> values = yaml.load(module_yml);
 
-                    description = StringUtils.replaceLast(descBuilder.toString(), " ", "");
-                } else {
-                    if (desc.getClass().isArray()) {
-                        Object[] array = (Object[]) desc;
-
+                    Object desc = values.getOrDefault("description", "LockLogin module ( " + this.getClass().getPackage().getName() + " )");
+                    if (desc instanceof List) {
+                        List<?> list = (List<?>) desc;
                         StringBuilder descBuilder = new StringBuilder();
 
-                        for (Object obj : array) {
+                        for (Object obj : list) {
                             descBuilder.append(obj).append(" ");
                         }
 
                         description = StringUtils.replaceLast(descBuilder.toString(), " ", "");
                     } else {
-                        description = desc.toString();
-                    }
-                }
+                        if (desc.getClass().isArray()) {
+                            Object[] array = (Object[]) desc;
 
-                module_yml.close();
+                            StringBuilder descBuilder = new StringBuilder();
+
+                            for (Object obj : array) {
+                                descBuilder.append(obj).append(" ");
+                            }
+
+                            description = StringUtils.replaceLast(descBuilder.toString(), " ", "");
+                        } else {
+                            description = desc.toString();
+                        }
+                    }
+
+                    module_yml.close();
+                }
             }
+
+            jar.close();
         } catch (Throwable ignored) {}
 
         return description;
@@ -245,39 +252,51 @@ public abstract class AdvancedModule extends Module {
         String author = "KarmaDev";
 
         try {
-            InputStream module_yml = this.getClass().getResourceAsStream("/module.yml");
-            if (module_yml != null) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> values = yaml.load(module_yml);
+            String flName = new java.io.File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath()).getName();
 
-                Object desc = values.getOrDefault("authors", "KarmaDev");
-                if (desc instanceof List) {
-                    List<?> list = (List<?>) desc;
-                    StringBuilder descBuilder = new StringBuilder();
+            JarFile jar = new JarFile(new File(LockLoginSpigot.plugin.getDataFolder() + File.separator + "modules", flName));
+            ZipEntry moduleEntry = jar.getEntry("module.yml");
 
-                    for (Object obj : list) {
-                        descBuilder.append(obj).append(" - ");
-                    }
+            if (moduleEntry != null) {
+                InputStream module_yml = jar.getInputStream(moduleEntry);
+                if (module_yml != null) {
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> values = yaml.load(module_yml);
 
-                    author = StringUtils.replaceLast(descBuilder.toString(), " - ", "");
-                } else {
-                    if (desc.getClass().isArray()) {
-                        Object[] array = (Object[]) desc;
-
+                    Object desc = values.getOrDefault("authors", "KarmaDev");
+                    if (desc instanceof List) {
+                        List<?> list = (List<?>) desc;
                         StringBuilder descBuilder = new StringBuilder();
 
-                        for (Object obj : array) {
+                        for (Object obj : list) {
                             descBuilder.append(obj).append(" - ");
                         }
 
                         author = StringUtils.replaceLast(descBuilder.toString(), " - ", "");
                     } else {
-                        author = desc.toString();
-                    }
-                }
+                        if (desc.getClass().isArray()) {
+                            Object[] array = (Object[]) desc;
 
-                module_yml.close();
+                            StringBuilder descBuilder = new StringBuilder();
+
+                            for (Object obj : array) {
+                                descBuilder.append(obj).append(" - ");
+                            }
+
+                            author = StringUtils.replaceLast(descBuilder.toString(), " - ", "");
+                        } else {
+                            author = desc.toString();
+                        }
+                    }
+
+                    module_yml.close();
+                }
             }
+
+            jar.close();
         } catch (Throwable ignored) {}
 
         return author;
@@ -293,14 +312,26 @@ public abstract class AdvancedModule extends Module {
         String url = "";
 
         try {
-            InputStream module_yml = this.getClass().getResourceAsStream("/module.yml");
-            if (module_yml != null) {
-                Yaml yaml = new Yaml();
-                Map<String, Object> values = yaml.load(module_yml);
+            String flName = new java.io.File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath()).getName();
 
-                url = values.getOrDefault("update_url", "").toString();
-                module_yml.close();
+            JarFile jar = new JarFile(new File(LockLoginSpigot.plugin.getDataFolder() + File.separator + "modules", flName));
+            ZipEntry moduleEntry = jar.getEntry("module.yml");
+
+            if (moduleEntry != null) {
+                InputStream module_yml = jar.getInputStream(moduleEntry);
+                if (module_yml != null) {
+                    Yaml yaml = new Yaml();
+                    Map<String, Object> values = yaml.load(module_yml);
+
+                    url = values.getOrDefault("update_url", "").toString();
+                    module_yml.close();
+                }
             }
+
+            jar.close();
         } catch (Throwable ignored) {}
 
         return url;
@@ -312,7 +343,12 @@ public abstract class AdvancedModule extends Module {
      * @return the module data folder
      */
     public final File getDataFolder() {
-        return new File(LockLoginSpigot.getJar().getParentFile() + File.separator + "LockLogin" + File.separator + "modules", this.name());
+        File jar = new File(this.getClass().getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath());
+
+        return jar.getParentFile();
     }
 
     /**
@@ -323,14 +359,31 @@ public abstract class AdvancedModule extends Module {
      * @return the module file
      */
     public final File getFile(final String name, final String... path) {
-        if (path.length > 0) {
-            StringBuilder path_builder = new StringBuilder();
-            for (String sub_path : path)
-                path_builder.append(File.separator).append(sub_path);
+        if (path.length > 1) {
+            StringBuilder pathBuilder = new StringBuilder();
 
-            return new File(getDataFolder().getAbsolutePath().replace("%20", " ") + path_builder, name);
+            for (String dir : path) {
+                pathBuilder.append(dir).append(File.separator);
+            }
+
+            String finalPath = StringUtils.replaceLast(pathBuilder.toString(), File.separator, "");
+
+            File jar = new File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath());
+            File dataFolder = jar.getParentFile();
+            File directory = new File(dataFolder, finalPath);
+
+            return new File(directory, name);
         } else {
-            return new File(getDataFolder(), name);
+            File jar = new File(this.getClass().getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .getPath());
+
+            File dataFolder = jar.getParentFile();
+            return new File(dataFolder, name);
         }
     }
 

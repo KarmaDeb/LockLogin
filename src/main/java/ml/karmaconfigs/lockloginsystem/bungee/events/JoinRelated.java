@@ -16,7 +16,7 @@ import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.NameChecker;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.PendingConnection;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -73,15 +73,19 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
         InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
         BFSystem bf_prevention = new BFSystem(ip);
+
+        NameChecker checker = new NameChecker(connection.getName());
+        checker.check();
+
         if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
             e.setCancelled(true);
             e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
         } else {
             if (config.checkNames()) {
-                if (Checker.notValid(connection.getName())) {
+                if (checker.isInvalid()) {
                     e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(Checker.getIllegalChars(connection.getName())
-                            .replace("{comma}", ",")))));
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(checker.getIllegalChars())
+                            .replace("{comma}", ","))));
                 }
             }
 
@@ -171,15 +175,17 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
         if (user.isLogged()) {
             if (e.getTarget().getName().equals(lobbyCheck.getAuth())) {
-                if (lobbyCheck.mainOk() && lobbyCheck.mainWorking()) {
-                    switch (e.getReason()) {
-                        case UNKNOWN:
-                        case PLUGIN:
-                        case PLUGIN_MESSAGE:
-                        case COMMAND:
-                            e.setCancelled(true);
-                            user.send(messages.prefix() + messages.alreadyLogged());
-                            break;
+                if (!player.hasPermission("locklogin.join.limbo")) {
+                    if (lobbyCheck.mainOk() && lobbyCheck.mainWorking()) {
+                        switch (e.getReason()) {
+                            case UNKNOWN:
+                            case PLUGIN:
+                            case PLUGIN_MESSAGE:
+                            case COMMAND:
+                                e.setCancelled(true);
+                                user.send(messages.prefix() + messages.alreadyLogged());
+                                break;
+                        }
                     }
                 }
             }

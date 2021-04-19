@@ -149,6 +149,20 @@ public class PlatformUtils {
         return null;
     }
 
+    public static String modulePrefix() {
+        CurrentPlatform current = new CurrentPlatform();
+        switch (current.getRunning()) {
+            case BUKKIT:
+                SpigotExecutorService spigot = new SpigotExecutorService();
+                return String.valueOf(spigot.getCommandPrefix().charAt(0));
+            case BUNGEE:
+                BungeeExecutorService bungee = new BungeeExecutorService();
+                return String.valueOf(bungee.getCommandPrefix().charAt(0));
+            default:
+                return "$";
+        }
+    }
+
     /**
      * All platform available
      * encryption target

@@ -87,6 +87,7 @@ public final class BungeeModuleReader {
                 }
 
                 BungeeModule decoded_module = new BungeeModule(owner, name, author, version, description, enabled, outdated, updateURL);
+
                 detected_modules.add(decoded_module);
             }
 

@@ -13,6 +13,7 @@ import ml.karmaconfigs.lockloginsystem.shared.Lang;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.crypto.CryptType;
 import ml.karmaconfigs.lockloginsystem.shared.version.VersionChannel;
 import net.md_5.bungee.api.plugin.Plugin;
+import net.md_5.bungee.config.Configuration;
 
 import java.io.File;
 import java.util.concurrent.TimeUnit;
@@ -47,9 +48,10 @@ public final class ConfigGetter implements LockLoginBungee {
             try {
                 creator.copy(config);
                 YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
-                if (reloader.reloadAndCopy()) {
-                    logger.scheduleLog(Level.INFO, "Created and reloaded config file");
+                Configuration cfg = reloader.reloadAndCopy();
+                if (cfg != null) {
                     configuration = new FileManager("config.yml");
+                    logger.scheduleLog(Level.INFO, "Created and reloaded config file");
                 }
             } catch (Throwable e) {
                 logger.scheduleLog(Level.GRAVE, e);
@@ -379,6 +381,14 @@ public final class ConfigGetter implements LockLoginBungee {
         return configuration.getString("AccountSys");
     }
 
+    public final String getCommandPrefix() {
+        String val = configuration.getString("ModulePrefix");
+        if (val == null || val.replaceAll("\\s", "").isEmpty() || val.length() > 1)
+            val = "$";
+
+        return val;
+    }
+
     /**
      * Configuration manager
      * utilities
@@ -393,8 +403,11 @@ public final class ConfigGetter implements LockLoginBungee {
         static boolean reload() {
             try {
                 YamlReloader reloader = new YamlReloader(plugin, config, "configs/config.yml");
-                if (reloader.reloadAndCopy()) {
-                    logger.scheduleLog(Level.INFO, "Reloaded config file");
+                Configuration cfg = reloader.reloadAndCopy();
+                if (cfg != null) {
+                    configuration = new FileManager("config.yml");
+                    logger.scheduleLog(Level.INFO, "Created and reloaded config file");
+
                     return true;
                 }
             } catch (Throwable e) {

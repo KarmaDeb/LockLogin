@@ -3,6 +3,7 @@ package ml.karmaconfigs.lockloginsystem.shared.llsecurity;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Private GSA code
@@ -15,8 +16,8 @@ import java.util.List;
  */
 public final class NameChecker {
 
-    private final static HashMap<String, List<String>> nameIllegalChars = new HashMap<>();
-    private final static HashMap<String, InvalidateReason> invalidationReason = new HashMap<>();
+    private final static Map<String, List<String>> nameIllegalChars = new HashMap<>();
+    private final static Map<String, InvalidateReason> invalidationReason = new HashMap<>();
     private final String name;
 
     /**
@@ -30,11 +31,12 @@ public final class NameChecker {
     }
 
     /**
-     * Check if the player name is valid
-     *
-     * @return if the player name is valid
+     * Check the name
      */
-    public final boolean isValid() {
+    public final void check() {
+        nameIllegalChars.remove(name);
+        invalidationReason.remove(name);
+
         if (name.length() >= 3 && name.length() <= 16) {
             List<String> illegalChars = new ArrayList<>();
             for (int i = 0; i < name.length(); i++) {
@@ -53,9 +55,6 @@ public final class NameChecker {
             if (!illegalChars.isEmpty()) {
                 nameIllegalChars.put(name, illegalChars);
                 invalidationReason.put(name, InvalidateReason.ILLEGAL);
-                return false;
-            } else {
-                return true;
             }
         } else {
             if (name.length() < 3) {
@@ -64,18 +63,25 @@ public final class NameChecker {
             if (name.length() > 16) {
                 invalidationReason.put(name, InvalidateReason.MAX);
             }
-            return false;
         }
+    }
+
+    /**
+     * Check if the player name is valid
+     *
+     * @return if the player name is valid
+     */
+    public final boolean isInvalid() {
+        return nameIllegalChars.containsKey(name) || invalidationReason.containsKey(name);
     }
 
     /**
      * Get the illegal chars the player
      * used
      *
-     * @param name the user name
      * @return all the player name illegal characters
      */
-    public final String getIllegalChars(String name) {
+    public final String getIllegalChars() {
         if (invalidationReason.get(name) != null) {
             switch (invalidationReason.get(name)) {
                 case MAX:
@@ -93,6 +99,7 @@ public final class NameChecker {
                             .replace("]", "");
             }
         }
+
         return "\u00a7bNo illegal characters found\n\u00a7bThis may be an error, contact the staff!";
     }
 

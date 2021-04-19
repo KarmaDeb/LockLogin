@@ -428,6 +428,14 @@ public final class ConfigGetter implements LockLoginSpigot {
         return configuration.getBoolean("CheckNames", false);
     }
 
+    public final String getCommandPrefix() {
+        String val = configuration.getString("ModulePrefix");
+        if (val == null || val.replaceAll("\\s", "").isEmpty() || val.length() > 1)
+            val = "$";
+
+        return val;
+    }
+
     /**
      * Configuration manager utilities
      */

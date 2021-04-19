@@ -9,8 +9,8 @@ import ml.karmaconfigs.lockloginmodules.shared.commands.help.HelpPage;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.LockLoginListener;
 import ml.karmaconfigs.lockloginmodules.shared.listeners.events.plugin.PluginProcessCommandEvent;
 import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
+import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
-import ml.karmaconfigs.lockloginsystem.shared.llsecurity.Checker;
 import ml.karmaconfigs.lockloginsystem.bukkit.LockLoginSpigot;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.BungeeListener;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.datafiles.AllowedCommands;
@@ -18,6 +18,7 @@ import ml.karmaconfigs.lockloginsystem.bukkit.utils.files.SpigotFiles;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.inventory.PinInventory;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.user.BungeeVerifier;
 import ml.karmaconfigs.lockloginsystem.bukkit.utils.user.User;
+import ml.karmaconfigs.lockloginsystem.shared.llsecurity.NameChecker;
 import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -147,6 +148,9 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
         if (!config.isBungeeCord()) {
             UUID id = e.getUniqueId();
 
+            NameChecker checker = new NameChecker(e.getName());
+            checker.check();
+
             if (tempVerified.contains(e.getAddress())) {
                 verifyName(e);
                 tempVerified.remove(e.getAddress());
@@ -189,10 +193,10 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
                         if (e.getLoginResult() == AsyncPlayerPreLoginEvent.Result.ALLOWED) {
                             if (config.checkNames()) {
-                                if (Checker.notValid(e.getName())) {
+                                if (checker.isInvalid()) {
                                     e.setLoginResult(AsyncPlayerPreLoginEvent.Result.KICK_OTHER);
                                     e.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, StringUtils.toColor("&eLockLogin\n\n" +
-                                            messages.illegalName(Checker.getIllegalChars(e.getName()))
+                                            messages.illegalName(checker.getIllegalChars())
                                                     .replace("{comma}", ",")));
                                 }
                             }
@@ -539,14 +543,21 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
     public final void onChatEvent(AsyncPlayerChatEvent e) {
         Player player = e.getPlayer();
 
+        String prefix = PlatformUtils.modulePrefix();
+        if (prefix.equals("/"))
+            prefix = "$";
+
         if (!config.isBungeeCord()) {
             User user = new User(player);
             String msg = e.getMessage();
 
-            if (msg.startsWith("$")) {
+            if (msg.startsWith(prefix)) {
+                if (PlatformUtils.modulePrefix().equals("/"))
+                    msg = e.getMessage().replaceFirst("\\$", "/");
+
                 boolean allow;
                 if (!user.isLogged() || user.isTempLog())
-                    allow = AllowedCommands.external.isAllowed(msg.replaceFirst("\\$", ""));
+                    allow = AllowedCommands.external.isAllowed(msg.substring(1));
                 else
                     allow = true;
 
@@ -562,11 +573,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         LockLoginListener.callEvent(event);
 
                         if (!event.isHandled()) {
-                            if (!first_arg.toLowerCase().startsWith("$help")) {
+                            if (!first_arg.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                                 if (LockLoginCommand.isValid(first_arg))
                                     LockLoginCommand.fireCommand(first_arg, player, split);
                                 else
-                                    user.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                                    user.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
                             } else {
                                 int page = 0;
 
@@ -590,7 +601,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                         LockLoginListener.callEvent(event);
 
                         if (!event.isHandled()) {
-                            if (!msg.toLowerCase().startsWith("$help")) {
+                            if (!msg.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                                 if (LockLoginCommand.isValid(msg))
                                     LockLoginCommand.fireCommand(msg, player);
                                 else
@@ -653,10 +664,17 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onConsoleCommand(ServerCommandEvent e) {
+        String prefix = PlatformUtils.modulePrefix();
+        if (prefix.equals("/"))
+            prefix = "$";
+
         if (!config.isBungeeCord()) {
             String msg = e.getCommand();
 
-            if (msg.startsWith("$")) {
+            if (msg.startsWith(prefix)) {
+                if (PlatformUtils.modulePrefix().equals("/"))
+                    msg = e.getCommand().replaceFirst("\\$", "/");
+
                 if (msg.contains(" ")) {
                     String[] split = msg.split(" ");
                     String first_arg = split[0];
@@ -668,11 +686,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     LockLoginListener.callEvent(event);
 
                     if (!event.isHandled()) {
-                        if (!first_arg.toLowerCase().startsWith("$help")) {
+                        if (!first_arg.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                             if (LockLoginCommand.isValid(first_arg))
                                 LockLoginCommand.fireCommand(first_arg, e.getSender(), split);
                             else
-                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
                         } else {
                             int page = 0;
 
@@ -696,11 +714,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     LockLoginListener.callEvent(event);
 
                     if (!event.isHandled()) {
-                        if (!msg.toLowerCase().startsWith("$help")) {
+                        if (!msg.toLowerCase().startsWith(PlatformUtils.modulePrefix())) {
                             if (LockLoginCommand.isValid(msg))
                                 LockLoginCommand.fireCommand(msg, e.getSender());
                             else
-                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
                         } else {
                             HelpPage help = new HelpPage(0);
                             help.scan();
@@ -715,16 +733,24 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 e.setCancelled(true);
             }
         } else {
-            Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
+            if (e.getCommand().startsWith(PlatformUtils.modulePrefix()))
+                Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
         }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onConsoleCommand(RemoteServerCommandEvent e) {
+        String prefix = PlatformUtils.modulePrefix();
+        if (prefix.equals("/"))
+            prefix = "$";
+
         if (!config.isBungeeCord()) {
             String msg = e.getCommand();
 
-            if (msg.startsWith("$")) {
+            if (msg.startsWith(prefix)) {
+                if (PlatformUtils.modulePrefix().equals("/"))
+                    msg = e.getCommand().replaceFirst("\\$", "/");
+
                 if (msg.contains(" ")) {
                     String[] split = msg.split(" ");
                     String first_arg = split[0];
@@ -735,11 +761,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     PluginProcessCommandEvent event = new PluginProcessCommandEvent(first_arg, e.getSender(), split);
                     LockLoginListener.callEvent(event);
 
-                    if (!first_arg.toLowerCase().startsWith("$help")) {
+                    if (!first_arg.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                         if (LockLoginCommand.isValid(first_arg))
                             LockLoginCommand.fireCommand(first_arg, e.getSender(), split);
                         else
-                            Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                            Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
                     } else {
                         int page = 0;
 
@@ -762,11 +788,11 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                     LockLoginListener.callEvent(event);
 
                     if (!event.isHandled()) {
-                        if (!msg.toLowerCase().startsWith("$help")) {
+                        if (!msg.toLowerCase().startsWith(PlatformUtils.modulePrefix() + "help")) {
                             if (LockLoginCommand.isValid(msg))
                                 LockLoginCommand.fireCommand(msg, e.getSender());
                             else
-                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type $help for help");
+                                Console.send(messages.prefix() + "&cUnknown module command: &7" + msg + "&c, type " + PlatformUtils.modulePrefix() + "help for help");
                         } else {
                             HelpPage help = new HelpPage(0);
                             help.scan();
@@ -781,7 +807,8 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                 e.setCancelled(true);
             }
         } else {
-            Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
+            if (e.getCommand().startsWith(PlatformUtils.modulePrefix()))
+                Console.send(messages.prefix() + "&cModule commands are not enable in bukkit while BungeeCord mode!");
         }
     }
 
@@ -837,6 +864,7 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
             User user = new User(player);
 
             String cmd = getCommand(e.getMessage());
+            boolean allowCommand = true;
 
             if (!user.hasCaptcha() || config.getCaptchaType().equals(CaptchaType.SIMPLE)) {
                 if (!user.isLogged()) {
@@ -845,12 +873,16 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                             e.setCancelled(true);
                             user.send(messages.prefix() + messages.register(user.getCaptcha()));
                         }
+
+                        allowCommand = false;
                     } else {
                         if (!AllowedCommands.external.isAllowed(getCompleteCommand(e.getMessage()))) {
                             if (!cmd.equals("login") && !cmd.equals("l") && !cmd.equals("recovery")) {
                                 e.setCancelled(true);
                                 user.send(messages.prefix() + messages.login(user.getCaptcha()));
                             }
+
+                            allowCommand = false;
                         }
                     }
                 } else {
@@ -861,12 +893,23 @@ public final class BlockedEvents implements Listener, LockLoginSpigot, SpigotFil
                                 user.send(messages.prefix() + messages.gAuthAuthenticate());
                             }
                         }
+
+                        allowCommand = false;
                     }
                 }
             } else {
                 if (!cmd.equals("captcha")) {
                     e.setCancelled(true);
                     user.send(messages.prefix() + messages.typeCaptcha());
+                }
+
+                allowCommand = false;
+            }
+
+            if (allowCommand && PlatformUtils.modulePrefix().equals("/")) {
+                if (LockLoginCommand.isValid(e.getMessage()) || e.getMessage().startsWith("/help")) {
+                    player.chat("$" + e.getMessage().replaceFirst("/", ""));
+                    e.setCancelled(true);
                 }
             }
         } else {

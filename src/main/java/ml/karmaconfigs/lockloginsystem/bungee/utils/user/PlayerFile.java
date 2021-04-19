@@ -345,7 +345,11 @@ public final class PlayerFile extends AccountManager implements LockLoginBungee,
      */
     @Override
     public final AccountID getUUID() {
-        return AccountID.fromUUID(UUID.fromString(manager.getString("UUID", UUID.randomUUID().toString()).replace("UUID:", "")));
+        try {
+            return AccountID.fromUUID(UUID.fromString(manager.getString("UUID", UUID.randomUUID().toString()).replace("UUID:", "")));
+        } catch (Throwable ex) {
+            return AccountID.fromTrimmed(manager.getString("UUID", UUID.randomUUID().toString().replace("-", "")).replace("UUID:", ""));
+        }
     }
 
     /**

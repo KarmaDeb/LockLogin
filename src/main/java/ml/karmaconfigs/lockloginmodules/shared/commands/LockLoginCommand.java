@@ -1,6 +1,7 @@
 package ml.karmaconfigs.lockloginmodules.shared.commands;
 
 import ml.karmaconfigs.lockloginmodules.Module;
+import ml.karmaconfigs.lockloginsystem.shared.PlatformUtils;
 
 import java.lang.reflect.Method;
 import java.util.*;
@@ -46,8 +47,8 @@ public final class LockLoginCommand {
     public static void fireCommand(String argument, final Object sender, final String... arguments) {
         //LockLogin command identifier, is a $ symbol
         //and not a '/'
-        if (argument.startsWith("$")) {
-            argument = argument.replaceFirst("\\$", "");
+        if (argument.startsWith(PlatformUtils.modulePrefix())) {
+            argument = argument.replaceFirst(PlatformUtils.modulePrefix(), "");
 
             for (Module module : commands.keySet()) {
                 Set<Command> handlers = commands.getOrDefault(module, new LinkedHashSet<>());
@@ -121,8 +122,8 @@ public final class LockLoginCommand {
      * @return if the command is valid
      */
     public static boolean isValid(String command) {
-        if (command.startsWith("$"))
-            command = command.replaceFirst("\\$", "");
+        if (command.startsWith(PlatformUtils.modulePrefix()))
+            command = command.substring(1);
 
         return availableCommands().stream().anyMatch(command::matches);
     }

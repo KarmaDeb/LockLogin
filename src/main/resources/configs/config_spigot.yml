@@ -221,3 +221,6 @@ Lang: en_EN
 #For more info please visit:
 # https://rb.gy/jlmjah
 AccountSys: File
+
+#Module commands prefix
+ModulePrefix: "$"
