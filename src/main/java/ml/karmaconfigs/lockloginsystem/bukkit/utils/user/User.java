@@ -69,9 +69,14 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     public User(Player player) throws IllegalStateException {
         this.player = player;
 
-        if (PlatformUtils.accountManagerValid())
+        if (PlatformUtils.accountManagerValid()) {
             manager = PlatformUtils.getManager(new Class<?>[]{OfflinePlayer.class}, plugin.getServer().getOfflinePlayer(player.getUniqueId()));
-        else {
+
+            if (manager == null) {
+                plugin.getServer().getPluginManager().disablePlugin(plugin);
+                throw new IllegalStateException("Could not initialize player manager ( null ), plugin must stop working now!");
+            }
+        } else {
             plugin.getServer().getPluginManager().disablePlugin(plugin);
             throw new IllegalStateException("Current account manager is null, plugin must stop working now!");
         }
@@ -483,17 +488,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param value true/false
      */
     public final void set2FA(boolean value) {
-        /*
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.set2FA(value);
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.gAuthStatus(value);
-        }*/
-
         manager.set2FA(value);
     }
 
@@ -503,16 +497,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * @param token the token
      */
     public final void setToken(String token) {
-        /*
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.setGAuth(new PasswordUtils(token).hash());
-        } else {
-            Utils sql = new Utils(player);
-            sql.setGAuth(token, true);
-        }*/
-
         if (token != null)
             manager.setGAuth(new PasswordUtils(token).hash());
         else
@@ -524,16 +508,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * or if using mysql, player info
      */
     public final void remove() {
-        /*
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.removeFile();
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.removeUser();
-        }*/
         if (manager.exists())
             manager.remove();
     }
@@ -617,16 +591,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      * Remove the user pin
      */
     public final void removePin() {
-        /*
-        if (config.isYaml()) {
-            PlayerFile playerFile = new PlayerFile(player);
-
-            playerFile.delPin();
-        } else {
-            Utils sql = new Utils(player);
-
-            sql.delPin();
-        }*/
         manager.setPin(null);
     }
 
@@ -638,19 +602,9 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     @Deprecated
     public final String getUUID() {
-        if (!config.isBungeeCord()) {
-            /*
-            if (config.isYaml()) {
-                PlayerFile playerFile = new PlayerFile(player);
-
-                return playerFile.getUUID();
-            } else {
-                Utils sql = new Utils(player);
-
-                return Utils.fixUUID(sql.getUUID());
-            }*/
+        if (!config.isBungeeCord())
             return manager.getUUID().getId();
-        }
+
         return plugin.getServer().getOfflinePlayer(player.getUniqueId()).getUniqueId().toString();
     }
 
@@ -707,21 +661,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
      */
     public final boolean hasPin() {
         if (!config.isBungeeCord()) {
-            /*
-            if (config.enablePin()) {
-                if (config.isYaml()) {
-                    PlayerFile playerFile = new PlayerFile(player);
-
-                    return !playerFile.getPin().isEmpty();
-                } else {
-                    Utils sql = new Utils(player);
-
-                    return sql.getPin() != null && !sql.getPin().isEmpty();
-                }
-            } else {
-                return false;
-            }*/
-
             if (config.enablePin())
                 return !manager.getPin().replaceAll("\\s", "").isEmpty();
         }
@@ -736,17 +675,6 @@ public final class User implements LockLoginSpigot, SpigotFiles {
     public final boolean has2FA() {
         if (!config.isBungeeCord()) {
             if (config.enable2FA()) {
-                /*
-                if (config.isYaml()) {
-                    PlayerFile playerFile = new PlayerFile(player);
-
-                    return playerFile.has2FA();
-                } else {
-                    Utils sql = new Utils(player);
-
-                    return sql.has2fa();
-                }*/
-
                 return manager.has2FA();
             } else {
                 return false;

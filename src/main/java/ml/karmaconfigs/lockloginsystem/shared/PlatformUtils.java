@@ -136,17 +136,22 @@ public class PlatformUtils {
 
     public static AccountManager getManager(final Class<?>[] paramTypes, final Object... parameters) {
         try {
-            if (parameters.length > 0) {
-                Constructor<? extends AccountManager> constructor = manager.getConstructor(paramTypes);
+            if (paramTypes.length > 0) {
+                Constructor<? extends AccountManager> constructor = manager.getDeclaredConstructor(paramTypes);
+                constructor.setAccessible(true);
                 return constructor.newInstance(parameters);
             } else {
                 return manager.getDeclaredConstructor().newInstance();
             }
         } catch (Throwable ex) {
-            ex.printStackTrace();
+            try {
+                Constructor<? extends AccountManager> constructor = manager.getConstructor(paramTypes);
+                constructor.setAccessible(true);
+                return constructor.newInstance(parameters);
+            } catch (Throwable exc) {
+                return null;
+            }
         }
-
-        return null;
     }
 
     public static String modulePrefix() {

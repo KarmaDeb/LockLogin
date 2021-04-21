@@ -63,12 +63,17 @@ public final class User implements LockLoginBungee, BungeeFiles {
      *
      * @param player the player
      */
-    public User(ProxiedPlayer player) {
+    public User(ProxiedPlayer player) throws IllegalStateException {
         this.player = player;
 
-        if (PlatformUtils.accountManagerValid())
+        if (PlatformUtils.accountManagerValid()) {
             manager = PlatformUtils.getManager(new Class<?>[]{ProxiedPlayer.class}, player);
-        else {
+
+            if (manager == null) {
+                LockLoginBungeeManager.unload();
+                throw new IllegalStateException("Could not initialize player manager ( null ), plugin must stop working now!");
+            }
+        } else {
             LockLoginBungeeManager.unload();
             throw new IllegalStateException("Current account manager is null, plugin must stop working now!");
         }

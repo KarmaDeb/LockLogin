@@ -12,8 +12,6 @@ import net.md_5.bungee.api.plugin.Listener;
 import net.md_5.bungee.event.EventHandler;
 import net.md_5.bungee.event.EventPriority;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * GNU LESSER GENERAL PUBLIC LICENSE
  * Version 2.1, February 1999
@@ -27,13 +25,13 @@ import java.util.concurrent.TimeUnit;
  * as the successor of the GNU Library Public License, version 2, hence
  * the version number 2.1.]
  */
-public final class PlayerLeave implements Listener {
+public final class PlayerLeave implements Listener, LockLoginBungee {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onDisconnect(PlayerDisconnectEvent e) {
         ProxiedPlayer player = e.getPlayer();
 
-        LockLoginBungee.plugin.getProxy().getScheduler().schedule(LockLoginBungee.plugin, () -> {
+        if (!player.isConnected()) {
             TempPluginModule temp_module = new TempPluginModule();
             try {
                 PluginModuleLoader loader = new PluginModuleLoader(temp_module);
@@ -52,6 +50,6 @@ public final class PlayerLeave implements Listener {
 
             UserQuitEvent event = new UserQuitEvent(player, this);
             LockLoginListener.callEvent(event);
-        }, 2, TimeUnit.SECONDS);
+        }
     }
 }

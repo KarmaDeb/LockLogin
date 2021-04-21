@@ -346,7 +346,12 @@ public abstract class AdvancedModule extends Module {
      * @return the module data folder
      */
     public final File getDataFolder() {
-        return new File(LockLoginBungee.getJar().getParentFile() + File.separator + "LockLogin" + File.separator + "modules", this.name());
+        File jar = new File(this.getClass().getProtectionDomain()
+                .getCodeSource()
+                .getLocation()
+                .getPath());
+
+        return new File(jar.getParentFile(), this.name());
     }
 
     /**
@@ -370,7 +375,7 @@ public abstract class AdvancedModule extends Module {
                     .getCodeSource()
                     .getLocation()
                     .getPath());
-            File dataFolder = jar.getParentFile();
+            File dataFolder = new File(jar.getParentFile(), this.name());
             File directory = new File(dataFolder, finalPath);
 
             return new File(directory, name);
@@ -380,7 +385,7 @@ public abstract class AdvancedModule extends Module {
                     .getLocation()
                     .getPath());
 
-            File dataFolder = jar.getParentFile();
+            File dataFolder = new File(jar.getParentFile(), this.name());
             return new File(dataFolder, name);
         }
     }

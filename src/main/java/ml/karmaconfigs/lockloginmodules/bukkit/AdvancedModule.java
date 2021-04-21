@@ -348,7 +348,7 @@ public abstract class AdvancedModule extends Module {
                 .getLocation()
                 .getPath());
 
-        return jar.getParentFile();
+        return new File(jar.getParentFile(), this.name());
     }
 
     /**
@@ -372,7 +372,7 @@ public abstract class AdvancedModule extends Module {
                     .getCodeSource()
                     .getLocation()
                     .getPath());
-            File dataFolder = jar.getParentFile();
+            File dataFolder = new File(jar.getParentFile(), this.name());
             File directory = new File(dataFolder, finalPath);
 
             return new File(directory, name);
@@ -382,7 +382,7 @@ public abstract class AdvancedModule extends Module {
                     .getLocation()
                     .getPath());
 
-            File dataFolder = jar.getParentFile();
+            File dataFolder = new File(jar.getParentFile(), this.name());
             return new File(dataFolder, name);
         }
     }
