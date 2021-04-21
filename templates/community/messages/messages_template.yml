@@ -1,0 +1,187 @@
+#LockLogin message template
+#----------------------------------
+#Translation: <Language name> (Community)
+#Editor: <Editor>
+#Last edited: <date with format: [<day number> - <month> - <year> <hour>:<minute>] >
+#----------------------------------
+# What is an official language?
+# - This language is made by the developer of LockLogin
+# - This language will receive language updates ( this means
+#   this language will be translated by the author when a new
+#   message is added )
+#
+# What is a community language?
+# - This language is made by a LockLogin community member
+# - This language must receive a community language update ( this
+#   means the author of the language pack must update the
+#   language with the new messages, LockLogin developer won't do it )
+
+#Plugin prefix
+Prefix: "&eLockLogin &7>> "
+
+#Permission error message
+PermissionError: "&cYou do not have the permission {permission}"
+
+#BungeeCord proxy message
+BungeeProxy: "&cPlease, connect through bungee proxy!"
+
+#Session messages - Manager
+PlayerNotVerified: "&cYou can't fight against {player} while he's not logged/registered"
+AlreadyPlaying: "&cThat player is already playing"
+PasswordMinChar: "&cPassword must have 4 chars min"
+MaxIp: "&cMax ip per account reached on the server"
+ConnectionError: "&cThe player {player} is not online"
+PlayerInfoUsage: "&cCorrect usage: &b/playerinfo [player]"
+LookUpUsage: "&cCorrect usage: &b/lookup <player>"
+AltFound: "&c{player} could have {alts} alt accounts, type /lookup {player} for more info"
+NeverPlayed: "&cThe player {player} never played on the server"
+TargetAccessError: "&cThe player {player} isn't logged in/registered"
+IncorrectPassword: "&cThe provided password is not correct!"
+OnlyAzuriom:
+  - "&f{ServerName}"
+  - ""
+  - "&cPlease register your account from:"
+  - "&ehttps://myazuriomwebsite.com/user/register"
+
+#Session messages - Captcha
+Captcha: "&7Your captcha code is: &e{captcha}"
+TypeCaptcha: "&cPlease, use /captcha <captcha>"
+CaptchaTimeOut: "&cYou took too much time to write captcha"
+SpecifyCaptcha: "&cPlease provide a valid captcha code"
+CaptchaValidated: "&aCaptcha code validated"
+InvalidCaptcha: "&cThe specified captcha code is not valid or correct"
+AlreadyCaptcha: "&aYour captcha code is already verified"
+
+#Session messages - Register
+Register: "&cPlease, use /register <password> <password> <captcha>"
+Registered: "&aRegister completed, thank for playing"
+AlreadyRegistered: "&cYou are already registered"
+RegisterError: "&cThe provided passwords does not match!"
+PasswordInsecure: "&cThe specified password is not secure!"
+RegisterOut: "&cYou took too much time to register"
+RegisterTitle: "&7You have"
+RegisterSubtitle: "&b{time} &7to register"
+MaxRegisters:
+  - "&cYou've reached max registered accounts in the server"
+  - ""
+  - "&cIf you think this is an error, please, report it on"
+  - "&ehttps://discordexample.gg"
+
+#Session messages - Login
+Login: "&cPlease, use /login <password> <captcha>"
+Logged: "&aLogged-in, welcome back &7{player}"
+AlreadyLogged: "&cYou are already logged"
+LoginInsecure: "&cYour password has been classified as not secure and you must change it"
+LoginOut: "&cYou took too much time to log-in"
+LoginTitle: "&7You have"
+LoginSubtitle: "&7{time} &7to login"
+
+#Session messages - Pin
+PinTitle: "&eLockLogin pinner"
+PinSet: "&aYour pin has been set successfully"
+AlreadyPin: "&cYou already have set your pin"
+NoPin: "&cYou don't have a pin!"
+SetPin: "&cPlease, use /pin setup <pin>"
+ResetPin: "&cPlease, use /pin reset <pin>"
+PinDisabled: "&cPins are disabled"
+PinLength: "&cPin must have 4 digits"
+IncorrectPin: "&cThe specified pin is not correct"
+
+#Session messages - 2FA
+2FaUsages: "&cValid 2FA sub-arguments: &e<setup>&7, &e<remove>&7, &e<2fa code>"
+2FaSetupUsage: "&cPlease, use /2fa setup <password>"
+2FaRemoveUsage: "&cPlease, use /2fa remove <password> <2fa code>"
+2FaAuthenticate: "&cPlease, use /2fa to start playing"
+2FaLogged: "&a2FA code validated"
+2FaAlreadyLogged: "&cYou are already authenticated with 2FA"
+2FaIncorrect: "&4Incorrect 2FA code"
+2FaAlready: "&cYou already have setup your 2FA"
+2FaToggleError: "&cError while trying to toggle 2FA: &4incorrect password/code"
+Disabled2FA: "&c2FA disabled, your account is now less secure"
+Enabled2FA: "&a2FA enabled, your account is secure again"
+2FaAccountDisabled: "&c2FA is disabled in your account"
+2FAServerDisabled: "&c2FA is currently disabled in this server"
+2FAScratchCodes:
+  - "&7Hey! &b{player}&7, these are your recovery codes,"
+  - "&7make sure to not lose them as this will be the last"
+  - "&7time you see them:"
+2FaInstructions:
+  - "&fHow to log in using the google authenticator?"
+  - "&71 - Get the code from the Google Authenticator"
+  - "&72 - Write /2fa <code> on the chat"
+  - "&73 - Repeat the progress every time you log-in"
+2FaLink: "&bClick here to get your 2FA QR code"
+
+#Session messages - Password change
+ChangePass: "&cPlease, use /{arg} <password> <new password>"
+ChangeSame: "&4Your password can't be the same as old!"
+ChangeDone: "&aYour password has changed!"
+
+#Session messages - Unloging
+UnLog: "&cPlease, use /{arg}"
+UnLogged: "&cSession closed, re-login now"
+ForcedUnLog: "&cYour session have been closed by an admin, login again"
+ForcedUnLogAdmin: "&aSession of {player} closed"
+
+#Session messages - Account removal
+DelAccount: "&cPlease, use /{arg} <password|player> <password>"
+DelAccountMatch: "&cThe provided passwords does not match"
+AccountDeleted: "&cYour account have been deleted"
+ForcedDelAccount:
+  - "{ServerName}"
+  - ""
+  - "&cYour account has been removed by"
+  - "&can administrator ( &7{player}&c )"
+  - "&cand has been blocked temporally"
+  - "&cto avoid data lost, until a staff member"
+  - "&cunlocks it"
+  - ""
+  - "&cIf you didn't call this action, please"
+  - "&creport this action at: &ehttps://discordexample.gg"
+  - ""
+ForcedDelAccountAdmin: "&aAccount of {player} removed"
+
+#Spawn utilities ( includes take back )
+SpawnSet: "&aThe login spawn location have been set"
+LocationsReset: "&aAll last locations have been reset"
+LocationReset: "&aLast location of {player} has been reset"
+LocationsFixed: "&aAll last locations have been fixed"
+LocationFixed: "&aLocation of {player} has been fixed"
+NoLastLocation: "&cThe player {player} doesn't has last location"
+RestLastLocUsage: "&cPlease, use /locations [player|@all|@me] <remove|fix>"
+
+#Account migration
+Migrating: "&aMigrating account of {player} to {type}"
+MigratingAll: "&aMigrating accounts of everyone to {type}"
+Migrated: "&aAccount(s) migration ended"
+MigrationUsage: "&cPlease, use /migrate"
+MigrationConnectionError: "&cThere was an error while trying to connect to {type}"
+
+#Security messages
+IpBlocked:
+  - "{ServerName}"
+  - ""
+  - "&cLockLogin systems have detected an"
+  - "&cunusual traffic on your IP and has been blocked"
+  - "&f{time} {time_format}"
+AntiBot:
+  - "&f{ServerName}"
+  - ""
+  - "&cAdd this server to your server list"
+  - "&cIf you already have it, reload server list"
+IllegalName:
+  - "{ServerName}"
+  - ""
+  - "&cYour name can't contain:"
+  - "{chars}"
+UUIDFetchError:
+  - "{ServerName}"
+  - ""
+  - "&cSomething went wrong while fetching your UUID"
+  - "&cwith client name..."
+IpProxyError:
+  - "{ServerName}"
+  - ""
+  - "&cYour IP address seems a bit suspicious"
+  - "&cIf you think this is an error, please contact"
+  - "&cthe staff at: &bhttps://discordexample.gg"
