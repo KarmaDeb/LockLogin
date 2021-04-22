@@ -15,6 +15,7 @@ import ml.karmaconfigs.lockloginsystem.shared.CaptchaType;
 import ml.karmaconfigs.lockloginsystem.shared.CheckType;
 import ml.karmaconfigs.lockloginsystem.shared.IpData;
 import ml.karmaconfigs.lockloginsystem.shared.Platform;
+import ml.karmaconfigs.lockloginsystem.shared.account.AccountID;
 import ml.karmaconfigs.lockloginsystem.shared.ipstorage.BFSystem;
 import ml.karmaconfigs.lockloginsystem.shared.llsecurity.NameChecker;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -69,102 +70,68 @@ public final class JoinRelated implements Listener, LockLoginBungee, BungeeFiles
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public final void onPreJoin(LoginEvent e) {
-        PendingConnection connection = e.getConnection();
-        InetAddress ip = User.external.getIp(connection.getSocketAddress());
+        if (!e.isCancelled()) {
+            PendingConnection connection = e.getConnection();
+            InetAddress ip = User.external.getIp(connection.getSocketAddress());
 
-        BFSystem bf_prevention = new BFSystem(ip);
+            TempPluginModule temp_module = new TempPluginModule();
+            try {
+                PluginModuleLoader loader = new PluginModuleLoader(temp_module);
+                if (!PluginModuleLoader.manager.isLoaded(temp_module)) {
+                    loader.inject();
+                }
+            } catch (Throwable ignored) {
+            }
 
-        NameChecker checker = new NameChecker(connection.getName());
-        checker.check();
+            IpData data = new IpData(temp_module, ip);
+            BFSystem bfSystem = new BFSystem(ip);
+            NameChecker checker = new NameChecker(connection.getName());
 
-        if (bf_prevention.isBlocked() && config.bfMaxTries() > 0) {
-            e.setCancelled(true);
-            e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bf_prevention.getBlockLeft()))));
-        } else {
-            if (config.checkNames()) {
-                if (checker.isInvalid()) {
+            data.fetch(Platform.BUNGEE);
+            checker.check();
+
+            if (bfSystem.isBlocked() && config.bfMaxTries() > 0) {
+                e.setCancelled(true);
+                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.ipBlocked(bfSystem.getBlockLeft()))));
+                return;
+            }
+
+            if (checker.isInvalid()) {
+                e.setCancelled(true);
+                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(checker.getIllegalChars()))));
+                return;
+            }
+
+            if (config.accountsPerIP() > 0 && data.getConnections() > config.accountsPerIP()) {
+                e.setCancelled(true);
+                e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxIP())));
+                return;
+            }
+            data.addIP();
+
+            try {
+                IPStorager storager = new IPStorager(temp_module, ip);
+
+                if (config.maxRegister() > 0 && !storager.canJoin(AccountID.fromUUID(connection.getUniqueId()).getId(), ip, config.maxRegister())) {
                     e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.illegalName(checker.getIllegalChars())
-                            .replace("{comma}", ","))));
-                }
-            }
+                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxRegisters())));
+                    return;
+                } else {
+                    plugin.getProxy().getScheduler().runAsync(plugin, () -> {
+                        if (storager.hasAltAccounts(connection.getUniqueId().toString(), ip)) {
+                            for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
+                                User user = new User(online);
 
-            if (config.alreadyPlaying()) {
-                if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
-                    e.setCancelled(true);
-                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.alreadyPlaying())));
-                }
-            }
-
-            if (!e.isCancelled()) {
-                if (config.accountsPerIP() != 0) {
-                    TempPluginModule temp_module = new TempPluginModule();
-                    try {
-                        PluginModuleLoader loader = new PluginModuleLoader(temp_module);
-                        if (!PluginModuleLoader.manager.isLoaded(temp_module)) {
-                            loader.inject();
-                        }
-                    } catch (Throwable ignored) {
-                    }
-
-                    IpData data = new IpData(temp_module, ip);
-                    data.fetch(Platform.BUNGEE);
-
-                    if (data.getConnections() > config.accountsPerIP()) {
-                        e.setCancelled(true);
-                        e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxIP())));
-                    } else {
-                        plugin.getProxy().getScheduler().schedule(plugin, () -> {
-                            if (plugin.getProxy().getPlayer(connection.getUniqueId()) != null) {
-                                if (plugin.getProxy().getPlayer(connection.getUniqueId()).isConnected()) {
-                                    data.addIP();
-                                }
+                                if (online.hasPermission("locklogin.playerinfo.altalerts") && !online.getUniqueId().equals(connection.getUniqueId()))
+                                    user.send(messages.prefix() + messages.altsFound(connection.getName(), storager.getAltsAmount(connection.getUniqueId().toString(), ip)));
                             }
-                        }, 1, TimeUnit.SECONDS);
-                    }
+                        }
+                    });
                 }
 
-                if (!e.isCancelled()) {
-                    TempPluginModule temp_module = new TempPluginModule();
-                    try {
-                        PluginModuleLoader loader = new PluginModuleLoader(temp_module);
-                        if (!PluginModuleLoader.manager.isLoaded(temp_module)) {
-                            loader.inject();
-                        }
-                    } catch (Throwable ignored) {
-                    }
-
-                    try {
-                        IPStorager storager = new IPStorager(temp_module, ip);
-
-                        if (config.maxRegister() > 0) {
-                            try {
-                                if (storager.canJoin(connection.getUniqueId().toString(), ip, config.maxRegister())) {
-                                    storager.save(connection.getUniqueId(), connection.getName());
-
-                                    if (storager.hasAltAccounts(connection.getUniqueId().toString(), ip)) {
-                                        for (ProxiedPlayer online : plugin.getProxy().getPlayers()) {
-                                            User user = new User(online);
-
-                                            if (online.hasPermission("locklogin.playerinfo") && !online.getUniqueId().equals(connection.getUniqueId()))
-                                                user.send(messages.prefix() + messages.altsFound(connection.getName(), storager.getAltsAmount(connection.getUniqueId().toString(), ip)));
-                                        }
-                                    }
-                                } else {
-                                    e.setCancelled(true);
-                                    e.setCancelReason(TextComponent.fromLegacyText(StringUtils.toColor("&eLockLogin\n\n" + messages.maxRegisters())));
-                                }
-                            } catch (Throwable ex) {
-                                ex.printStackTrace();
-                            }
-                        } else {
-                            storager.save(connection.getUniqueId(), connection.getName());
-                        }
-                    } catch (Throwable ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            }
+                //Save the connection
+                storager.save(connection.getUniqueId(), connection.getName());
+            } catch (Throwable ignored) {}
         }
     }
 
