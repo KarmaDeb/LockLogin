@@ -48,7 +48,7 @@ class AddLockLogin extends Migration {
      */
     public function down() {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn(['PLAYER', 'EMAIL', 'UUID', 'PASSWORD', 'FAON', 'GAUTH', 'FLY', 'PIN']);
+            $table->dropColumn(['PLAYER', 'FAON', 'GAUTH', 'FLY', 'PIN']);
         });
     }
 }
