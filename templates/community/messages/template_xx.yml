@@ -1,0 +1,148 @@
+#LockLogin message file
+#----------------------------------
+#Translation: Template (Community)
+#Editor: discord#0000 | github/user
+#Last edited: 32 - February - 2035 15:30
+#----------------------------------
+# What is an official language?
+# - This language is made by the developer of LockLogin
+# - This language will receive language updates ( this means
+#   this language will be translated by the author when a new
+#   message is added )
+#
+# What is a community language?
+# - This language is made by a LockLogin community member
+# - This language must receive a community language update ( this
+#   means the author of the language pack must update the
+#   language with the new messages, LockLogin developer won't do it )
+
+#Plugin prefix
+Prefix:
+
+#Permission error message
+PermissionError:
+
+#BungeeCord proxy message
+BungeeProxy:
+
+#Inventories messages
+PinTitle:
+AltTitle:
+InfoTitle:
+Next:
+Back:
+
+#Session messages - Manager
+PlayerNotVerified:
+AlreadyPlaying:
+PlayerInfoUsage:
+MaxIp:
+ConnectionError:
+LookUpUsage:
+AltFound:
+NeverPlayed:
+TargetAccessError:
+IncorrectPassword:
+Captcha:
+InvalidCaptcha:
+SessionServerDisabled:
+SessionEnabled:
+SessionDisabled:
+
+#Session messages - Register
+Register:
+RegisterBar:
+Registered:
+AlreadyRegistered:
+RegisterError:
+PasswordInsecure:
+RegisterOut:
+RegisterTitle:
+RegisterSubtitle:
+MaxRegisters: []
+
+#Session messages - Login
+Login:
+LoginBar:
+Logged:
+AlreadyLogged:
+LoginInsecure:
+LoginOut:
+LoginTitle:
+LoginSubtitle:
+
+#Session messages - Pin
+PinUsages:
+PinSet:
+PinResetted:
+PinChanged:
+AlreadyPin:
+NoPin:
+SetPin:
+ResetPin:
+ChangePin:
+PinDisabled:
+PinLength:
+IncorrectPin:
+
+#Session messages - 2FA
+2FaUsages:
+2FaSetupUsage:
+2FaRemoveUsage:
+2FaAuthenticate:
+2FaLogged:
+2FaAlreadyLogged:
+2FaIncorrect:
+2FaAlready:
+2FaToggleError:
+Disabled2FA:
+Enabled2FA:
+2FaAccountDisabled:
+2FAServerDisabled:
+2FAScratchCodes: []
+2FaInstructions: []
+2FaLink:
+
+#Session messages - Account management
+AccountArguments:
+Change:
+ChangeSame:
+ChangeDone:
+AccountUnlock:
+AccountUnlocked:
+AccountNotLocked:
+Close:
+Closed:
+ForceClose:
+ForceCloseAdmin:
+Remove:
+RemoveAccountMatch:
+AccountRemoved:
+ForcedAccountRemoval: []
+ForcedAccountRemovalAdmin:
+
+#Spawn utilities ( includes take back )
+SpawnSet:
+LocationsReset:
+LocationReset:
+LocationsFixed:
+LocationFixed:
+ResetLastLocUsage:
+
+#Alias messages
+AliasArguments:
+AliasCreated:
+AliasDestroyed:
+AliasExists:
+AliasNotFound:
+AddedPlayer:
+RemovedPlayer:
+PlayerNotIn:
+PlayerAlreadyIn:
+
+#Security messages
+IpBlocked: []
+AntiBot: []
+IllegalName: []
+UUIDFetchError: []
+IpProxyError: []
